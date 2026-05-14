@@ -24,7 +24,7 @@ public class Karon : ModuleRules
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 		
-		PrivateIncludePathModuleNames.AddRange(new string[] { "Karon" });
+		PublicIncludePaths.AddRange(new string[] { "Karon" });
 		PrivateDependencyModuleNames.AddRange(new string[] { "KHS_GameplayMessageRouter"});
 	}
 }
