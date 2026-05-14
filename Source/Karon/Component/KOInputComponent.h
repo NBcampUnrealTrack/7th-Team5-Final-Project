@@ -80,5 +80,4 @@ void UKOInputComponent::BindAbilityActions(const UKOInputConfig* InputConfig, Us
 			}
 		}
 	}
-}
 };
