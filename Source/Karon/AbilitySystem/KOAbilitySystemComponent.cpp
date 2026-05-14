@@ -85,11 +85,5 @@ void UKOAbilitySystemComponent::GiveDefaultAbilities()
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
 	if (!DefaultAbilitySet) return;
 	
-	for (const auto& AbilityClass : DefaultAbilitySet->GrantedAbilities)
-	{
-		if (AbilityClass)
-		{
-			GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, -1)); 
-		}
-	}
+	DefaultAbilitySet->GiveAbilities(this);
 }
