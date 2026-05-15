@@ -23,7 +23,7 @@ void AKOPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	
-	UKOInputComponent* KOIC = CastChecked<UKOInputComponent>(InputComponent);
+	UKOInputComponent* KOIC = Cast<UKOInputComponent>(InputComponent);
 	if (!IsValid(KOIC)) return;
 	
 	if (InputConfig)

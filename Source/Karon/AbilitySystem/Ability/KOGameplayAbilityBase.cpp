@@ -19,7 +19,10 @@ AController* UKOGameplayAbilityBase::GetAvatarController() const
 
 APlayerState* UKOGameplayAbilityBase::GetPlayerState() const
 {
-	return Cast<APlayerState>(GetOwningActorFromActorInfo());
+	if (const ACharacter* Character = GetAvatarCharacter())
+		return Character->GetPlayerState();
+	
+	return nullptr;
 }
 
 UAbilitySystemComponent* UKOGameplayAbilityBase::GetASC() const
