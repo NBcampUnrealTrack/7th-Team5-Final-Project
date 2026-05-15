@@ -1,6 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "KHS_GMRouterManager.h"
 
 void UKHS_GMRouterManager::BroadcastMessage(const FGameplayTag Channel, const FInstancedStruct& Payload)
@@ -17,4 +16,16 @@ void UKHS_GMRouterManager::BroadcastMessage(const FGameplayTag Channel, const FI
 void UKHS_GMRouterManager::SubscribeToMessage(const FGameplayTag Channel, const FGameplayMessageCallback& Callback)
 {
 	ListenerMap.FindOrAdd(Channel).Add(Callback);
+}
+
+void UKHS_GMRouterManager::Unsubscribe(const FGameplayTag Channel, const FGameplayMessageCallback& Callback)
+{
+	if (auto Callbacks = ListenerMap.Find(Channel))
+	{
+		Callbacks->Remove(Callback);
+		if (Callbacks->IsEmpty())
+		{
+			ListenerMap.Remove(Channel);
+		}
+	}
 }

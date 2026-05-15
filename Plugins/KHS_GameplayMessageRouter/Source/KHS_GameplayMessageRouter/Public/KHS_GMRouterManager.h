@@ -46,6 +46,14 @@ DECLARE_DYNAMIC_DELEGATE_TwoParams(FGameplayMessageCallback, FGameplayTag, Chann
  *	}
  * }
  * 
+ * [구독 해제]
+ * 	if (UKHS_GMRouterManager* MessageSubsystem = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
+ *	{
+ *		MessageSubsystem->Unsubscribe(Channel, Callback);
+ *	}
+ *	//Endplay에서 호출하면 생략 가능
+ *	Callback.Clear();
+ * 
  * [비고]
  * 구조체는 별도의 *Type.h로 관리하는 것을 권장
  * NativeGameplayTag를 사용한다면 위의 예시 코드를 적절히 수정할것.
@@ -62,6 +70,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SubscribeToMessage(FGameplayTag Channel, const FGameplayMessageCallback& Callback);
+	
+	UFUNCTION(BlueprintCallable)
+	void Unsubscribe(FGameplayTag Channel, const FGameplayMessageCallback& Callback);
 	
 private:
 	TMap<FGameplayTag, TArray<FGameplayMessageCallback>> ListenerMap;
