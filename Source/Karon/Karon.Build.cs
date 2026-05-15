@@ -10,8 +10,10 @@ public class Karon : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
-			"Core", "CoreUObject", "Engine", "InputCore", 
-			"GameplayAbilities", "GameplayTags","GameplayTasks"
+			"Core", "CoreUObject", "Engine",
+			"InputCore", "EnhancedInput",
+			"GameplayAbilities", "GameplayTags", "GameplayTasks",
+			"AnimGraphRuntime",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
