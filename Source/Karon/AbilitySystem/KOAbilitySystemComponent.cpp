@@ -8,12 +8,16 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 	{
 		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 		{
-			if (AbilitySpec.Ability && (AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag)))
+			if (!AbilitySpec.Ability) continue; 
+			
+			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) ||
+				AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 			{
 				InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
 			}
-		} 
+			
+		}
 	}
 }
 
