@@ -19,6 +19,12 @@ Saved/
 .vscode/
 .idea/
 
+# Claude AI Assistant temporary files
+.claude/
+
+# JetBrains RiderLink plugin
+Plugins/Developer/RiderLink/
+
 # Visual Studio cache
 .vs/
 *.ipch
