@@ -1,0 +1,117 @@
+// Copyright Karon Team 5. All Rights Reserved.
+#include "KOUISubsystem.h"
+
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Messaging/KOMessageTypes.h"
+#include "Widgets/CommonActivatableWidgetContainer.h"
+#include "CommonActivatableWidget.h"
+
+#include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+    Super::Initialize(Collection);
+
+    PushLayerChannel = KOGameplayTags::Message_UI_PushLayerRequest;
+
+    // KHS GMS를 통해 Message.UI.PushLayerRequest 채널 구독
+    if (UKHS_GMRouterManager* GMS = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
+    {
+        PushLayerCallback.BindDynamic(this, &UKOUISubsystem::OnPushLayerRequestReceived);
+        GMS->SubscribeToMessage(PushLayerChannel, PushLayerCallback);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem: UKHS_GMRouterManager를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
+    }
+}
+
+void UKOUISubsystem::Deinitialize()
+{
+    // 구독 해제 — GMS 주석에 따라 Endplay/Deinitialize에서 명시적으로 해제한다.
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
+        {
+            GMS->Unsubscribe(PushLayerChannel, PushLayerCallback);
+        }
+    }
+
+    PushLayerCallback.Clear();
+    Layers.Empty();
+
+    Super::Deinitialize();
+}
+
+// ─── Layout Registration ──────────────────────────────────────────────────────
+
+void UKOUISubsystem::RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivatableWidgetContainerBase* LayerContainer)
+{
+    if (!LayerTag.IsValid())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: 유효하지 않은 LayerTag입니다."));
+        return;
+    }
+
+    if (!IsValid(LayerContainer))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: LayerContainer가 유효하지 않습니다. Tag=%s"),
+            *LayerTag.ToString());
+        return;
+    }
+
+    Layers.Add(LayerTag, LayerContainer);
+    UE_LOG(LogTemp, Log, TEXT("KOUISubsystem: 레이어 등록 완료 [%s]"), *LayerTag.ToString());
+}
+
+// ─── Widget Stack API ─────────────────────────────────────────────────────────
+
+UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass)
+{
+    if (!LayerTag.IsValid() || !WidgetClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::PushLayer: LayerTag 또는 WidgetClass가 유효하지 않습니다."));
+        return nullptr;
+    }
+
+    TObjectPtr<UCommonActivatableWidgetContainerBase>* ContainerPtr = Layers.Find(LayerTag);
+    if (!ContainerPtr || !IsValid(*ContainerPtr))
+    {
+        UE_LOG(LogTemp, Warning,
+            TEXT("KOUISubsystem::PushLayer: 레이어 [%s]가 등록되어 있지 않습니다. RegisterPrimaryLayout()을 먼저 호출하세요."),
+            *LayerTag.ToString());
+        return nullptr;
+    }
+
+    UCommonActivatableWidget* NewWidget = (*ContainerPtr)->AddWidget<UCommonActivatableWidget>(WidgetClass);
+    return NewWidget;
+}
+
+void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
+{
+    if (!IsValid(Widget))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::PopLayer: Widget이 유효하지 않습니다."));
+        return;
+    }
+
+    // CommonActivatableWidget을 비활성화하면 소속 Stack/Queue 컨테이너가 자동으로 제거 처리한다.
+    Widget->DeactivateWidget();
+}
+
+// ─── GMS 콜백 ─────────────────────────────────────────────────────────────────
+
+void UKOUISubsystem::OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+    const FKOUIPushLayerRequest* Request = Payload.GetPtr<FKOUIPushLayerRequest>();
+    if (!Request)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem: PushLayerRequest 페이로드 파싱 실패."));
+        return;
+    }
+
+    PushLayer(Request->LayerTag, Request->WidgetClass);
+}

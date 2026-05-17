@@ -14,13 +14,20 @@ public class Karon : ModuleRules
 			"InputCore", "EnhancedInput",
 			"GameplayAbilities", "GameplayTags", "GameplayTasks",
 			"AnimGraphRuntime",
+			// CommonUI
+			"CommonUI", "CommonInput",
+			// StructUtils (FInstancedStruct)
+			"StructUtils",
+			// KHS GameplayMessageRouter
+			"KHS_GameplayMessageRouter",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-	
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate", "SlateCore",
+			"UMG",
+		});
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
