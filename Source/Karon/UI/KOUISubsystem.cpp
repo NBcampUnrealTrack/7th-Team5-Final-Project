@@ -19,7 +19,7 @@ void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    UGameInstance* GI = GetGameInstance();
+    UGameInstance* GI = GetLocalPlayer()->GetGameInstance();
     if (!GI)
     {
         return;
@@ -42,9 +42,9 @@ void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UKOUISubsystem::Deinitialize()
 {
     // 구독 해제 — GMS 주석에 따라 Endplay/Deinitialize에서 명시적으로 해제한다.
-    if (UGameInstance* GI = GetGameInstance())
+    if (ULocalPlayer* LP = GetLocalPlayer())
     {
-        if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
+        if (UKHS_GMRouterManager* GMS = LP->GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
         {
             GMS->Unsubscribe(PushLayerChannel, PushLayerCallback);
         }
