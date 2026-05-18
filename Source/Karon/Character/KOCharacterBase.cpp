@@ -20,7 +20,7 @@ void AKOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// BindMovementSet();
+	 BindMovementSet();
 }
 
 void AKOCharacterBase::BindMovementSet()
