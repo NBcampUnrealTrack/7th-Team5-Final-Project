@@ -7,6 +7,8 @@
 #include "KHS_GMRouterManager.h"
 #include "KOUISubsystem.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogKOUI, Log, All);
+
 class UCommonActivatableWidget;
 class UCommonActivatableWidgetContainerBase;
 

@@ -1,5 +1,6 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "KOActivatableWidget.h"
+#include "KOUISubsystem.h"
 
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -9,19 +10,10 @@
 void UKOActivatableWidget::NativeOnActivated()
 {
     Super::NativeOnActivated();
-    // 파생 클래스는 Super 호출 이후 GMS 구독을 등록한다.
-    // 예:
-    //   FGameplayMessageCallback Callback;
-    //   Callback.BindDynamic(this, &UMyWidget::OnReceived);
-    //   SubscribeToGMS(KOGameplayTags::Message_Inventory_Changed, Callback);
 }
 
 void UKOActivatableWidget::NativeOnDeactivated()
 {
-    // 파생 클래스는 Super 호출 이전에 GMS 구독을 해제한다.
-    // 예:
-    //   UnsubscribeFromGMS(KOGameplayTags::Message_Inventory_Changed, Callback);
-    //   Callback.Clear();
     Super::NativeOnDeactivated();
 }
 
@@ -31,7 +23,7 @@ void UKOActivatableWidget::SubscribeToGMS(FGameplayTag Channel, const FGameplayM
 {
     if (!Channel.IsValid())
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOActivatableWidget::SubscribeToGMS: 유효하지 않은 Channel 태그입니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOActivatableWidget::SubscribeToGMS: 유효하지 않은 Channel 태그입니다."));
         return;
     }
 
@@ -58,7 +50,7 @@ void UKOActivatableWidget::BroadcastGMS(FGameplayTag Channel, const FInstancedSt
 {
     if (!Channel.IsValid())
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOActivatableWidget::BroadcastGMS: 유효하지 않은 Channel 태그입니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOActivatableWidget::BroadcastGMS: 유효하지 않은 Channel 태그입니다."));
         return;
     }
 

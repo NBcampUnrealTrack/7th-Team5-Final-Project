@@ -19,7 +19,7 @@
  *   // ② FInstancedStruct::Make로 박싱 후 전송
  *   if (UKHS_GMRouterManager* GMS = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
  *   {
- *       GMS->BroadcastMessage(KOGameplayTags::Message_Inventory_Changed,
+ *       GMS->BroadcastMessage(KOGameplayTags::Data_Message_Inventory_Changed,
  *                             FInstancedStruct::Make(Msg));
  *   }
  *
@@ -33,7 +33,7 @@
  *   // ③ 구독 등록
  *   if (UKHS_GMRouterManager* GMS = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
  *   {
- *       GMS->SubscribeToMessage(KOGameplayTags::Message_Inventory_Changed, InventoryCallback);
+ *       GMS->SubscribeToMessage(KOGameplayTags::Data_Message_Inventory_Changed, InventoryCallback);
  *   }
  *
  * ─── 3. 수신 함수 시그니처 ─────────────────────────────────
@@ -50,7 +50,7 @@
  *   // NativeOnDeactivated 또는 NativeDestruct에서 반드시 해제
  *   if (UKHS_GMRouterManager* GMS = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
  *   {
- *       GMS->Unsubscribe(KOGameplayTags::Message_Inventory_Changed, InventoryCallback);
+ *       GMS->Unsubscribe(KOGameplayTags::Data_Message_Inventory_Changed, InventoryCallback);
  *   }
  *   InventoryCallback.Clear();
  *
@@ -64,7 +64,7 @@
  *   FKOUIPushLayerRequest Req;
  *   Req.LayerTag   = KOGameplayTags::UI_Layer_Menu;
  *   Req.WidgetClass = UMyMenuWidget::StaticClass();
- *   GMS->BroadcastMessage(KOGameplayTags::Message_UI_PushLayerRequest,
+ *   GMS->BroadcastMessage(KOGameplayTags::Data_Message_UI_PushLayerRequest,
  *                         FInstancedStruct::Make(Req));
  *
  * ─── 주의사항 ───────────────────────────────────────────────
@@ -85,15 +85,12 @@
  *
  * 프로젝트 전용 CommonActivatableWidget 베이스.
  * KHS GMS 구독/해제를 NativeOnActivated/NativeOnDeactivated와 연동해주는
- * 헬퍼 패턴을 제공한다.
+ * 헬퍼를 제공한다.
  *
- * 사용법:
- *   1. 이 클래스를 상속받아 파생 위젯 생성
- *   2. NativeOnActivated()에서 Super::NativeOnActivated() 호출 후 GMS 구독
- *   3. NativeOnDeactivated()에서 GMS 해제 후 Super::NativeOnDeactivated() 호출
- *   4. 수신 함수는 반드시 UFUNCTION() 마크 필요
- *
- * 예시 파생 클래스: UKOInventoryWidget, UKOFactoryWidget
+ * 파생 클래스 규칙:
+ *   - NativeOnActivated()  : Super 호출 후 GMS 구독
+ *   - NativeOnDeactivated(): GMS 해제 후 Super 호출
+ *   - 수신 함수는 반드시 UFUNCTION() 마크 필요
  */
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOActivatableWidget : public UCommonActivatableWidget
@@ -102,18 +99,7 @@ class KARON_API UKOActivatableWidget : public UCommonActivatableWidget
 
 protected:
     // ─── UCommonActivatableWidget ─────────────────────────────────────────────
-    /**
-     * 위젯이 활성화될 때 호출.
-     * 파생 클래스에서 오버라이드 시 Super::NativeOnActivated() 반드시 호출.
-     * GMS 구독은 이 함수 내 Super 호출 이후에 등록한다.
-     */
     virtual void NativeOnActivated() override;
-
-    /**
-     * 위젯이 비활성화될 때 호출.
-     * 파생 클래스에서 오버라이드 시 Super::NativeOnDeactivated() 반드시 호출.
-     * GMS 구독 해제는 이 함수 내 Super 호출 이전에 수행한다.
-     */
     virtual void NativeOnDeactivated() override;
 
     // ─── GMS 헬퍼 ────────────────────────────────────────────────────────────

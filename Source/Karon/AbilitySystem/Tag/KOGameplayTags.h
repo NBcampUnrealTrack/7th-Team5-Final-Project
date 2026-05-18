@@ -19,11 +19,11 @@ namespace KOGameplayTags
 	/** 모달 다이얼로그 레이어 (최상위) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Modal);
 
-	// ─── Message Channels ─────────────────────────────────────────────────────
+	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Inventory_Changed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Inventory_Changed);
 	/** 팩토리 상태 변경 메시지 채널 (FKOFactoryStateChangedMessage 페이로드) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Factory_StateChanged);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Factory_StateChanged);
 	/** UI 레이어 Push 요청 메시지 채널 (FKOUIPushLayerRequest 페이로드) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_UI_PushLayerRequest);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
 }

@@ -4,56 +4,50 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "Engine/Texture2D.h"
-#include "Engine/StaticMesh.h"
 #include "KODataTableTypes.generated.h"
 
-// AKOFactoryBase is defined elsewhere; forward declare to avoid circular dependency.
+class UTexture2D;
+class UStaticMesh;
+
+// AKOFactoryBase: 순환 의존성을 피하기 위해 전방 선언만 사용
 class AKOFactoryBase;
 
 /**
  * FKOItemRow
  *
- * DataTable row describing a single item type.
- * The RowName should match ItemTag's tag leaf for readability, but ItemTag is
- * the authoritative runtime key used in all TMap caches.
+ * 아이템 1종을 정의하는 DataTable 행 구조체.
+ * RowName은 가독성을 위해 ItemTag 리프와 맞추는 것을 권장하나,
+ * 런타임 TMap 키로는 ItemTag가 사용된다.
  *
- * TSoftObjectPtr fields (Icon, WorldMesh) are NOT loaded here.
- * Call UKOLoadSubsystem::ResolveItemIcon / ResolveItemMesh to trigger a
- * synchronous load on demand.
+ * Icon, WorldMesh는 소프트 레퍼런스로 저장되며 여기서 로드되지 않는다.
+ * 실제 로드는 UKOLoadSubsystem::ResolveItemIcon / ResolveItemMesh를 사용한다.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKOItemRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    /** Unique gameplay tag key for this item (used as TMap key at runtime). */
+    /** 런타임 TMap 키로 사용되는 아이템 고유 태그 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FGameplayTag ItemTag;
 
-    /** Localized display name shown in UI. */
+    /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FText DisplayName;
 
-    /** Optional category tags (e.g. Item.Category.Resource, Item.Category.Weapon). */
+    /** 아이템 카테고리 태그 집합 (예: Item.Category.Resource, Item.Category.Weapon) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FGameplayTagContainer Categories;
 
-    /** Maximum number of items that can stack in one inventory slot. */
+    /** 한 인벤토리 슬롯에 최대 누적 가능한 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     int32 MaxStack = 100;
 
-    /**
-     * 2D icon texture — stored as soft reference, loaded on demand via
-     * UKOLoadSubsystem::ResolveItemIcon().
-     */
+    /** UI 아이콘 텍스처 — 소프트 레퍼런스, UKOLoadSubsystem::ResolveItemIcon()으로 로드 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     TSoftObjectPtr<UTexture2D> Icon;
 
-    /**
-     * Static mesh placed in the world — stored as soft reference, loaded on
-     * demand via UKOLoadSubsystem::ResolveItemMesh().
-     */
+    /** 월드에 배치될 스태틱 메시 — 소프트 레퍼런스, UKOLoadSubsystem::ResolveItemMesh()으로 로드 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
@@ -61,39 +55,36 @@ struct KARON_API FKOItemRow : public FTableRowBase
 /**
  * FKOFactoryRow
  *
- * DataTable row describing a factory building type.
- * FactoryClass is a soft class pointer to avoid hard-loading the Actor BP at
- * data-load time.
+ * 공장 건물 1종을 정의하는 DataTable 행 구조체.
+ * FactoryClass는 데이터 로드 시점에 Actor BP를 하드 로드하지 않도록
+ * 소프트 클래스 포인터로 보관한다.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKOFactoryRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    /** Unique gameplay tag key for this factory type. */
+    /** 공장 고유 태그 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     FGameplayTag FactoryTag;
 
-    /** Localized display name shown in UI. */
+    /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     FText DisplayName;
 
-    /** Number of item input slots this factory exposes. */
+    /** 이 공장이 노출하는 아이템 입력 슬롯 수 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     int32 InputSlots = 1;
 
-    /** Number of item output slots this factory exposes. */
+    /** 이 공장이 노출하는 아이템 출력 슬롯 수 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     int32 OutputSlots = 1;
 
-    /** Default cycle duration in seconds (may be overridden by recipe). */
+    /** 기본 생산 사이클 시간(초). 레시피에서 재정의될 수 있다. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     float BaseCycleSeconds = 2.f;
 
-    /**
-     * Actor class to spawn when placing this factory in the world.
-     * Soft class pointer — resolved only when the factory is actually spawned.
-     */
+    /** 월드 배치 시 스폰할 Actor 클래스 — 소프트 포인터, 실제 스폰 시점에 해석된다 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     TSoftClassPtr<AKOFactoryBase> FactoryClass;
 };
@@ -101,38 +92,36 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
 /**
  * FKORecipeRow
  *
- * DataTable row describing a single crafting/production recipe.
- * Inputs and Outputs map ItemTag → quantity required/produced.
+ * 제작/생산 레시피 1종을 정의하는 DataTable 행 구조체.
+ * Inputs/Outputs는 ItemTag → 수량 매핑이다.
  *
- * Note: TMap<FGameplayTag, int32> cannot be a UPROPERTY in all engine
- * versions without plugin support; it is declared as UPROPERTY here because
- * UE5.1+ supports TMap with FGameplayTag keys natively.
+ * 주의: TMap<FGameplayTag, int32>의 UPROPERTY 선언은 UE5.1+ 이상에서만 네이티브 지원된다.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKORecipeRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    /** Unique gameplay tag key for this recipe. */
+    /** 레시피 고유 태그 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     FGameplayTag RecipeTag;
 
     /**
-     * Set of factory tags that are allowed to process this recipe.
-     * A factory qualifies if its FactoryTag matches any tag in this container.
+     * 이 레시피를 처리할 수 있는 공장 태그 집합.
+     * 공장의 FactoryTag가 이 컨테이너의 태그 중 하나와 일치하면 처리 가능하다.
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     FGameplayTagContainer AllowedFactoryTags;
 
-    /** Item inputs: ItemTag → quantity consumed per cycle. */
+    /** 입력 재료: ItemTag → 사이클당 소비 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     TMap<FGameplayTag, int32> Inputs;
 
-    /** Item outputs: ItemTag → quantity produced per cycle. */
+    /** 출력 산물: ItemTag → 사이클당 생산 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     TMap<FGameplayTag, int32> Outputs;
 
-    /** Duration of one production cycle in seconds. */
+    /** 생산 사이클 1회 소요 시간(초) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     float CycleSeconds = 2.f;
 };

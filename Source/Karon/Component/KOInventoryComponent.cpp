@@ -147,7 +147,7 @@ void UKOInventoryComponent::NotifyChanged(FGameplayTag ItemTag, int32 PreviousCo
     if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
     {
         GMS->BroadcastMessage(
-            KOGameplayTags::Message_Inventory_Changed,
+            KOGameplayTags::Data_Message_Inventory_Changed,
             FInstancedStruct::Make(Msg)
         );
     }

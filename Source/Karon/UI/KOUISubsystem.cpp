@@ -11,21 +11,31 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+DEFINE_LOG_CATEGORY(LogKOUI);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    PushLayerChannel = KOGameplayTags::Message_UI_PushLayerRequest;
+    UGameInstance* GI = GetGameInstance();
+    if (!GI)
+    {
+        return;
+    }
+
+    PushLayerChannel = KOGameplayTags::Data_Message_UI_PushLayerRequest;
 
     // KHS GMS를 통해 Message.UI.PushLayerRequest 채널 구독
-    if (UKHS_GMRouterManager* GMS = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
+    if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
     {
         PushLayerCallback.BindDynamic(this, &UKOUISubsystem::OnPushLayerRequestReceived);
         GMS->SubscribeToMessage(PushLayerChannel, PushLayerCallback);
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem: UKHS_GMRouterManager를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UKHS_GMRouterManager를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
     }
 }
 
@@ -52,19 +62,19 @@ void UKOUISubsystem::RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivat
 {
     if (!LayerTag.IsValid())
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: 유효하지 않은 LayerTag입니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: 유효하지 않은 LayerTag입니다."));
         return;
     }
 
     if (!IsValid(LayerContainer))
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: LayerContainer가 유효하지 않습니다. Tag=%s"),
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::RegisterPrimaryLayout: LayerContainer가 유효하지 않습니다. Tag=%s"),
             *LayerTag.ToString());
         return;
     }
 
     Layers.Add(LayerTag, LayerContainer);
-    UE_LOG(LogTemp, Log, TEXT("KOUISubsystem: 레이어 등록 완료 [%s]"), *LayerTag.ToString());
+    UE_LOG(LogKOUI, Log, TEXT("KOUISubsystem: 레이어 등록 완료 [%s]"), *LayerTag.ToString());
 }
 
 // ─── Widget Stack API ─────────────────────────────────────────────────────────
@@ -73,14 +83,14 @@ UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubc
 {
     if (!LayerTag.IsValid() || !WidgetClass)
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::PushLayer: LayerTag 또는 WidgetClass가 유효하지 않습니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushLayer: LayerTag 또는 WidgetClass가 유효하지 않습니다."));
         return nullptr;
     }
 
     TObjectPtr<UCommonActivatableWidgetContainerBase>* ContainerPtr = Layers.Find(LayerTag);
     if (!ContainerPtr || !IsValid(*ContainerPtr))
     {
-        UE_LOG(LogTemp, Warning,
+        UE_LOG(LogKOUI, Warning,
             TEXT("KOUISubsystem::PushLayer: 레이어 [%s]가 등록되어 있지 않습니다. RegisterPrimaryLayout()을 먼저 호출하세요."),
             *LayerTag.ToString());
         return nullptr;
@@ -94,7 +104,7 @@ void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
 {
     if (!IsValid(Widget))
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem::PopLayer: Widget이 유효하지 않습니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PopLayer: Widget이 유효하지 않습니다."));
         return;
     }
 
@@ -109,7 +119,7 @@ void UKOUISubsystem::OnPushLayerRequestReceived(FGameplayTag Channel, const FIns
     const FKOUIPushLayerRequest* Request = Payload.GetPtr<FKOUIPushLayerRequest>();
     if (!Request)
     {
-        UE_LOG(LogTemp, Warning, TEXT("KOUISubsystem: PushLayerRequest 페이로드 파싱 실패."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: PushLayerRequest 페이로드 파싱 실패."));
         return;
     }
 

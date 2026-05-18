@@ -12,8 +12,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_Menu,     "UI.Layer.Menu");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_Modal,    "UI.Layer.Modal");
 
-	// ─── Message Channels ─────────────────────────────────────────────────────
-	UE_DEFINE_GAMEPLAY_TAG(Message_Inventory_Changed,    "Message.Inventory.Changed");
-	UE_DEFINE_GAMEPLAY_TAG(Message_Factory_StateChanged, "Message.Factory.StateChanged");
-	UE_DEFINE_GAMEPLAY_TAG(Message_UI_PushLayerRequest,  "Message.UI.PushLayerRequest");
+	// ─── Data / Message Channels ──────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Factory_StateChanged, "Data.Message.Factory.StateChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
 }

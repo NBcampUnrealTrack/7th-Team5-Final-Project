@@ -4,17 +4,18 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
+#include "CommonActivatableWidget.h"
 #include "KOMessageTypes.generated.h"
 
 /**
  * 인벤토리 변경 메시지
- * 채널: KOGameplayTags::Message_Inventory_Changed ("Message.Inventory.Changed")
+ * 채널: KOGameplayTags::Data_Message_Inventory_Changed ("Data.Message.Inventory.Changed")
  *
  * 사용 예:
  *   FKOInventoryChangedMessage Msg;
  *   Msg.ItemTag = SomeTag;
  *   Msg.NewCount = 5;
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Message_Inventory_Changed, FInstancedStruct::Make(Msg));
+ *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Inventory_Changed, FInstancedStruct::Make(Msg));
  */
 USTRUCT(BlueprintType)
 struct FKOInventoryChangedMessage
@@ -36,13 +37,13 @@ struct FKOInventoryChangedMessage
 
 /**
  * 팩토리 상태 변경 메시지
- * 채널: KOGameplayTags::Message_Factory_StateChanged ("Message.Factory.StateChanged")
+ * 채널: KOGameplayTags::Data_Message_Factory_StateChanged ("Data.Message.Factory.StateChanged")
  *
  * 사용 예:
  *   FKOFactoryStateChangedMessage Msg;
  *   Msg.FactoryTag = SomeFactoryTag;
  *   Msg.bIsActive = true;
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Message_Factory_StateChanged, FInstancedStruct::Make(Msg));
+ *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Factory_StateChanged, FInstancedStruct::Make(Msg));
  */
 USTRUCT(BlueprintType)
 struct FKOFactoryStateChangedMessage
@@ -64,13 +65,13 @@ struct FKOFactoryStateChangedMessage
 
 /**
  * UI 레이어 Push 요청 메시지
- * 채널: KOGameplayTags::Message_UI_PushLayerRequest ("Message.UI.PushLayerRequest")
+ * 채널: KOGameplayTags::Data_Message_UI_PushLayerRequest ("Data.Message.UI.PushLayerRequest")
  *
  * 사용 예:
  *   FKOUIPushLayerRequest Msg;
  *   Msg.LayerTag  = KOGameplayTags::UI_Layer_Menu;
  *   Msg.WidgetClass = UMyMenuWidget::StaticClass();
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Message_UI_PushLayerRequest, FInstancedStruct::Make(Msg));
+ *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_UI_PushLayerRequest, FInstancedStruct::Make(Msg));
  */
 USTRUCT(BlueprintType)
 struct FKOUIPushLayerRequest
@@ -83,5 +84,5 @@ struct FKOUIPushLayerRequest
 
     /** Push 할 위젯 클래스 */
     UPROPERTY(BlueprintReadWrite, Category = "UI")
-    TSubclassOf<class UCommonActivatableWidget> WidgetClass;
+    TSubclassOf<UCommonActivatableWidget> WidgetClass;
 };

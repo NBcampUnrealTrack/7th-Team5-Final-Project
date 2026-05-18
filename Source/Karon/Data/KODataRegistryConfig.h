@@ -3,24 +3,23 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Engine/DataTable.h"
 #include "KODataRegistryConfig.generated.h"
+
+class UDataTable;
 
 /**
  * UKODataRegistryConfig
  *
- * PrimaryDataAsset that lists every DataTable the game should load at startup.
- * One instance lives at the path configured in DefaultGame.ini:
+ * 게임 시작 시 로드할 DataTable 목록을 보관하는 PrimaryDataAsset.
+ * 인스턴스 경로는 DefaultGame.ini에 설정한다:
  *
  *   [/Script/Karon.KOLoadSubsystem]
  *   DataRegistryConfigPath=/Game/Data/DA_KODataRegistry.DA_KODataRegistry
  *
- * Tables are stored as soft pointers so the asset itself is lightweight.
- * UKOLoadSubsystem::LoadAll() synchronously loads each table and indexes rows
- * into its runtime caches.
+ * 테이블은 소프트 포인터로 보관하여 에셋 자체를 경량화한다.
+ * UKOLoadSubsystem::LoadAll()이 각 테이블을 동기 로드하고 런타임 캐시에 색인한다.
  *
- * Asset type/name: "KO.Config" / GetFName(), so the PrimaryAssetId is
- *   FPrimaryAssetId("KO.Config", <asset name>).
+ * PrimaryAssetId: FPrimaryAssetId("KO.Config", <에셋 이름>)
  */
 UCLASS(BlueprintType)
 class KARON_API UKODataRegistryConfig : public UPrimaryDataAsset
@@ -36,22 +35,15 @@ public:
 
     // ─── Table Lists ──────────────────────────────────────────────────────────
 
-    /**
-     * DataTables whose rows are expected to be FKOItemRow.
-     * Add as many tables as needed; all rows will be merged into one cache.
-     */
+    /** FKOItemRow 행을 가진 DataTable 목록. 여러 테이블 추가 가능하며 전부 하나의 캐시로 병합된다. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> ItemTables;
 
-    /**
-     * DataTables whose rows are expected to be FKOFactoryRow.
-     */
+    /** FKOFactoryRow 행을 가진 DataTable 목록 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> FactoryTables;
 
-    /**
-     * DataTables whose rows are expected to be FKORecipeRow.
-     */
+    /** FKORecipeRow 행을 가진 DataTable 목록 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> RecipeTables;
 };
