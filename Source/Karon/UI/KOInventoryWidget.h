@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
 #include "Items/KOItemTypes.h"
-#include "KHS_GMRouterManager.h"
+#include "GMRouterSubsystem.h"
 #include "KOInventoryWidget.generated.h"
 
 class UKOInventoryComponent;
@@ -39,4 +39,5 @@ private:
     void OnInventoryChangedGMS(FGameplayTag Channel, const FInstancedStruct& Payload);
 
     FGameplayMessageCallback InventoryChangedCallback;
+    FGameplayMessageHandle   InventoryChangedHandle;
 };

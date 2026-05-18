@@ -3,7 +3,7 @@
 #include "Component/KOInventoryComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "KHS_GMRouterManager.h"
+#include "GMRouterSubsystem.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
@@ -131,7 +131,7 @@ void UKOInventoryComponent::NotifyChanged(FGameplayTag ItemTag, int32 PreviousCo
     // 1. 네이티브 델리게이트 브로드캐스트
     OnInventoryChangedNative.Broadcast(Msg);
 
-    // 2. KHS GMS 브로드캐스트
+    // 2. GMRouter GMS 브로드캐스트
     const UWorld* World = GetWorld();
     if (!World)
     {
@@ -144,7 +144,7 @@ void UKOInventoryComponent::NotifyChanged(FGameplayTag ItemTag, int32 PreviousCo
         return;
     }
 
-    if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
+    if (UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>())
     {
         GMS->BroadcastMessage(
             KOGameplayTags::Data_Message_Inventory_Changed,

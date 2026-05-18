@@ -25,29 +25,30 @@ void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
         return;
     }
 
-    PushLayerChannel = KOGameplayTags::Data_Message_UI_PushLayerRequest;
-
-    // KHS GMS를 통해 Message.UI.PushLayerRequest 채널 구독
-    if (UKHS_GMRouterManager* GMS = GI->GetSubsystem<UKHS_GMRouterManager>())
+    // GMRouter를 통해 Message.UI.PushLayerRequest 채널 구독
+    if (UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>())
     {
         PushLayerCallback.BindDynamic(this, &UKOUISubsystem::OnPushLayerRequestReceived);
-        GMS->SubscribeToMessage(PushLayerChannel, PushLayerCallback);
+        PushLayerHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_PushLayerRequest, PushLayerCallback);
     }
     else
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UKHS_GMRouterManager를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UGMRouterSubsystem를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
     }
 }
 
 void UKOUISubsystem::Deinitialize()
 {
-    // 구독 해제 — GMS 주석에 따라 Endplay/Deinitialize에서 명시적으로 해제한다.
-    if (ULocalPlayer* LP = GetLocalPlayer())
+    if (PushLayerHandle.IsValid())
     {
-        if (UKHS_GMRouterManager* GMS = LP->GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
+        if (ULocalPlayer* LP = GetLocalPlayer())
         {
-            GMS->Unsubscribe(PushLayerChannel, PushLayerCallback);
+            if (UGMRouterSubsystem* GMS = LP->GetGameInstance()->GetSubsystem<UGMRouterSubsystem>())
+            {
+                GMS->Unsubscribe(PushLayerHandle);
+            }
         }
+        PushLayerHandle = FGameplayMessageHandle();
     }
 
     PushLayerCallback.Clear();

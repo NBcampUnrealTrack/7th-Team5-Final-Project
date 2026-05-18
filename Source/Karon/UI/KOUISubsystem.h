@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "GameplayTagContainer.h"
-#include "KHS_GMRouterManager.h"
+#include "GMRouterSubsystem.h"
 #include "KOUISubsystem.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogKOUI, Log, All);
@@ -85,9 +85,9 @@ private:
     UPROPERTY(Transient)
     TMap<FGameplayTag, TObjectPtr<UCommonActivatableWidgetContainerBase>> Layers;
 
-    /** GMS Unsubscribe에 필요한 콜백 레퍼런스 */
+    /** GMS Subscribe에 사용된 콜백. UFUNCTION이 붙은 멤버에 BindDynamic. */
     FGameplayMessageCallback PushLayerCallback;
 
-    /** GMS 구독 채널 태그 (Deinitialize에서 Unsubscribe할 때 사용) */
-    FGameplayTag PushLayerChannel;
+    /** GMS Unsubscribe에 사용할 핸들 (Subscribe 반환값) */
+    FGameplayMessageHandle PushLayerHandle;
 };

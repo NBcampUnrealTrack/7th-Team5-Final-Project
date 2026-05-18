@@ -8,7 +8,7 @@
 #include "Messaging/KOMessageTypes.h"
 #include "KOInventoryComponent.generated.h"
 
-class UKHS_GMRouterManager;
+class UGMRouterSubsystem;
 
 /** 인벤토리가 변경될 때 발동하는 네이티브 멀티캐스트 델리게이트 */
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnKOInventoryChangedNative, const FKOInventoryChangedMessage&);

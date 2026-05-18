@@ -18,8 +18,8 @@ public class Karon : ModuleRules
 			"CommonUI", "CommonInput",
 			// StructUtils (FInstancedStruct)
 			"StructUtils",
-			// KHS GameplayMessageRouter
-			"KHS_GameplayMessageRouter",
+			// GMRouter (GameplayMessage Router subsystem)
+			"GMRouter",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -32,8 +32,7 @@ public class Karon : ModuleRules
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
-		
+
 		PublicIncludePaths.AddRange(new string[] { "Karon" });
-		PrivateDependencyModuleNames.AddRange(new string[] { "GMRouter"});
 	}
 }

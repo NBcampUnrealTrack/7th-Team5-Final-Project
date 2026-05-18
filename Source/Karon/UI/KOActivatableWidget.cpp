@@ -19,30 +19,32 @@ void UKOActivatableWidget::NativeOnDeactivated()
 
 // ─── GMS 헬퍼 ─────────────────────────────────────────────────────────────────
 
-void UKOActivatableWidget::SubscribeToGMS(FGameplayTag Channel, const FGameplayMessageCallback& Callback)
+FGameplayMessageHandle UKOActivatableWidget::SubscribeToGMS(FGameplayTag Channel, const FGameplayMessageCallback& Callback)
 {
     if (!Channel.IsValid())
     {
         UE_LOG(LogKOUI, Warning, TEXT("KOActivatableWidget::SubscribeToGMS: 유효하지 않은 Channel 태그입니다."));
-        return;
+        return FGameplayMessageHandle();
     }
 
-    if (UKHS_GMRouterManager* GMS = GetGMSSubsystem())
+    if (UGMRouterSubsystem* GMS = GetGMSSubsystem())
     {
-        GMS->SubscribeToMessage(Channel, Callback);
+        return GMS->Subscribe(Channel, Callback);
     }
+
+    return FGameplayMessageHandle();
 }
 
-void UKOActivatableWidget::UnsubscribeFromGMS(FGameplayTag Channel, const FGameplayMessageCallback& Callback)
+void UKOActivatableWidget::UnsubscribeFromGMS(const FGameplayMessageHandle& Handle)
 {
-    if (!Channel.IsValid())
+    if (!Handle.IsValid())
     {
         return;
     }
 
-    if (UKHS_GMRouterManager* GMS = GetGMSSubsystem())
+    if (UGMRouterSubsystem* GMS = GetGMSSubsystem())
     {
-        GMS->Unsubscribe(Channel, Callback);
+        GMS->Unsubscribe(Handle);
     }
 }
 
@@ -54,7 +56,7 @@ void UKOActivatableWidget::BroadcastGMS(FGameplayTag Channel, const FInstancedSt
         return;
     }
 
-    if (UKHS_GMRouterManager* GMS = GetGMSSubsystem())
+    if (UGMRouterSubsystem* GMS = GetGMSSubsystem())
     {
         GMS->BroadcastMessage(Channel, Payload);
     }
@@ -62,7 +64,7 @@ void UKOActivatableWidget::BroadcastGMS(FGameplayTag Channel, const FInstancedSt
 
 // ─── Private ──────────────────────────────────────────────────────────────────
 
-UKHS_GMRouterManager* UKOActivatableWidget::GetGMSSubsystem() const
+UGMRouterSubsystem* UKOActivatableWidget::GetGMSSubsystem() const
 {
     const UWorld* World = GetWorld();
     if (!World)
@@ -76,5 +78,5 @@ UKHS_GMRouterManager* UKOActivatableWidget::GetGMSSubsystem() const
         return nullptr;
     }
 
-    return GI->GetSubsystem<UKHS_GMRouterManager>();
+    return GI->GetSubsystem<UGMRouterSubsystem>();
 }
