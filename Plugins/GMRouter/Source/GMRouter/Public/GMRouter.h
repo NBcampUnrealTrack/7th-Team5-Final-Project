@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-class FKHS_GameplayMessageRouterModule : public IModuleInterface
+class FGMRouterModule : public IModuleInterface
 {
 public:
 

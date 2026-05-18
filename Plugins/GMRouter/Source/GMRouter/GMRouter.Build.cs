@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class KHS_GameplayMessageRouter : ModuleRules
+public class GMRouter : ModuleRules
 {
-	public KHS_GameplayMessageRouter(ReadOnlyTargetRules Target) : base(Target)
+	public GMRouter(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -39,6 +39,7 @@ public class KHS_GameplayMessageRouter : ModuleRules
 				"Slate",
 				"SlateCore",
 				"GameplayTags",
+				
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
