@@ -2,6 +2,7 @@
 
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -9,6 +10,7 @@ UKOGA_Movement_Sprint::UKOGA_Movement_Sprint()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
+	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Sprint));
 }
 
 bool UKOGA_Movement_Sprint::CanActivateAbility(
