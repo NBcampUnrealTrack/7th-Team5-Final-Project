@@ -3,6 +3,7 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
+#include "Game/KOPlayerState.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -19,6 +20,26 @@ void AKOHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->GiveDefaultAbilities(); 
+	}
+}
+
+void AKOHeroCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	AKOPlayerState* PS = GetPlayerState<AKOPlayerState>();
+	if (!PS) return;
+	
+	AbilitySystemComponent = Cast<UKOAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->GiveDefaultAbilities(); 
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)
@@ -29,6 +50,7 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
+
 }
 
 void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
