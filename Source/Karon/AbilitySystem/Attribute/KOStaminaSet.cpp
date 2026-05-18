@@ -8,6 +8,13 @@
 
 UKOStaminaSet::UKOStaminaSet()
 {
+	//TODO: DDD로 전환 
+	InitStamina(100.f);
+	InitMaxStamina(100.f);
+	
+	// MetaData는 전환 x
+	InitStaminaDrain(0.f);
+	InitStaminaRegen(0.f);
 }
 
 // Base 값 변경 전 - Clamp 만 
