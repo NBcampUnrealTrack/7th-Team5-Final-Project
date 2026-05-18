@@ -3,6 +3,11 @@
 
 UKOMovementSet::UKOMovementSet()
 {
+	//TODO: 나중에 DDD로 전환
+	InitMoveSpeed(600.f);
+	InitMaxMoveSpeed(600.f);
+	InitJumpStrength(600.f);
+	
 }
 
 void UKOMovementSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const

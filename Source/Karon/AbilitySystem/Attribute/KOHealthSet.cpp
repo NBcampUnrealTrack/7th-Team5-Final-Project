@@ -4,6 +4,11 @@
 
 UKOHealthSet::UKOHealthSet()
 {
+	// TODO: 나중에 DDD로 전환 
+	InitHealth(100.f);
+	InitMaxHealth(100.f);
+	
+	// MetaData는 x 
 	InitDamage(0.f);
 	InitHealing(0.f);
 }
