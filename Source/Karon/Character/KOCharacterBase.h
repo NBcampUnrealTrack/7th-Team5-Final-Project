@@ -2,10 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Character.h"
 
 #include "KOCharacterBase.generated.h"
 
+struct FInstancedStruct;
+class FGameplayMessageCallback;
 class UKOHealthSet;
 class UKOMovementSet;
 class UKOAbilitySystemComponent; 
@@ -23,10 +26,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	
+protected:
 	virtual void BindMovementSet();
 	
-	UFUNCTION()
-	virtual void OnWalkSpeedChanged(float NewWalkSpeed, float OldWalkSpeed);
+	virtual void OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed);
+	
+	virtual void OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
