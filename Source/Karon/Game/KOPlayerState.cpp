@@ -26,13 +26,5 @@ UAbilitySystemComponent* AKOPlayerState::GetAbilitySystemComponent() const
 void AKOPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitializeAbilitySystem(); 
 }
 
-void AKOPlayerState::InitializeAbilitySystem()
-{
-	if (!AbilitySystemComponent) return; 
-	
-	AbilitySystemComponent->InitAbilityActorInfo(this, this); 
-}

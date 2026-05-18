@@ -19,7 +19,7 @@ class KARON_API AKOPlayerState : public APlayerState, public IAbilitySystemInter
 public:
 	AKOPlayerState();
 	
-	// ── IAbilitySystemInterface ──
+	// ── Interface ──
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 	// ── Getter ──
@@ -30,9 +30,6 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
-	void InitializeAbilitySystem();
-
 	
 protected:
 	// ─── Ability System ────────────────────────────────────────────────────
