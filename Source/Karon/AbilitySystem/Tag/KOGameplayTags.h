@@ -75,5 +75,11 @@ namespace KOGameplayTags
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Debuff_Stun);
 
 	// ───────────────────────── Data ───────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat); 
+	
 	
 }
