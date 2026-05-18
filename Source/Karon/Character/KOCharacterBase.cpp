@@ -31,10 +31,10 @@ void AKOCharacterBase::BeginPlay()
 
 void AKOCharacterBase::BindMovementSet()
 {
-	MovementSet->OnMoveSpeedChanged.AddDynamic(this, &ThisClass::OnMoveSpeedChanged);
+	MovementSet->OnMoveSpeedChanged.AddUObject(this, &ThisClass::OnMoveSpeedChanged);
 	OnMoveSpeedChanged(600.f, MovementSet->GetMoveSpeed());
 	
-	MovementSet->OnJumpStrengthChanged.AddDynamic(this, &ThisClass::OnJumpStrengthChanged);
+	MovementSet->OnJumpStrengthChanged.AddUObject(this, &ThisClass::OnJumpStrengthChanged);
 	OnJumpStrengthChanged(420, MovementSet->GetJumpStrength());
 }
 
