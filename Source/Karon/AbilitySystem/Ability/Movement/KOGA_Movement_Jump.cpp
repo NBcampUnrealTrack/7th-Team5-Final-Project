@@ -1,12 +1,13 @@
 ﻿#include "KOGA_Movement_Jump.h"
 #include "Abilities/Tasks/AbilityTask_WaitMovementModeChange.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "GameFramework/Character.h"
 
 UKOGA_Movement_Jump::UKOGA_Movement_Jump()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	// SetAssetTags()
+	 SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Jump)); 
 }
 
 bool UKOGA_Movement_Jump::CanActivateAbility(
@@ -18,18 +19,25 @@ bool UKOGA_Movement_Jump::CanActivateAbility(
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false; 
 	
-	ACharacter* Character = GetAvatarCharacter();
-	
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 	return Character && Character->ACharacter::CanJump(); 
 }
 
-void UKOGA_Movement_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+void UKOGA_Movement_Jump::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	ACharacter* Character = GetAvatarCharacter();
+	ACharacter* Character = GetAvatarCharacter(); 
+	if (!Character)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return; 
+	}
+	
 	Character->ACharacter::Jump();
 	
 	UAbilityTask_WaitMovementModeChange* WaitLandTask =
