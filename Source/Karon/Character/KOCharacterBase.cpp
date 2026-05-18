@@ -1,14 +1,20 @@
 ﻿#include "KOCharacterBase.h"
-
-#include "KHS_GMRouterManager.h"
+#include "AbilitySystem/Attribute/KOHealthSet.h"
+#include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Component/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 
 
 AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer.SetDefaultSubobjectClass<UKOCharacterMovementComponent>(
+		ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
+	HealthSet = CreateDefaultSubobject<UKOHealthSet>(FName("HealthSet"));
+	MovementSet = CreateDefaultSubobject<UKOMovementSet>(FName("MovementSet"));
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
@@ -20,19 +26,25 @@ void AKOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// BindMovementSet();
+	BindMovementSet();
 }
 
 void AKOCharacterBase::BindMovementSet()
 {
-	if (UKHS_GMRouterManager* MessageSubsystem = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
-	{
-		// MessageSubsystem->SubscribeToMessage(MessageSubsystem, OnWalkSpeedChanged);
-	}
+	MovementSet->OnMoveSpeedChanged.AddUObject(this, &ThisClass::OnMoveSpeedChanged);
+	OnMoveSpeedChanged(600.f, MovementSet->GetMoveSpeed());
+	
+	MovementSet->OnJumpStrengthChanged.AddUObject(this, &ThisClass::OnJumpStrengthChanged);
+	OnJumpStrengthChanged(420, MovementSet->GetJumpStrength());
 }
 
-void AKOCharacterBase::OnWalkSpeedChanged(float NewWalkSpeed, float OldWalkSpeed)
+void AKOCharacterBase::OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
+}
+
+void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength)
+{
+	GetCharacterMovement()->JumpZVelocity = NewJumpStrength;
 }
 
