@@ -9,8 +9,7 @@
 class UTexture2D;
 class UStaticMesh;
 
-// AKOFactoryBase: 순환 의존성을 피하기 위해 전방 선언만 사용
-class AKOFactoryBase;
+// AKOFactoryBase 미구현 — 구현 완료 후 TSoftClassPtr<AActor> → TSoftClassPtr<AKOFactoryBase> 로 교체
 
 /**
  * FKOItemRow
@@ -84,9 +83,9 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     float BaseCycleSeconds = 2.f;
 
-    /** 월드 배치 시 스폰할 Actor 클래스 — 소프트 포인터, 실제 스폰 시점에 해석된다 */
+    /** 월드 배치 시 스폰할 Actor 클래스 — AKOFactoryBase 구현 후 타입 교체 예정 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    TSoftClassPtr<AKOFactoryBase> FactoryClass;
+    TSoftClassPtr<AActor> FactoryClass;
 };
 
 /**
