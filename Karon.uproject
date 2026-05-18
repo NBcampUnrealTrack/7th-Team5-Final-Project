@@ -42,7 +42,7 @@
 			]
 		},
 		{
-			"Name": "KHS_GameplayMessageRouter",
+			"Name": "GMRouter",
 			"Enabled": true
 		}
 	]

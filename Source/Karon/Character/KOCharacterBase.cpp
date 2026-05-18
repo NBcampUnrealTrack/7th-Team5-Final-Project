@@ -1,6 +1,6 @@
 ﻿#include "KOCharacterBase.h"
 
-#include "KHS_GMRouterManager.h"
+#include "GMRouterSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 
@@ -25,10 +25,7 @@ void AKOCharacterBase::BeginPlay()
 
 void AKOCharacterBase::BindMovementSet()
 {
-	if (UKHS_GMRouterManager* MessageSubsystem = GetGameInstance()->GetSubsystem<UKHS_GMRouterManager>())
-	{
-		// MessageSubsystem->SubscribeToMessage(MessageSubsystem, OnWalkSpeedChanged);
-	}
+	//UGMRouterSubsystem::Subscribe(GetWorld(),Tag,FTypeStruct)
 }
 
 void AKOCharacterBase::OnWalkSpeedChanged(float NewWalkSpeed, float OldWalkSpeed)

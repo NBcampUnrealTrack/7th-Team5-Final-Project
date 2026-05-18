@@ -2,8 +2,8 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "KHS_GameplayMessageRouter",
-	"Description": "GameplayMessageSystem",
+	"FriendlyName": "GMRouter",
+	"Description": "Custom GameplayRouter Subsystem Plugin",
 	"Category": "Other",
 	"CreatedBy": "KHS",
 	"CreatedByURL": "",
@@ -16,7 +16,7 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "KHS_GameplayMessageRouter",
+			"Name": "GMRouter",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
 		}
