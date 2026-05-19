@@ -89,27 +89,26 @@ class GMROUTER_API UGMRouterSubsystem : public UGameInstanceSubsystem
 public:
 	UFUNCTION(BlueprintCallable)
 	static void BroadcastMessage(const UWorld* World,const FGameplayTag& Channel, const FInstancedStruct& Payload);
+	
 	UFUNCTION(BlueprintCallable)
 	static FGameplayMessageHandle Subscribe(const UWorld* World,const FGameplayTag& Channel, const FGameplayMessageCallback& Callback);
 	
 	void BroadcastMessage(const FGameplayTag& Channel, const FInstancedStruct& Payload);
 	FGameplayMessageHandle Subscribe(const FGameplayTag& Channel, const FGameplayMessageCallback& Callback);
+	
 	UFUNCTION(BlueprintCallable)
 	void Unsubscribe(const FGameplayMessageHandle& GameplayMessageHandle);
 	
-	
-private:
+protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;	
 	virtual void Deinitialize() override;	
 	
+private:
 	static UGMRouterSubsystem* GetRouterManager(const UWorld* World);
-
-	
 	void OnGarbageCollectionCompleted();
 	
 private:
 	TMap<FGameplayTag, FChannelListenerList> ListenerMap;
-	
 	FDelegateHandle GarbageCollectionCompletedHandle;
 	
 };
