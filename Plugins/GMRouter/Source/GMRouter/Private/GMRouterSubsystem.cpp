@@ -124,7 +124,7 @@ void UGMRouterSubsystem::OnGarbageCollectionCompleted()
 	for (auto It = ListenerMap.CreateIterator(); It; ++It)
 	{
 		//바인딩되어있지 않은 콜백들 TArray에서 전부 제거
-		It.Value().List.RemoveAll([](const FListenerEntry& CallbackStruct)
+		It.Value().List.RemoveAllSwap([](const FListenerEntry& CallbackStruct)
 		{
 			return !CallbackStruct.Callback.IsBound()||CallbackStruct.Callback.GetUObject()==nullptr;
 		});
