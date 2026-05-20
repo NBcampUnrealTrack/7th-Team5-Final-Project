@@ -408,6 +408,8 @@ void UKOGridBuildComponent::RequestDestroy()
 	{
 		return;
 	}
+	
+	UpdateDestroyTargetPreview();
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -524,11 +526,29 @@ void UKOGridBuildComponent::UpdateDestroyTargetPreview()
 		return;
 	}
 
-	const FIntPoint HitGrid = GridSub->WorldToGridPosition(HitResult.ImpactPoint);
+	AActor* HitActor = HitResult.GetActor();
 
-	AActor* TargetActor = GridSub->GetOccupyingActorAt(HitGrid);
+	if (!IsValid(HitActor))
+	{
+		ClearDestroyTargetActor();
+		return;
+	}
 
-	SetDestroyTargetActor(TargetActor);
+	FIntPoint OccupiedAnchor;
+	FIntPoint OccupiedSize;
+
+	// 라인트레이스에 맞은 Actor가 그리드에 등록된 건물인지 확인
+	if (!GridSub->TryGetOccupiedAreaForActor(
+		HitActor,
+		OccupiedAnchor,
+		OccupiedSize
+	))
+	{
+		ClearDestroyTargetActor();
+		return;
+	}
+
+	SetDestroyTargetActor(HitActor);
 }
 
 void UKOGridBuildComponent::SetDestroyTargetActor(AActor* NewTargetActor)
