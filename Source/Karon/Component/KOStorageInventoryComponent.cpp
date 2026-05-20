@@ -18,7 +18,7 @@ void UKOStorageInventoryComponent::BeginPlay()
     MaxSlots += ExtraSlots;
 }
 
-bool UKOStorageInventoryComponent::CanAcceptItem(FGameplayTag ItemTag) const
+bool UKOStorageInventoryComponent::CanAcceptItem(FName ItemId) const
 {
     // AllowedCategories가 비어 있으면 모두 허용
     if (AllowedCategories.IsEmpty())
@@ -44,7 +44,7 @@ bool UKOStorageInventoryComponent::CanAcceptItem(FGameplayTag ItemTag) const
         return false;
     }
 
-    const FKOItemRow* Row = LoadSub->FindItemRow(ItemTag);
+    const FKOItemRow* Row = LoadSub->FindItemRow(ItemId);
     if (!Row)
     {
         return false;
@@ -54,14 +54,14 @@ bool UKOStorageInventoryComponent::CanAcceptItem(FGameplayTag ItemTag) const
     return Row->Categories.HasAny(AllowedCategories);
 }
 
-int32 UKOStorageInventoryComponent::TryAddItem(FGameplayTag ItemTag, int32 Count)
+int32 UKOStorageInventoryComponent::TryAddItem(FName ItemId, int32 Count)
 {
-    if (!CanAcceptItem(ItemTag))
+    if (!CanAcceptItem(ItemId))
     {
         return Count;
     }
 
-    const int32 Remaining = Super::TryAddItem(ItemTag, Count);
+    const int32 Remaining = Super::TryAddItem(ItemId, Count);
 
     if (bAutoSortOnChange && Remaining < Count)
     {
@@ -71,21 +71,21 @@ int32 UKOStorageInventoryComponent::TryAddItem(FGameplayTag ItemTag, int32 Count
     return Remaining;
 }
 
-bool UKOStorageInventoryComponent::IsItemAccepted(FGameplayTag ItemTag) const
+bool UKOStorageInventoryComponent::IsItemAccepted(FName ItemId) const
 {
     // 부모의 AcceptedItemsQuery 검사 먼저
-    if (!Super::IsItemAccepted(ItemTag))
+    if (!Super::IsItemAccepted(ItemId))
     {
         return false;
     }
 
-    return CanAcceptItem(ItemTag);
+    return CanAcceptItem(ItemId);
 }
 
 void UKOStorageInventoryComponent::SortSlots()
 {
     Slots.Sort([](const FKOItemSlot& A, const FKOItemSlot& B)
     {
-        return A.ItemTag.GetTagName().LexicalLess(B.ItemTag.GetTagName());
+        return A.ItemId.LexicalLess(B.ItemId);
     });
 }

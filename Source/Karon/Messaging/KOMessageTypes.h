@@ -13,7 +13,7 @@
  *
  * 사용 예:
  *   FKOInventoryChangedMessage Msg;
- *   Msg.ItemTag = SomeTag;
+ *   Msg.ItemId = TEXT("Item_Iron");
  *   Msg.NewCount = 5;
  *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Inventory_Changed, FInstancedStruct::Make(Msg));
  */
@@ -22,9 +22,9 @@ struct FKOInventoryChangedMessage
 {
     GENERATED_BODY()
 
-    /** 변경된 아이템을 식별하는 GameplayTag */
+    /** 변경된 아이템 식별자 (FKOItemRow의 DataTable RowName) */
     UPROPERTY(BlueprintReadWrite, Category = "Inventory")
-    FGameplayTag ItemTag;
+    FName ItemId;
 
     /** 변경 후 수량 */
     UPROPERTY(BlueprintReadWrite, Category = "Inventory")

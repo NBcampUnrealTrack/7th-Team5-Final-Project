@@ -11,7 +11,7 @@
  *
  * ─── 1. Broadcast (메시지 송신) ────────────────────────────
  *   FKOInventoryChangedMessage Msg;
- *   Msg.ItemTag = ...; Msg.NewCount = 5; Msg.PreviousCount = 3;
+ *   Msg.ItemId = TEXT("Item_Iron"); Msg.NewCount = 5; Msg.PreviousCount = 3;
  *   Broadcast(KOGameplayTags::Data_Message_Inventory_Changed,
  *             FInstancedStruct::Make(Msg));
  *

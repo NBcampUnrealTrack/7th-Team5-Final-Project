@@ -2,25 +2,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "KOItemTypes.generated.h"
 
 /**
  * FKOItemSlot
  *
  * 인벤토리 슬롯 하나의 런타임 값 타입.
- * ItemTag + 수량으로 구성되며, UKOInventoryComponent의 Slots 배열 원소로 사용된다.
+ * ItemId(= FKOItemRow의 DataTable RowName) + 수량으로 구성되며,
+ * UKOInventoryComponent의 Slots 배열 원소로 사용된다.
  *
- * 이 구조체는 값 타입(Value Object)으로, 동일성 비교는 ItemTag 기준이다.
+ * 이 구조체는 값 타입(Value Object)으로, 동일성 비교는 ItemId 기준이다.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKOItemSlot
 {
     GENERATED_BODY()
 
-    /** 슬롯에 들어있는 아이템 식별 태그. 빈 슬롯이면 Invalid 태그 */
+    /** 슬롯에 들어있는 아이템 식별자 (Item DataTable의 RowName). 빈 슬롯이면 NAME_None */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|Inventory")
-    FGameplayTag ItemTag;
+    FName ItemId;
 
     /** 현재 누적 수량. 0이면 빈 슬롯으로 간주 */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|Inventory")
@@ -28,10 +28,10 @@ struct KARON_API FKOItemSlot
 
     // ─── 유틸리티 ─────────────────────────────────────────────────────────────
 
-    /** 슬롯에 유효한 아이템이 있으면 true (Tag 유효 & Count > 0) */
+    /** 슬롯에 유효한 아이템이 있으면 true (Id 유효 & Count > 0) */
     bool IsValid() const
     {
-        return ItemTag.IsValid() && Count > 0;
+        return !ItemId.IsNone() && Count > 0;
     }
 
     /**
@@ -42,6 +42,6 @@ struct KARON_API FKOItemSlot
      */
     bool IsSameItem(const FKOItemSlot& Other) const
     {
-        return ItemTag == Other.ItemTag;
+        return ItemId == Other.ItemId;
     }
 };

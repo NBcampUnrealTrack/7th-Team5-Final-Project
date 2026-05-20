@@ -13,19 +13,19 @@ UKOInventoryComponent::UKOInventoryComponent()
     PrimaryComponentTick.bCanEverTick = false;
 }
 
-int32 UKOInventoryComponent::TryAddItem(FGameplayTag ItemTag, int32 Count)
+int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
 {
-    if (!ItemTag.IsValid() || Count <= 0)
+    if (ItemId.IsNone() || Count <= 0)
     {
         return Count;
     }
 
-    if (!IsItemAccepted(ItemTag))
+    if (!IsItemAccepted(ItemId))
     {
         return Count;
     }
 
-    const int32 MaxStack = GetMaxStackForItem(ItemTag);
+    const int32 MaxStack = GetMaxStackForItem(ItemId);
     int32 Remaining = Count;
 
     // 1단계: 동일 아이템이 있는 기존 슬롯에 먼저 채운다
@@ -36,55 +36,55 @@ int32 UKOInventoryComponent::TryAddItem(FGameplayTag ItemTag, int32 Count)
             break;
         }
 
-        if (Slot.ItemTag == ItemTag && Slot.Count < MaxStack)
+        if (Slot.ItemId == ItemId && Slot.Count < MaxStack)
         {
-            const int32 PreviousCount = GetCountOf(ItemTag);
+            const int32 PreviousCount = GetCountOf(ItemId);
             const int32 Space = MaxStack - Slot.Count;
             const int32 ToAdd = FMath::Min(Space, Remaining);
             Slot.Count += ToAdd;
             Remaining  -= ToAdd;
 
-            NotifyChanged(ItemTag, PreviousCount, GetCountOf(ItemTag));
+            NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
         }
     }
 
     // 2단계: 남은 수량을 새 슬롯에 분배한다
     while (Remaining > 0 && Slots.Num() < MaxSlots)
     {
-        const int32 PreviousCount = GetCountOf(ItemTag);
+        const int32 PreviousCount = GetCountOf(ItemId);
         const int32 ToAdd = FMath::Min(MaxStack, Remaining);
 
         FKOItemSlot NewSlot;
-        NewSlot.ItemTag = ItemTag;
-        NewSlot.Count   = ToAdd;
+        NewSlot.ItemId = ItemId;
+        NewSlot.Count  = ToAdd;
         Slots.Add(NewSlot);
         Remaining -= ToAdd;
 
-        NotifyChanged(ItemTag, PreviousCount, GetCountOf(ItemTag));
+        NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
     }
 
     return Remaining;
 }
 
-bool UKOInventoryComponent::TryRemoveItem(FGameplayTag ItemTag, int32 Count)
+bool UKOInventoryComponent::TryRemoveItem(FName ItemId, int32 Count)
 {
-    if (!ItemTag.IsValid() || Count <= 0)
+    if (ItemId.IsNone() || Count <= 0)
     {
         return false;
     }
 
-    if (!HasEnoughItems(ItemTag, Count))
+    if (!HasEnoughItems(ItemId, Count))
     {
         return false;
     }
 
-    const int32 PreviousCount = GetCountOf(ItemTag);
+    const int32 PreviousCount = GetCountOf(ItemId);
     int32 Remaining = Count;
 
     for (int32 i = Slots.Num() - 1; i >= 0 && Remaining > 0; --i)
     {
         FKOItemSlot& Slot = Slots[i];
-        if (Slot.ItemTag != ItemTag)
+        if (Slot.ItemId != ItemId)
         {
             continue;
         }
@@ -99,16 +99,16 @@ bool UKOInventoryComponent::TryRemoveItem(FGameplayTag ItemTag, int32 Count)
         }
     }
 
-    NotifyChanged(ItemTag, PreviousCount, GetCountOf(ItemTag));
+    NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
     return true;
 }
 
-int32 UKOInventoryComponent::GetCountOf(FGameplayTag ItemTag) const
+int32 UKOInventoryComponent::GetCountOf(FName ItemId) const
 {
     int32 Total = 0;
     for (const FKOItemSlot& Slot : Slots)
     {
-        if (Slot.ItemTag == ItemTag)
+        if (Slot.ItemId == ItemId)
         {
             Total += Slot.Count;
         }
@@ -116,15 +116,15 @@ int32 UKOInventoryComponent::GetCountOf(FGameplayTag ItemTag) const
     return Total;
 }
 
-bool UKOInventoryComponent::HasEnoughItems(FGameplayTag ItemTag, int32 Count) const
+bool UKOInventoryComponent::HasEnoughItems(FName ItemId, int32 Count) const
 {
-    return GetCountOf(ItemTag) >= Count;
+    return GetCountOf(ItemId) >= Count;
 }
 
-void UKOInventoryComponent::NotifyChanged(FGameplayTag ItemTag, int32 PreviousCount, int32 NewCount)
+void UKOInventoryComponent::NotifyChanged(FName ItemId, int32 PreviousCount, int32 NewCount)
 {
     FKOInventoryChangedMessage Msg;
-    Msg.ItemTag       = ItemTag;
+    Msg.ItemId        = ItemId;
     Msg.PreviousCount = PreviousCount;
     Msg.NewCount      = NewCount;
 
@@ -153,7 +153,7 @@ void UKOInventoryComponent::NotifyChanged(FGameplayTag ItemTag, int32 PreviousCo
     }
 }
 
-bool UKOInventoryComponent::IsItemAccepted(FGameplayTag ItemTag) const
+bool UKOInventoryComponent::IsItemAccepted(FName ItemId) const
 {
     // 쿼리가 비어 있으면 모두 허용
     if (!AcceptedItemsQuery.IsEmpty())
@@ -165,7 +165,7 @@ bool UKOInventoryComponent::IsItemAccepted(FGameplayTag ItemTag) const
             {
                 if (const UKOLoadSubsystem* LoadSub = GI->GetSubsystem<UKOLoadSubsystem>())
                 {
-                    if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemTag))
+                    if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
                     {
                         return AcceptedItemsQuery.Matches(Row->Categories);
                     }
@@ -178,7 +178,7 @@ bool UKOInventoryComponent::IsItemAccepted(FGameplayTag ItemTag) const
     return true;
 }
 
-int32 UKOInventoryComponent::GetMaxStackForItem(FGameplayTag ItemTag) const
+int32 UKOInventoryComponent::GetMaxStackForItem(FName ItemId) const
 {
     constexpr int32 DefaultMaxStack = 100;
 
@@ -200,6 +200,6 @@ int32 UKOInventoryComponent::GetMaxStackForItem(FGameplayTag ItemTag) const
         return DefaultMaxStack;
     }
 
-    const FKOItemRow* Row = LoadSub->FindItemRow(ItemTag);
+    const FKOItemRow* Row = LoadSub->FindItemRow(ItemId);
     return Row ? Row->MaxStack : DefaultMaxStack;
 }

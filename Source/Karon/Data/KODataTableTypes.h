@@ -15,8 +15,8 @@ class UStaticMesh;
  * FKOItemRow
  *
  * 아이템 1종을 정의하는 DataTable 행 구조체.
- * RowName은 가독성을 위해 ItemTag 리프와 맞추는 것을 권장하나,
- * 런타임 TMap 키로는 ItemTag가 사용된다.
+ * 아이템 식별자는 DataTable의 RowName(FName)이 단일 소스로 사용된다.
+ * 런타임 캐시 키, 인벤토리 슬롯 키, GMS 페이로드 키 모두 동일한 RowName이다.
  *
  * Icon, WorldMesh는 소프트 레퍼런스로 저장되며 여기서 로드되지 않는다.
  * 실제 로드는 UKOLoadSubsystem::ResolveItemIcon / ResolveItemMesh를 사용한다.
@@ -25,10 +25,6 @@ USTRUCT(BlueprintType)
 struct KARON_API FKOItemRow : public FTableRowBase
 {
     GENERATED_BODY()
-
-    /** 런타임 TMap 키로 사용되는 아이템 고유 태그 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
-    FGameplayTag ItemTag;
 
     /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
@@ -92,9 +88,9 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
  * FKORecipeRow
  *
  * 제작/생산 레시피 1종을 정의하는 DataTable 행 구조체.
- * Inputs/Outputs는 ItemTag → 수량 매핑이다.
+ * Inputs/Outputs는 ItemId(=FKOItemRow RowName) → 수량 매핑이다.
  *
- * 주의: TMap<FGameplayTag, int32>의 UPROPERTY 선언은 UE5.1+ 이상에서만 네이티브 지원된다.
+ * 주의: TMap<FName, int32>의 UPROPERTY 선언은 정상 지원된다.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKORecipeRow : public FTableRowBase
@@ -112,13 +108,13 @@ struct KARON_API FKORecipeRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     FGameplayTagContainer AllowedFactoryTags;
 
-    /** 입력 재료: ItemTag → 사이클당 소비 수량 */
+    /** 입력 재료: ItemId(=Item DataTable의 RowName) → 사이클당 소비 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    TMap<FGameplayTag, int32> Inputs;
+    TMap<FName, int32> Inputs;
 
-    /** 출력 산물: ItemTag → 사이클당 생산 수량 */
+    /** 출력 산물: ItemId(=Item DataTable의 RowName) → 사이클당 생산 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    TMap<FGameplayTag, int32> Outputs;
+    TMap<FName, int32> Outputs;
 
     /** 생산 사이클 1회 소요 시간(초) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")

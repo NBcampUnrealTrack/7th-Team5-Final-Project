@@ -40,7 +40,7 @@ public:
     int32 ExtraSlots = 40;
 
     /**
-     * true이면 아이템 변경 시 슬롯 배열을 ItemTag 기준으로 자동 정렬한다.
+     * true이면 아이템 변경 시 슬롯 배열을 ItemId 기준으로 자동 정렬한다.
      * 정렬 비용은 O(N log N)이므로 슬롯이 매우 많을 때 주의한다.
      */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Storage")
@@ -52,15 +52,15 @@ public:
      * 아이템이 이 창고의 AllowedCategories 조건을 통과하는지 확인한다.
      * AllowedCategories가 비어 있으면 항상 true를 반환한다.
      *
-     * @param ItemTag 검사할 아이템 태그
+     * @param ItemId 검사할 아이템 식별자
      */
     UFUNCTION(BlueprintPure, Category = "KO|Storage")
-    bool CanAcceptItem(FGameplayTag ItemTag) const;
+    bool CanAcceptItem(FName ItemId) const;
 
     // ─── TryAddItem 재정의 ────────────────────────────────────────────────────
 
     /** CanAcceptItem 검사 후 부모의 TryAddItem을 호출한다. */
-    virtual int32 TryAddItem(FGameplayTag ItemTag, int32 Count) override;
+    virtual int32 TryAddItem(FName ItemId, int32 Count) override;
 
 protected:
     // ─── UActorComponent ──────────────────────────────────────────────────────
@@ -72,9 +72,9 @@ protected:
     /**
      * 부모의 AcceptedItemsQuery 검사에 더해 AllowedCategories도 검사한다.
      */
-    virtual bool IsItemAccepted(FGameplayTag ItemTag) const override;
+    virtual bool IsItemAccepted(FName ItemId) const override;
 
 private:
-    /** Slots를 ItemTag 이름 기준으로 오름차순 정렬한다. */
+    /** Slots를 ItemId 기준으로 오름차순 정렬한다. */
     void SortSlots();
 };

@@ -20,24 +20,89 @@ void UKOLoadSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UKOLoadSubsystem::Deinitialize()
 {
+    // 캐시 먼저 비운 뒤 핀 해제 — 행 포인터 댕글링 방지를 위한 순서.
     ItemCache.Empty();
     FactoryCache.Empty();
     RecipeCache.Empty();
     ResolvedIcons.Empty();
     ResolvedMeshes.Empty();
+    LoadedTables.Empty();
 
     Super::Deinitialize();
 }
 
 // ─── Internal Loading ─────────────────────────────────────────────────────────
 
+void UKOLoadSubsystem::IndexItemTables(const TArray<TSoftObjectPtr<UDataTable>>& SoftTables)
+{
+    for (const TSoftObjectPtr<UDataTable>& SoftTable : SoftTables)
+    {
+        if (SoftTable.IsNull())
+        {
+            UE_LOG(LogKOLoad, Warning,
+                TEXT("UKOLoadSubsystem: Null entry in ItemTables — skipping."));
+            continue;
+        }
+
+        UDataTable* Table = SoftTable.LoadSynchronous();
+        if (!Table)
+        {
+            UE_LOG(LogKOLoad, Error,
+                TEXT("UKOLoadSubsystem: Failed to load ItemTable '%s' — skipping."),
+                *SoftTable.ToSoftObjectPath().ToString());
+            continue;
+        }
+        LoadedTables.AddUnique(Table);
+
+        if (Table->GetRowStruct() != FKOItemRow::StaticStruct())
+        {
+            UE_LOG(LogKOLoad, Error,
+                TEXT("UKOLoadSubsystem: ItemTable '%s' RowStruct mismatch — skipping."),
+                *Table->GetName());
+            continue;
+        }
+
+        int32 Count = 0;
+        for (const TPair<FName, uint8*>& Pair : Table->GetRowMap())
+        {
+            const FName ItemId = Pair.Key;
+            if (ItemId.IsNone())
+            {
+                UE_LOG(LogKOLoad, Warning,
+                    TEXT("UKOLoadSubsystem: ItemTable '%s' contains a row with empty RowName — skipping."),
+                    *Table->GetName());
+                continue;
+            }
+
+            const FKOItemRow* Row = reinterpret_cast<const FKOItemRow*>(Pair.Value);
+            if (!Row)
+            {
+                continue;
+            }
+
+            if (ItemCache.Contains(ItemId))
+            {
+                UE_LOG(LogKOLoad, Warning,
+                    TEXT("UKOLoadSubsystem: Duplicate Item RowName '%s' in table '%s' — existing entry overwritten."),
+                    *ItemId.ToString(), *Table->GetName());
+            }
+
+            ItemCache.Add(ItemId, Row);
+            ++Count;
+        }
+
+        UE_LOG(LogKOLoad, Log,
+            TEXT("UKOLoadSubsystem: Indexed %d Item rows from '%s'."),
+            Count, *Table->GetName());
+    }
+}
+
 template<typename TRow>
-void UKOLoadSubsystem::IndexTableRows(
+void UKOLoadSubsystem::IndexTableRowsByTag(
     const TArray<TSoftObjectPtr<UDataTable>>& SoftTables,
-    TMap<FGameplayTag, TRow>&                 OutCache,
+    TMap<FGameplayTag, const TRow*>&          OutCache,
     TFunctionRef<FGameplayTag(const TRow&)>   GetTag,
-    const TCHAR*                              TableKind,
-    TArray<UObject*>&                         HardRefs)
+    const TCHAR*                              TableKind)
 {
     for (const TSoftObjectPtr<UDataTable>& SoftTable : SoftTables)
     {
@@ -56,9 +121,7 @@ void UKOLoadSubsystem::IndexTableRows(
                 TableKind, *SoftTable.ToSoftObjectPath().ToString());
             continue;
         }
-
-        // GC가 이 함수 스코프 안에서 Table을 수집하지 못하도록 강한 참조를 유지한다.
-        HardRefs.Add(Table);
+        LoadedTables.AddUnique(Table);
 
         TArray<TRow*> Rows;
         Table->GetAllRows<TRow>(
@@ -87,7 +150,7 @@ void UKOLoadSubsystem::IndexTableRows(
                     TableKind, *Tag.ToString(), *Table->GetName());
             }
 
-            OutCache.Add(Tag, *Row);
+            OutCache.Add(Tag, Row);
         }
 
         UE_LOG(LogKOLoad, Log,
@@ -98,109 +161,87 @@ void UKOLoadSubsystem::IndexTableRows(
 
 void UKOLoadSubsystem::LoadAll()
 {
-    // 1. DeveloperSettings 조회 — 엔진 부팅 시 자동 생성/로드되므로 항상 유효 ────
     const UKODataRegistrySettings* Settings = GetDefault<UKODataRegistrySettings>();
     check(Settings);
 
-    // HardRefs: LoadSynchronous로 얻은 UDataTable*을 GC로부터 보호한다.
-    // 이 배열이 스코프를 벗어나면 강한 참조가 해제되어 GC 수집이 허용된다.
-    TArray<UObject*> HardRefs;
+    IndexItemTables(Settings->ItemTables);
 
-    // 2. 아이템 테이블 로드 및 색인 ────────────────────────────────────────────
-    IndexTableRows<FKOItemRow>(
-        Settings->ItemTables,
-        ItemCache,
-        [](const FKOItemRow& Row) { return Row.ItemTag; },
-        TEXT("Item"),
-        HardRefs);
-
-    // 3. 공장 테이블 로드 및 색인 ──────────────────────────────────────────────
-    IndexTableRows<FKOFactoryRow>(
+    IndexTableRowsByTag<FKOFactoryRow>(
         Settings->FactoryTables,
         FactoryCache,
         [](const FKOFactoryRow& Row) { return Row.FactoryTag; },
-        TEXT("Factory"),
-        HardRefs);
+        TEXT("Factory"));
 
-    // 4. 레시피 테이블 로드 및 색인 ────────────────────────────────────────────
-    IndexTableRows<FKORecipeRow>(
+    IndexTableRowsByTag<FKORecipeRow>(
         Settings->RecipeTables,
         RecipeCache,
         [](const FKORecipeRow& Row) { return Row.RecipeTag; },
-        TEXT("Recipe"),
-        HardRefs);
+        TEXT("Recipe"));
 
     UE_LOG(LogKOLoad, Log,
         TEXT("UKOLoadSubsystem: LoadAll complete. Items=%d, Factories=%d, Recipes=%d."),
         ItemCache.Num(), FactoryCache.Num(), RecipeCache.Num());
 }
 
-// ─── Row Lookup API ───────────────────────────────────────────────────────────
-
-const FKOItemRow* UKOLoadSubsystem::FindItemRow(FGameplayTag ItemTag) const
+const FKOItemRow* UKOLoadSubsystem::FindItemRow(FName ItemId) const
 {
-    return ItemCache.Find(ItemTag);
+    const FKOItemRow* const* Found = ItemCache.Find(ItemId);
+    return Found ? *Found : nullptr;
 }
 
 const FKOFactoryRow* UKOLoadSubsystem::FindFactoryRow(FGameplayTag FactoryTag) const
 {
-    return FactoryCache.Find(FactoryTag);
+    const FKOFactoryRow* const* Found = FactoryCache.Find(FactoryTag);
+    return Found ? *Found : nullptr;
 }
 
 const FKORecipeRow* UKOLoadSubsystem::FindRecipeRow(FGameplayTag RecipeTag) const
 {
-    return RecipeCache.Find(RecipeTag);
+    const FKORecipeRow* const* Found = RecipeCache.Find(RecipeTag);
+    return Found ? *Found : nullptr;
 }
 
-// ─── Asset Resolve API ────────────────────────────────────────────────────────
 
-UTexture2D* UKOLoadSubsystem::ResolveItemIcon(FGameplayTag ItemTag) const
+UTexture2D* UKOLoadSubsystem::ResolveItemIcon(FName ItemId) const
 {
-    // 1. 약한 참조 캐시 먼저 확인 (중복 디스크 읽기 방지)
-    if (const TWeakObjectPtr<UTexture2D>* Cached = ResolvedIcons.Find(ItemTag))
+    if (const TWeakObjectPtr<UTexture2D>* Cached = ResolvedIcons.Find(ItemId))
     {
         if (Cached->IsValid())
         {
             return Cached->Get();
         }
-        // 약한 참조가 만료된 경우 — 아래에서 재로드
     }
 
-    // 2. 행 조회
-    const FKOItemRow* Row = FindItemRow(ItemTag);
+    const FKOItemRow* Row = FindItemRow(ItemId);
     if (!Row)
     {
         UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemIcon: 알 수 없는 ItemTag '%s'."),
-            *ItemTag.ToString());
+            TEXT("UKOLoadSubsystem::ResolveItemIcon: 알 수 없는 ItemId '%s'."),
+            *ItemId.ToString());
         return nullptr;
     }
 
     if (Row->Icon.IsNull())
     {
-        // 의도적으로 텍스처를 설정하지 않은 경우 — 오류 아님
         return nullptr;
     }
 
-    // 3. 동기 로드
     UTexture2D* Texture = Row->Icon.LoadSynchronous();
     if (!Texture)
     {
         UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemIcon: '%s' 로드 실패 (ItemTag='%s')."),
-            *Row->Icon.ToSoftObjectPath().ToString(), *ItemTag.ToString());
+            TEXT("UKOLoadSubsystem::ResolveItemIcon: '%s' 로드 실패 (ItemId='%s')."),
+            *Row->Icon.ToSoftObjectPath().ToString(), *ItemId.ToString());
         return nullptr;
     }
 
-    // 4. 결과 캐시
-    ResolvedIcons.Add(ItemTag, Texture);
+    ResolvedIcons.Add(ItemId, Texture);
     return Texture;
 }
 
-UStaticMesh* UKOLoadSubsystem::ResolveItemMesh(FGameplayTag ItemTag) const
+UStaticMesh* UKOLoadSubsystem::ResolveItemMesh(FName ItemId) const
 {
-    // 1. 약한 참조 캐시 확인
-    if (const TWeakObjectPtr<UStaticMesh>* Cached = ResolvedMeshes.Find(ItemTag))
+    if (const TWeakObjectPtr<UStaticMesh>* Cached = ResolvedMeshes.Find(ItemId))
     {
         if (Cached->IsValid())
         {
@@ -208,13 +249,12 @@ UStaticMesh* UKOLoadSubsystem::ResolveItemMesh(FGameplayTag ItemTag) const
         }
     }
 
-    // 2. 행 조회
-    const FKOItemRow* Row = FindItemRow(ItemTag);
+    const FKOItemRow* Row = FindItemRow(ItemId);
     if (!Row)
     {
         UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemMesh: 알 수 없는 ItemTag '%s'."),
-            *ItemTag.ToString());
+            TEXT("UKOLoadSubsystem::ResolveItemMesh: 알 수 없는 ItemId '%s'."),
+            *ItemId.ToString());
         return nullptr;
     }
 
@@ -223,24 +263,20 @@ UStaticMesh* UKOLoadSubsystem::ResolveItemMesh(FGameplayTag ItemTag) const
         return nullptr;
     }
 
-    // 3. 동기 로드
     UStaticMesh* Mesh = Row->WorldMesh.LoadSynchronous();
     if (!Mesh)
     {
         UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemMesh: '%s' 로드 실패 (ItemTag='%s')."),
-            *Row->WorldMesh.ToSoftObjectPath().ToString(), *ItemTag.ToString());
+            TEXT("UKOLoadSubsystem::ResolveItemMesh: '%s' 로드 실패 (ItemId='%s')."),
+            *Row->WorldMesh.ToSoftObjectPath().ToString(), *ItemId.ToString());
         return nullptr;
     }
 
-    // 4. 결과 캐시
-    ResolvedMeshes.Add(ItemTag, Mesh);
+    ResolvedMeshes.Add(ItemId, Mesh);
     return Mesh;
 }
 
-// ─── Enumeration API ──────────────────────────────────────────────────────────
-
-void UKOLoadSubsystem::GetAllItemTags(TArray<FGameplayTag>& Out) const
+void UKOLoadSubsystem::GetAllItemIds(TArray<FName>& Out) const
 {
     ItemCache.GetKeys(Out);
 }

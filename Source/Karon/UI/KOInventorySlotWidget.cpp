@@ -16,10 +16,10 @@ void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 		{
 			if (const UKOLoadSubsystem* LS = GI->GetSubsystem<UKOLoadSubsystem>())
 			{
-				if (const FKOItemRow* Row = LS->FindItemRow(SlotData.ItemTag))
+				if (const FKOItemRow* Row = LS->FindItemRow(SlotData.ItemId))
 				{
 					ItemDisplayName = Row->DisplayName;
-					ItemIcon = LS->ResolveItemIcon(SlotData.ItemTag);
+					ItemIcon = LS->ResolveItemIcon(SlotData.ItemId);
 				}
 			}
 		}
