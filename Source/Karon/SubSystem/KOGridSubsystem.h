@@ -3,7 +3,20 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Data/KOGridCellData.h"
-#include "KOGridSubSystem.generated.h"
+#include "KOGridSubsystem.generated.h"
+
+USTRUCT()
+struct FKOGridOccupiedArea
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FIntPoint Anchor = FIntPoint::ZeroValue;
+
+	UPROPERTY()
+	FIntPoint Size = FIntPoint(1, 1);
+};
 
 UCLASS()
 class KARON_API UKOGridSubsystem : public UWorldSubsystem
@@ -35,22 +48,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	bool CanBuildArea(FIntPoint AnchorLocation, FIntPoint AreaSize, bool bCheckCollision = true) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
+	AActor* GetOccupyingActorAt(const FIntPoint& GridLocation) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
+	bool TryGetOccupiedAreaForActor(
+		AActor* OccupyingActor,
+		FIntPoint& OutAnchor,
+		FIntPoint& OutSize
+	) const;
+	
 	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
 	void OccupyArea(FIntPoint AnchorLocation, FIntPoint AreaSize, AActor* OccupyingActor);
-
-	// 특정 면적 점유 해제
+	
 	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
-	void FreeArea(FIntPoint AnchorLocation, FIntPoint AreaSize);
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
-	void PlaceActorAt(const FIntPoint& GridLocation, AActor* OccupyingActor);
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
-	void RemoveActorAt(const FIntPoint& GridLocation);
-
-	// 특정 셀을 건설 가능/불가능으로 설정(아직 사용 x)
-	UFUNCTION(BlueprintCallable, Category = "Grid|Edit")
-	void SetCellBuildable(const FIntPoint& GridLocation, bool bBuildable);
+	bool FreeAreaByActor(AActor* OccupyingActor);
 
 	// 디버그 박스 크기 계산
 	UFUNCTION(BlueprintPure, Category = "Grid|Settings")
@@ -59,7 +71,12 @@ public:
 	// 라인 디버깅
 	UFUNCTION(BlueprintCallable, Category = "Grid|Debug")
 	void DrawDebugGrid(float Duration = -1.0f) const;
-
+	
+protected:
+	void FreeArea(FIntPoint AnchorLocation, FIntPoint AreaSize);
+	void PlaceActorAt(const FIntPoint& GridLocation, AActor* OccupyingActor);
+	void RemoveActorAt(const FIntPoint& GridLocation);
+	
 private:
 	int32 ToIndex(const FIntPoint& GridLocation) const;
 
@@ -77,13 +94,16 @@ private:
 	float TraceHeight = 1000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
-	TEnumAsByte<ECollisionChannel> GroundTraceChannel = ECC_Visibility;
+	TEnumAsByte<ECollisionChannel> GridGroundTraceChannel = ECC_Visibility;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Collision")
 	TEnumAsByte<ECollisionChannel> PlacementCollisionChannel = ECC_GameTraceChannel1;
 
 	UPROPERTY()
 	TArray<FKOGridCellData> GridData;
+	
+	UPROPERTY()
+	TMap<TObjectPtr<AActor>, FKOGridOccupiedArea> OccupiedAreaByActor;
 	
 	// 그리드
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Debug")

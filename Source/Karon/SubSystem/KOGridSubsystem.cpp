@@ -2,14 +2,29 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 
+namespace
+{
+	template<typename FuncType>
+	void ForEachGridInArea(FIntPoint AnchorLocation, FIntPoint AreaSize, FuncType&& Func)
+	{
+		for (int32 Y = 0; Y < AreaSize.Y; ++Y)
+		{
+			for (int32 X = 0; X < AreaSize.X; ++X)
+			{
+				const FIntPoint TargetGrid(
+					AnchorLocation.X + X,
+					AnchorLocation.Y + Y
+				);
+
+				Func(TargetGrid);
+			}
+		}
+	}
+}
+
 void UKOGridSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
-	
-	if (UWorld* World = GetWorld())
-	{
-		FlushPersistentDebugLines(World);
-	}
 
 	BuildGridFromWorld(); // 그리드 데이터 생성
 	
@@ -42,6 +57,8 @@ void UKOGridSubsystem::BuildGridFromWorld()
 	const int32 TotalCells = GridDimensions.X * GridDimensions.Y;
 
 	GridData.Empty();
+	OccupiedAreaByActor.Empty();
+	
 	GridData.SetNum(TotalCells);
 
 	FCollisionQueryParams QueryParams;
@@ -63,7 +80,7 @@ void UKOGridSubsystem::BuildGridFromWorld()
 				HitResult,
 				TraceStart,
 				TraceEnd,
-				GroundTraceChannel,
+				GridGroundTraceChannel,
 				QueryParams
 			);
 
@@ -180,36 +197,96 @@ bool UKOGridSubsystem::CanBuildArea(FIntPoint AnchorLocation, FIntPoint AreaSize
 	return !bIsOverlapping;
 }
 
+AActor* UKOGridSubsystem::GetOccupyingActorAt(const FIntPoint& GridLocation) const
+{
+	if (!IsValidGridLocation(GridLocation))
+	{
+		return nullptr;
+	}
+
+	const int32 Index = ToIndex(GridLocation);
+
+	if (!GridData.IsValidIndex(Index))
+	{
+		return nullptr;
+	}
+
+	return GridData[Index].OccupyingActor.Get();
+}
+
+bool UKOGridSubsystem::TryGetOccupiedAreaForActor(
+	AActor* OccupyingActor,
+	FIntPoint& OutAnchor,
+	FIntPoint& OutSize
+) const
+{
+	if (!OccupyingActor)
+	{
+		return false;
+	}
+
+	const FKOGridOccupiedArea* FoundArea = OccupiedAreaByActor.Find(OccupyingActor);
+
+	if (!FoundArea)
+	{
+		return false;
+	}
+
+	OutAnchor = FoundArea->Anchor;
+	OutSize = FoundArea->Size;
+
+	return true;
+}
+
 void UKOGridSubsystem::OccupyArea(FIntPoint AnchorLocation, FIntPoint AreaSize, AActor* OccupyingActor)
 {
-	for (int32 Y = 0; Y < AreaSize.Y; ++Y)
+	if (!OccupyingActor || AreaSize.X <= 0 || AreaSize.Y <= 0)
 	{
-		for (int32 X = 0; X < AreaSize.X; ++X)
-		{
-			const FIntPoint TargetGrid(
-				AnchorLocation.X + X,
-				AnchorLocation.Y + Y
-			);
-
-			PlaceActorAt(TargetGrid, OccupyingActor);
-		}
+		return;
 	}
+
+	ForEachGridInArea(AnchorLocation, AreaSize, [this, OccupyingActor](const FIntPoint& TargetGrid)
+	{
+		PlaceActorAt(TargetGrid, OccupyingActor);
+	});
+	
+	FKOGridOccupiedArea OccupiedArea;
+	OccupiedArea.Anchor = AnchorLocation;
+	OccupiedArea.Size = AreaSize;
+
+	OccupiedAreaByActor.Add(OccupyingActor, OccupiedArea);
 }
 
 void UKOGridSubsystem::FreeArea(FIntPoint AnchorLocation, FIntPoint AreaSize)
 {
-	for (int32 Y = 0; Y < AreaSize.Y; ++Y)
+	if (AreaSize.X <= 0 || AreaSize.Y <= 0)
 	{
-		for (int32 X = 0; X < AreaSize.X; ++X)
-		{
-			const FIntPoint TargetGrid(
-				AnchorLocation.X + X,
-				AnchorLocation.Y + Y
-			);
-
-			RemoveActorAt(TargetGrid);
-		}
+		return;
 	}
+	
+	ForEachGridInArea(AnchorLocation, AreaSize, [this](const FIntPoint& TargetGrid)
+	{
+		RemoveActorAt(TargetGrid);
+	});
+}
+
+bool UKOGridSubsystem::FreeAreaByActor(AActor* OccupyingActor)
+{
+	if (!OccupyingActor)
+	{
+		return false;
+	}
+
+	FKOGridOccupiedArea OccupiedArea;
+
+	if (!OccupiedAreaByActor.RemoveAndCopyValue(OccupyingActor, OccupiedArea))
+	{
+		return false;
+	}
+	
+	FreeArea(OccupiedArea.Anchor, OccupiedArea.Size);
+
+	return true;
 }
 
 bool UKOGridSubsystem::CanBuildAt(const FIntPoint& GridLocation) const
@@ -257,17 +334,6 @@ void UKOGridSubsystem::RemoveActorAt(const FIntPoint& GridLocation)
 	const int32 Index = ToIndex(GridLocation);
 
 	GridData[Index].OccupyingActor.Reset();
-}
-
-void UKOGridSubsystem::SetCellBuildable(const FIntPoint& GridLocation, bool bBuildable)
-{
-	if (!IsValidGridLocation(GridLocation))
-	{
-		return;
-	}
-
-	const int32 Index = ToIndex(GridLocation);
-	GridData[Index].bIsBuildable = bBuildable;
 }
 
 bool UKOGridSubsystem::IsValidGridLocation(const FIntPoint& GridLocation) const

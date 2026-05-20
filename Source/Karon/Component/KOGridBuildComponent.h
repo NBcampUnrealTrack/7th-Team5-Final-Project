@@ -7,6 +7,20 @@
 class UKOBuildingDataAsset;
 class UMaterialInterface;
 class AKOGhostPreview;
+class UMeshComponent;
+
+USTRUCT()
+struct FKODestroyTargetOriginalMaterials
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TObjectPtr<UMeshComponent> MeshComponent;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UMaterialInterface>> Materials;
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOGridBuildComponent : public UActorComponent
@@ -23,6 +37,7 @@ public:
 	) override;
 
 public:
+	// ─── 건물 건설 ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build") 
 	void StartAssignedBuildMode();
 	
@@ -38,17 +53,34 @@ public:
 	// 사용 x (UI)
 	UFUNCTION(BlueprintPure, Category = "Build")
 	bool IsBuildMode() const { return bIsBuildMode; }
+	
+	// ─── 건물 파괴(해제) ────────────────────────────────────────────────────
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void StartDestroyMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void RequestDestroy();
+
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void CancelDestroyMode();
+
+	UFUNCTION(BlueprintPure, Category = "Build")
+	bool IsDestroyMode() const { return bIsDestroyMode; }
 
 protected:
 	bool TraceFromScreenCenter(FHitResult& OutHit) const;
-
-	APlayerController* GetOwningPlayerController() const;
 
 	void UpdateGhostPreview();
 	bool SpawnPreviewActor();
 	void DestroyPreviewActor();
 	void SetPreviewActorBuildableState(bool bCanBuild);
 	void ApplyGhostMaterial(AActor* TargetActor, UMaterialInterface* TargetMaterial) const;
+	
+	void UpdateDestroyTargetPreview();
+	void SetDestroyTargetActor(AActor* NewTargetActor);
+	void ClearDestroyTargetActor();
+	void ApplyDestroyTargetMaterial(AActor* TargetActor);
+	void RestoreDestroyTargetMaterial();
 
 protected:
 	// 단일 건물 테스트
@@ -70,6 +102,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Trace")
 	TEnumAsByte<ECollisionChannel> GroundTraceChannel = ECC_Visibility;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Destroy")
+	TObjectPtr<UMaterialInterface> DestroyTargetMaterial;
+	
 	// 충돌 검사
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Placement")
 	bool bCheckPlacementCollision = true;
@@ -84,12 +119,19 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UKOBuildingDataAsset> CurrentBuildingData;
+	
+	UPROPERTY()
+	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;
+
+	UPROPERTY()
+	TArray<FKODestroyTargetOriginalMaterials> DestroyTargetOriginalMaterials;
 
 	FIntPoint CurrentAnchor = FIntPoint::ZeroValue;
 
 	FIntPoint CurrentBuildingSize = FIntPoint(1, 1);
 
-	bool bIsBuildMode = false;
+	bool bIsBuildMode = false; // 건설
+	bool bIsDestroyMode = false; // 파괴(해제)
 	bool bCurrentPlacementValid = false;
 	
 	// 이전 상태를 저장한 적이 있는가?

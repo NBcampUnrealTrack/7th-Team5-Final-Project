@@ -8,7 +8,6 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
-#include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInterface.h"
 #include "Building/KOGhostPreview.h"
 
@@ -30,12 +29,16 @@ void UKOGridBuildComponent::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!bIsBuildMode)
+	if (bIsBuildMode)
 	{
+		UpdateGhostPreview(); // 고스트 프리뷰 위치 업데이트
 		return;
 	}
 
-	UpdateGhostPreview(); // 고스트 프리뷰 위치 업데이트
+	if (bIsDestroyMode)
+	{
+		UpdateDestroyTargetPreview();
+	}
 }
 
 void UKOGridBuildComponent::StartAssignedBuildMode()
@@ -75,6 +78,7 @@ void UKOGridBuildComponent::StartBuildModeWithData(UKOBuildingDataAsset* Buildin
 		return;
 	}
 
+	CancelDestroyMode();
 	DestroyPreviewActor();
 
 	CurrentBuildingData = BuildingData;
@@ -99,17 +103,6 @@ bool UKOGridBuildComponent::SpawnPreviewActor()
 	if (CurrentPreviewActor)
 	{
 		return true;
-	}
-
-	if (!CurrentBuildingData || !CurrentBuildingData->BuildingClass)
-	{
-		return false;
-	}
-	
-	if (!PreviewActorClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] PreviewActorClass가 설정되지 않았습니다."));
-		return false;
 	}
 
 	UWorld* World = GetWorld();
@@ -287,16 +280,6 @@ void UKOGridBuildComponent::RequestBuild()
 		return;
 	}
 
-	if (!CurrentPreviewActor || CurrentPreviewActor->IsHidden())
-	{
-		return;
-	}
-
-	if (!CurrentBuildingData || !CurrentBuildingData->BuildingClass)
-	{
-		return;
-	}
-
 	UWorld* World = GetWorld();
 	if (!World)
 	{
@@ -371,7 +354,6 @@ void UKOGridBuildComponent::RequestBuild()
 void UKOGridBuildComponent::CancelBuildMode()
 {
 	bIsBuildMode = false;
-	SetComponentTickEnabled(false);
 	bCurrentPlacementValid = false;
 
 	DestroyPreviewActor();
@@ -379,6 +361,89 @@ void UKOGridBuildComponent::CancelBuildMode()
 	CurrentBuildingData = nullptr;
 	CurrentAnchor = FIntPoint::ZeroValue;
 	CurrentBuildingSize = FIntPoint(1, 1);
+	
+	if (!bIsDestroyMode)
+	{
+		SetComponentTickEnabled(false);
+	}
+}
+
+void UKOGridBuildComponent::StartDestroyMode()
+{
+	if (bIsBuildMode)
+	{
+		CancelBuildMode();
+	}
+
+	bIsDestroyMode = true;
+	SetComponentTickEnabled(true);
+
+	UpdateDestroyTargetPreview();
+
+	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 모드 시작"));
+}
+
+void UKOGridBuildComponent::CancelDestroyMode()
+{
+	if (!bIsDestroyMode)
+	{
+		return;
+	}
+	
+	bIsDestroyMode = false;
+	
+	ClearDestroyTargetActor();
+
+	if (!bIsBuildMode)
+	{
+		SetComponentTickEnabled(false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 모드 종료"));
+}
+
+void UKOGridBuildComponent::RequestDestroy()
+{
+	if (!bIsDestroyMode)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>();
+	if (!GridSub)
+	{
+		return;
+	}
+
+	AActor* TargetBuilding = CurrentDestroyTargetActor.Get();
+
+	if (!IsValid(TargetBuilding))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Destroy] 파괴할 대상이 없습니다."));
+		return;
+	}
+
+	if (!GridSub->FreeAreaByActor(TargetBuilding))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Destroy] 점유 해제 실패: %s"),
+			*TargetBuilding->GetName()
+		);
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
+		*TargetBuilding->GetName()
+	);
+	
+	ClearDestroyTargetActor();
+
+	TargetBuilding->Destroy();
 }
 
 void UKOGridBuildComponent::SetPreviewActorBuildableState(bool bCanBuild)
@@ -430,6 +495,121 @@ void UKOGridBuildComponent::ApplyGhostMaterial(AActor* TargetActor, UMaterialInt
 	}
 }
 
+void UKOGridBuildComponent::UpdateDestroyTargetPreview()
+{
+	if (!bIsDestroyMode)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		ClearDestroyTargetActor();
+		return;
+	}
+
+	UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>();
+	if (!GridSub)
+	{
+		ClearDestroyTargetActor();
+		return;
+	}
+
+	FHitResult HitResult;
+
+	if (!TraceFromScreenCenter(HitResult))
+	{
+		ClearDestroyTargetActor();
+		return;
+	}
+
+	const FIntPoint HitGrid = GridSub->WorldToGridPosition(HitResult.ImpactPoint);
+
+	AActor* TargetActor = GridSub->GetOccupyingActorAt(HitGrid);
+
+	SetDestroyTargetActor(TargetActor);
+}
+
+void UKOGridBuildComponent::SetDestroyTargetActor(AActor* NewTargetActor)
+{
+	if (CurrentDestroyTargetActor.Get() == NewTargetActor)
+	{
+		return;
+	}
+
+	ClearDestroyTargetActor();
+
+	if (!NewTargetActor)
+	{
+		return;
+	}
+
+	CurrentDestroyTargetActor = NewTargetActor;
+	ApplyDestroyTargetMaterial(NewTargetActor);
+}
+
+void UKOGridBuildComponent::ClearDestroyTargetActor()
+{
+	RestoreDestroyTargetMaterial();
+
+	CurrentDestroyTargetActor = nullptr;
+	DestroyTargetOriginalMaterials.Empty();
+}
+
+void UKOGridBuildComponent::ApplyDestroyTargetMaterial(AActor* TargetActor)
+{
+	if (!TargetActor || !DestroyTargetMaterial)
+	{
+		return;
+	}
+
+	TArray<UMeshComponent*> MeshComponents;
+	TargetActor->GetComponents<UMeshComponent>(MeshComponents);
+
+	for (UMeshComponent* MeshComponent : MeshComponents)
+	{
+		if (!MeshComponent)
+		{
+			continue;
+		}
+
+		FKODestroyTargetOriginalMaterials OriginalData;
+		OriginalData.MeshComponent = MeshComponent;
+
+		const int32 MaterialCount = MeshComponent->GetNumMaterials();
+
+		for (int32 Index = 0; Index < MaterialCount; ++Index)
+		{
+			OriginalData.Materials.Add(MeshComponent->GetMaterial(Index));
+			MeshComponent->SetMaterial(Index, DestroyTargetMaterial);
+		}
+
+		DestroyTargetOriginalMaterials.Add(OriginalData);
+	}
+}
+
+void UKOGridBuildComponent::RestoreDestroyTargetMaterial()
+{
+	for (const FKODestroyTargetOriginalMaterials& OriginalData : DestroyTargetOriginalMaterials)
+	{
+		UMeshComponent* MeshComponent = OriginalData.MeshComponent.Get();
+
+		if (!IsValid(MeshComponent))
+		{
+			continue;
+		}
+
+		for (int32 Index = 0; Index < OriginalData.Materials.Num(); ++Index)
+		{
+			MeshComponent->SetMaterial(
+				Index,
+				OriginalData.Materials[Index]
+			);
+		}
+	}
+}
+
 bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 {
 	UWorld* World = GetWorld();
@@ -438,7 +618,7 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 		return false;
 	}
 
-	APlayerController* PC = GetOwningPlayerController();
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
 	if (!PC)
 	{
 		return false;
@@ -459,11 +639,6 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 		QueryParams.AddIgnoredActor(Pawn);
 	}
 
-	if (AActor* OwnerActor = GetOwner())
-	{
-		QueryParams.AddIgnoredActor(OwnerActor);
-	}
-
 	if (CurrentPreviewActor)
 	{
 		QueryParams.AddIgnoredActor(CurrentPreviewActor);
@@ -476,32 +651,56 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 		GroundTraceChannel,
 		QueryParams
 	);
+	
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	if (IsInGameThread())
+	{
+		const float DebugLifeTime = 0.03f;
+		const float DebugThickness = 2.0f;
+
+		if (bHit)
+		{
+			// 카메라에서 맞은 지점까지 초록색 라인
+			DrawDebugLine(
+				World,
+				TraceStart,
+				OutHit.ImpactPoint,
+				FColor::Green,
+				false,
+				DebugLifeTime,
+				0,
+				DebugThickness
+			);
+
+			// 맞은 지점 표시
+			DrawDebugSphere(
+				World,
+				OutHit.ImpactPoint,
+				12.0f,
+				12,
+				FColor::Green,
+				false,
+				DebugLifeTime,
+				0,
+				1.5f
+			);
+		}
+		else
+		{
+			// 아무것도 맞지 않으면 전체 라인 빨간색
+			DrawDebugLine(
+				World,
+				TraceStart,
+				TraceEnd,
+				FColor::Red,
+				false,
+				DebugLifeTime,
+				0,
+				DebugThickness
+			);
+		}
+	}
+#endif
 
 	return bHit;	
-}
-
-APlayerController* UKOGridBuildComponent::GetOwningPlayerController() const
-{
-	AActor* OwnerActor = GetOwner();
-
-	if (OwnerActor)
-	{
-		if (APlayerController* PC = Cast<APlayerController>(OwnerActor))
-		{
-			return PC;
-		}
-
-		if (APawn* Pawn = Cast<APawn>(OwnerActor))
-		{
-			return Cast<APlayerController>(Pawn->GetController());
-		}
-	}
-
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return nullptr;
-	}
-
-	return UGameplayStatics::GetPlayerController(World, 0);
 }
