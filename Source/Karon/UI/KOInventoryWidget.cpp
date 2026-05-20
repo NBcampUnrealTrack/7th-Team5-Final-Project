@@ -24,14 +24,14 @@ void UKOInventoryWidget::NativeOnActivated()
     Super::NativeOnActivated();
 
     InventoryChangedCallback.BindDynamic(this, &UKOInventoryWidget::OnInventoryChangedGMS);
-    InventoryChangedHandle = SubscribeToGMS(KOGameplayTags::Data_Message_Inventory_Changed, InventoryChangedCallback);
+    InventoryChangedHandle = Subscribe(KOGameplayTags::Data_Message_Inventory_Changed, InventoryChangedCallback);
 
     RefreshSlots();
 }
 
 void UKOInventoryWidget::NativeOnDeactivated()
 {
-    UnsubscribeFromGMS(InventoryChangedHandle);
+    Unsubscribe(InventoryChangedHandle);
     InventoryChangedHandle = FGameplayMessageHandle();
     InventoryChangedCallback.Clear();
 
