@@ -13,6 +13,7 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
+	// ─── Ability Life Cycle ───────────────────────────────────────────────────
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -28,14 +29,17 @@ public:
 		bool bWasCancelled
 	) override;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Animation")
-	TObjectPtr<UAnimMontage> AttackMontage;
-	
+	// ─── Gameplay Effect Class ────────────────────────────────────────────────
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
+	// ─── Gameplay Tag ─────────────────────────────────────────────────────────
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Event")
 	FGameplayTag AttackEventTag;
+	
+	// ─── Animation Montage ────────────────────────────────────────────────────
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Animation")
+	TObjectPtr<UAnimMontage> AttackMontage;
 	
 	UFUNCTION()
 	void OnMontageCompleted();
@@ -45,5 +49,10 @@ public:
 	
 	UFUNCTION()
 	void OnGameplayEventReceived(FGameplayEventData Payload);
+	
+	
+
+	
+
 	
 };
