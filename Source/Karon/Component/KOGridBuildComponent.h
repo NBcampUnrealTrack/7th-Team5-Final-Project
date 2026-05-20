@@ -69,13 +69,17 @@ public:
 
 protected:
 	bool TraceFromScreenCenter(FHitResult& OutHit) const;
-
+	
+	// 고스트 프리뷰 - 건설 모드
 	void UpdateGhostPreview();
 	bool SpawnPreviewActor();
 	void DestroyPreviewActor();
+	
+	// 머티리얼
 	void SetPreviewActorBuildableState(bool bCanBuild);
 	void ApplyGhostMaterial(AActor* TargetActor, UMaterialInterface* TargetMaterial) const;
 	
+	// 파괴 모드
 	void UpdateDestroyTargetPreview();
 	void SetDestroyTargetActor(AActor* NewTargetActor);
 	void ClearDestroyTargetActor();
@@ -132,7 +136,7 @@ private:
 
 	bool bIsBuildMode = false; // 건설
 	bool bIsDestroyMode = false; // 파괴(해제)
-	bool bCurrentPlacementValid = false;
+	bool bCurrentPlacementValid = false; // 설치 가능 여부
 	
 	// 이전 상태를 저장한 적이 있는가?
 	bool bHasLastPreviewBuildableState = false;

@@ -14,7 +14,7 @@
 UKOGridBuildComponent::UKOGridBuildComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	// 건설 모드가 켜졌을 때만 tick 켬
+	// 건설 모드 or 파괴 모드가 켜졌을 때만 tick 켬
 	PrimaryComponentTick.SetTickFunctionEnable(false);
 	
 	// 기본 고스트 프리뷰 클래스 지정
@@ -31,7 +31,7 @@ void UKOGridBuildComponent::TickComponent(
 
 	if (bIsBuildMode)
 	{
-		UpdateGhostPreview(); // 고스트 프리뷰 위치 업데이트
+		UpdateGhostPreview();
 		return;
 	}
 
