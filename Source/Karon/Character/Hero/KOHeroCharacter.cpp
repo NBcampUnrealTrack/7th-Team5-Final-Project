@@ -20,11 +20,6 @@ void AKOHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->GiveDefaultAbilities(); 
-	}
 }
 
 void AKOHeroCharacter::PossessedBy(AController* NewController)
