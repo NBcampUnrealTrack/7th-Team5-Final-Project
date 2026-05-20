@@ -128,10 +128,7 @@ void UKOInventoryComponent::NotifyChanged(FName ItemId, int32 PreviousCount, int
     Msg.PreviousCount = PreviousCount;
     Msg.NewCount      = NewCount;
 
-    // 1. 네이티브 델리게이트 브로드캐스트
-    OnInventoryChangedNative.Broadcast(Msg);
-
-    // 2. GMRouter GMS 브로드캐스트
+    // GMRouter GMS 브로드캐스트
     const UWorld* World = GetWorld();
     if (!World)
     {

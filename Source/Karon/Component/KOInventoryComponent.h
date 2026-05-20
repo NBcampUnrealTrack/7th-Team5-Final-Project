@@ -10,17 +10,13 @@
 
 class UGMRouterSubsystem;
 
-/** 인벤토리가 변경될 때 발동하는 네이티브 멀티캐스트 델리게이트 */
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnKOInventoryChangedNative, const FKOInventoryChangedMessage&);
-
 /**
  * UKOInventoryComponent
  *
  * 범용 인벤토리 컴포넌트. Slot 기반으로 아이템 식별자(FName)와 수량을 관리한다.
  *
- * 변경 알림:
- *   1. OnInventoryChangedNative — 네이티브 C++ 구독자용 멀티캐스트 델리게이트
- *   2. KHS GMS BroadcastMessage(Message_Inventory_Changed) — 크로스-시스템 구독
+ * 변경 알림: KHS GMS BroadcastMessage(Data_Message_Inventory_Changed) 채널로만 발사한다.
+ * 구독은 IKOGMSInterface::Subscribe() 또는 UGMRouterSubsystem::SubscribeMessage() 사용.
  *
  * AcceptedItemsQuery를 설정하면 TryAddItem 시 쿼리를 통과한 아이템만 허용한다.
  */
@@ -45,11 +41,6 @@ public:
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|Inventory")
     FGameplayTagQuery AcceptedItemsQuery;
-
-    // ─── 이벤트 ───────────────────────────────────────────────────────────────
-
-    /** C++ 구독용 네이티브 델리게이트. NotifyChanged() 내부에서 Broadcast된다. */
-    FOnKOInventoryChangedNative OnInventoryChangedNative;
 
     // ─── 아이템 조작 API ──────────────────────────────────────────────────────
 
@@ -103,8 +94,7 @@ protected:
 
     /**
      * 슬롯 변경 후 반드시 호출한다.
-     * 1. OnInventoryChangedNative 브로드캐스트
-     * 2. KHS GMS로 FKOInventoryChangedMessage 브로드캐스트
+     * KHS GMS로 FKOInventoryChangedMessage를 Data_Message_Inventory_Changed 채널에 브로드캐스트한다.
      *
      * @param ItemId        변경된 아이템 식별자
      * @param PreviousCount 변경 전 수량
