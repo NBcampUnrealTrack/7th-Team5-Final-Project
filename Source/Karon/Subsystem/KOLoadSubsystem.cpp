@@ -1,7 +1,7 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "Subsystem/KOLoadSubsystem.h"
 
-#include "Data/KODataRegistryConfig.h"
+#include "Data/KODataRegistrySettings.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture2D.h"
 #include "Engine/StaticMesh.h"
@@ -98,54 +98,33 @@ void UKOLoadSubsystem::IndexTableRows(
 
 void UKOLoadSubsystem::LoadAll()
 {
-    // 1. 설정 경로 유효성 확인 ───────────────────────────────────────────────────
-    if (!DataRegistryConfigPath.IsValid())
-    {
-        UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem: DataRegistryConfigPath가 설정되지 않았습니다. "
-                 "DefaultGame.ini의 [/Script/Karon.KOLoadSubsystem] 섹션에 추가하세요."));
-        return;
-    }
-
-    // 2. UKODataRegistryConfig 동기 로드 ──────────────────────────────────────
-    UKODataRegistryConfig* Config = Cast<UKODataRegistryConfig>(
-        DataRegistryConfigPath.TryLoad());
-
-    if (!Config)
-    {
-        UE_LOG(LogKOLoad, Error,
-            TEXT("UKOLoadSubsystem: '%s' 경로에서 UKODataRegistryConfig 로드 실패. "
-                 "에셋 존재 여부와 경로를 확인하세요."),
-            *DataRegistryConfigPath.ToString());
-        return;
-    }
-
-    UE_LOG(LogKOLoad, Log, TEXT("UKOLoadSubsystem: Loaded config '%s'."),
-        *Config->GetName());
+    // 1. DeveloperSettings 조회 — 엔진 부팅 시 자동 생성/로드되므로 항상 유효 ────
+    const UKODataRegistrySettings* Settings = GetDefault<UKODataRegistrySettings>();
+    check(Settings);
 
     // HardRefs: LoadSynchronous로 얻은 UDataTable*을 GC로부터 보호한다.
     // 이 배열이 스코프를 벗어나면 강한 참조가 해제되어 GC 수집이 허용된다.
     TArray<UObject*> HardRefs;
 
-    // 3. 아이템 테이블 로드 및 색인 ────────────────────────────────────────────
+    // 2. 아이템 테이블 로드 및 색인 ────────────────────────────────────────────
     IndexTableRows<FKOItemRow>(
-        Config->ItemTables,
+        Settings->ItemTables,
         ItemCache,
         [](const FKOItemRow& Row) { return Row.ItemTag; },
         TEXT("Item"),
         HardRefs);
 
-    // 4. 공장 테이블 로드 및 색인 ──────────────────────────────────────────────
+    // 3. 공장 테이블 로드 및 색인 ──────────────────────────────────────────────
     IndexTableRows<FKOFactoryRow>(
-        Config->FactoryTables,
+        Settings->FactoryTables,
         FactoryCache,
         [](const FKOFactoryRow& Row) { return Row.FactoryTag; },
         TEXT("Factory"),
         HardRefs);
 
-    // 5. 레시피 테이블 로드 및 색인 ────────────────────────────────────────────
+    // 4. 레시피 테이블 로드 및 색인 ────────────────────────────────────────────
     IndexTableRows<FKORecipeRow>(
-        Config->RecipeTables,
+        Settings->RecipeTables,
         RecipeCache,
         [](const FKORecipeRow& Row) { return Row.RecipeTag; },
         TEXT("Recipe"),

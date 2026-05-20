@@ -19,10 +19,9 @@ class UStaticMesh;
  * 라이프사이클
  * -----------
  * Initialize() → LoadAll()
- *   1. DefaultGame.ini에서 DataRegistryConfigPath를 읽는다.
- *   2. UKODataRegistryConfig를 동기 로드한다.
- *   3. 설정에 나열된 UDataTable을 각각 동기 로드한다.
- *   4. 행을 순회하여 세 개의 런타임 TMap 캐시에 색인한다.
+ *   1. UKODataRegistrySettings(DeveloperSettings)에서 테이블 목록을 조회한다.
+ *   2. 설정에 나열된 UDataTable을 각각 동기 로드한다.
+ *   3. 행을 순회하여 세 개의 런타임 TMap 캐시에 색인한다.
  *
  * 모든 로딩은 동기(LoadSynchronous)로 이루어지며, World 생성 이전인
  * GameInstance 초기화 단계에서 완료되므로 인게임 히치가 없다.
@@ -33,7 +32,7 @@ class UStaticMesh;
  * ResolveItemIcon / ResolveItemMesh — 소프트 에셋 포인터 지연 동기 로드.
  *   결과는 TWeakObjectPtr 맵에 캐싱되어 중복 로드를 방지하면서도 GC 수거를 허용한다.
  */
-UCLASS(Config = Game)
+UCLASS()
 class KARON_API UKOLoadSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
@@ -105,16 +104,6 @@ private:
         TFunctionRef<FGameplayTag(const TRow&)>   GetTag,
         const TCHAR*                              TableKind,
         TArray<UObject*>&                         HardRefs);
-
-    // ─── Config (populated from DefaultGame.ini via UPROPERTY(Config)) ────────
-
-    /**
-     * UKODataRegistryConfig 에셋의 소프트 경로.
-     * DefaultGame.ini의 [/Script/Karon.KOLoadSubsystem] 섹션에서 설정한다:
-     *   DataRegistryConfigPath=/Game/Data/DA_KODataRegistry.DA_KODataRegistry
-     */
-    UPROPERTY(Config)
-    FSoftObjectPath DataRegistryConfigPath;
 
     // ─── 런타임 캐시 ─────────────────────────────────────────────────────────
     // UPROPERTY가 아닌 일반 TMap인 이유:

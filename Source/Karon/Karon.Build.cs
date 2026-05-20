@@ -20,6 +20,8 @@ public class Karon : ModuleRules
 			"StructUtils",
 			// GMRouter (GameplayMessage Router subsystem)
 			"GMRouter",
+			// UDeveloperSettings (Project Settings 통합)
+			"DeveloperSettings",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
