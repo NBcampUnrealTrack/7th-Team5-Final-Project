@@ -10,6 +10,25 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOLoad, Log, All);
 
+// ─── Static Accessor ─────────────────────────────────────────────────────────
+
+UKOLoadSubsystem* UKOLoadSubsystem::Get(const UObject* WorldContext)
+{
+    if (!WorldContext || !GEngine)
+    {
+        return nullptr;
+    }
+
+    const UWorld* World = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::LogAndReturnNull);
+    if (!World)
+    {
+        return nullptr;
+    }
+
+    const UGameInstance* GI = World->GetGameInstance();
+    return GI ? GI->GetSubsystem<UKOLoadSubsystem>() : nullptr;
+}
+
 // ─── USubsystem ──────────────────────────────────────────────────────────────
 
 void UKOLoadSubsystem::Initialize(FSubsystemCollectionBase& Collection)

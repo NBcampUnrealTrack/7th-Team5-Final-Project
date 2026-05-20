@@ -4,6 +4,25 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Component/KOInventoryComponent.h"
 #include "Items/KOItemTypes.h"
+#include "Engine/World.h"
+#include "Engine/GameInstance.h"
+
+UKOItemManagerSubsystem* UKOItemManagerSubsystem::Get(const UObject* WorldContext)
+{
+    if (!WorldContext || !GEngine)
+    {
+        return nullptr;
+    }
+
+    const UWorld* World = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::LogAndReturnNull);
+    if (!World)
+    {
+        return nullptr;
+    }
+
+    const UGameInstance* GI = World->GetGameInstance();
+    return GI ? GI->GetSubsystem<UKOItemManagerSubsystem>() : nullptr;
+}
 
 void UKOItemManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -27,7 +46,7 @@ int32 UKOItemManagerSubsystem::GetMaxStack(FName ItemId) const
         return DefaultMaxStack;
     }
 
-    const UKOLoadSubsystem* LoadSub = GetGameInstance()->GetSubsystem<UKOLoadSubsystem>();
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     if (!LoadSub)
     {
         return DefaultMaxStack;
@@ -87,7 +106,7 @@ bool UKOItemManagerSubsystem::SplitStack(UKOInventoryComponent* Inventory, int32
 
     const FKOItemSlot& TargetSlot = Slots[SlotIndex];
 
-    if (!TargetSlot.IsValid())
+    if (!TargetSlot.HasItem())
     {
         return false;
     }
@@ -129,7 +148,7 @@ void UKOItemManagerSubsystem::MergeAllStacks(UKOInventoryComponent* Inventory)
     TArray<FName> UniqueItems;
     for (const FKOItemSlot& Slot : Inventory->GetSlots())
     {
-        if (Slot.IsValid())
+        if (Slot.HasItem())
         {
             UniqueItems.AddUnique(Slot.ItemId);
         }

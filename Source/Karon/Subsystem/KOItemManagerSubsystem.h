@@ -29,6 +29,13 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
+    /**
+     * WorldContext로부터 이 서브시스템 인스턴스를 안전하게 획득한다.
+     * @return 찾으면 인스턴스, 못 찾으면 nullptr
+     */
+    UFUNCTION(BlueprintPure, Category = "KO|Item", meta = (WorldContext = "WorldContext"))
+    static UKOItemManagerSubsystem* Get(const UObject* WorldContext);
+
     // ─── 아이템 최대 스택 조회 ────────────────────────────────────────────────
 
     /**

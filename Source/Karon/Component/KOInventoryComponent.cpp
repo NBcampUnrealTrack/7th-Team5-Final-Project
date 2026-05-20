@@ -2,6 +2,7 @@
 
 #include "Component/KOInventoryComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Messaging/KOMessageTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "GMRouterSubsystem.h"
 #include "StructUtils/InstancedStruct.h"
@@ -25,6 +26,7 @@ int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
         return Count;
     }
 
+    const int32 PreviousCount = GetCountOf(ItemId);
     const int32 MaxStack = GetMaxStackForItem(ItemId);
     int32 Remaining = Count;
 
@@ -38,20 +40,16 @@ int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
 
         if (Slot.ItemId == ItemId && Slot.Count < MaxStack)
         {
-            const int32 PreviousCount = GetCountOf(ItemId);
             const int32 Space = MaxStack - Slot.Count;
             const int32 ToAdd = FMath::Min(Space, Remaining);
             Slot.Count += ToAdd;
             Remaining  -= ToAdd;
-
-            NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
         }
     }
 
     // 2단계: 남은 수량을 새 슬롯에 분배한다
     while (Remaining > 0 && Slots.Num() < MaxSlots)
     {
-        const int32 PreviousCount = GetCountOf(ItemId);
         const int32 ToAdd = FMath::Min(MaxStack, Remaining);
 
         FKOItemSlot NewSlot;
@@ -59,8 +57,12 @@ int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
         NewSlot.Count  = ToAdd;
         Slots.Add(NewSlot);
         Remaining -= ToAdd;
+    }
 
-        NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
+    const int32 NewCount = GetCountOf(ItemId);
+    if (NewCount != PreviousCount)
+    {
+        NotifyInventoryChanged(ItemId, PreviousCount, NewCount);
     }
 
     return Remaining;
@@ -99,7 +101,11 @@ bool UKOInventoryComponent::TryRemoveItem(FName ItemId, int32 Count)
         }
     }
 
-    NotifyChanged(ItemId, PreviousCount, GetCountOf(ItemId));
+    const int32 NewCount = GetCountOf(ItemId);
+    if (NewCount != PreviousCount)
+    {
+        NotifyInventoryChanged(ItemId, PreviousCount, NewCount);
+    }
     return true;
 }
 
@@ -121,7 +127,7 @@ bool UKOInventoryComponent::HasEnoughItems(FName ItemId, int32 Count) const
     return GetCountOf(ItemId) >= Count;
 }
 
-void UKOInventoryComponent::NotifyChanged(FName ItemId, int32 PreviousCount, int32 NewCount)
+void UKOInventoryComponent::NotifyInventoryChanged(FName ItemId, int32 PreviousCount, int32 NewCount)
 {
     FKOInventoryChangedMessage Msg;
     Msg.ItemId        = ItemId;
@@ -153,50 +159,32 @@ void UKOInventoryComponent::NotifyChanged(FName ItemId, int32 PreviousCount, int
 bool UKOInventoryComponent::IsItemAccepted(FName ItemId) const
 {
     // 쿼리가 비어 있으면 모두 허용
-    if (!AcceptedItemsQuery.IsEmpty())
+    if (AcceptedItemsQuery.IsEmpty())
     {
-        const UWorld* World = GetWorld();
-        if (World)
-        {
-            if (const UGameInstance* GI = World->GetGameInstance())
-            {
-                if (const UKOLoadSubsystem* LoadSub = GI->GetSubsystem<UKOLoadSubsystem>())
-                {
-                    if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
-                    {
-                        return AcceptedItemsQuery.Matches(Row->Categories);
-                    }
-                }
-            }
-        }
-        // DataTable에 없는 아이템이라면 거부
-        return false;
+        return true;
     }
-    return true;
+
+    if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
+    {
+        if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
+        {
+            return AcceptedItemsQuery.Matches(Row->Categories);
+        }
+    }
+    // DataTable에 없는 아이템이라면 거부
+    return false;
 }
 
 int32 UKOInventoryComponent::GetMaxStackForItem(FName ItemId) const
 {
     constexpr int32 DefaultMaxStack = 100;
 
-    const UWorld* World = GetWorld();
-    if (!World)
+    if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
     {
-        return DefaultMaxStack;
+        if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
+        {
+            return Row->MaxStack;
+        }
     }
-
-    const UGameInstance* GI = World->GetGameInstance();
-    if (!GI)
-    {
-        return DefaultMaxStack;
-    }
-
-    const UKOLoadSubsystem* LoadSub = GI->GetSubsystem<UKOLoadSubsystem>();
-    if (!LoadSub)
-    {
-        return DefaultMaxStack;
-    }
-
-    const FKOItemRow* Row = LoadSub->FindItemRow(ItemId);
-    return Row ? Row->MaxStack : DefaultMaxStack;
+    return DefaultMaxStack;
 }

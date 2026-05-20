@@ -17,29 +17,18 @@ USTRUCT(BlueprintType)
 struct KARON_API FKOItemSlot
 {
     GENERATED_BODY()
-
-    /** 슬롯에 들어있는 아이템 식별자 (Item DataTable의 RowName). 빈 슬롯이면 NAME_None */
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|Inventory")
     FName ItemId;
-
-    /** 현재 누적 수량. 0이면 빈 슬롯으로 간주 */
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|Inventory")
     int32 Count = 0;
-
-    // ─── 유틸리티 ─────────────────────────────────────────────────────────────
-
-    /** 슬롯에 유효한 아이템이 있으면 true (Id 유효 & Count > 0) */
-    bool IsValid() const
+    
+    bool HasItem() const
     {
         return !ItemId.IsNone() && Count > 0;
     }
-
-    /**
-     * 두 슬롯이 같은 아이템 종류인지 반환.
-     * Count는 비교하지 않는다.
-     *
-     * @param Other 비교 대상 슬롯
-     */
+    
     bool IsSameItem(const FKOItemSlot& Other) const
     {
         return ItemId == Other.ItemId;

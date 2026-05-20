@@ -11,6 +11,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogKOUI, Log, All);
 
 class UCommonActivatableWidget;
 class UCommonActivatableWidgetContainerBase;
+class APlayerController;
+class ULocalPlayer;
 
 /**
  * KOUISubsystem
@@ -38,6 +40,16 @@ public:
     // ─── USubsystem ──────────────────────────────────────────────────────────
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
+
+    /**
+     * PlayerController로부터 이 서브시스템 인스턴스를 획득한다.
+     * @return 찾으면 인스턴스, 못 찾으면 nullptr
+     */
+    UFUNCTION(BlueprintPure, Category = "KO|UI")
+    static UKOUISubsystem* Get(const APlayerController* PlayerController);
+
+    /** ULocalPlayer 직접 접근 가능한 컨텍스트(C++ 전용) */
+    static UKOUISubsystem* Get(const ULocalPlayer* LocalPlayer);
 
     // ─── Layout Registration ──────────────────────────────────────────────────
     /**

@@ -8,10 +8,27 @@
 
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 DEFINE_LOG_CATEGORY(LogKOUI);
+
+// ─── Static Accessors ────────────────────────────────────────────────────────
+
+UKOUISubsystem* UKOUISubsystem::Get(const APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        return nullptr;
+    }
+    return Get(PlayerController->GetLocalPlayer());
+}
+
+UKOUISubsystem* UKOUISubsystem::Get(const ULocalPlayer* LocalPlayer)
+{
+    return LocalPlayer ? LocalPlayer->GetSubsystem<UKOUISubsystem>() : nullptr;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 

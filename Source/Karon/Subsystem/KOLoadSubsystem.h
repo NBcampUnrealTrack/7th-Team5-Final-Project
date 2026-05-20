@@ -46,6 +46,13 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
+    /**
+     * WorldContext로부터 이 서브시스템 인스턴스를 안전하게 획득한다.
+     * @return 찾으면 인스턴스, 못 찾으면 nullptr
+     */
+    UFUNCTION(BlueprintPure, Category = "KO|Load", meta = (WorldContext = "WorldContext"))
+    static UKOLoadSubsystem* Get(const UObject* WorldContext);
+
     const FKOItemRow*    FindItemRow(FName ItemId)              const;
     const FKOFactoryRow* FindFactoryRow(FGameplayTag FactoryTag) const;
     const FKORecipeRow*  FindRecipeRow(FGameplayTag RecipeTag)   const;

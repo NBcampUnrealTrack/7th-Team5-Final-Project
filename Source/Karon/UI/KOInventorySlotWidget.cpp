@@ -1,8 +1,6 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/KOInventorySlotWidget.h"
-#include "Subsystem/KOLoadSubsystem.h"
-#include "Data/KODataTableTypes.h"
-#include "Engine/GameInstance.h"
+#include "Items/KOItemLibrary.h"
 
 void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 {
@@ -10,19 +8,10 @@ void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 	ItemDisplayName = FText::GetEmpty();
 	ItemIcon = nullptr;
 
-	if (SlotData.IsValid())
+	if (SlotData.HasItem())
 	{
-		if (const UGameInstance* GI = GetGameInstance())
-		{
-			if (const UKOLoadSubsystem* LS = GI->GetSubsystem<UKOLoadSubsystem>())
-			{
-				if (const FKOItemRow* Row = LS->FindItemRow(SlotData.ItemId))
-				{
-					ItemDisplayName = Row->DisplayName;
-					ItemIcon = LS->ResolveItemIcon(SlotData.ItemId);
-				}
-			}
-		}
+		ItemDisplayName = UKOItemLibrary::GetItemDisplayName(this, SlotData.ItemId);
+		ItemIcon        = UKOItemLibrary::GetItemIcon(this, SlotData.ItemId);
 	}
 
 	BP_OnSlotDataSet(SlotData);

@@ -5,21 +5,10 @@
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
 #include "Items/KOItemTypes.h"
-#include "Messaging/KOMessageTypes.h"
 #include "KOInventoryComponent.generated.h"
 
 class UGMRouterSubsystem;
 
-/**
- * UKOInventoryComponent
- *
- * 범용 인벤토리 컴포넌트. Slot 기반으로 아이템 식별자(FName)와 수량을 관리한다.
- *
- * 변경 알림: KHS GMS BroadcastMessage(Data_Message_Inventory_Changed) 채널로만 발사한다.
- * 구독은 IKOGMSInterface::Subscribe() 또는 UGMRouterSubsystem::SubscribeMessage() 사용.
- *
- * AcceptedItemsQuery를 설정하면 TryAddItem 시 쿼리를 통과한 아이템만 허용한다.
- */
 UCLASS(ClassGroup = "KO|Inventory", meta = (BlueprintSpawnableComponent))
 class KARON_API UKOInventoryComponent : public UActorComponent
 {
@@ -28,9 +17,6 @@ class KARON_API UKOInventoryComponent : public UActorComponent
 public:
     UKOInventoryComponent();
 
-    // ─── 설정 ─────────────────────────────────────────────────────────────────
-
-    /** 인벤토리 최대 슬롯 수 */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Inventory")
     int32 MaxSlots = 20;
 
@@ -43,25 +29,9 @@ public:
     FGameplayTagQuery AcceptedItemsQuery;
 
     // ─── 아이템 조작 API ──────────────────────────────────────────────────────
-
-    /**
-     * 아이템 추가를 시도한다.
-     * 기존 슬롯에 스택 가능하면 합산하고, 슬롯이 부족하면 새 슬롯에 분배한다.
-     *
-     * @param ItemId   추가할 아이템 식별자 (DataTable RowName)
-     * @param Count    추가 요청 수량
-     * @return         추가하지 못한 잔여 수량 (0이면 전부 추가 성공)
-     */
     UFUNCTION(BlueprintCallable, Category = "KO|Inventory")
     virtual int32 TryAddItem(FName ItemId, int32 Count);
-
-    /**
-     * 아이템 제거를 시도한다.
-     *
-     * @param ItemId   제거할 아이템 식별자
-     * @param Count    제거 요청 수량
-     * @return         요청 수량 전부 제거 성공 여부
-     */
+    
     UFUNCTION(BlueprintCallable, Category = "KO|Inventory")
     virtual bool TryRemoveItem(FName ItemId, int32 Count);
 
@@ -100,7 +70,7 @@ protected:
      * @param PreviousCount 변경 전 수량
      * @param NewCount      변경 후 수량
      */
-    void NotifyChanged(FName ItemId, int32 PreviousCount, int32 NewCount);
+    void NotifyInventoryChanged(FName ItemId, int32 PreviousCount, int32 NewCount);
 
     /**
      * AcceptedItemsQuery 기반 아이템 허용 여부 검사.
