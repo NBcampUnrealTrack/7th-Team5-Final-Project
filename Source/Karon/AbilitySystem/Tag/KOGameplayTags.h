@@ -28,7 +28,8 @@ namespace KOGameplayTags
 
     // ── Input | Ability | Attack ──────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Combo);
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Light);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Charge);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Dash);
 
