@@ -12,30 +12,12 @@ class UStaticMesh;
 
 /**
  * UKOLoadSubsystem
+ * 설계에서 최대한 복잡성을 줄였다.
+ * 동작 : [GameInstance] Initialize() → LoadAll()
  *
- * DataTable 기반 런타임 데이터(아이템, 공장, 레시피)를 로드·캐싱하는
- * GameInstance 수명 서브시스템.
- *
- * 라이프사이클
- * -----------
- * Initialize() → LoadAll()
- *   1. UKODataRegistrySettings(DeveloperSettings)에서 테이블 목록을 조회한다.
- *   2. 설정에 나열된 UDataTable을 각각 동기 로드한다.
- *   3. 행을 순회하여 세 개의 런타임 TMap 캐시에 색인한다.
- *
- * 모든 로딩은 동기(LoadSynchronous)로 이루어지며, World 생성 이전인
- * GameInstance 초기화 단계에서 완료되므로 인게임 히치가 없다.
- *
- * 키 정책
- * -------
- * - 아이템은 RowName(FName)을 단일 식별자로 사용한다.
- * - 공장/레시피는 행 내부의 FGameplayTag 필드를 식별자로 사용한다.
- *
- * 조회 API
- * --------
- * FindItemRow(FName) / FindFactoryRow / FindRecipeRow — 키 기반 O(1) 캐시 조회.
- * ResolveItemIcon / ResolveItemMesh — 소프트 에셋 포인터 지연 동기 로드.
- *   결과는 TWeakObjectPtr 맵에 캐싱되어 중복 로드를 방지하면서도 GC 수거를 허용한다.
+ * [API]
+ * FindItemRow(FName) / FindFactoryRow / FindRecipeRow — 키 기반 캐시 조회.
+ * ResolveItemIcon / ResolveItemMesh — 소프트 레퍼런스 지연 로드.
  */
 UCLASS()
 class KARON_API UKOLoadSubsystem : public UGameInstanceSubsystem
@@ -46,10 +28,6 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
-    /**
-     * WorldContext로부터 이 서브시스템 인스턴스를 안전하게 획득한다.
-     * @return 찾으면 인스턴스, 못 찾으면 nullptr
-     */
     UFUNCTION(BlueprintPure, Category = "KO|Load", meta = (WorldContext = "WorldContext"))
     static UKOLoadSubsystem* Get(const UObject* WorldContext);
 
@@ -66,11 +44,9 @@ public:
 
 private:
     void LoadAll();
-
-    /** 아이템 테이블 전용 인덱싱 (RowName을 키로 사용) */
+    
     void IndexItemTables(const TArray<TSoftObjectPtr<UDataTable>>& SoftTables);
-
-    /** 태그 필드를 키로 갖는 테이블용 범용 인덱서 */
+    
     template<typename TRow>
     void IndexTableRowsByTag(
         const TArray<TSoftObjectPtr<UDataTable>>& SoftTables,
@@ -78,7 +54,7 @@ private:
         TFunctionRef<FGameplayTag(const TRow&)>   GetTag,
         const TCHAR*                              TableKind);
 
-    // DataTable 강한 참조로 GC 수거 방지
+    // DataTable 강한 참조를 통해 Row*가 GC에 의해 수거되지 않도록 함
     UPROPERTY()
     TArray<TObjectPtr<UDataTable>> LoadedTables;
 

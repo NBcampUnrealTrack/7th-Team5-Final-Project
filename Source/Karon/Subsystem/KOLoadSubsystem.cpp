@@ -6,11 +6,8 @@
 #include "Engine/Texture2D.h"
 #include "Engine/StaticMesh.h"
 
-// ─── Logging ─────────────────────────────────────────────────────────────────
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOLoad, Log, All);
-
-// ─── Static Accessor ─────────────────────────────────────────────────────────
 
 UKOLoadSubsystem* UKOLoadSubsystem::Get(const UObject* WorldContext)
 {
@@ -29,8 +26,6 @@ UKOLoadSubsystem* UKOLoadSubsystem::Get(const UObject* WorldContext)
     return GI ? GI->GetSubsystem<UKOLoadSubsystem>() : nullptr;
 }
 
-// ─── USubsystem ──────────────────────────────────────────────────────────────
-
 void UKOLoadSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
@@ -39,7 +34,6 @@ void UKOLoadSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UKOLoadSubsystem::Deinitialize()
 {
-    // 캐시 먼저 비운 뒤 핀 해제 — 행 포인터 댕글링 방지를 위한 순서.
     ItemCache.Empty();
     FactoryCache.Empty();
     RecipeCache.Empty();
@@ -50,8 +44,7 @@ void UKOLoadSubsystem::Deinitialize()
     Super::Deinitialize();
 }
 
-// ─── Internal Loading ─────────────────────────────────────────────────────────
-
+// 내부 로딩
 void UKOLoadSubsystem::IndexItemTables(const TArray<TSoftObjectPtr<UDataTable>>& SoftTables)
 {
     for (const TSoftObjectPtr<UDataTable>& SoftTable : SoftTables)

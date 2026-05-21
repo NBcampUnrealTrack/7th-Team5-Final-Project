@@ -109,6 +109,71 @@ bool UKOInventoryComponent::TryRemoveItem(FName ItemId, int32 Count)
     return true;
 }
 
+bool UKOInventoryComponent::SplitStack(int32 SlotIndex, int32 SplitCount)
+{
+    if (!Slots.IsValidIndex(SlotIndex))
+    {
+        return false;
+    }
+
+    FKOItemSlot& Source = Slots[SlotIndex];
+
+    if (!Source.HasItem())
+    {
+        return false;
+    }
+
+    if (SplitCount <= 0 || SplitCount >= Source.Count)
+    {
+        return false;
+    }
+
+    if (Slots.Num() >= MaxSlots)
+    {
+        return false;
+    }
+
+    const FName ItemId = Source.ItemId;
+
+    Source.Count -= SplitCount;
+
+    FKOItemSlot NewSlot;
+    NewSlot.ItemId = ItemId;
+    NewSlot.Count  = SplitCount;
+    Slots.Add(NewSlot);
+
+    const int32 Total = GetCountOf(ItemId);
+    NotifyInventoryChanged(ItemId, Total, Total);
+
+    return true;
+}
+
+void UKOInventoryComponent::MergeAllStacks()
+{
+    TArray<FName> UniqueItems;
+    for (const FKOItemSlot& Slot : Slots)
+    {
+        if (Slot.HasItem())
+        {
+            UniqueItems.AddUnique(Slot.ItemId);
+        }
+    }
+
+    for (const FName& ItemId : UniqueItems)
+    {
+        const int32 TotalCount = GetCountOf(ItemId);
+        if (TotalCount <= 0)
+        {
+            continue;
+        }
+
+        if (TryRemoveItem(ItemId, TotalCount))
+        {
+            TryAddItem(ItemId, TotalCount);
+        }
+    }
+}
+
 int32 UKOInventoryComponent::GetCountOf(FName ItemId) const
 {
     int32 Total = 0;

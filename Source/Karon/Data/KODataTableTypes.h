@@ -9,18 +9,6 @@
 class UTexture2D;
 class UStaticMesh;
 
-// AKOFactoryBase 미구현 — 구현 완료 후 TSoftClassPtr<AActor> → TSoftClassPtr<AKOFactoryBase> 로 교체
-
-/**
- * FKOItemRow
- *
- * 아이템 1종을 정의하는 DataTable 행 구조체.
- * 아이템 식별자는 DataTable의 RowName(FName)이 단일 소스로 사용된다.
- * 런타임 캐시 키, 인벤토리 슬롯 키, GMS 페이로드 키 모두 동일한 RowName이다.
- *
- * Icon, WorldMesh는 소프트 레퍼런스로 저장되며 여기서 로드되지 않는다.
- * 실제 로드는 UKOLoadSubsystem::ResolveItemIcon / ResolveItemMesh를 사용한다.
- */
 USTRUCT(BlueprintType)
 struct KARON_API FKOItemRow : public FTableRowBase
 {
@@ -47,13 +35,6 @@ struct KARON_API FKOItemRow : public FTableRowBase
     TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
 
-/**
- * FKOFactoryRow
- *
- * 공장 건물 1종을 정의하는 DataTable 행 구조체.
- * FactoryClass는 데이터 로드 시점에 Actor BP를 하드 로드하지 않도록
- * 소프트 클래스 포인터로 보관한다.
- */
 USTRUCT(BlueprintType)
 struct KARON_API FKOFactoryRow : public FTableRowBase
 {
@@ -79,19 +60,11 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     float BaseCycleSeconds = 2.f;
 
-    /** 월드 배치 시 스폰할 Actor 클래스 — AKOFactoryBase 구현 후 타입 교체 예정 */
+    /*/** 월드 배치 시 스폰할 Actor 클래스 — AKOFactoryBase 구현 후 타입 교체 예정 #1#
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    TSoftClassPtr<AActor> FactoryClass;
+    TSoftClassPtr<AKOFactoryBase> FactoryClass;*/
 };
 
-/**
- * FKORecipeRow
- *
- * 제작/생산 레시피 1종을 정의하는 DataTable 행 구조체.
- * Inputs/Outputs는 ItemId(=FKOItemRow RowName) → 수량 매핑이다.
- *
- * 주의: TMap<FName, int32>의 UPROPERTY 선언은 정상 지원된다.
- */
 USTRUCT(BlueprintType)
 struct KARON_API FKORecipeRow : public FTableRowBase
 {

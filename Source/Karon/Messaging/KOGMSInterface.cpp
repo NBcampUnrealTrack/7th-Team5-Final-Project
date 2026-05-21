@@ -52,7 +52,6 @@ void IKOGMSInterface::Broadcast(FGameplayTag Channel, const FInstancedStruct& Pa
 
 UGMRouterSubsystem* IKOGMSInterface::GetGMS() const
 {
-    // 인터페이스 구현체는 항상 UObject 파생이므로 안전한 캐스트.
     const UObject* AsObject = Cast<UObject>(this);
     if (!AsObject)
     {

@@ -31,11 +31,6 @@
  *   - NativeOnActivated   : Super:: 호출 후 Subscribe로 핸들 저장
  *   - NativeOnDeactivated : Unsubscribe(Handle) 후 Super:: 호출
  *
- * ─── 주의사항 ───────────────────────────────────────────────
- *   - FGameplayMessageCallback은 UFUNCTION()이 붙은 함수만 바인딩 가능
- *   - Subscribe 반환 FGameplayMessageHandle을 보관해야 Unsubscribe 가능
- *   - 페이로드 구조체는 KOMessageTypes.h에 정의 (팀 컨벤션)
- * ============================================================
  */
 
 #include "CoreMinimal.h"
@@ -45,14 +40,8 @@
 
 /**
  * KOActivatableWidget
- *
  * 프로젝트 전용 CommonActivatableWidget 베이스.
- * GMRouter 연동은 IKOGMSInterface로부터 상속받는다.
- *
- * 파생 클래스 규칙:
- *   - NativeOnActivated()   : Super 호출 후 GMS 구독, 반환 핸들 저장
- *   - NativeOnDeactivated() : 핸들 기반 GMS 해제 후 Super 호출
- *   - 수신 함수는 반드시 UFUNCTION() 마크 필요
+ * GMRouter 연동은 IKOGMSInterface를 통해
  */
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOActivatableWidget : public UCommonActivatableWidget, public IKOGMSInterface

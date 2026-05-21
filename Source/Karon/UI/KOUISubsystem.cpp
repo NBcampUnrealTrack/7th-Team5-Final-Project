@@ -10,11 +10,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 DEFINE_LOG_CATEGORY(LogKOUI);
-
-// ─── Static Accessors ────────────────────────────────────────────────────────
 
 UKOUISubsystem* UKOUISubsystem::Get(const APlayerController* PlayerController)
 {
@@ -22,15 +18,13 @@ UKOUISubsystem* UKOUISubsystem::Get(const APlayerController* PlayerController)
     {
         return nullptr;
     }
-    return Get(PlayerController->GetLocalPlayer());
+    return GetForLocalPlayer(PlayerController->GetLocalPlayer());
 }
 
-UKOUISubsystem* UKOUISubsystem::Get(const ULocalPlayer* LocalPlayer)
+UKOUISubsystem* UKOUISubsystem::GetForLocalPlayer(const ULocalPlayer* LocalPlayer)
 {
     return LocalPlayer ? LocalPlayer->GetSubsystem<UKOUISubsystem>() : nullptr;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -41,8 +35,7 @@ void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
     {
         return;
     }
-
-    // GMRouter를 통해 Message.UI.PushLayerRequest 채널 구독
+    
     if (UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>())
     {
         PushLayerCallback.BindDynamic(this, &UKOUISubsystem::OnPushLayerRequestReceived);
@@ -75,7 +68,6 @@ void UKOUISubsystem::Deinitialize()
 }
 
 // ─── Layout Registration ──────────────────────────────────────────────────────
-
 void UKOUISubsystem::RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivatableWidgetContainerBase* LayerContainer)
 {
     if (!LayerTag.IsValid())
@@ -96,7 +88,6 @@ void UKOUISubsystem::RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivat
 }
 
 // ─── Widget Stack API ─────────────────────────────────────────────────────────
-
 UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
     if (!LayerTag.IsValid() || !WidgetClass)
@@ -131,7 +122,6 @@ void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
 }
 
 // ─── GMS 콜백 ─────────────────────────────────────────────────────────────────
-
 void UKOUISubsystem::OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload)
 {
     const FKOUIPushLayerRequest* Request = Payload.GetPtr<FKOUIPushLayerRequest>();

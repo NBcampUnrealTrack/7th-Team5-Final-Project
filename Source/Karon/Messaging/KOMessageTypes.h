@@ -22,15 +22,12 @@ struct FKOInventoryChangedMessage
 {
     GENERATED_BODY()
 
-    /** 변경된 아이템 식별자 (FKOItemRow의 DataTable RowName) */
     UPROPERTY(BlueprintReadWrite, Category = "Inventory")
     FName ItemId;
 
-    /** 변경 후 수량 */
     UPROPERTY(BlueprintReadWrite, Category = "Inventory")
     int32 NewCount = 0;
 
-    /** 변경 전 수량 */
     UPROPERTY(BlueprintReadWrite, Category = "Inventory")
     int32 PreviousCount = 0;
 };
@@ -49,16 +46,13 @@ USTRUCT(BlueprintType)
 struct FKOFactoryStateChangedMessage
 {
     GENERATED_BODY()
-
-    /** 팩토리를 식별하는 GameplayTag */
+    
     UPROPERTY(BlueprintReadWrite, Category = "Factory")
     FGameplayTag FactoryTag;
-
-    /** 팩토리 활성화 여부 */
+    
     UPROPERTY(BlueprintReadWrite, Category = "Factory")
     bool bIsActive = false;
 
-    /** 현재 생산 진행률 (0.0 ~ 1.0) */
     UPROPERTY(BlueprintReadWrite, Category = "Factory")
     float Progress = 0.f;
 };
