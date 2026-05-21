@@ -8,6 +8,7 @@ class UKOBuildingDataAsset;
 class UMaterialInterface;
 class AKOGhostPreview;
 class UMeshComponent;
+class AKOBaseBuilding;
 
 USTRUCT()
 struct FKODestroyTargetOriginalMaterials
@@ -40,6 +41,9 @@ public:
 	// ─── 건물 건설 ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build") 
 	void StartAssignedBuildMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void StartBuildModeByIndex(int32 BuildIndex);
 	
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void StartBuildModeWithData(UKOBuildingDataAsset* BuildingData);
@@ -90,6 +94,10 @@ protected:
 	// 단일 건물 테스트
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
 	TObjectPtr<UKOBuildingDataAsset> DefaultBuildingData;
+	
+	// 여러 건물 선택용 DataAsset 목록
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
+	TArray<TObjectPtr<UKOBuildingDataAsset>> BuildOptions;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;

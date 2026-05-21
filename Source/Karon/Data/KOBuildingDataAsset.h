@@ -5,6 +5,7 @@
 #include "KOBuildingDataAsset.generated.h"
 
 class AActor;
+class AKOBaseBuilding;
 
 UCLASS(BlueprintType)
 class KARON_API UKOBuildingDataAsset : public UDataAsset
@@ -16,7 +17,7 @@ public:
 	FName BuildingID = NAME_None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building")
-	TSubclassOf<AActor> BuildingClass;
+	TSubclassOf<AKOBaseBuilding> BuildingClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
 	FIntPoint GridSize = FIntPoint(1, 1);

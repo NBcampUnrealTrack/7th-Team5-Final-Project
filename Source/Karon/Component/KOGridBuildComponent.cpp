@@ -1,6 +1,7 @@
 ﻿#include "KOGridBuildComponent.h"
 #include "Data/KOBuildingDataAsset.h"
 #include "SubSystem/KOGridSubsystem.h"
+#include "Building/KOBaseBuilding.h"
 #include "DrawDebugHelpers.h"
 
 #include "Components/MeshComponent.h"
@@ -50,6 +51,25 @@ void UKOGridBuildComponent::StartAssignedBuildMode()
 	}
 
 	StartBuildModeWithData(DefaultBuildingData);
+}
+
+void UKOGridBuildComponent::StartBuildModeByIndex(int32 BuildIndex)
+{
+	if (!BuildOptions.IsValidIndex(BuildIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Build] 잘못된 건물 인덱스입니다. Index: %d"), BuildIndex);
+		return;
+	}
+
+	UKOBuildingDataAsset* SelectedBuildingData = BuildOptions[BuildIndex];
+
+	if (!SelectedBuildingData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Build] 선택된 BuildingData가 없습니다. Index: %d"), BuildIndex);
+		return;
+	}
+
+	StartBuildModeWithData(SelectedBuildingData);
 }
 
 void UKOGridBuildComponent::StartBuildModeWithData(UKOBuildingDataAsset* BuildingData)
@@ -131,7 +151,7 @@ bool UKOGridBuildComponent::SpawnPreviewActor()
 	
 	// 건물 BP의 StaticMesh를 읽어서 고스트 Actor에 복사
 	CurrentPreviewActor = PreviewActor;
-	PreviewActor->SetupFromBuildingClass(CurrentBuildingData->BuildingClass);
+	PreviewActor->SetupFromBuildingClass(CurrentBuildingData->BuildingClass.Get());
 	
 	SetPreviewActorBuildableState(false);
 	CurrentPreviewActor->SetActorHiddenInGame(false); // 고스트 생성
@@ -313,7 +333,7 @@ void UKOGridBuildComponent::RequestBuild()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// 건물 스폰
-	AActor* NewBuilding = World->SpawnActor<AActor>(
+	AKOBaseBuilding* NewBuilding = World->SpawnActor<AKOBaseBuilding>(
 		CurrentBuildingData->BuildingClass,
 		SpawnLocation,
 		FRotator::ZeroRotator,
@@ -325,6 +345,9 @@ void UKOGridBuildComponent::RequestBuild()
 		UE_LOG(LogTemp, Warning, TEXT("[Build] 건물 생성 실패"));
 		return;
 	}
+	
+	// 스폰된 건물에 DataAsset 전달
+	NewBuilding->InitializeBuildingData(CurrentBuildingData);
 
 	// 그리드 점유처리
 	GridSub->OccupyArea(
