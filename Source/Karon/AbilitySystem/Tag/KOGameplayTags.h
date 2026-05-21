@@ -41,4 +41,11 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
 	/** 무기 카테고리 (BronzeSword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
+	
+
+	
 }

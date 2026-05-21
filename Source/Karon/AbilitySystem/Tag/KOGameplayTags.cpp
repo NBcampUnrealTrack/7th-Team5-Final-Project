@@ -25,4 +25,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
+	
 }
