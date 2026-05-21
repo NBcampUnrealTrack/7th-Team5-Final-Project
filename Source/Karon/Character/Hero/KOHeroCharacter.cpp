@@ -3,6 +3,13 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Hero/KOLockOnComponent.h"
+#include "Character/Hero/KOLockOnGameplayAbility.h"
+#include "Component/KOInputComponent.h"          
+#include "EnhancedInputSubsystems.h"             
+#include "Data/KOInputConfig.h"            
+#include "GameFramework/CharacterMovementComponent.h" 
 #include "Game/KOPlayerState.h"
 
 
@@ -13,6 +20,16 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	
 	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
+	// 카메라 방향으로 캐릭터 회전 OFF
+	bUseControllerRotationYaw   = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll  = false;
+
+	// 이동 방향으로 캐릭터가 자동 회전
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
+	
+	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
 }
 
 
@@ -45,7 +62,6 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
-
 }
 
 void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
