@@ -14,19 +14,27 @@ public class Karon : ModuleRules
 			"InputCore", "EnhancedInput",
 			"GameplayAbilities", "GameplayTags", "GameplayTasks",
 			"AnimGraphRuntime",
+			// CommonUI
+			"CommonUI", "CommonInput",
+			// StructUtils (FInstancedStruct)
+			"StructUtils",
+			// GMRouter (GameplayMessage Router subsystem)
+			"GMRouter",
+			// UDeveloperSettings (Project Settings 통합)
+			"DeveloperSettings",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-	
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate", "SlateCore",
+			"UMG",
+		});
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
-		
+
 		PublicIncludePaths.AddRange(new string[] { "Karon" });
-		PrivateDependencyModuleNames.AddRange(new string[] { "GMRouter"});
 	}
 }
