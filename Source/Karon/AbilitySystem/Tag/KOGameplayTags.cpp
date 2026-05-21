@@ -22,6 +22,8 @@ namespace KOGameplayTags
 	// ── Input | Ability | Interaction ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Interaction, "Input.Ability.Interaction");
 	
+	// ── Input | Ability | LockOn
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_LockOn, "Input.Ability.LockOn");
 	
 	// ── Input | Ability | CoreSkill ───────────────────────────────
 	
@@ -39,7 +41,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Stunned, "State.Character.Stunned");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Invincible, "State.Character.Invincible");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
-	
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_LockOn, "State.Character.LockOn");
 	
 	// ─── UI Layer ─────────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_Game,     "UI.Layer.Game");
