@@ -17,6 +17,7 @@ enum class EGait : uint8
 {
 	Walk UMETA(DisplayName = "Walk"),
 	Jog UMETA(DisplayName = "Jog"),
+	Run UMETA(DisplayName = "Run"),
 };
 
 UENUM(BlueprintType)
