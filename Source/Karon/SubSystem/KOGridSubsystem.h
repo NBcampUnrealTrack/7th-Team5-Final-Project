@@ -88,7 +88,7 @@ private:
 	FIntPoint GridDimensions = FIntPoint(10, 10);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	FVector GridOrigin = FVector::ZeroVector;
+	FVector GridOrigin = FVector(400.0f, 300.0f, 0.0f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
 	float TraceHeight = 1000.0f;

@@ -38,10 +38,7 @@ public:
 	) override;
 
 public:
-	// ─── 건물 건설 ────────────────────────────────────────────────────
-	UFUNCTION(BlueprintCallable, Category = "Build") 
-	void StartAssignedBuildMode();
-	
+	// ─── 건물 건설 ────────────────────────────────────────────────────	
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void StartBuildModeByIndex(int32 BuildIndex);
 	
@@ -90,11 +87,7 @@ protected:
 	void ApplyDestroyTargetMaterial(AActor* TargetActor);
 	void RestoreDestroyTargetMaterial();
 
-protected:
-	// 단일 건물 테스트
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
-	TObjectPtr<UKOBuildingDataAsset> DefaultBuildingData;
-	
+protected:	
 	// 여러 건물 선택용 DataAsset 목록
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
 	TArray<TObjectPtr<UKOBuildingDataAsset>> BuildOptions;

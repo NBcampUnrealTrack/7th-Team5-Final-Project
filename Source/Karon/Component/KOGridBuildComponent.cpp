@@ -42,17 +42,6 @@ void UKOGridBuildComponent::TickComponent(
 	}
 }
 
-void UKOGridBuildComponent::StartAssignedBuildMode()
-{
-	if (!DefaultBuildingData)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] DefaultBuildingData가 할당되지 않았습니다."));
-		return;
-	}
-
-	StartBuildModeWithData(DefaultBuildingData);
-}
-
 void UKOGridBuildComponent::StartBuildModeByIndex(int32 BuildIndex)
 {
 	if (!BuildOptions.IsValidIndex(BuildIndex))
