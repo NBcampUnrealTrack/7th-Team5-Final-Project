@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "CommonActivatableWidget.h"
 #include "KOTitleController.generated.h"
 
+class UKOActivatableWidget;
 /**
  * 타이틀 전용 컨트롤러
  */
@@ -17,8 +17,15 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UCommonActivatableWidget> TitleLayoutClass;
+	TSubclassOf<UKOActivatableWidget> RootLayoutClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UKOActivatableWidget> TitleWidgetClass;
+	
+private:
 	UPROPERTY()
-	TObjectPtr<UCommonActivatableWidget> ActiveTitleLayout;
+	TObjectPtr<UKOActivatableWidget> RootLayOutInstance;
+	
+	void CreateRootLayout();
+	void PushInitialWidgets() const;
 };

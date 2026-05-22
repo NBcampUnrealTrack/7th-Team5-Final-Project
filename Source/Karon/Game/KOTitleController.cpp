@@ -1,7 +1,11 @@
 ﻿#include "KOTitleController.h"
-#include "UI/KOUISubsystem.h"
 
-#include "CommonActivatableWidget.h"
+#include "CommonUserWidget.h"
+#include "UI/KOUISubsystem.h"
+#include "UI/KOActivatableWidget.h"
+
+#include "GameplayTagContainer.h"
+#include "Widgets/CommonActivatablewidgetContainer.h"
 
 void AKOTitleController::BeginPlay()
 {
@@ -11,14 +15,25 @@ void AKOTitleController::BeginPlay()
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
 	
-	ULocalPlayer* LocalPlayer = GetLocalPlayer();
-	if (LocalPlayer)
-	{
-		UKOUISubsystem* UISubsystem = LocalPlayer->GetSubsystem<UKOUISubsystem>();
-		if (UISubsystem)
-		{
-			//UISubsystem->RegisterPrimaryLayout( ,);
-		}
-	}
+	CreateRootLayout();
+	PushInitialWidgets();
+}
+
+void AKOTitleController::CreateRootLayout()
+{
+	if (!RootLayoutClass) return;
 	
+	RootLayOutInstance = CreateWidget<UKOActivatableWidget>(this, RootLayoutClass);
+	
+	if (RootLayOutInstance)
+	{
+		RootLayOutInstance->AddToRoot();
+	}
+}
+
+void AKOTitleController::PushInitialWidgets() const
+{
+	auto* KOUISubsystem = GetLocalPlayer()->GetSubsystem<UKOUISubsystem>();
+	FGameplayTag TitleTag = FGameplayTag::RequestGameplayTag(TEXT("UI.Layer.Menu"));
+	KOUISubsystem->PushLayer(TitleTag, TitleWidgetClass);
 }
