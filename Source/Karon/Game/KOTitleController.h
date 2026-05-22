@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "CommonActivatableWidget.h"
 #include "KOTitleController.generated.h"
 
 /**
@@ -14,4 +15,10 @@ class KARON_API AKOTitleController : public APlayerController
 	
 protected:
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UCommonActivatableWidget> TitleLayoutClass;
+	
+	UPROPERTY()
+	TObjectPtr<UCommonActivatableWidget> ActiveTitleLayout;
 };

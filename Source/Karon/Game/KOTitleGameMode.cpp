@@ -5,5 +5,7 @@ AKOTitleGameMode::AKOTitleGameMode()
 {
 	DefaultPawnClass = nullptr;
 	
+	HUDClass = nullptr;
+	
 	PlayerControllerClass = AKOTitleController::StaticClass();
 }
