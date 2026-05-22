@@ -8,6 +8,7 @@
 
 class UTexture2D;
 class UStaticMesh;
+class AKOBaseBuilding;
 
 USTRUCT(BlueprintType)
 struct KARON_API FKOItemRow : public FTableRowBase
@@ -35,14 +36,15 @@ struct KARON_API FKOItemRow : public FTableRowBase
     TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
 
+/**
+ * FKOFactoryRow
+ * 공장 = 건물. RowName이 곧 FactoryId 이며, Inventory의 ItemId와 동일한 컨벤션이다.
+ * 배치 메타(BuildingClass/GridSize/PlacementZOffset)를 함께 보유하여 별도 DataAsset 없이 통합 운영.
+ */
 USTRUCT(BlueprintType)
 struct KARON_API FKOFactoryRow : public FTableRowBase
 {
     GENERATED_BODY()
-
-    /** 공장 고유 태그 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    FGameplayTag FactoryTag;
 
     /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
@@ -60,9 +62,17 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     float BaseCycleSeconds = 2.f;
 
-    /*/** 월드 배치 시 스폰할 Actor 클래스 — AKOFactoryBase 구현 후 타입 교체 예정 #1#
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    TSoftClassPtr<AKOFactoryBase> FactoryClass;*/
+    /** 월드 배치 시 스폰할 건물 액터 클래스 (소프트 레퍼런스) */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Placement")
+    TSoftClassPtr<AKOBaseBuilding> BuildingClass;
+
+    /** 그리드 점유 크기 (X, Y 셀 수) */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Placement")
+    FIntPoint GridSize = FIntPoint(1, 1);
+
+    /** 바닥보다 살짝 위/아래로 보정할 값 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Placement")
+    float PlacementZOffset = 0.f;
 };
 
 USTRUCT(BlueprintType)
@@ -70,16 +80,12 @@ struct KARON_API FKORecipeRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    /** 레시피 고유 태그 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    FGameplayTag RecipeTag;
-
     /**
-     * 이 레시피를 처리할 수 있는 공장 태그 집합.
-     * 공장의 FactoryTag가 이 컨테이너의 태그 중 하나와 일치하면 처리 가능하다.
+     * 이 레시피를 처리할 수 있는 공장 RowName 집합.
+     * 공장의 RowName이 이 배열에 포함되어 있으면 처리 가능.
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    FGameplayTagContainer AllowedFactoryTags;
+    TArray<FName> AllowedFactoryIds;
 
     /** 입력 재료: ItemId(=Item DataTable의 RowName) → 사이클당 소비 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
