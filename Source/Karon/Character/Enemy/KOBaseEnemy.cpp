@@ -25,11 +25,18 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	//AnimNotifyComponent 생성
 	AnimNotifyComponent=CreateDefaultSubobject<UKOAnimNotifyComponent>(TEXT("KOAnimNotifyComponent"));
 	
+	//WeaponSkeletalMeshComponent 생성 및 부착
+	WeaponMeshComponent=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMeshComponent->SetupAttachment(GetMesh(), TEXT("hand_r_Socket"));
+	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+	
 }
 
 void AKOBaseEnemy::SetupEnemy(UKOEnemyDataAsset)
 {
 	//TODO: 비동기 로드한 데이터로 해당 Enemy에 값을 주입
+	//TODO: 무기도 여기서 설정
+	//TODO: 오브젝트풀로 돌릴때 무기 Mesh를 nullptr로 변경
 }
 
 // Called when the game starts or when spawned
