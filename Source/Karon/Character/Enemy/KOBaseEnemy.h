@@ -6,6 +6,8 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+class UKOAnimNotifyComponent;
+class UKOEnemyDataAsset;
 class UGameplayAbility;
 class UKOCombatSet;
 
@@ -19,6 +21,8 @@ public:
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
 	void SetupEnemy(UKOEnemyDataAsset);
+	
+	FORCEINLINE UKOAnimNotifyComponent* GetAnimNotifyComponent(){return AnimNotifyComponent;}
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,9 +35,10 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UKOCombatSet> CombatSet;
 	
+	UPROPERTY()
+	TObjectPtr<UKOAnimNotifyComponent> AnimNotifyComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS|Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 	
-	
-
 };

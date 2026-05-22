@@ -6,6 +6,7 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "Component/KOAnimNotifyComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 
@@ -21,6 +22,8 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	MovementSet=CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
 	CombatSet=CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
 	
+	//AnimNotifyComponent 생성
+	AnimNotifyComponent=CreateDefaultSubobject<UKOAnimNotifyComponent>(TEXT("KOAnimNotifyComponent"));
 	
 }
 
