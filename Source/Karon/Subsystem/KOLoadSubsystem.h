@@ -43,6 +43,16 @@ public:
     void GetAllFactoryIds(TArray<FName>& Out)  const;
     void GetAllRecipeIds(TArray<FName>& Out)   const;
 
+    /**
+     * 빌드 메뉴에 노출할 FactoryId 목록을 SortOrder 오름차순으로 반환.
+     * Query.Category가 None이면 카테고리 제한 없음.
+     * RequiredUnlockTags가 비어있지 않은 Row는 Query.OwnedUnlocks가 모두 포함해야 통과.
+     */
+    void GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TArray<FName>& Out) const;
+
+    /** Factory Row의 Icon 소프트 레퍼런스를 동기 로드 (캐싱). */
+    UTexture2D* ResolveFactoryIcon(FName FactoryId) const;
+
 private:
     void LoadAll();
 
@@ -64,4 +74,5 @@ private:
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedIcons;
     mutable TMap<FName, TWeakObjectPtr<UStaticMesh>> ResolvedMeshes;
     mutable TMap<FName, TWeakObjectPtr<UClass>>      ResolvedBuildingClasses;
+    mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedFactoryIcons;
 };

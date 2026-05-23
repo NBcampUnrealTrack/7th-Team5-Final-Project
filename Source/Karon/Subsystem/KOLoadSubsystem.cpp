@@ -41,6 +41,7 @@ void UKOLoadSubsystem::Deinitialize()
     ResolvedIcons.Empty();
     ResolvedMeshes.Empty();
     ResolvedBuildingClasses.Empty();
+    ResolvedFactoryIcons.Empty();
     LoadedTables.Empty();
 
     Super::Deinitialize();
@@ -271,4 +272,93 @@ void UKOLoadSubsystem::GetAllFactoryIds(TArray<FName>& Out) const
 void UKOLoadSubsystem::GetAllRecipeIds(TArray<FName>& Out) const
 {
     RecipeCache.GetKeys(Out);
+}
+
+void UKOLoadSubsystem::GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TArray<FName>& Out) const
+{
+    Out.Reset();
+
+    struct FCandidate
+    {
+        FName Id;
+        int32 SortOrder;
+    };
+    TArray<FCandidate> Candidates;
+    Candidates.Reserve(FactoryCache.Num());
+
+    const bool bFilterByCategory = Query.Category.IsValid();
+
+    for (const TPair<FName, const FKOFactoryRow*>& Pair : FactoryCache)
+    {
+        const FKOFactoryRow* Row = Pair.Value;
+        if (!Row || !Row->bShowInBuildMenu)
+        {
+            continue;
+        }
+
+        if (bFilterByCategory && Row->BuildCategory != Query.Category)
+        {
+            continue;
+        }
+
+        if (!Row->RequiredUnlockTags.IsEmpty() &&
+            !Query.OwnedUnlocks.HasAll(Row->RequiredUnlockTags))
+        {
+            continue;
+        }
+
+        Candidates.Add({ Pair.Key, Row->SortOrder });
+    }
+
+    Candidates.Sort([](const FCandidate& A, const FCandidate& B)
+    {
+        if (A.SortOrder != B.SortOrder)
+        {
+            return A.SortOrder < B.SortOrder;
+        }
+        return A.Id.LexicalLess(B.Id);
+    });
+
+    Out.Reserve(Candidates.Num());
+    for (const FCandidate& C : Candidates)
+    {
+        Out.Add(C.Id);
+    }
+}
+
+UTexture2D* UKOLoadSubsystem::ResolveFactoryIcon(FName FactoryId) const
+{
+    if (const TWeakObjectPtr<UTexture2D>* Cached = ResolvedFactoryIcons.Find(FactoryId))
+    {
+        if (Cached->IsValid())
+        {
+            return Cached->Get();
+        }
+    }
+
+    const FKOFactoryRow* Row = FindFactoryRow(FactoryId);
+    if (!Row)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("UKOLoadSubsystem::ResolveFactoryIcon: 알 수 없는 FactoryId '%s'."),
+            *FactoryId.ToString());
+        return nullptr;
+    }
+
+    if (Row->Icon.IsNull())
+    {
+        return nullptr;
+    }
+
+    UTexture2D* Texture = Row->Icon.LoadSynchronous();
+    if (!Texture)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("UKOLoadSubsystem::ResolveFactoryIcon: '%s' 로드 실패 (FactoryId='%s')."),
+            *Row->Icon.ToSoftObjectPath().ToString(), *FactoryId.ToString());
+        return nullptr;
+    }
+
+    ResolvedFactoryIcons.Add(FactoryId, Texture);
+    return Texture;
 }

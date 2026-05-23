@@ -10,6 +10,25 @@ class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
 
+/**
+ * FKOBuildMenuQuery
+ * 빌드 메뉴 노출 후보를 조회할 때 사용하는 필터.
+ * Category가 None이면 카테고리 제한 없이 전체 대상.
+ */
+USTRUCT(BlueprintType)
+struct KARON_API FKOBuildMenuQuery
+{
+    GENERATED_BODY()
+
+    /** 빌드 메뉴 카테고리 필터. None이면 전체. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BuildMenu")
+    FGameplayTag Category;
+
+    /** 플레이어가 보유한 해금 태그. RequiredUnlockTags를 모두 포함해야 노출. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BuildMenu")
+    FGameplayTagContainer OwnedUnlocks;
+};
+
 USTRUCT(BlueprintType)
 struct KARON_API FKOItemRow : public FTableRowBase
 {
@@ -73,6 +92,26 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     /** 바닥보다 살짝 위/아래로 보정할 값 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Placement")
     float PlacementZOffset = 0.f;
+
+    /** 빌드 메뉴에 노출할지 여부. false면 디버그/내부 전용. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    bool bShowInBuildMenu = true;
+
+    /** 빌드 메뉴 카테고리 (예: BuildMenu.Category.Production). None이면 무카테고리. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    FGameplayTag BuildCategory;
+
+    /** 빌드 메뉴 내 정렬 순서. 작을수록 앞. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    int32 SortOrder = 0;
+
+    /** 빌드 메뉴 썸네일 아이콘 (소프트 레퍼런스). */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    TSoftObjectPtr<UTexture2D> Icon;
+
+    /** 노출되기 위해 플레이어가 보유해야 하는 해금 태그. 비어있으면 항상 해금. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    FGameplayTagContainer RequiredUnlockTags;
 };
 
 USTRUCT(BlueprintType)
