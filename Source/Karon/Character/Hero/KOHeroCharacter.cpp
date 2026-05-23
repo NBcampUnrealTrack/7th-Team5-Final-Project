@@ -1,15 +1,13 @@
 ﻿#include "KOHeroCharacter.h"
-
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
-#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Component/KOLockOnComponent.h"
-#include "Component/KOInputComponent.h"          
-#include "EnhancedInputSubsystems.h"             
-#include "Data/KOInputConfig.h"            
-#include "GameFramework/CharacterMovementComponent.h" 
+#include "Camera/CameraComponent.h"
+#include "Component/KOPreCMCTickComponent.h"
 #include "Game/KOPlayerState.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "CharacterTrajectoryComponent.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -17,24 +15,32 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
-	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
-	// 카메라 방향으로 캐릭터 회전 OFF
-	bUseControllerRotationYaw   = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll  = false;
-
-	// 이동 방향으로 캐릭터가 자동 회전
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
+	SprintArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
+	SprintArm->SetupAttachment(RootComponent);
+	SprintArm->bUsePawnControlRotation = true;
+	
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SprintArm);
+	
+	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
+	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
+	Trajectory->PrimaryComponentTick.AddPrerequisite(
+		PreCMCTick,
+		PreCMCTick->PrimaryComponentTick
+	);
 	
 	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
+	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
+	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 }
 
 
 void AKOHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	MainAnimInstance = GetMesh()->GetAnimInstance();
+	
 	
 }
 

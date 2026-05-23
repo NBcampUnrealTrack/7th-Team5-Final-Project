@@ -4,10 +4,13 @@
 #include "Character/KOCharacterBase.h"
 #include "KOHeroCharacter.generated.h"
 
+class UKOLockOnComponent;
+class USpringArmComponent;
+class UCameraComponent;
+class UKOPreCMCTickComponent;
+class UCharacterTrajectoryComponent;
 class UKOStaminaSet; 
 class UKOCombatSet;
-class UKOLockOnComponent;  
-class UKOInputConfig;
 
 UCLASS()
 class KARON_API AKOHeroCharacter : public AKOCharacterBase
@@ -23,15 +26,33 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 
 public:
-	
-	
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	// 외부(Ability 등)에서 접근용
+	
+public:
 	UFUNCTION(BlueprintCallable)
 	UKOLockOnComponent* GetLockOnComponent() const { return LockOnComponent; }
+	
+	UFUNCTION(BlueprintCallable)
+	UCharacterTrajectoryComponent* GetTrajectoryComponent() const { return Trajectory; }
+	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<USpringArmComponent> SprintArm;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UCameraComponent> Camera;
+		
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOPreCMCTickComponent> PreCMCTick;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UCharacterTrajectoryComponent> Trajectory;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOLockOnComponent> LockOnComponent;
 	
 protected:
 	UPROPERTY()
@@ -40,16 +61,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UKOCombatSet> CombatSet;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LockOn")
-	TObjectPtr<UKOLockOnComponent> LockOnComponent;
-	
-	// InputConfig 에셋 참조 추가
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UKOInputConfig> InputConfig;
-
-private:
-	TArray<uint32> BindHandles;
-
-	void Input_AbilityInputTagPressed(FGameplayTag InputTag);
-	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Reference")
+	TObjectPtr<UAnimInstance> MainAnimInstance;
 };
