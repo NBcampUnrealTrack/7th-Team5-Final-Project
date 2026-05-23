@@ -16,8 +16,8 @@ UENUM(BlueprintType)
 enum class EGait : uint8
 {
 	Walk UMETA(DisplayName = "Walk"),
-	Jog UMETA(DisplayName = "Jog"),
 	Run UMETA(DisplayName = "Run"),
+	Sprint UMETA(DisplayName = "Sprint"),
 };
 
 UENUM(BlueprintType)
@@ -27,6 +27,13 @@ enum class EHipFaceDirection : uint8
 	Backward	UMETA(DisplayName = "Backward"),
 };
 
+UENUM(BlueprintType)
+enum class ERootYawOffsetMode : uint8
+{
+	Accumulate UMETA(DisplayName = "Accumulate"),
+	Hold UMETA(DisplayName = "Hold"),
+	BlendOut UMETA(DisplayName = "BlendOut"),
+};
 USTRUCT(BlueprintType)
 struct FLocomotionDirectionSettings
 {
@@ -78,16 +85,22 @@ struct FDirectionalAnims
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* ForwardAnimation; 
+	UAnimSequence* F; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* BackwardAnimation; 
+	UAnimSequence* B; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* LeftAnimation; 
+	UAnimSequence* LF; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* RightAnimation; 
+	UAnimSequence* LB; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimSequence* RF; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimSequence* RB; 
 };
 
 USTRUCT(BlueprintType)

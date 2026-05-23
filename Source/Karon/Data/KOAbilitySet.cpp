@@ -21,6 +21,11 @@ void UKOAbilitySet::GiveAbilities(UAbilitySystemComponent* ASC) const
 			AbilitySpec.DynamicAbilityTags.AddTag(AbilityEntry.InputTag);
 		}
 		
+		UE_LOG(LogTemp, Log, TEXT("[AbilitySet] %-30s | Lv.%d | InputTag: %s"),
+			   *AbilityEntry.Ability->GetName(),
+			   AbilityEntry.AbilityLevel,
+			   AbilityEntry.InputTag.IsValid() ? *AbilityEntry.InputTag.ToString() : TEXT("None")); 	
+		
 		ASC->GiveAbility(AbilitySpec);
 	}
 }

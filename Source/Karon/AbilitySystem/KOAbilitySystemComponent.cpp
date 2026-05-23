@@ -13,10 +13,11 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) ||
 				AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
+				
 				InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
 			}
-			
 		}
 	}
 }
@@ -29,6 +30,8 @@ void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
 		{
 			if (AbilitySpec.Ability && AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
+				
 				InputReleasedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.Remove(AbilitySpec.Handle);
 			}
