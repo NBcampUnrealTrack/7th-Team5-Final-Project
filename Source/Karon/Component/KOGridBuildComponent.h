@@ -4,11 +4,11 @@
 #include "Components/ActorComponent.h"
 #include "KOGridBuildComponent.generated.h"
 
-class UKOBuildingDataAsset;
 class UMaterialInterface;
 class AKOGhostPreview;
 class UMeshComponent;
 class AKOBaseBuilding;
+struct FKOFactoryRow;
 
 USTRUCT()
 struct FKODestroyTargetOriginalMaterials
@@ -41,9 +41,9 @@ public:
 	// ─── 건물 건설 ────────────────────────────────────────────────────	
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void StartBuildModeByIndex(int32 BuildIndex);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Build")
-	void StartBuildModeWithData(UKOBuildingDataAsset* BuildingData);
+	void StartBuildModeWithId(FName FactoryId);
 
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void RequestBuild();
@@ -88,9 +88,9 @@ protected:
 	void RestoreDestroyTargetMaterial();
 
 protected:	
-	// 여러 건물 선택용 DataAsset 목록
+	// 여러 건물 선택용 FactoryId 목록 (Factory DataTable의 RowName)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
-	TArray<TObjectPtr<UKOBuildingDataAsset>> BuildOptions;
+	TArray<FName> BuildOptions;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;
@@ -122,8 +122,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<AKOGhostPreview> CurrentPreviewActor;
 
-	UPROPERTY()
-	TObjectPtr<UKOBuildingDataAsset> CurrentBuildingData;
+	FName CurrentFactoryId = NAME_None;
+	const FKOFactoryRow* CurrentFactoryRow = nullptr;
+	TWeakObjectPtr<UClass> CurrentBuildingClass;
 	
 	UPROPERTY()
 	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;

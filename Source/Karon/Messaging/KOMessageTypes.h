@@ -38,7 +38,7 @@ struct FKOInventoryChangedMessage
  *
  * 사용 예:
  *   FKOFactoryStateChangedMessage Msg;
- *   Msg.FactoryTag = SomeFactoryTag;
+ *   Msg.FactoryId = TEXT("Factory_Boiler");
  *   Msg.bIsActive = true;
  *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Factory_StateChanged, FInstancedStruct::Make(Msg));
  */
@@ -46,9 +46,9 @@ USTRUCT(BlueprintType)
 struct FKOFactoryStateChangedMessage
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(BlueprintReadWrite, Category = "Factory")
-    FGameplayTag FactoryTag;
+    FName FactoryId;
     
     UPROPERTY(BlueprintReadWrite, Category = "Factory")
     bool bIsActive = false;

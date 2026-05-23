@@ -1,5 +1,6 @@
 ﻿#include "KOGridBuildComponent.h"
-#include "Data/KOBuildingDataAsset.h"
+#include "Data/KODataTableTypes.h"
+#include "Subsystem/KOLoadSubsystem.h"
 #include "SubSystem/KOGridSubsystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "DrawDebugHelpers.h"
@@ -50,38 +51,53 @@ void UKOGridBuildComponent::StartBuildModeByIndex(int32 BuildIndex)
 		return;
 	}
 
-	UKOBuildingDataAsset* SelectedBuildingData = BuildOptions[BuildIndex];
+	const FName SelectedFactoryId = BuildOptions[BuildIndex];
 
-	if (!SelectedBuildingData)
+	if (SelectedFactoryId.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 선택된 BuildingData가 없습니다. Index: %d"), BuildIndex);
+		UE_LOG(LogTemp, Warning, TEXT("[Build] 선택된 FactoryId가 비어 있습니다. Index: %d"), BuildIndex);
 		return;
 	}
 
-	StartBuildModeWithData(SelectedBuildingData);
+	StartBuildModeWithId(SelectedFactoryId);
 }
 
-void UKOGridBuildComponent::StartBuildModeWithData(UKOBuildingDataAsset* BuildingData)
+void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 {
-	if (!BuildingData)
+	if (FactoryId.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingData가 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[Build] FactoryId가 비어 있습니다."));
 		return;
 	}
 
-	if (!BuildingData->BuildingClass)
+	UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+	if (!LoadSub)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingClass가 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[Build] KOLoadSubsystem을 찾을 수 없습니다."));
 		return;
 	}
-	
+
+	const FKOFactoryRow* Row = LoadSub->FindFactoryRow(FactoryId);
+	if (!Row)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Build] 알 수 없는 FactoryId: %s"), *FactoryId.ToString());
+		return;
+	}
+
+	UClass* BuildingClass = LoadSub->ResolveBuildingClass(FactoryId);
+	if (!BuildingClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingClass 로드 실패. FactoryId=%s"), *FactoryId.ToString());
+		return;
+	}
+
 	if (!PreviewActorClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Build] PreviewActorClass가 설정되지 않았습니다."));
 		return;
 	}
 
-	if (BuildingData->GridSize.X <= 0 || BuildingData->GridSize.Y <= 0)
+	if (Row->GridSize.X <= 0 || Row->GridSize.Y <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Build] GridSize가 잘못되었습니다."));
 		return;
@@ -90,8 +106,10 @@ void UKOGridBuildComponent::StartBuildModeWithData(UKOBuildingDataAsset* Buildin
 	CancelDestroyMode();
 	DestroyPreviewActor();
 
-	CurrentBuildingData = BuildingData;
-	CurrentBuildingSize = BuildingData->GridSize;
+	CurrentFactoryId = FactoryId;
+	CurrentFactoryRow = Row;
+	CurrentBuildingClass = BuildingClass;
+	CurrentBuildingSize = Row->GridSize;
 
 	bIsBuildMode = true;
 	SetComponentTickEnabled(true);
@@ -140,7 +158,7 @@ bool UKOGridBuildComponent::SpawnPreviewActor()
 	
 	// 건물 BP의 StaticMesh를 읽어서 고스트 Actor에 복사
 	CurrentPreviewActor = PreviewActor;
-	PreviewActor->SetupFromBuildingClass(CurrentBuildingData->BuildingClass.Get());
+	PreviewActor->SetupFromBuildingClass(CurrentBuildingClass.Get());
 	
 	SetPreviewActorBuildableState(false);
 	CurrentPreviewActor->SetActorHiddenInGame(false); // 고스트 생성
@@ -162,7 +180,7 @@ void UKOGridBuildComponent::DestroyPreviewActor()
 
 void UKOGridBuildComponent::UpdateGhostPreview()
 {
-	if (!CurrentBuildingData)
+	if (!CurrentFactoryRow)
 	{
 		return;
 	}
@@ -218,7 +236,7 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 		CurrentAnchor,
 		CurrentBuildingSize
 	);
-	PreviewLocation.Z += CurrentBuildingData->PlacementZOffset;
+	PreviewLocation.Z += CurrentFactoryRow->PlacementZOffset;
 	CurrentPreviewActor->SetActorLocation(PreviewLocation);
 
 	// 설치할 수 있는지 검사
@@ -315,15 +333,22 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize
 	);
 
-	SpawnLocation.Z += CurrentBuildingData->PlacementZOffset;
+	SpawnLocation.Z += CurrentFactoryRow->PlacementZOffset;
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = GetOwner();
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+	UClass* BuildingClass = CurrentBuildingClass.Get();
+	if (!BuildingClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingClass 참조가 만료되었습니다."));
+		return;
+	}
+
 	// 건물 스폰
 	AKOBaseBuilding* NewBuilding = World->SpawnActor<AKOBaseBuilding>(
-		CurrentBuildingData->BuildingClass,
+		BuildingClass,
 		SpawnLocation,
 		FRotator::ZeroRotator,
 		SpawnParams
@@ -334,9 +359,9 @@ void UKOGridBuildComponent::RequestBuild()
 		UE_LOG(LogTemp, Warning, TEXT("[Build] 건물 생성 실패"));
 		return;
 	}
-	
-	// 스폰된 건물에 DataAsset 전달
-	NewBuilding->InitializeBuildingData(CurrentBuildingData);
+
+	// 스폰된 건물에 FactoryId 전달
+	NewBuilding->InitializeBuildingData(CurrentFactoryId);
 
 	// 그리드 점유처리
 	GridSub->OccupyArea(
@@ -370,7 +395,9 @@ void UKOGridBuildComponent::CancelBuildMode()
 
 	DestroyPreviewActor();
 
-	CurrentBuildingData = nullptr;
+	CurrentFactoryId = NAME_None;
+	CurrentFactoryRow = nullptr;
+	CurrentBuildingClass.Reset();
 	CurrentAnchor = FIntPoint::ZeroValue;
 	CurrentBuildingSize = FIntPoint(1, 1);
 	
