@@ -27,7 +27,6 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
-    UFUNCTION(BlueprintPure, Category = "KO|Load", meta = (WorldContext = "WorldContext"))
     static UKOLoadSubsystem* Get(const UObject* WorldContext);
 
     const FKOItemRow*    FindItemRow(FName ItemId)         const;

@@ -3,8 +3,9 @@
 namespace KOGameplayTags
 {
 	// ─── Input ───────────────────────────────────────────────────────────────
-	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Move, "Input.Native.Move");
-	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Look, "Input.Native.Look");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Move,     "Input.Native.Move");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Look,     "Input.Native.Look");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Interact, "Input.Native.Interact");
 
 	// ─── UI Layer ─────────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_Game,     "UI.Layer.Game");
@@ -16,4 +17,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Factory_StateChanged, "Data.Message.Factory.StateChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 }
