@@ -10,7 +10,7 @@
  * PlayerController에 부착되어 화면 중앙 라인트레이스로 IKOInteractableInterface를 구현한
  * 액터를 매 프레임 갱신하고, 입력 액션이 들어오면 OnInteract를 호출한다.
  */
-UCLASS(ClassGroup=(KO))
+UCLASS(ClassGroup=(KO), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -25,6 +25,7 @@ public:
 	) override;
 
 	/** 입력 키 호출 시 PlayerController에서 호출 */
+	UFUNCTION(BlueprintCallable, Category="Interaction")
 	bool TryInteract();
 
 	/** 현재 조준 중인 상호작용 대상 (없으면 nullptr) */

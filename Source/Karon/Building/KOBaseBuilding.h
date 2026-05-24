@@ -25,9 +25,9 @@ public:
 	const FKOFactoryRow* GetFactoryRow() const;
 
 	// ─── IKOInteractableInterface ─────────────────────────────────────────────
-	virtual bool  CanInteract(AActor* Interactor) const override;
-	virtual void  OnInteract(AActor* Interactor) override;
-	virtual FText GetInteractionPrompt() const override;
+	virtual bool  CanInteract_Implementation(AActor* Interactor) const override;
+	virtual void  OnInteract_Implementation(AActor* Interactor) override;
+	virtual FText GetInteractionPrompt_Implementation() const override;
 
 protected:
 	// 실제 월드에 설치된 건물이 참조할 Factory DataTable의 RowName

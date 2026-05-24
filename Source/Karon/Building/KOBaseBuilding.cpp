@@ -36,12 +36,12 @@ const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
 	return LoadSub ? LoadSub->FindFactoryRow(FactoryId) : nullptr;
 }
 
-bool AKOBaseBuilding::CanInteract(AActor* /*Interactor*/) const
+bool AKOBaseBuilding::CanInteract_Implementation(AActor* /*Interactor*/) const
 {
 	return !FactoryId.IsNone();
 }
 
-void AKOBaseBuilding::OnInteract(AActor* Interactor)
+void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -64,7 +64,7 @@ void AKOBaseBuilding::OnInteract(AActor* Interactor)
 		Interactor ? *Interactor->GetName() : TEXT("None"));
 }
 
-FText AKOBaseBuilding::GetInteractionPrompt() const
+FText AKOBaseBuilding::GetInteractionPrompt_Implementation() const
 {
 	if (const FKOFactoryRow* Row = GetFactoryRow())
 	{

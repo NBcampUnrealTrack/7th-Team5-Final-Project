@@ -42,6 +42,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultIMC;
 
-	UPROPERTY(VisibleAnywhere, Category = "Interaction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UKOInteractionComponent> InteractionComponent;
 };
