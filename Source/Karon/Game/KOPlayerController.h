@@ -9,6 +9,7 @@ struct FInputActionValue;
 
 class UKOInputConfig;
 class UInputMappingContext;
+class UKOInteractionComponent;
 
 UCLASS()
 class KARON_API AKOPlayerController : public APlayerController
@@ -29,13 +30,18 @@ protected:
 	void Input_Look(const FInputActionValue& Value);
 	
 	void Input_AbilityPressed(FGameplayTag InputTag);
-	
+
 	void Input_AbilityReleased(FGameplayTag InputTag);
+
+	void Input_Interact(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UKOInputConfig> InputConfig;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultIMC;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UKOInteractionComponent> InteractionComponent;
 };

@@ -43,25 +43,6 @@ void UKOGridBuildComponent::TickComponent(
 	}
 }
 
-void UKOGridBuildComponent::StartBuildModeByIndex(int32 BuildIndex)
-{
-	if (!BuildOptions.IsValidIndex(BuildIndex))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 잘못된 건물 인덱스입니다. Index: %d"), BuildIndex);
-		return;
-	}
-
-	const FName SelectedFactoryId = BuildOptions[BuildIndex];
-
-	if (SelectedFactoryId.IsNone())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 선택된 FactoryId가 비어 있습니다. Index: %d"), BuildIndex);
-		return;
-	}
-
-	StartBuildModeWithId(SelectedFactoryId);
-}
-
 void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 {
 	if (FactoryId.IsNone())

@@ -8,6 +8,7 @@ namespace KOGameplayTags
 	// ─── Input ───────────────────────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Move);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Look);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Interact);
 
 	// ─── UI Layer ─────────────────────────────────────────────────────────────
 	/** 게임 플레이 중 항상 표시되는 HUD 레이어 */
@@ -26,4 +27,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Factory_StateChanged);
 	/** UI 레이어 Push 요청 메시지 채널 (FKOUIPushLayerRequest 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
+	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
 }

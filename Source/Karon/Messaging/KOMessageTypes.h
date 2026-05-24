@@ -10,73 +10,74 @@
 /**
  * 인벤토리 변경 메시지
  * 채널: KOGameplayTags::Data_Message_Inventory_Changed ("Data.Message.Inventory.Changed")
- *
- * 사용 예:
- *   FKOInventoryChangedMessage Msg;
- *   Msg.ItemId = TEXT("Item_Iron");
- *   Msg.NewCount = 5;
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Inventory_Changed, FInstancedStruct::Make(Msg));
  */
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FKOInventoryChangedMessage
 {
     GENERATED_BODY()
 
-    UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+    UPROPERTY()
     FName ItemId;
 
-    UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+    UPROPERTY()
     int32 NewCount = 0;
 
-    UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+    UPROPERTY()
     int32 PreviousCount = 0;
 };
 
 /**
  * 팩토리 상태 변경 메시지
  * 채널: KOGameplayTags::Data_Message_Factory_StateChanged ("Data.Message.Factory.StateChanged")
- *
- * 사용 예:
- *   FKOFactoryStateChangedMessage Msg;
- *   Msg.FactoryId = TEXT("Factory_Boiler");
- *   Msg.bIsActive = true;
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_Factory_StateChanged, FInstancedStruct::Make(Msg));
  */
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FKOFactoryStateChangedMessage
 {
     GENERATED_BODY()
 
-    UPROPERTY(BlueprintReadWrite, Category = "Factory")
+    UPROPERTY()
     FName FactoryId;
-    
-    UPROPERTY(BlueprintReadWrite, Category = "Factory")
+
+    UPROPERTY()
     bool bIsActive = false;
 
-    UPROPERTY(BlueprintReadWrite, Category = "Factory")
+    UPROPERTY()
     float Progress = 0.f;
 };
 
 /**
  * UI 레이어 Push 요청 메시지
  * 채널: KOGameplayTags::Data_Message_UI_PushLayerRequest ("Data.Message.UI.PushLayerRequest")
- *
- * 사용 예:
- *   FKOUIPushLayerRequest Msg;
- *   Msg.LayerTag  = KOGameplayTags::UI_Layer_Menu;
- *   Msg.WidgetClass = UMyMenuWidget::StaticClass();
- *   MessageSubsystem->BroadcastMessage(KOGameplayTags::Data_Message_UI_PushLayerRequest, FInstancedStruct::Make(Msg));
  */
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FKOUIPushLayerRequest
 {
     GENERATED_BODY()
 
     /** 대상 레이어 태그 (예: UI.Layer.Menu) */
-    UPROPERTY(BlueprintReadWrite, Category = "UI")
+    UPROPERTY()
     FGameplayTag LayerTag;
 
     /** Push 할 위젯 클래스 */
-    UPROPERTY(BlueprintReadWrite, Category = "UI")
+    UPROPERTY()
     TSubclassOf<UCommonActivatableWidget> WidgetClass;
+};
+
+/**
+ * 건물 상호작용 메시지
+ * 채널: KOGameplayTags::Data_Message_Building_Interacted ("Data.Message.Building.Interacted")
+ */
+USTRUCT()
+struct FKOBuildingInteractedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FName FactoryId;
+
+    UPROPERTY()
+    TWeakObjectPtr<AActor> Building;
+
+    UPROPERTY()
+    TWeakObjectPtr<AActor> Instigator;
 };

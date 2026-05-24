@@ -38,10 +38,7 @@ public:
 	) override;
 
 public:
-	// ─── 건물 건설 ────────────────────────────────────────────────────	
-	UFUNCTION(BlueprintCallable, Category = "Build")
-	void StartBuildModeByIndex(int32 BuildIndex);
-
+	// ─── 건물 건설 ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void StartBuildModeWithId(FName FactoryId);
 
@@ -87,11 +84,7 @@ protected:
 	void ApplyDestroyTargetMaterial(AActor* TargetActor);
 	void RestoreDestroyTargetMaterial();
 
-protected:	
-	// 여러 건물 선택용 FactoryId 목록 (Factory DataTable의 RowName)
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Data")
-	TArray<FName> BuildOptions;
-	
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;
 

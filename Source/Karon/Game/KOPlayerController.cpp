@@ -4,9 +4,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "Component/KOInputComponent.h"
+#include "Component/KOInteractionComponent.h"
 
 AKOPlayerController::AKOPlayerController()
 {
+	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
@@ -41,12 +43,21 @@ void AKOPlayerController::SetupInputComponent()
 		KOIC->BindNativeAction(
 		InputConfig,
 		KOGameplayTags::Input_Native_Look,
-		ETriggerEvent::Triggered, 
-		this, 
+		ETriggerEvent::Triggered,
+		this,
 		&ThisClass::Input_Look,
 		true
 		);
-		
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Interact,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_Interact,
+			true
+		);
+
 		// Bind Abilities Input Actions
 		TArray<uint32> BindHandles;
 		KOIC->BindAbilityActions(
@@ -102,7 +113,13 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 	if (!KOASC) return;
 	
 	KOASC->AbilityInputTagReleased(InputTag);
-	
-	
+}
+
+void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
+{
+	if (InteractionComponent)
+	{
+		InteractionComponent->TryInteract();
+	}
 }
 
