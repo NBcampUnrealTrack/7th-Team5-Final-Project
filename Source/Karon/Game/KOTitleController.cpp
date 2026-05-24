@@ -3,8 +3,8 @@
 #include "CommonUserWidget.h"
 #include "UI/KOUISubsystem.h"
 #include "UI/KOActivatableWidget.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 
-#include "GameplayTagContainer.h"
 #include "Widgets/CommonActivatablewidgetContainer.h"
 
 void AKOTitleController::BeginPlay()
@@ -27,13 +27,12 @@ void AKOTitleController::CreateRootLayout()
 	
 	if (RootLayOutInstance)
 	{
-		RootLayOutInstance->AddToRoot();
+		RootLayOutInstance->AddToViewport();
 	}
 }
 
 void AKOTitleController::PushInitialWidgets() const
 {
 	auto* KOUISubsystem = GetLocalPlayer()->GetSubsystem<UKOUISubsystem>();
-	FGameplayTag TitleTag = FGameplayTag::RequestGameplayTag(TEXT("UI.Layer.Menu"));
-	KOUISubsystem->PushLayer(TitleTag, TitleWidgetClass);
+	KOUISubsystem->PushLayer(KOGameplayTags::UI_Layer_Menu, TitleWidgetClass);
 }

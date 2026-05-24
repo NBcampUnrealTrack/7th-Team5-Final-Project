@@ -24,7 +24,6 @@ protected:
 	TObjectPtr<UCommonButtonBase> QuitGameButton;
 	
 private:
-	
 	void OnStartGameClicked() const;
 	void OnQuitGameClicked() const;
 };
