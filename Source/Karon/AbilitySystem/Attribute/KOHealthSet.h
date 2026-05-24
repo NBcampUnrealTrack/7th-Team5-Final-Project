@@ -31,7 +31,8 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Damage)
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Healing)
 	
-protected:
+	//현석: DEFINE_ATTRIBUTE_CAPTUREDEF 매크로를 사용하기 위해 public 선언
+public:
 	// ─── Attributes ────────────────────────────────────────────────────
 	UPROPERTY(BlueprintReadOnly ,ReplicatedUsing = OnRep_Health,  Category = "Health")
 	FGameplayAttributeData Health; 

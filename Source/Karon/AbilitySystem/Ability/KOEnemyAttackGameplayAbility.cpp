@@ -7,6 +7,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Enemy/KOBaseEnemy.h"
 
 UKOEnemyAttackGameplayAbility::UKOEnemyAttackGameplayAbility()
 {
@@ -90,6 +91,11 @@ void UKOEnemyAttackGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle 
 
 void UKOEnemyAttackGameplayAbility::OnMontageCompleted()
 {
+	//Ability가 종료되었다는 것을 BT에도 전달
+	if (AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarActorFromActorInfo()))
+	{
+		Enemy->OnGameplayAbilityEnd.ExecuteIfBound();
+	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 

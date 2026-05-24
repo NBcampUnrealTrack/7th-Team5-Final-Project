@@ -42,12 +42,18 @@ namespace KOGameplayTags
 	/** 무기 카테고리 (BronzeSword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
 	
-	// ─── Enemy SetbyCaller ──────────────────────────────────────────────
+	// ─── SetbyCaller ──────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
 	
+	// ─── Enemy Attack ──────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_Normal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
 
 	
 }

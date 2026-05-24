@@ -46,9 +46,9 @@ private:
 	
 	UFUNCTION()
 	void OnNotifyHitEvent(FGameplayEventData HitGameplayEventData);
-	
+
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> AnimMontage=nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
