@@ -24,18 +24,17 @@ public:
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
 	void SetupEnemy(UKOEnemyDataAsset);
-	
 	FORCEINLINE UKOAnimNotifyComponent* GetAnimNotifyComponent(){return AnimNotifyComponent;}
-
+	FVector GetSocketLocation();
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-public:
-	
-	
+
 private:
 	void GiveDefaultAbilities();
+
 	
 public:
 	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
@@ -54,8 +53,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+	FName HandSocketName=TEXT("hand_r_Socket");
+	FName WeaponSocketName=TEXT("Weapon_Socket");
+		
+private:
+
 	
-	
+	//Delegates
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
 	FOnCharacterEvent OnCharacterHit;
@@ -63,4 +67,5 @@ public:
 	FOnCharacterEvent OnCharacterReset;
 	
 	
+
 };

@@ -27,7 +27,7 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	
 	//WeaponSkeletalMeshComponent 생성 및 부착
 	WeaponMeshComponent=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	WeaponMeshComponent->SetupAttachment(GetMesh(), TEXT("hand_r_Socket"));
+	WeaponMeshComponent->SetupAttachment(GetMesh(), HandSocketName);
 	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	
 }
@@ -62,6 +62,40 @@ void AKOBaseEnemy::GiveDefaultAbilities()
 			AbilitySystemComponent->GiveAbility(AbilitySpec);
 		}
 	}
+}
+
+FVector AKOBaseEnemy::GetSocketLocation()
+{
+	if (WeaponMeshComponent->GetSkeletalMeshAsset()!=nullptr)
+	{
+		return WeaponMeshComponent->GetSocketTransform(WeaponSocketName,RTS_World).GetLocation();
+	}
+	
+	// 1. 컴포넌트 자체가 유효한지 확인
+	if (!WeaponMeshComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] WeaponMeshComponent가 nullptr입니다!"));
+		return FVector::ZeroVector;
+	}
+
+	// 2. 메쉬 에셋이 들어있는지 확인
+	if (WeaponMeshComponent->GetSkeletalMeshAsset() == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] SkeletalMeshAsset이 지정되지 않았습니다!"));
+		return FVector::ZeroVector;
+	}
+    
+	// 3. 소켓이 실제로 존재하는지 안전검사
+	if (!WeaponMeshComponent->DoesSocketExist(WeaponSocketName))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] 소켓 이름(%s)을 찾을 수 없습니다! 부모 위치를 반환합니다."), *WeaponSocketName.ToString());
+		return WeaponMeshComponent->GetComponentLocation(); // 0,0,0 대신 컴포넌트 위치라도 반환
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("이외의 이유"));
+	//TODO: 무기없을때 소켓 정보 받아오기
+	
+	return FVector::ZeroVector;
 }
 
 
