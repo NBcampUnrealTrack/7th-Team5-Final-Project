@@ -28,6 +28,7 @@ public class Karon : ModuleRules
 		{
 			"Slate", "SlateCore",
 			"UMG",
+			"NavigationSystem",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", });

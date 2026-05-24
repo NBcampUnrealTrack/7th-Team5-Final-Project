@@ -6,6 +6,8 @@
 #include "DetourCrowdAIController.h"
 #include "KOBaseEnemyAIController.generated.h"
 
+class AKOBaseEnemy;
+
 UCLASS()
 class KARON_API AKOBaseEnemyAIController : public ADetourCrowdAIController
 {
@@ -14,12 +16,79 @@ class KARON_API AKOBaseEnemyAIController : public ADetourCrowdAIController
 public:
 	// Sets default values for this actor's properties
 	AKOBaseEnemyAIController();
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	FORCEINLINE virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	UFUNCTION()
+	void OnGameplayAbilityEnd();
+	
+	UFUNCTION()
+	void HitEvent();
+	
+	UFUNCTION()
+	void DeadEvent();
+	
+	UFUNCTION()
+	void ResetEvent();
+	
+	UFUNCTION()
+	void SetAI(
+		UBehaviorTree* ParamBT,
+		float AttackRadius,
+		bool  bIsLongRange,
+		float Speed,
+		float StrafeSpeed,
+		float EnemyAttackDelay
+		);
+	
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+	
+	void MakeAIPerceptionTeamEvent(AActor* TargetActor);
+	
+protected:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
+	
+	UPROPERTY(EditAnywhere)
+	UBlackboardComponent* BBComp;
+	
+	//bool BB 키(FName)
+	const FName bIsDeadKey=TEXT("bIsDead");
+	const FName bIsHitKey = TEXT("bIsHit");
+	const FName bIsMontageEndKey = TEXT("bIsMontageEnd");
+	const FName bIsLongRangeKey = TEXT("bIsLongRange");
+	const FName SelfActorKey = TEXT("SelfActor");
+	const FName AttackRadiusKey = TEXT("AttackRadius");
+	const FName SpeedKey = TEXT("Speed");
+	const FName StrafeSpeedKey = TEXT("StrafeSpeed");
+	const FName EnemyAttackDelayTimeKey = TEXT("EnemyAttackDelayTime");
+	const FName bCanAttackKey = TEXT("bCanAttack");
+	
+	
+	UPROPERTY()
+	TObjectPtr<AKOBaseEnemy> Enemy;
+	
+	//AI퍼셉션
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TObjectPtr<UAIPerceptionComponent> AIPerceptionComp;
+	//팀 이벤트 트리거 적용 범위
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	float TeamEventDistance=1500.f;
+	
+	//TODO: 비동기 로드로 세팅
+	float EnemyAttackRadius=150.f;
+	bool bIsEnemyLongRange=false;
+	float EnemySpeed=400.f;
+	float EnemyStrafeSpeed=200.f;
+	float EnemyAttackDelayTime=0.5f;
+	
+
+	
+private:
+	FGenericTeamId TeamId;
 };
