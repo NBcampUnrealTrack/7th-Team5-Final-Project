@@ -11,6 +11,9 @@ class UKOEnemyDataAsset;
 class UGameplayAbility;
 class UKOCombatSet;
 
+DECLARE_DELEGATE(FOnGameplayAbilityEnd)
+DECLARE_DELEGATE(FOnCharacterEvent)
+
 UCLASS()
 class KARON_API AKOBaseEnemy : public AKOCharacterBase
 {
@@ -28,8 +31,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
+public:
+	
+	
 private:
 	void GiveDefaultAbilities();
+	
+public:
+	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
+	UPROPERTY(EditAnywhere)
+	bool bCanAttack=true;
 	
 protected:
 	UPROPERTY()
@@ -43,5 +54,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+	
+	
+public:
+	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
+	FOnCharacterEvent OnCharacterHit;
+	FOnCharacterEvent OnCharacterDead;
+	FOnCharacterEvent OnCharacterReset;
+	
 	
 };
