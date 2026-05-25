@@ -17,6 +17,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	float TerrainZ = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	TWeakObjectPtr<AActor> OccupyingActor = nullptr;
 };

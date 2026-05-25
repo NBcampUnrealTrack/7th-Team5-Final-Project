@@ -11,8 +11,8 @@ AKOGhostPreview::AKOGhostPreview()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    PreviewRoot = CreateDefaultSubobject<USceneComponent>(TEXT("PreviewRoot"));
-    RootComponent = PreviewRoot;
+	USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	SetRootComponent(SceneRoot);
 
     SetActorEnableCollision(false);
 }
@@ -113,7 +113,7 @@ void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
 	}
 
 	NewPreviewMeshComponent->AttachToComponent(
-		PreviewRoot,
+		RootComponent,
 		FAttachmentTransformRules::KeepRelativeTransform
 	);
 

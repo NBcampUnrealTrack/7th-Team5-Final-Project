@@ -10,6 +10,14 @@ class UMeshComponent;
 class AKOBaseBuilding;
 struct FKOFactoryRow;
 
+UENUM(BlueprintType)
+enum class EKOGridBuildMode : uint8
+{
+	None	UMETA(DisplayName = "None"),
+	Build	UMETA(DisplayName = "Build"),
+	Destroy	UMETA(DisplayName = "Destroy")
+};
+
 USTRUCT()
 struct FKODestroyTargetOriginalMaterials
 {
@@ -44,13 +52,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void RequestBuild();
-
-	UFUNCTION(BlueprintCallable, Category = "Build")
-	void CancelBuildMode();
-
-	// 사용 x (UI)
-	UFUNCTION(BlueprintPure, Category = "Build")
-	bool IsBuildMode() const { return bIsBuildMode; }
 	
 	// ─── 건물 파괴(해제) ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build")
@@ -58,15 +59,33 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void RequestDestroy();
-
-	UFUNCTION(BlueprintCallable, Category = "Build")
-	void CancelDestroyMode();
-
+	
+	// ─── 건설 모드 ────────────────────────────────────────────────────	
 	UFUNCTION(BlueprintPure, Category = "Build")
-	bool IsDestroyMode() const { return bIsDestroyMode; }
+	bool IsBuildMode() const { return CurrentMode == EKOGridBuildMode::Build; }
+	
+	UFUNCTION(BlueprintPure, Category = "Build")
+	bool IsDestroyMode() const { return CurrentMode == EKOGridBuildMode::Destroy; }
+	
+	UFUNCTION(BlueprintPure, Category = "Build")
+	EKOGridBuildMode GetCurrentMode() const { return CurrentMode; }
+	
+	
+	// ─── 건설 모드 해제 ────────────────────────────────────────────────────	
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void CancelCurrentMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void CancelBuildMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void CancelDestroyMode();	
 
 protected:
-	bool TraceFromScreenCenter(FHitResult& OutHit) const;
+	bool TraceFromScreenCenter(
+		FHitResult& OutHit,
+		ECollisionChannel TraceChannel
+	) const;
 	
 	// 고스트 프리뷰 - 건설 모드
 	void UpdateGhostPreview();
@@ -97,8 +116,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Trace")
 	float TraceDistance = 1000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Trace")
-	TEnumAsByte<ECollisionChannel> GroundTraceChannel = ECC_Visibility;
+	ECollisionChannel BuildTraceChannel = ECC_Visibility;
+	ECollisionChannel DestroyTraceChannel  = ECC_Visibility;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Destroy")
 	TObjectPtr<UMaterialInterface> DestroyTargetMaterial;
@@ -110,6 +129,9 @@ protected:
 	// 연속적인 건설 모드(연속 설치)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Placement")
 	bool bKeepBuildModeAfterPlacement = true;
+	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
+	EKOGridBuildMode CurrentMode = EKOGridBuildMode::None;
 
 private:
 	UPROPERTY()
@@ -118,8 +140,6 @@ private:
 	FName CurrentFactoryId = NAME_None;
 	const FKOFactoryRow* CurrentFactoryRow = nullptr;
 	TWeakObjectPtr<UClass> CurrentBuildingClass;
-	
-	UPROPERTY()
 	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;
 
 	UPROPERTY()
@@ -129,8 +149,6 @@ private:
 
 	FIntPoint CurrentBuildingSize = FIntPoint(1, 1);
 
-	bool bIsBuildMode = false; // 건설
-	bool bIsDestroyMode = false; // 파괴(해제)
 	bool bCurrentPlacementValid = false; // 설치 가능 여부
 	
 	// 이전 상태를 저장한 적이 있는가?

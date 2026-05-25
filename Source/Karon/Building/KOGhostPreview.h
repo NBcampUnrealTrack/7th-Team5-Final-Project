@@ -4,7 +4,6 @@
 #include "GameFramework/Actor.h"
 #include "KOGhostPreview.generated.h"
 
-class USceneComponent;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -25,9 +24,6 @@ private:
 	);
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Preview")
-	TObjectPtr<USceneComponent> PreviewRoot;
-
 	UPROPERTY()
 	TArray<TObjectPtr<UStaticMeshComponent>> PreviewMeshComponents;
 };
