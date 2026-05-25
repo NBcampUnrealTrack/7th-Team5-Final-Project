@@ -36,7 +36,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category="Attack | State")
 	float AttackRange = 300.f;
-	
+
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Attack | Montage")
 	TObjectPtr<UAnimMontage> AttackMontage;
@@ -53,4 +53,5 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<class UAbilityTask_PlayMontageAndWait> MontageTask;
+
 };
