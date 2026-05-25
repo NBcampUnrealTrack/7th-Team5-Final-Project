@@ -3,7 +3,9 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "SubSystem/KOGridSubsystem.h"
 #include "Building/KOBaseBuilding.h"
+#include "Building/KOGhostPreview.h"
 #include "DrawDebugHelpers.h"
+#include "HAL/IConsoleManager.h"
 
 #include "Components/MeshComponent.h"
 #include "Engine/World.h"
@@ -11,7 +13,26 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
-#include "Building/KOGhostPreview.h"
+
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+
+static TAutoConsoleVariable<int32> CVarKODrawBuildTrace(
+	TEXT("ko.DrawBuildTrace"),
+	0,
+	TEXT("화면 중앙 라인트레이스 디버그 표시 여부. 0: Off, 1: On"),
+	ECVF_Cheat
+);
+
+static TAutoConsoleVariable<int32> CVarKODrawBuildOccupiedCells(
+	TEXT("ko.DrawBuildCells"),
+	0,
+	TEXT("건물이 점유할 그리드 셀 디버그 박스 표시 여부. 0: Off, 1: On"),
+	ECVF_Cheat
+);
+
+#endif
+
+DEFINE_LOG_CATEGORY_STATIC(LogKOBuild, Log, All);
 
 UKOGridBuildComponent::UKOGridBuildComponent()
 {
@@ -31,15 +52,19 @@ void UKOGridBuildComponent::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bIsBuildMode)
+	switch (CurrentMode)
 	{
+	case EKOGridBuildMode::Build:
 		UpdateGhostPreview();
-		return;
-	}
+		break;
 
-	if (bIsDestroyMode)
-	{
+	case EKOGridBuildMode::Destroy:
 		UpdateDestroyTargetPreview();
+		break;
+
+	case EKOGridBuildMode::None:
+	default:
+		break;
 	}
 }
 
@@ -47,44 +72,44 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 {
 	if (FactoryId.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] FactoryId가 비어 있습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] FactoryId가 비어 있습니다."));
 		return;
 	}
 
 	UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
 	if (!LoadSub)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] KOLoadSubsystem을 찾을 수 없습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] KOLoadSubsystem을 찾을 수 없습니다."));
 		return;
 	}
 
 	const FKOFactoryRow* Row = LoadSub->FindFactoryRow(FactoryId);
 	if (!Row)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 알 수 없는 FactoryId: %s"), *FactoryId.ToString());
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 알 수 없는 FactoryId: %s"), *FactoryId.ToString());
 		return;
 	}
 
 	UClass* BuildingClass = LoadSub->ResolveBuildingClass(FactoryId);
 	if (!BuildingClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingClass 로드 실패. FactoryId=%s"), *FactoryId.ToString());
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] BuildingClass 로드 실패. FactoryId=%s"), *FactoryId.ToString());
 		return;
 	}
 
 	if (!PreviewActorClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] PreviewActorClass가 설정되지 않았습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] PreviewActorClass가 설정되지 않았습니다."));
 		return;
 	}
 
 	if (Row->GridSize.X <= 0 || Row->GridSize.Y <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] GridSize가 잘못되었습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] GridSize가 잘못되었습니다."));
 		return;
 	}
 
-	CancelDestroyMode();
+	CancelCurrentMode();
 	DestroyPreviewActor();
 
 	CurrentFactoryId = FactoryId;
@@ -92,7 +117,7 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 	CurrentBuildingClass = BuildingClass;
 	CurrentBuildingSize = Row->GridSize;
 
-	bIsBuildMode = true;
+	CurrentMode = EKOGridBuildMode::Build;
 	SetComponentTickEnabled(true);
 	bCurrentPlacementValid = false;
 
@@ -133,7 +158,7 @@ bool UKOGridBuildComponent::SpawnPreviewActor()
 
 	if (!PreviewActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] PreviewActor 생성 실패"));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] PreviewActor 생성 실패"));
 		return false;
 	}
 	
@@ -192,7 +217,7 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 
 	FHitResult HitResult;
 
-	if (!TraceFromScreenCenter(HitResult))
+	if (!TraceFromScreenCenter(HitResult, BuildTraceChannel))
 	{
 		CurrentPreviewActor->SetActorHiddenInGame(true);
 		bCurrentPlacementValid = false;
@@ -233,7 +258,10 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	
 	// 건물이 차지할 그리드 셀 디버그 표시
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (IsInGameThread())
+	if (
+		IsInGameThread() &&
+		CVarKODrawBuildOccupiedCells.GetValueOnGameThread() != 0
+	)
 	{
 		const float CellSize = GridSub->GetCellSize();
 
@@ -275,7 +303,7 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 
 void UKOGridBuildComponent::RequestBuild()
 {
-	if (!bIsBuildMode)
+	if (CurrentMode != EKOGridBuildMode::Build)
 	{
 		return;
 	}
@@ -284,7 +312,7 @@ void UKOGridBuildComponent::RequestBuild()
 
 	if (!bCurrentPlacementValid)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 현재 위치에는 설치할 수 없습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 현재 위치에는 설치할 수 없습니다."));
 		return;
 	}
 
@@ -302,7 +330,7 @@ void UKOGridBuildComponent::RequestBuild()
 
 	if (!GridSub->CanBuildArea(CurrentAnchor, CurrentBuildingSize, bCheckPlacementCollision))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 설치 불가 위치입니다. Grid: %d, %d"),
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 설치 불가 위치입니다. Grid: %d, %d"),
 			CurrentAnchor.X,
 			CurrentAnchor.Y
 		);
@@ -323,7 +351,7 @@ void UKOGridBuildComponent::RequestBuild()
 	UClass* BuildingClass = CurrentBuildingClass.Get();
 	if (!BuildingClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] BuildingClass 참조가 만료되었습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] BuildingClass 참조가 만료되었습니다."));
 		return;
 	}
 
@@ -337,7 +365,7 @@ void UKOGridBuildComponent::RequestBuild()
 
 	if (!NewBuilding)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Build] 건물 생성 실패"));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 건물 생성 실패"));
 		return;
 	}
 
@@ -369,9 +397,32 @@ void UKOGridBuildComponent::RequestBuild()
 	}
 }
 
+void UKOGridBuildComponent::CancelCurrentMode()
+{
+	switch (CurrentMode)
+	{
+	case EKOGridBuildMode::Build:
+		CancelBuildMode();
+		break;
+
+	case EKOGridBuildMode::Destroy:
+		CancelDestroyMode();
+		break;
+
+	case EKOGridBuildMode::None:
+	default:
+		break;
+	}
+}
+
 void UKOGridBuildComponent::CancelBuildMode()
 {
-	bIsBuildMode = false;
+	if (CurrentMode != EKOGridBuildMode::Build)
+	{
+		return;
+	}
+	
+	CurrentMode = EKOGridBuildMode::None;
 	bCurrentPlacementValid = false;
 
 	DestroyPreviewActor();
@@ -382,49 +433,38 @@ void UKOGridBuildComponent::CancelBuildMode()
 	CurrentAnchor = FIntPoint::ZeroValue;
 	CurrentBuildingSize = FIntPoint(1, 1);
 	
-	if (!bIsDestroyMode)
-	{
-		SetComponentTickEnabled(false);
-	}
+	SetComponentTickEnabled(false);
 }
 
 void UKOGridBuildComponent::StartDestroyMode()
 {
-	if (bIsBuildMode)
-	{
-		CancelBuildMode();
-	}
+	CancelCurrentMode();
 
-	bIsDestroyMode = true;
+	CurrentMode = EKOGridBuildMode::Destroy;
 	SetComponentTickEnabled(true);
 
 	UpdateDestroyTargetPreview();
 
-	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 모드 시작"));
+	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 시작"));
 }
 
 void UKOGridBuildComponent::CancelDestroyMode()
 {
-	if (!bIsDestroyMode)
+	if (CurrentMode != EKOGridBuildMode::Destroy)
 	{
 		return;
 	}
 	
-	bIsDestroyMode = false;
-	
+	CurrentMode = EKOGridBuildMode::None;
 	ClearDestroyTargetActor();
+	SetComponentTickEnabled(false);
 
-	if (!bIsBuildMode)
-	{
-		SetComponentTickEnabled(false);
-	}
-
-	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 모드 종료"));
+	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료"));
 }
 
 void UKOGridBuildComponent::RequestDestroy()
 {
-	if (!bIsDestroyMode)
+	if (CurrentMode != EKOGridBuildMode::Destroy)
 	{
 		return;
 	}
@@ -447,19 +487,19 @@ void UKOGridBuildComponent::RequestDestroy()
 
 	if (!IsValid(TargetBuilding))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Destroy] 파괴할 대상이 없습니다."));
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 파괴할 대상이 없습니다."));
 		return;
 	}
 
 	if (!GridSub->FreeAreaByActor(TargetBuilding))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Destroy] 점유 해제 실패: %s"),
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 점유 해제 실패: %s"),
 			*TargetBuilding->GetName()
 		);
 		return;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
+	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
 		*TargetBuilding->GetName()
 	);
 	
@@ -519,7 +559,7 @@ void UKOGridBuildComponent::ApplyGhostMaterial(AActor* TargetActor, UMaterialInt
 
 void UKOGridBuildComponent::UpdateDestroyTargetPreview()
 {
-	if (!bIsDestroyMode)
+	if (CurrentMode != EKOGridBuildMode::Destroy)
 	{
 		return;
 	}
@@ -540,7 +580,7 @@ void UKOGridBuildComponent::UpdateDestroyTargetPreview()
 
 	FHitResult HitResult;
 
-	if (!TraceFromScreenCenter(HitResult))
+	if (!TraceFromScreenCenter(HitResult, DestroyTraceChannel))
 	{
 		ClearDestroyTargetActor();
 		return;
@@ -650,7 +690,7 @@ void UKOGridBuildComponent::RestoreDestroyTargetMaterial()
 	}
 }
 
-bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
+bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollisionChannel TraceChannel) const
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -688,12 +728,15 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 		OutHit,
 		TraceStart,
 		TraceEnd,
-		GroundTraceChannel,
+		TraceChannel,
 		QueryParams
 	);
 	
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (IsInGameThread())
+	if (
+		IsInGameThread() &&
+		CVarKODrawBuildTrace.GetValueOnGameThread() != 0
+	)
 	{
 		const float DebugLifeTime = 0.03f;
 		const float DebugThickness = 2.0f;

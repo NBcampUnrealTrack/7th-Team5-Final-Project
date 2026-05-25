@@ -27,49 +27,29 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Grid|Coordinate")
 	FIntPoint WorldToGridPosition(const FVector& WorldLocation) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Coordinate")
 	FVector GridToWorldPosition(const FIntPoint& GridLocation) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Coordinate")
 	FVector GetAreaCenterWorldPosition(FIntPoint AnchorLocation, FIntPoint AreaSize) const;
 		
-	UFUNCTION(BlueprintCallable, Category = "Grid|Setup")
 	void BuildGridFromWorld();
 
-	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	bool IsValidGridLocation(const FIntPoint& GridLocation) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	bool CanBuildAt(const FIntPoint& GridLocation) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	bool CanBuildArea(FIntPoint AnchorLocation, FIntPoint AreaSize, bool bCheckCollision = true) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	AActor* GetOccupyingActorAt(const FIntPoint& GridLocation) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Grid|Query")
 	bool TryGetOccupiedAreaForActor(
 		AActor* OccupyingActor,
 		FIntPoint& OutAnchor,
 		FIntPoint& OutSize
 	) const;
 	
-	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
 	void OccupyArea(FIntPoint AnchorLocation, FIntPoint AreaSize, AActor* OccupyingActor);
-	
-	UFUNCTION(BlueprintCallable, Category = "Grid|Occupancy")
 	bool FreeAreaByActor(AActor* OccupyingActor);
 
 	// 디버그 박스 크기 계산
-	UFUNCTION(BlueprintPure, Category = "Grid|Settings")
 	float GetCellSize() const { return CellSize; }
 	
 	// 라인 디버깅
-	UFUNCTION(BlueprintCallable, Category = "Grid|Debug")
 	void DrawDebugGrid(float Duration = -1.0f) const;
 	
 protected:
@@ -93,11 +73,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
 	float TraceHeight = 1000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
-	TEnumAsByte<ECollisionChannel> GridGroundTraceChannel = ECC_Visibility;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Grid|Collision")
-	TEnumAsByte<ECollisionChannel> PlacementCollisionChannel = ECC_GameTraceChannel1;
+	ECollisionChannel GridGroundTraceChannel = ECC_Visibility;
+	ECollisionChannel PlacementCollisionChannel = ECC_GameTraceChannel1;
 
 	UPROPERTY()
 	TArray<FKOGridCellData> GridData;
