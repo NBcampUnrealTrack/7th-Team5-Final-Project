@@ -47,7 +47,7 @@ protected:
 	virtual void OnMontageCompleted();
 	UFUNCTION()
 	virtual void OnMontageCancelled();
-	
+
 	bool IsTargetInRange() const;
 	
 private:
