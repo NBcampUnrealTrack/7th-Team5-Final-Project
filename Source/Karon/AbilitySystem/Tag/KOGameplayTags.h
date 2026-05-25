@@ -29,4 +29,16 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
+
+	// ─── Item Category ────────────────────────────────────────────────────────
+	/** 기초 모듈 카테고리 (BasicModule) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module);
+	/** 석탄 카테고리 (Coal) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Coal);
+	/** 자원 카테고리 (CoalDust, Copper, Tin, Bronze) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource);
+	/** 가공 재료 카테고리 (BronzePlate, MiningPipe, Gear 등) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
+	/** 무기 카테고리 (BronzeSword) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
 }
