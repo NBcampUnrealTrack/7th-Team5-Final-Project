@@ -13,16 +13,11 @@ class AKOBaseBuilding;
 /**
  * FKOBuildMenuQuery
  * 빌드 메뉴 노출 후보를 조회할 때 사용하는 필터.
- * Category가 None이면 카테고리 제한 없이 전체 대상.
  */
 USTRUCT(BlueprintType)
 struct KARON_API FKOBuildMenuQuery
 {
     GENERATED_BODY()
-
-    /** 빌드 메뉴 카테고리 필터. None이면 전체. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BuildMenu")
-    FGameplayTag Category;
 
     /** 플레이어가 보유한 해금 태그. RequiredUnlockTags를 모두 포함해야 노출. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BuildMenu")
@@ -97,9 +92,13 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     bool bShowInBuildMenu = true;
 
-    /** 빌드 메뉴 카테고리 (예: BuildMenu.Category.Production). None이면 무카테고리. */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
-    FGameplayTag BuildCategory;
+    /**
+     * 공장 분류 태그 (예: "Factory.AlloyMaker").
+     * Recipe.AllowedFactoryTag와 매칭되어 어떤 레시피가 처리 가능한지 결정한다.
+     * 계층 매칭 지원 — Recipe 태그가 부모면 해당 자식 태그를 가진 공장 모두 매칭.
+     */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
+    FGameplayTag FactoryCategoryTag;
 
     /** 빌드 메뉴 내 정렬 순서. 작을수록 앞. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
@@ -119,12 +118,17 @@ struct KARON_API FKORecipeRow : public FTableRowBase
 {
     GENERATED_BODY()
 
+    /** UI에 표시되는 로컬라이즈드 레시피 이름 (예: "기초 모듈 분해"). */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
+    FText DisplayName;
+
     /**
-     * 이 레시피를 처리할 수 있는 공장 RowName 집합.
-     * 공장의 RowName이 이 배열에 포함되어 있으면 처리 가능.
+     * 이 레시피를 처리할 수 있는 공장 태그.
+     * FactoryRow.FactoryCategoryTag와 MatchesTag로 비교 — 계층 지원.
+     * 예: AllowedFactoryTag="Factory.AlloyMaker" → AlloyMaker만, "Factory"면 모든 공장.
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    TArray<FName> AllowedFactoryIds;
+    FGameplayTag AllowedFactoryTag;
 
     /** 입력 재료: ItemId(=Item DataTable의 RowName) → 사이클당 소비 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
@@ -137,4 +141,11 @@ struct KARON_API FKORecipeRow : public FTableRowBase
     /** 생산 사이클 1회 소요 시간(초) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     float CycleSeconds = 2.f;
+
+    /**
+     * 가공 중(Running) 시간당 에너지 소비량.
+     * 0이면 에너지 없이도 가공 가능. EnergySubsystem 공급 비율로 사이클 속도가 감속될 수 있다.
+     */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
+    float PowerPerSecond = 0.f;
 };

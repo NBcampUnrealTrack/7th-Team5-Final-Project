@@ -286,17 +286,10 @@ void UKOLoadSubsystem::GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TA
     TArray<FCandidate> Candidates;
     Candidates.Reserve(FactoryCache.Num());
 
-    const bool bFilterByCategory = Query.Category.IsValid();
-
     for (const TPair<FName, const FKOFactoryRow*>& Pair : FactoryCache)
     {
         const FKOFactoryRow* Row = Pair.Value;
         if (!Row || !Row->bShowInBuildMenu)
-        {
-            continue;
-        }
-
-        if (bFilterByCategory && Row->BuildCategory != Query.Category)
         {
             continue;
         }

@@ -8,32 +8,54 @@
 #include "GMRouterSubsystem.h"
 #include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOEnergySubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
-#include "TimerManager.h"
 
 UKOFactoryProcessorComponent::UKOFactoryProcessorComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bStartWithTickEnabled = true;
 }
 
 void UKOFactoryProcessorComponent::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
+    {
+        Energy->RegisterConsumer(this);
+    }
+
     EvaluateAutoStart();
 }
 
 void UKOFactoryProcessorComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
-    if (UWorld* World = GetWorld())
+    if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
     {
-        World->GetTimerManager().ClearTimer(CycleTimer);
+        Energy->UnregisterConsumer(this);
     }
     Super::EndPlay(Reason);
 }
 
-// ─── 외부 API ────────────────────────────────────────────────────────────────
+void UKOFactoryProcessorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (State != EKOFactoryState::Running || DeltaTime <= 0.f)
+    {
+        return;
+    }
+
+    Progress += DeltaTime * LastSupplyRatio;
+    if (Progress >= CurrentCycleSeconds)
+    {
+        OnCycleComplete();
+    }
+}
+
 
 int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
 {
@@ -76,7 +98,6 @@ int32 UKOFactoryProcessorComponent::TryExtractItem(FName ItemId, int32 Count)
         OutputBuffer.Remove(ItemId);
     }
 
-    // 출력이 비워졌으니 OutputBlocked였다면 재가동 시도
     if (State == EKOFactoryState::OutputBlocked)
     {
         EvaluateAutoStart();
@@ -93,25 +114,35 @@ bool UKOFactoryProcessorComponent::ManualStart()
     return TryStartCycle();
 }
 
-float UKOFactoryProcessorComponent::GetProgress01() const
+float UKOFactoryProcessorComponent::GetProgress() const
 {
     if (State != EKOFactoryState::Running || CurrentCycleSeconds <= 0.f)
     {
         return 0.f;
     }
+    return FMath::Clamp(Progress / CurrentCycleSeconds, 0.f, 1.f);
+}
 
-    const UWorld* World = GetWorld();
-    if (!World)
+// IKOEnergyConsumer
+
+float UKOFactoryProcessorComponent::GetPowerDemand(float DeltaSeconds) const
+{
+    if (State != EKOFactoryState::Running || DeltaSeconds <= 0.f)
     {
         return 0.f;
     }
-
-    const double Elapsed = World->GetTimeSeconds() - CycleStartSeconds;
-    return FMath::Clamp(static_cast<float>(Elapsed) / CurrentCycleSeconds, 0.f, 1.f);
+    const float PerSecond = GetActiveRecipePowerPerSecond();
+    return PerSecond * DeltaSeconds;
 }
 
-// ─── 내부 동작 ───────────────────────────────────────────────────────────────
+void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float RequestedAmount)
+{
+    LastSupplyRatio = (RequestedAmount > KINDA_SMALL_NUMBER)
+        ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f)
+        : 1.f;
+}
 
+// Internal Function
 FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
 {
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
@@ -125,6 +156,11 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
     {
         return NAME_None;
     }
+    const FKOFactoryRow* MyRow = LoadSub->FindFactoryRow(FactoryId);
+    if (!MyRow || !MyRow->FactoryCategoryTag.IsValid())
+    {
+        return NAME_None;
+    }
 
     TArray<FName> AllRecipes;
     LoadSub->GetAllRecipeIds(AllRecipes);
@@ -132,23 +168,18 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
     for (const FName& RecipeId : AllRecipes)
     {
         const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe)
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
         {
             continue;
         }
-        if (!Recipe->AllowedFactoryIds.Contains(FactoryId))
+        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
         {
             continue;
         }
-        if (!HasInputsFor(*Recipe))
+        if (HasInputsFor(*Recipe) && CanFitOutputs(*Recipe))
         {
-            continue;
+            return RecipeId;
         }
-        if (!CanFitOutputs(*Recipe))
-        {
-            continue;
-        }
-        return RecipeId;
     }
     return NAME_None;
 }
@@ -156,8 +187,7 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
 bool UKOFactoryProcessorComponent::TryStartCycle()
 {
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    UWorld* World = GetWorld();
-    if (!LoadSub || !World)
+    if (!LoadSub)
     {
         return false;
     }
@@ -173,14 +203,12 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
     {
         return false;
     }
-
-    // 입력 즉시 차감 (사이클 중 다른 가공이 입력을 가로채는 것 방지)
+    
     for (const TPair<FName, int32>& In : Recipe->Inputs)
     {
         int32* Have = InputBuffer.Find(In.Key);
         if (!Have)
         {
-            // 사실 HasInputsFor에서 보장되지만 방어
             return false;
         }
         *Have -= In.Value;
@@ -192,22 +220,13 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
 
     ActiveRecipeId      = RecipeId;
     CurrentCycleSeconds = FMath::Max(0.f, Recipe->CycleSeconds);
-    CycleStartSeconds   = World->GetTimeSeconds();
+    Progress            = 0.f;
 
     SetState(EKOFactoryState::Running);
-
+    
     if (CurrentCycleSeconds <= KINDA_SMALL_NUMBER)
     {
-        // 0초 레시피(예: 즉시 가공)는 즉시 완료
         OnCycleComplete();
-    }
-    else
-    {
-        World->GetTimerManager().SetTimer(
-            CycleTimer,
-            FTimerDelegate::CreateUObject(this, &UKOFactoryProcessorComponent::OnCycleComplete),
-            CurrentCycleSeconds,
-            /*bLoop*/ false);
     }
     return true;
 }
@@ -228,6 +247,7 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
 
     ActiveRecipeId      = NAME_None;
     CurrentCycleSeconds = 0.f;
+    Progress            = 0.f;
 
     SetState(EKOFactoryState::Idle);
     EvaluateAutoStart();
@@ -260,44 +280,56 @@ bool UKOFactoryProcessorComponent::CanFitOutputs(const FKORecipeRow& Recipe) con
     return true;
 }
 
+float UKOFactoryProcessorComponent::GetActiveRecipePowerPerSecond() const
+{
+    if (ActiveRecipeId.IsNone())
+    {
+        return 0.f;
+    }
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKORecipeRow* Recipe = LoadSub ? LoadSub->FindRecipeRow(ActiveRecipeId) : nullptr;
+    return Recipe ? FMath::Max(0.f, Recipe->PowerPerSecond) : 0.f;
+}
+
 void UKOFactoryProcessorComponent::EvaluateAutoStart()
 {
-    if (!bAutoStart)
-    {
-        return;
-    }
-    if (State == EKOFactoryState::Running)
+    if (!bAutoStart || State == EKOFactoryState::Running)
     {
         return;
     }
 
-    // OutputBlocked일 때는 출력 여유 확보된 경우에만 진행
     if (TryStartCycle())
     {
         return;
     }
-
-    // 시작 못 했다면 사유에 따라 상태 갱신
+    
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     if (!LoadSub)
     {
         return;
     }
-
     const FName FactoryId = GetOwnerFactoryId();
     if (FactoryId.IsNone())
     {
         return;
     }
+    const FKOFactoryRow* MyRow = LoadSub->FindFactoryRow(FactoryId);
+    if (!MyRow || !MyRow->FactoryCategoryTag.IsValid())
+    {
+        return;
+    }
 
-    // 입력은 있으나 출력이 막혀 못 시작한 경우 → OutputBlocked
     TArray<FName> AllRecipes;
     LoadSub->GetAllRecipeIds(AllRecipes);
     bool bAnyOutputBlocked = false;
     for (const FName& RecipeId : AllRecipes)
     {
         const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryIds.Contains(FactoryId))
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
+        {
+            continue;
+        }
+        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
         {
             continue;
         }
@@ -341,7 +373,7 @@ void UKOFactoryProcessorComponent::BroadcastStateChanged() const
     FKOFactoryStateChangedMessage Msg;
     Msg.FactoryId = GetOwnerFactoryId();
     Msg.bIsActive = (State == EKOFactoryState::Running);
-    Msg.Progress  = GetProgress01();
+    Msg.Progress  = GetProgress();
 
     GMS->BroadcastMessage(
         KOGameplayTags::Data_Message_Factory_StateChanged,
