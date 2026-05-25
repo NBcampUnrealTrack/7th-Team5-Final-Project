@@ -47,10 +47,11 @@ protected:
 	virtual void OnMontageCompleted();
 	UFUNCTION()
 	virtual void OnMontageCancelled();
-
+	
 	bool IsTargetInRange() const;
 	
 private:
 	UPROPERTY()
 	TObjectPtr<class UAbilityTask_PlayMontageAndWait> MontageTask;
+
 };
