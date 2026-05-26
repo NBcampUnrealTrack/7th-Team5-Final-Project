@@ -47,13 +47,17 @@ namespace KOGameplayTags
 
     // ── State | Character | Etc ───────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Dead);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_StaminaExhausted);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Stunned);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Invincible);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_NoStaminaRegen);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	
 	// ───────────────────────── Event ──────────────────────────────
-    // ── Event | HitReact ──────────────────────────────────────────
+	// ── Event | Stamina ──────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Stamina_Exhausted);
+	
+	// ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
 
     // ── Event | Death ─────────────────────────────────────────────
