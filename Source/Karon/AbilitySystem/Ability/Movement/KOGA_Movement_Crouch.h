@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
-#include "KOGA_Crouch.generated.h"
+#include "KOGA_Movement_Crouch.generated.h"
 
 UCLASS()
-class KARON_API UKOGA_Crouch : public UKOGameplayAbilityBase
+class KARON_API UKOGA_Movement_Crouch : public UKOGameplayAbilityBase
 {
 	GENERATED_BODY()
 	
 public:
-	UKOGA_Crouch();
+	UKOGA_Movement_Crouch();
 	
 	virtual bool CanActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
