@@ -16,34 +16,14 @@ const UKOLoadSubsystem* UKOItemLibrary::GetLoadSubsystem(const UObject* WorldCon
     return UKOLoadSubsystem::Get(WorldContext);
 }
 
-bool UKOItemLibrary::GetItemRow(const UObject* WorldContext, FName ItemId, FKOItemRow& OutRow)
+const FKOItemRow* UKOItemLibrary::GetItemRow(const UObject* WorldContext, FName ItemId)
 {
     const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
     if (!LS)
     {
-        return false;
+        return nullptr;
     }
-
-    const FKOItemRow* Row = LS->FindItemRow(ItemId);
-    if (!Row)
-    {
-        return false;
-    }
-
-    OutRow = *Row;
-    return true;
-}
-
-FGameplayTagContainer UKOItemLibrary::GetItemCategories(const UObject* WorldContext, FName ItemId)
-{
-    if (const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext))
-    {
-        if (const FKOItemRow* Row = LS->FindItemRow(ItemId))
-        {
-            return Row->Categories;
-        }
-    }
-    return FGameplayTagContainer();
+    return LS->FindItemRow(ItemId);
 }
 
 UStaticMesh* UKOItemLibrary::GetItemMesh(const UObject* WorldContext, FName ItemId)
@@ -126,7 +106,7 @@ UTexture2D* UKOItemLibrary::GetIcon(const UObject* WorldContext, EKOSlotKind Kin
     return nullptr;
 }
 
-bool UKOItemLibrary::Exists(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
+bool UKOItemLibrary::HasRow(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
 {
     const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
     if (!LS)

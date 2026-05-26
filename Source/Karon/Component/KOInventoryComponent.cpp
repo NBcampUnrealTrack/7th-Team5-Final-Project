@@ -245,7 +245,7 @@ void UKOInventoryComponent::NotifyInventoryChanged(FName ItemId, int32 PreviousC
 bool UKOInventoryComponent::IsItemAccepted(EKOSlotKind Kind, FName ItemId) const
 {
     // DataTable에 존재하지 않으면 무조건 거부
-    if (!UKOItemLibrary::Exists(this, Kind, ItemId))
+    if (!UKOItemLibrary::HasRow(this, Kind, ItemId))
     {
         return false;
     }
@@ -258,8 +258,8 @@ bool UKOInventoryComponent::IsItemAccepted(EKOSlotKind Kind, FName ItemId) const
         {
             return true;
         }
-        const FGameplayTagContainer Categories = UKOItemLibrary::GetItemCategories(this, ItemId);
-        return AcceptedItemsQuery.Matches(Categories);
+        const FKOItemRow* Row = UKOItemLibrary::GetItemRow(this, ItemId);
+        return Row && AcceptedItemsQuery.Matches(Row->Categories);
     }
     case EKOSlotKind::Factory:
         return bAcceptFactories;
