@@ -48,6 +48,7 @@ namespace KOGameplayTags
 	
 	// ── State | Character | Etc ───────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Dead, "State.Character.Dead");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_StaminaExhausted, "State.Character.StaminaExhausted"); 
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Stunned, "State.Character.Stunned");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Invincible, "State.Character.Invincible");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
@@ -112,6 +113,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	
 	// ───────────────────────── Event ──────────────────────────────
+	// ── Event | Stamina ──────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Stamina_Exhausted, "Event.Stamina.Exhausted");
+	
 	// ── Event | HitReact ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact, "Event.HitReact");
 	
