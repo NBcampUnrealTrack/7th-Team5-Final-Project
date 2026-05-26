@@ -69,7 +69,7 @@ void UKOHealthSet::PostGameplayEffectExecute(const struct FGameplayEffectModCall
 {
 	Super::PostGameplayEffectExecute(Data);
 	
-	FKOEffectContext Context = CacheEffectContext(Data);
+	// FKOEffectContext Context = CacheEffectContext(Data);
 	
 	// Handle Damage 
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())

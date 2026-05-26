@@ -95,5 +95,27 @@ protected:
 	EGait InComingGait;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gait")
+	EGait PreviousGait;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gait")
 	EGait CurrentGait;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gait")
+	bool bGaitChanged;
+	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsInAir;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsJumping;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	bool bIsFalling; 
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	float TimeFalling; 
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Falling")
+	float GroundDistance; 
 };
