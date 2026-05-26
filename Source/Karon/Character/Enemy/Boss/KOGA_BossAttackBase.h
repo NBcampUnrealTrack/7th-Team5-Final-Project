@@ -53,5 +53,4 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<class UAbilityTask_PlayMontageAndWait> MontageTask;
-
 };
