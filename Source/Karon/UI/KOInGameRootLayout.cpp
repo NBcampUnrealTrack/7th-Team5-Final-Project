@@ -31,6 +31,10 @@ void UKOInGameRootLayout::NativeConstruct()
     {
         UISubsystem->RegisterPrimaryLayout(KOGameplayTags::UI_Layer_GameMenu, GameMenuLayer);
     }
+    if (MenuLayer)
+    {
+        UISubsystem->RegisterPrimaryLayout(KOGameplayTags::UI_Layer_Menu, MenuLayer);
+    }
     if (ModalLayer)
     {
         UISubsystem->RegisterPrimaryLayout(KOGameplayTags::UI_Layer_Modal, ModalLayer);
