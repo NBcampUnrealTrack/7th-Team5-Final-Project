@@ -1,11 +1,11 @@
-#include "AbilitySystem/Ability/Movement/KOGA_Crouch.h"
+#include "AbilitySystem/Ability/Movement/KOGA_Movement_Crouch.h"
 #include "GameFramework/Character.h"
 
-UKOGA_Crouch::UKOGA_Crouch()
+UKOGA_Movement_Crouch::UKOGA_Movement_Crouch()
 {
 }
 
-bool UKOGA_Crouch::CanActivateAbility(
+bool UKOGA_Movement_Crouch::CanActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayTagContainer* SourceTags,
@@ -17,7 +17,7 @@ bool UKOGA_Crouch::CanActivateAbility(
 	return GetAvatarCharacter() && GetAvatarCharacter()->CanCrouch(); 
 }
 
-void UKOGA_Crouch::ActivateAbility(
+void UKOGA_Movement_Crouch::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle, 
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -39,7 +39,7 @@ void UKOGA_Crouch::ActivateAbility(
 	
 }
 
-void UKOGA_Crouch::EndAbility(
+void UKOGA_Movement_Crouch::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	 const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, 
@@ -49,7 +49,7 @@ void UKOGA_Crouch::EndAbility(
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOGA_Crouch::InputReleased(
+void UKOGA_Movement_Crouch::InputReleased(
 	const FGameplayAbilitySpecHandle Handle, 
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo)
@@ -57,10 +57,10 @@ void UKOGA_Crouch::InputReleased(
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
 }
 
-void UKOGA_Crouch::OnMontageCompleted()
+void UKOGA_Movement_Crouch::OnMontageCompleted()
 {
 }
 
-void UKOGA_Crouch::OnMontageCancelled()
+void UKOGA_Movement_Crouch::OnMontageCancelled()
 {
 }
