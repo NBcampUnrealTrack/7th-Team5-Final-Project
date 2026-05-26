@@ -10,8 +10,8 @@ void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 
 	if (SlotData.HasItem())
 	{
-		ItemDisplayName = UKOItemLibrary::GetItemDisplayName(this, SlotData.ItemId);
-		ItemIcon        = UKOItemLibrary::GetItemIcon(this, SlotData.ItemId);
+		ItemDisplayName = UKOItemLibrary::GetDisplayName(this, SlotData.Kind, SlotData.ItemId);
+		ItemIcon        = UKOItemLibrary::GetIcon(this, SlotData.Kind, SlotData.ItemId);
 	}
 
 	BP_OnSlotDataSet(SlotData);
