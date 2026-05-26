@@ -2,7 +2,7 @@
 
 #include "AIController.h"
 
-#include "KOAIC_Boss.h"
+#include "KOAIC_BossChapter01.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -137,7 +137,7 @@ bool UKOGA_BossAttackBase::IsTargetInRange() const
 		return false;
 	}
 
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_Boss::TargetActorKey));
+	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
 	if (!Target)
 	{
 		return false;
