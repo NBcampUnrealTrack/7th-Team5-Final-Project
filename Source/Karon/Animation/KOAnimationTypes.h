@@ -34,6 +34,7 @@ enum class ERootYawOffsetMode : uint8
 	Hold UMETA(DisplayName = "Hold"),
 	BlendOut UMETA(DisplayName = "BlendOut"),
 };
+
 USTRUCT(BlueprintType)
 struct FLocomotionDirectionSettings
 {
@@ -91,16 +92,10 @@ struct FDirectionalAnims
 	UAnimSequence* B; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* LF; 
+	UAnimSequence* L; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* LB; 
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* RF; 
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* RB; 
+	UAnimSequence* R; 
 };
 
 USTRUCT(BlueprintType)

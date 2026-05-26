@@ -2,6 +2,7 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Animation/KOAnimInstance.h"
 #include "Component/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
@@ -12,9 +13,6 @@ AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
 		ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	HealthSet = CreateDefaultSubobject<UKOHealthSet>(FName("HealthSet"));
-	MovementSet = CreateDefaultSubobject<UKOMovementSet>(FName("MovementSet"));
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
@@ -25,22 +23,22 @@ UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
 void AKOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	BindMovementSet();
 }
 
 void AKOCharacterBase::BindMovementSet()
 {
-	MovementSet->OnMoveSpeedChanged.AddUObject(this, &ThisClass::OnMoveSpeedChanged);
-	OnMoveSpeedChanged(600.f, MovementSet->GetMoveSpeed());
+	MovementSet->OnMoveSpeedChanged.AddDynamic(this, &ThisClass::OnMoveSpeedChanged);
+	OnMoveSpeedChanged(0.f, MovementSet->GetMoveSpeed());
 	
-	MovementSet->OnJumpStrengthChanged.AddUObject(this, &ThisClass::OnJumpStrengthChanged);
-	OnJumpStrengthChanged(420, MovementSet->GetJumpStrength());
+	MovementSet->OnJumpStrengthChanged.AddDynamic(this, &ThisClass::OnJumpStrengthChanged);
+	OnJumpStrengthChanged(0, MovementSet->GetJumpStrength());
 }
 
 void AKOCharacterBase::OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
+	
+	UE_LOG(LogTemp, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
 }
 
 void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength)

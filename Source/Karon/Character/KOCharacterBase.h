@@ -30,8 +30,10 @@ protected:
 protected:
 	virtual void BindMovementSet();
 	
+	UFUNCTION()
 	virtual void OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed);
 	
+	UFUNCTION()
 	virtual void OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength);
 	
 protected:
@@ -43,4 +45,6 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Movement")
 	TObjectPtr<UKOMovementSet> MovementSet;
+	
+ 
 };

@@ -8,6 +8,7 @@
 #include "Game/KOPlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterTrajectoryComponent.h"
+#include "Animation/KOAnimInstance.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -15,12 +16,20 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	SprintArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
-	SprintArm->SetupAttachment(RootComponent);
-	SprintArm->bUsePawnControlRotation = true;
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->TargetArmLength = 300.f; 
+	
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
+	
+	SpringArm->CameraLagSpeed = 20.f; 
+	SpringArm->CameraRotationLagSpeed = 50.f; 
+	
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SprintArm);
+	Camera->SetupAttachment(SpringArm);
 	
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
@@ -52,11 +61,15 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	if (!PS) return;
 	
 	AbilitySystemComponent = Cast<UKOAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->GiveDefaultAbilities(); 
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	}
+	if (!AbilitySystemComponent) return;
+	
+	AbilitySystemComponent->GiveDefaultAbilities(); 
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	
+	MovementSet = PS->GetMovementSet();
+	HealthSet = PS->GetHealthSet();
+	
+	BindMovementSet(); 
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)
@@ -74,3 +87,15 @@ void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
+void AKOHeroCharacter::UpdateGait(EGait DesiredGait)
+{
+	PreviousGait = CurrentGait;
+	
+	CurrentGait = DesiredGait;
+	
+	UKOAnimInstance* AnimInstance =  Cast<UKOAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!AnimInstance) return;
+	
+	AnimInstance->ReceiveGait(DesiredGait);
+}
