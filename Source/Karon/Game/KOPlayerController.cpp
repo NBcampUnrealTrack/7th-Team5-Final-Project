@@ -1,21 +1,23 @@
-﻿#include "KOPlayerController.h"
+#include "KOPlayerController.h"
 
 #include "AbilitySystemInterface.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "Component/KOGridBuildComponent.h"
 #include "UI/KOActivatableWidget.h"
 
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
+	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultIMC, 0);
@@ -38,22 +40,22 @@ void AKOPlayerController::CreateRootLayout()
 void AKOPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	
+
 	UKOInputComponent* KOIC = Cast<UKOInputComponent>(InputComponent);
 	if (!IsValid(KOIC)) return;
-	
+
 	if (InputConfig)
 	{
 		// Bind Native Input Actions
 		KOIC->BindNativeAction(
 			InputConfig,
 			KOGameplayTags::Input_Native_Move,
-			ETriggerEvent::Triggered, 
-			this, 
+			ETriggerEvent::Triggered,
+			this,
 			&ThisClass::Input_Move,
 			true
 		);
-		
+
 		KOIC->BindNativeAction(
 		InputConfig,
 		KOGameplayTags::Input_Native_Look,
@@ -72,13 +74,40 @@ void AKOPlayerController::SetupInputComponent()
 			true
 		);
 
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleBuildMode,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleBuildMode,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_Confirm,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildConfirm,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_ToggleDestroy,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildToggleDestroy,
+			true
+		);
+
 		// Bind Abilities Input Actions
 		TArray<uint32> BindHandles;
 		KOIC->BindAbilityActions(
 			InputConfig,
 			this,
 			&ThisClass::Input_AbilityPressed,
-			&ThisClass::Input_AbilityReleased, 
+			&ThisClass::Input_AbilityReleased,
 			BindHandles
 		);
 	}
@@ -87,22 +116,22 @@ void AKOPlayerController::SetupInputComponent()
 void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 {
 	APawn* ControlledPawn = GetPawn();
-	if (!ControlledPawn) return; 
-	
+	if (!ControlledPawn) return;
+
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator MoveRotation(0.f, GetControlRotation().Yaw, 0.f);
-	
+
 	const FVector ForwardDirection = MoveRotation.RotateVector(FVector::ForwardVector);
 	const FVector RightDirection = MoveRotation.RotateVector(FVector::RightVector);
-	
-	ControlledPawn->AddMovementInput(ForwardDirection, MoveValue.Y); 
-	ControlledPawn->AddMovementInput(RightDirection, MoveValue.X); 
+
+	ControlledPawn->AddMovementInput(ForwardDirection, MoveValue.Y);
+	ControlledPawn->AddMovementInput(RightDirection, MoveValue.X);
 }
 
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
 	const FVector2D LookValue = Value.Get<FVector2D>();
-	
+
 	AddYawInput(LookValue.X);
 	AddPitchInput(LookValue.Y);
 }
@@ -120,12 +149,12 @@ void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
 
 void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 {
-	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(GetPawn()); 
+	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(GetPawn());
 	if (!ASI) return;
-	
+
 	UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent());
 	if (!KOASC) return;
-	
+
 	KOASC->AbilityInputTagReleased(InputTag);
 }
 
@@ -137,3 +166,103 @@ void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 	}
 }
 
+void AKOPlayerController::Input_ToggleBuildMode(const FInputActionValue& /*Value*/)
+{
+	if (bBuildIMCActive)
+	{
+		ExitBuildIMC();
+	}
+	else
+	{
+		EnterBuildIMC();
+	}
+}
+
+void AKOPlayerController::Input_BuildConfirm(const FInputActionValue& /*Value*/)
+{
+	if (!GridBuildComponent) return;
+
+	switch (GridBuildComponent->GetCurrentMode())
+	{
+	case EKOGridBuildMode::Build:
+		GridBuildComponent->RequestBuild();
+		break;
+
+	case EKOGridBuildMode::Destroy:
+		GridBuildComponent->RequestDestroy();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void AKOPlayerController::Input_BuildToggleDestroy(const FInputActionValue& /*Value*/)
+{
+	if (!GridBuildComponent) return;
+
+	// Build ↔ Destroy 토글. Build 진입 시 DebugBuildFactoryId 사용.
+	switch (GridBuildComponent->GetCurrentMode())
+	{
+	case EKOGridBuildMode::Build:
+		GridBuildComponent->StartDestroyMode();
+		break;
+
+	case EKOGridBuildMode::Destroy:
+		GridBuildComponent->CancelDestroyMode();
+		if (!DebugBuildFactoryId.IsNone())
+		{
+			GridBuildComponent->StartBuildModeWithId(DebugBuildFactoryId);
+		}
+		break;
+
+	default:
+		// None 상태(예: 진입 직후 FactoryId 미설정으로 빌드 모드 실패)에서 RMB로 Destroy 진입 허용
+		GridBuildComponent->StartDestroyMode();
+		break;
+	}
+}
+
+void AKOPlayerController::EnterBuildIMC()
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+	if (Subsystem && BuildIMC)
+	{
+		Subsystem->RemoveMappingContext(DefaultIMC);
+		Subsystem->AddMappingContext(BuildIMC, 0);
+	}
+
+	bBuildIMCActive = true;
+
+	if (GridBuildComponent && !DebugBuildFactoryId.IsNone())
+	{
+		GridBuildComponent->StartBuildModeWithId(DebugBuildFactoryId);
+	}
+}
+
+void AKOPlayerController::ExitBuildIMC()
+{
+	if (GridBuildComponent)
+	{
+		GridBuildComponent->CancelCurrentMode();
+	}
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+	if (Subsystem)
+	{
+		if (BuildIMC)
+		{
+			Subsystem->RemoveMappingContext(BuildIMC);
+		}
+		if (DefaultIMC)
+		{
+			Subsystem->AddMappingContext(DefaultIMC, 0);
+		}
+	}
+
+	bBuildIMCActive = false;
+}
