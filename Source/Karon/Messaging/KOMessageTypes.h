@@ -77,3 +77,19 @@ struct FKOBuildingInteractedMessage
     UPROPERTY()
     TWeakObjectPtr<AActor> Instigator;
 };
+
+/**
+ * 건설 퀵슬롯 변경 메시지
+ * 채널: KOGameplayTags::Data_Message_Build_QuickSlotChanged
+ */
+USTRUCT()
+struct FKOBuildQuickSlotChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    int32 SlotIndex = INDEX_NONE;
+
+    UPROPERTY()
+    FName FactoryId = NAME_None;
+};

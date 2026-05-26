@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UKOInteractionComponent;
 class UKOGridBuildComponent;
 class UKOActivatableWidget;
+class UKOBuildUIComponent;
 
 UCLASS()
 class KARON_API AKOPlayerController : public APlayerController
@@ -63,6 +64,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UKOGridBuildComponent> GridBuildComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UKOBuildUIComponent> BuildUIComponent;
 
 	// BuildMenu UI 도입 전, B 키 진입 시 즉시 사용할 디버그 FactoryId
 	UPROPERTY(EditDefaultsOnly, Category = "Build")

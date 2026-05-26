@@ -14,8 +14,9 @@ UENUM(BlueprintType)
 enum class EKOGridBuildMode : uint8
 {
 	None	UMETA(DisplayName = "None"),
-	Build	UMETA(DisplayName = "Build"),
-	Destroy	UMETA(DisplayName = "Destroy")
+	BuildMenu	UMETA(DisplayName = "Build Menu"),
+	Placing		UMETA(DisplayName = "Placing"),
+	Destroying	UMETA(DisplayName = "Destroying")
 };
 
 USTRUCT()
@@ -61,15 +62,31 @@ public:
 	void RequestDestroy();
 	
 	// ─── 건설 모드 ────────────────────────────────────────────────────	
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void EnterBuildMenuMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Build")
+	void ExitBuildMenuMode();
+
 	UFUNCTION(BlueprintPure, Category = "Build")
-	bool IsBuildMode() const { return CurrentMode == EKOGridBuildMode::Build; }
-	
+	bool IsBuildMenuMode() const { return CurrentMode == EKOGridBuildMode::BuildMenu; }
+
 	UFUNCTION(BlueprintPure, Category = "Build")
-	bool IsDestroyMode() const { return CurrentMode == EKOGridBuildMode::Destroy; }
+	bool IsBuildMode() const { return CurrentMode == EKOGridBuildMode::Placing; }
+
+	UFUNCTION(BlueprintPure, Category = "Build")
+	bool IsDestroyMode() const { return CurrentMode == EKOGridBuildMode::Destroying; }
+
+	UFUNCTION(BlueprintPure, Category = "Build")
+	bool IsBuildSystemActive() const
+	{
+		return CurrentMode == EKOGridBuildMode::BuildMenu ||
+			CurrentMode == EKOGridBuildMode::Placing ||
+			CurrentMode == EKOGridBuildMode::Destroying;
+	}
 	
 	UFUNCTION(BlueprintPure, Category = "Build")
 	EKOGridBuildMode GetCurrentMode() const { return CurrentMode; }
-	
 	
 	// ─── 건설 모드 해제 ────────────────────────────────────────────────────	
 	UFUNCTION(BlueprintCallable, Category = "Build")
@@ -91,6 +108,7 @@ protected:
 	void UpdateGhostPreview();
 	bool SpawnPreviewActor();
 	void DestroyPreviewActor();
+	void ClearPlacementState();
 	
 	// 머티리얼
 	void SetPreviewActorBuildableState(bool bCanBuild);
@@ -139,6 +157,7 @@ private:
 
 	FName CurrentFactoryId = NAME_None;
 	const FKOFactoryRow* CurrentFactoryRow = nullptr;
+	
 	TWeakObjectPtr<UClass> CurrentBuildingClass;
 	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;
 

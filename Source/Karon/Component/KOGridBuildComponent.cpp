@@ -1,7 +1,7 @@
 ﻿#include "KOGridBuildComponent.h"
 #include "Data/KODataTableTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "SubSystem/KOGridSubsystem.h"
+#include "SubSystem/KOGridSubSystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/KOGhostPreview.h"
 #include "DrawDebugHelpers.h"
@@ -54,22 +54,61 @@ void UKOGridBuildComponent::TickComponent(
 
 	switch (CurrentMode)
 	{
-	case EKOGridBuildMode::Build:
+	case EKOGridBuildMode::Placing:
 		UpdateGhostPreview();
 		break;
 
-	case EKOGridBuildMode::Destroy:
+	case EKOGridBuildMode::Destroying:
 		UpdateDestroyTargetPreview();
 		break;
 
+	case EKOGridBuildMode::BuildMenu:
 	case EKOGridBuildMode::None:
 	default:
 		break;
 	}
 }
 
+void UKOGridBuildComponent::EnterBuildMenuMode()
+{
+	if (CurrentMode == EKOGridBuildMode::BuildMenu)
+	{
+		return;
+	}
+
+	ExitBuildMenuMode();
+
+	CurrentMode = EKOGridBuildMode::BuildMenu;
+	SetComponentTickEnabled(false);
+
+	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건설 메뉴 모드 시작"));
+}
+
+void UKOGridBuildComponent::ExitBuildMenuMode()
+{
+	if (CurrentMode == EKOGridBuildMode::Placing)
+	{
+		ClearPlacementState();
+	}
+	else if (CurrentMode == EKOGridBuildMode::Destroying)
+	{
+		ClearDestroyTargetActor();
+	}
+
+	CurrentMode = EKOGridBuildMode::None;
+	SetComponentTickEnabled(false);
+
+	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건설 메뉴 모드 종료"));
+}
+
 void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 {
+	if (!IsBuildSystemActive())
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 건설 메뉴 모드가 아닐 때는 설치 모드로 들어갈 수 없습니다."));
+		return;
+	}
+	
 	if (FactoryId.IsNone())
 	{
 		UE_LOG(LogKOBuild, Warning, TEXT("[Build] FactoryId가 비어 있습니다."));
@@ -96,6 +135,14 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 		UE_LOG(LogKOBuild, Warning, TEXT("[Build] BuildingClass 로드 실패. FactoryId=%s"), *FactoryId.ToString());
 		return;
 	}
+	
+	if (!BuildingClass->IsChildOf(AKOBaseBuilding::StaticClass()))
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] BuildingClass가 AKOBaseBuilding을 상속하지 않습니다. FactoryId=%s"),
+			*FactoryId.ToString()
+		);
+		return;
+	}
 
 	if (!PreviewActorClass)
 	{
@@ -110,14 +157,13 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 	}
 
 	CancelCurrentMode();
-	DestroyPreviewActor();
 
 	CurrentFactoryId = FactoryId;
 	CurrentFactoryRow = Row;
 	CurrentBuildingClass = BuildingClass;
 	CurrentBuildingSize = Row->GridSize;
 
-	CurrentMode = EKOGridBuildMode::Build;
+	CurrentMode = EKOGridBuildMode::Placing;
 	SetComponentTickEnabled(true);
 	bCurrentPlacementValid = false;
 
@@ -182,6 +228,19 @@ void UKOGridBuildComponent::DestroyPreviewActor()
 	
 	bHasLastPreviewBuildableState = false;
 	bLastPreviewBuildableState = false;
+}
+
+void UKOGridBuildComponent::ClearPlacementState()
+{
+	bCurrentPlacementValid = false;
+
+	DestroyPreviewActor();
+
+	CurrentFactoryId = NAME_None;
+	CurrentFactoryRow = nullptr;
+	CurrentBuildingClass.Reset();
+	CurrentAnchor = FIntPoint::ZeroValue;
+	CurrentBuildingSize = FIntPoint(1, 1);
 }
 
 void UKOGridBuildComponent::UpdateGhostPreview()
@@ -303,7 +362,7 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 
 void UKOGridBuildComponent::RequestBuild()
 {
-	if (CurrentMode != EKOGridBuildMode::Build)
+	if (CurrentMode != EKOGridBuildMode::Placing)
 	{
 		return;
 	}
@@ -401,12 +460,16 @@ void UKOGridBuildComponent::CancelCurrentMode()
 {
 	switch (CurrentMode)
 	{
-	case EKOGridBuildMode::Build:
+	case EKOGridBuildMode::Placing:
 		CancelBuildMode();
 		break;
 
-	case EKOGridBuildMode::Destroy:
+	case EKOGridBuildMode::Destroying:
 		CancelDestroyMode();
+		break;
+
+	case EKOGridBuildMode::BuildMenu:
+		ExitBuildMenuMode();
 		break;
 
 	case EKOGridBuildMode::None:
@@ -417,30 +480,35 @@ void UKOGridBuildComponent::CancelCurrentMode()
 
 void UKOGridBuildComponent::CancelBuildMode()
 {
-	if (CurrentMode != EKOGridBuildMode::Build)
+	if (CurrentMode != EKOGridBuildMode::Placing)
 	{
 		return;
 	}
 	
-	CurrentMode = EKOGridBuildMode::None;
-	bCurrentPlacementValid = false;
+	ClearPlacementState();
 
-	DestroyPreviewActor();
-
-	CurrentFactoryId = NAME_None;
-	CurrentFactoryRow = nullptr;
-	CurrentBuildingClass.Reset();
-	CurrentAnchor = FIntPoint::ZeroValue;
-	CurrentBuildingSize = FIntPoint(1, 1);
-	
+	CurrentMode = EKOGridBuildMode::BuildMenu;
 	SetComponentTickEnabled(false);
+
+	UE_LOG(LogKOBuild, Log, TEXT("[Build] 설치 모드 종료 - 건설 메뉴로 복귀"));
 }
 
 void UKOGridBuildComponent::StartDestroyMode()
 {
+	if (!IsBuildSystemActive())
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 건설 메뉴 모드가 아닐 때는 파괴 모드로 들어갈 수 없습니다."));
+		return;
+	}
+
+	if (CurrentMode == EKOGridBuildMode::Destroying)
+	{
+		return;
+	}
+	
 	CancelCurrentMode();
 
-	CurrentMode = EKOGridBuildMode::Destroy;
+	CurrentMode = EKOGridBuildMode::Destroying;
 	SetComponentTickEnabled(true);
 
 	UpdateDestroyTargetPreview();
@@ -450,21 +518,22 @@ void UKOGridBuildComponent::StartDestroyMode()
 
 void UKOGridBuildComponent::CancelDestroyMode()
 {
-	if (CurrentMode != EKOGridBuildMode::Destroy)
+	if (CurrentMode != EKOGridBuildMode::Destroying)
 	{
 		return;
 	}
 	
-	CurrentMode = EKOGridBuildMode::None;
 	ClearDestroyTargetActor();
+
+	CurrentMode = EKOGridBuildMode::BuildMenu;
 	SetComponentTickEnabled(false);
 
-	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료"));
+	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료 - 건설 메뉴로 복귀"));
 }
 
 void UKOGridBuildComponent::RequestDestroy()
 {
-	if (CurrentMode != EKOGridBuildMode::Destroy)
+	if (CurrentMode != EKOGridBuildMode::Destroying)
 	{
 		return;
 	}
@@ -559,7 +628,7 @@ void UKOGridBuildComponent::ApplyGhostMaterial(AActor* TargetActor, UMaterialInt
 
 void UKOGridBuildComponent::UpdateDestroyTargetPreview()
 {
-	if (CurrentMode != EKOGridBuildMode::Destroy)
+	if (CurrentMode != EKOGridBuildMode::Destroying)
 	{
 		return;
 	}
