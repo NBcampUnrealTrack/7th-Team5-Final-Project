@@ -114,6 +114,22 @@ namespace KOGameplayTags
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
 
+	// ─── Factory Category ─────────────────────────────────────────────────────
+	/** 보일러 (Producer) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_Boiler);
+	/** 모듈 분해기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_ModuleDismantler);
+	/** 합금 제련기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_AlloyMaker);
+	/** 기어 프레스 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_GearPress);
+	/** 파이프 공방 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PipeWorkshop);
+	/** 지하 채굴 모듈 (Producer) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_UndergroundMiningModule);
+	/** 무기 작업대 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_WeaponWorkbench);
+
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module);

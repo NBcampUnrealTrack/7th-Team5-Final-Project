@@ -62,6 +62,15 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 
+	// ─── Factory Category ─────────────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Factory_Boiler,                  "Factory.Boiler");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_ModuleDismantler,        "Factory.ModuleDismantler");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_AlloyMaker,              "Factory.AlloyMaker");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_GearPress,               "Factory.GearPress");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_PipeWorkshop,            "Factory.PipeWorkshop");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_UndergroundMiningModule, "Factory.UndergroundMiningModule");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_WeaponWorkbench,         "Factory.WeaponWorkbench");
+
 	// ─── Item Category ────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Module,   "Item.Category.Module");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Coal,     "Item.Category.Coal");
