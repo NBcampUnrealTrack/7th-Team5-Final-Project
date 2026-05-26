@@ -5,6 +5,7 @@
 #include "KOGA_Movement_Sprint.generated.h"
 
 
+class AKOHeroCharacter;
 class UCharacterMovementComponent;
 
 UCLASS()
@@ -71,7 +72,7 @@ protected:
 	
 protected:
 	UPROPERTY()
-	TObjectPtr<ACharacter> CachedCharacter;
+	TObjectPtr<AKOHeroCharacter> CachedCharacter;
 	
 	UPROPERTY()
 	TObjectPtr<UCharacterMovementComponent> CachedMovement;
