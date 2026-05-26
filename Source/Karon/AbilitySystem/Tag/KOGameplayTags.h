@@ -94,6 +94,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Menu);
 	/** 모달 다이얼로그 레이어 (최상위) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Modal);
+
+	//── UI Widget ────────────────────────────────────────────────────────────
+	/** Processor 설비 상호작용 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Processor);
+	/** Producer 설비 상호작용 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Producer);
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
