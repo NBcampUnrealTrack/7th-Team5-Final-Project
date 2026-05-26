@@ -21,7 +21,9 @@ struct FKOEffectContext
 	ACharacter*              TargetCharacter   = nullptr;
 };
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChanged, float, float);
+// DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChanged, float, float);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChanged, float, OldValue, float, NewValue);
+
 
 UCLASS(Abstract)
 class KARON_API UKOAttributeSetBase : public UAttributeSet

@@ -30,4 +30,6 @@ Plugins/Developer/RiderLink/
 *.ipch
 
 Content/Karon/Asset/IgnoredAsset/
+Content/Karon/TEST
+
 Content/SteampunkTrainStation/

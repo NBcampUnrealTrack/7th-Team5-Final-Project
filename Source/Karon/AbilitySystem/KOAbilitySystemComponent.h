@@ -26,6 +26,6 @@ protected:
 	TArray<FGameplayAbilitySpecHandle> InputHeldSpecHandles;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability | Default")
-	UKOAbilitySet* DefaultAbilitySet;
+	TObjectPtr<UKOAbilitySet> DefaultAbilitySet;
 	
 };
