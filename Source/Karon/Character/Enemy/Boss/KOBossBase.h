@@ -80,4 +80,10 @@ public:
 private:
 	bool bPhase2Triggered = false;
 
+	// ─── 델리게이트 콜백 함수 ────────────────────────────────
+	UFUNCTION()
+	void OnHealthChangedCallback(float OldVal, float NewVal);
+ 
+	UFUNCTION()
+	void OnMoveSpeedChangedCallback(float OldVal, float NewVal);
 };

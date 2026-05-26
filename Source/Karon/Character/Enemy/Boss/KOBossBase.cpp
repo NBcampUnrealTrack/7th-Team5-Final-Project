@@ -38,48 +38,53 @@ void AKOBossBase::BeginPlay()
 	
 	if (HealthSet)
 	{
-		HealthSet->OnHealthChanged.AddLambda(
-			[this](float OldVal, float NewVal)
-			{
-				if (!DataAsset)
-				{
-					return;
-				}
-				
-				const float MaxHP = HealthSet->GetMaxHealth();
-				if (MaxHP <= 0.f)
-				{
-					return;
-				}
-				const float Ratio = NewVal / MaxHP;
- 
-				// 사망
-				if (NewVal <= 0.f)
-				{
-					OnBossDeath();
-					return;
-				}
-				
-				if (Ratio <= PhaseRatio && !bPhase2Triggered)
-				{
-					bPhase2Triggered = true;
-					OnPhaseChanged(2);
-				}
-			}
+		HealthSet->OnHealthChanged.AddUniqueDynamic(
+			this, &AKOBossBase::OnHealthChangedCallback
 		);
 	}
-	
+ 
 	if (MovementSet)
 	{
-		MovementSet->OnMoveSpeedChanged.AddLambda(
-			[this](float OldVal, float NewVal)
-			{
-				if (GetCharacterMovement())
-				{
-					GetCharacterMovement()->MaxWalkSpeed = NewVal;
-				}
-			}
+		MovementSet->OnMoveSpeedChanged.AddUniqueDynamic(
+			this, &AKOBossBase::OnMoveSpeedChangedCallback
 		);
+	}
+}
+
+// 델리게이트 콜백
+void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
+{
+	if (!DataAsset)
+	{
+		return;
+	}
+ 
+	const float MaxHP = HealthSet->GetMaxHealth();
+	if (MaxHP <= 0.f)
+	{
+		return;
+	}
+ 
+	const float Ratio = NewVal / MaxHP;
+ 
+	if (NewVal <= 0.f)
+	{
+		OnBossDeath();
+		return;
+	}
+ 
+	if (Ratio <= PhaseRatio && !bPhase2Triggered)
+	{
+		bPhase2Triggered = true;
+		OnPhaseChanged(2);
+	}
+}
+ 
+void AKOBossBase::OnMoveSpeedChangedCallback(float OldVal, float NewVal)
+{
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed = NewVal;
 	}
 }
  
