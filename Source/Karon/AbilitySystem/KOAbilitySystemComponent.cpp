@@ -1,5 +1,5 @@
 ﻿#include "KOAbilitySystemComponent.h"
-#include "Karon/Data/KOAbilitySet.h"
+#include "Karon/Data/KOGrantSet.h"
 
 
 void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
@@ -87,10 +87,15 @@ void UKOAbilitySystemComponent::ClearAbilityInput()
 	InputHeldSpecHandles.Reset();
 }
 
-void UKOAbilitySystemComponent::GiveDefaultAbilities()
+void UKOAbilitySystemComponent::GiveGrantSet()
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
-	if (!DefaultAbilitySet) return;
+	if (!GrantSet) return;
 	
-	DefaultAbilitySet->GiveAbilities(this);
+	GrantSet->GiveToAsc(this, GrantSetHandle);
+}
+
+void UKOAbilitySystemComponent::ClearGrantSet()
+{
+	GrantSetHandle.RemoveFromASC(this);
 }

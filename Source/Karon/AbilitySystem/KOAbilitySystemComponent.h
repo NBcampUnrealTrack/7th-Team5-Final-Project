@@ -1,9 +1,8 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "Data/KOGrantSet.h"
 #include "KOAbilitySystemComponent.generated.h"
-
-class UKOAbilitySet; 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOAbilitySystemComponent : public UAbilitySystemComponent
@@ -18,7 +17,9 @@ public:
 	void ClearAbilityInput();
 	
 public:
-	void GiveDefaultAbilities(); 
+	void GiveGrantSet(); 
+	
+	void ClearGrantSet();
 	
 protected:
 	TArray<FGameplayAbilitySpecHandle> InputPressedSpecHandles;
@@ -26,6 +27,8 @@ protected:
 	TArray<FGameplayAbilitySpecHandle> InputHeldSpecHandles;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability | Default")
-	TObjectPtr<UKOAbilitySet> DefaultAbilitySet;
+	TObjectPtr<UKOGrantSet> GrantSet;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability | Default")
+	FKOAbilitySetHandles GrantSetHandle; 
 };
