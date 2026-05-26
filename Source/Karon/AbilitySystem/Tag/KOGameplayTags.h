@@ -116,7 +116,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
 	/** 무기 카테고리 (BronzeSword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
-	
+
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
@@ -130,7 +130,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
 
-	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Sprint);
@@ -204,5 +203,15 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat); 
 	
+	//Enemy Boss
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attack_Boss01_Normal01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attack_Boss01_Normal02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attack_Boss01_Strong01);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Groggy);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss01_Normal01)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss01_Normal02)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss01_Strong01)
 }
