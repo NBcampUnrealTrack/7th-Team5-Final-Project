@@ -51,7 +51,13 @@ public:
     // ─── Widget Stack API ─────────────────────────────────────────────────────
     UFUNCTION(BlueprintCallable, Category = "KO|UI", meta = (DeterminesOutputType = "WidgetClass"))
     UCommonActivatableWidget* PushLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass);
-  
+
+    /**
+     * 위젯 식별 태그(UI.Widget.*) 하나로 Push.
+     * Layer / 위젯 클래스는 UKOUISettings::WidgetMap 에서 자동 해석된다.
+     */
+    UCommonActivatableWidget* PushWidget(FGameplayTag WidgetTag);
+
     UFUNCTION(BlueprintCallable, Category = "KO|UI")
     void PopLayer(UCommonActivatableWidget* Widget);
 
@@ -59,8 +65,13 @@ private:
     UFUNCTION()
     void OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
 
+    /** 등록된 Layer 컨테이너 (RegisterPrimaryLayout 으로 채움). */
     UPROPERTY(Transient)
     TMap<FGameplayTag, TObjectPtr<UCommonActivatableWidgetContainerBase>> Layers;
+
+    /** 위젯 태그 → 로드된 클래스 캐시 (Soft 로드 결과 보관). */
+    UPROPERTY(Transient)
+    TMap<FGameplayTag, TSubclassOf<UCommonActivatableWidget>> ResolvedClassCache;
 
     FGameplayMessageCallback PushLayerCallback;
     FGameplayMessageHandle PushLayerHandle;

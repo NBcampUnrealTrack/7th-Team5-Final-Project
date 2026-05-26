@@ -4,7 +4,6 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
-#include "CommonActivatableWidget.h"
 #include "KOMessageTypes.generated.h"
 
 /**
@@ -48,19 +47,16 @@ struct FKOFactoryStateChangedMessage
 /**
  * UI 레이어 Push 요청 메시지
  * 채널: KOGameplayTags::Data_Message_UI_PushLayerRequest ("Data.Message.UI.PushLayerRequest")
+ * Layer / WidgetClass 매핑은 UKOUISettings::WidgetMap 에서 해석되므로 태그만 전달한다.
  */
 USTRUCT()
 struct FKOUIPushLayerRequest
 {
     GENERATED_BODY()
 
-    /** 대상 레이어 태그 (예: UI.Layer.Menu) */
+    /** 위젯 식별 태그 (UI.Widget.*). UKOUISettings 매핑 키로 사용. */
     UPROPERTY()
-    FGameplayTag LayerTag;
-
-    /** Push 할 위젯 클래스 */
-    UPROPERTY()
-    TSubclassOf<UCommonActivatableWidget> WidgetClass;
+    FGameplayTag WidgetTag;
 };
 
 /**
