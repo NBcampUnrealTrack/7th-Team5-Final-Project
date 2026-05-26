@@ -86,7 +86,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attack_FirstSkill, "State.Enemy.Attack.FirstSkill");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Hit_Normal, "State.Enemy.Hit.Normal");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Dead, "State.Enemy.Dead");
-	
+
 	// ───────────────────────── Effect ─────────────────────────────
 	// ── Effect | Damage ───────────────────────────────────────────
 	
@@ -100,4 +100,17 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
+
+	// ── Enemy Boss ────────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal01, "Attack.Boss01.Normal01");
+	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal02, "Attack.Boss01.Normal02");
+	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Strong01, "Attack.Boss01.Strong01");
+	
+	UE_DEFINE_GAMEPLAY_TAG(State_Attacking, "State.Attacking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Groggy, "State.Groggy");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss01_Normal01, "Cooldown.Boss01.Normal01")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss01_Normal02, "Cooldown.Boss01.Normal02")
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss01_Strong01, "Cooldown.Boss01.Strong01")
+
 }
