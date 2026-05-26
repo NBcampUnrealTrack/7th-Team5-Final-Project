@@ -4,6 +4,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Messaging/KOMessageTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Items/KOItemLibrary.h"
 #include "GMRouterSubsystem.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/World.h"
@@ -14,23 +15,23 @@ UKOInventoryComponent::UKOInventoryComponent()
     PrimaryComponentTick.bCanEverTick = false;
 }
 
-int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
+int32 UKOInventoryComponent::TryAddItem(EKOSlotKind Kind, FName ItemId, int32 Count)
 {
     if (ItemId.IsNone() || Count <= 0)
     {
         return Count;
     }
 
-    if (!IsItemAccepted(ItemId))
+    if (!IsItemAccepted(Kind, ItemId))
     {
         return Count;
     }
 
     const int32 PreviousCount = GetCountOf(ItemId);
-    const int32 MaxStack = GetMaxStackForItem(ItemId);
+    const int32 MaxStack = UKOItemLibrary::GetMaxStack(this, Kind, ItemId);
     int32 Remaining = Count;
 
-    // 1단계: 동일 아이템이 있는 기존 슬롯에 먼저 채운다
+    // 1단계: 동일 ItemId 슬롯에 먼저 채운다 
     for (FKOItemSlot& Slot : Slots)
     {
         if (Remaining <= 0)
@@ -47,12 +48,13 @@ int32 UKOInventoryComponent::TryAddItem(FName ItemId, int32 Count)
         }
     }
 
-    // 2단계: 남은 수량을 새 슬롯에 분배한다
+    // 2단계: 남은 수량을 새 슬롯에 분배한다 
     while (Remaining > 0 && Slots.Num() < MaxSlots)
     {
         const int32 ToAdd = FMath::Min(MaxStack, Remaining);
 
         FKOItemSlot NewSlot;
+        NewSlot.Kind   = Kind;
         NewSlot.ItemId = ItemId;
         NewSlot.Count  = ToAdd;
         Slots.Add(NewSlot);
@@ -133,11 +135,13 @@ bool UKOInventoryComponent::SplitStack(int32 SlotIndex, int32 SplitCount)
         return false;
     }
 
-    const FName ItemId = Source.ItemId;
+    const EKOSlotKind Kind = Source.Kind;
+    const FName ItemId     = Source.ItemId;
 
     Source.Count -= SplitCount;
 
     FKOItemSlot NewSlot;
+    NewSlot.Kind   = Kind;
     NewSlot.ItemId = ItemId;
     NewSlot.Count  = SplitCount;
     Slots.Add(NewSlot);
@@ -150,26 +154,34 @@ bool UKOInventoryComponent::SplitStack(int32 SlotIndex, int32 SplitCount)
 
 void UKOInventoryComponent::MergeAllStacks()
 {
-    TArray<FName> UniqueItems;
+    struct FMergeEntry { EKOSlotKind Kind; FName ItemId; };
+    TArray<FMergeEntry> UniqueItems;
+
     for (const FKOItemSlot& Slot : Slots)
     {
-        if (Slot.HasItem())
+        if (!Slot.HasItem())
         {
-            UniqueItems.AddUnique(Slot.ItemId);
+            continue;
+        }
+        const bool bExists = UniqueItems.ContainsByPredicate(
+            [&Slot](const FMergeEntry& E){ return E.ItemId == Slot.ItemId; });
+        if (!bExists)
+        {
+            UniqueItems.Add({ Slot.Kind, Slot.ItemId });
         }
     }
 
-    for (const FName& ItemId : UniqueItems)
+    for (const FMergeEntry& Entry : UniqueItems)
     {
-        const int32 TotalCount = GetCountOf(ItemId);
+        const int32 TotalCount = GetCountOf(Entry.ItemId);
         if (TotalCount <= 0)
         {
             continue;
         }
 
-        if (TryRemoveItem(ItemId, TotalCount))
+        if (TryRemoveItem(Entry.ItemId, TotalCount))
         {
-            TryAddItem(ItemId, TotalCount);
+            TryAddItem(Entry.Kind, Entry.ItemId, TotalCount);
         }
     }
 }
@@ -190,6 +202,15 @@ int32 UKOInventoryComponent::GetCountOf(FName ItemId) const
 bool UKOInventoryComponent::HasEnoughItems(FName ItemId, int32 Count) const
 {
     return GetCountOf(ItemId) >= Count;
+}
+
+const FKOItemSlot* UKOInventoryComponent::GetSlotByIndex(int32 Index) const
+{
+    if (!Slots.IsValidIndex(Index))
+    {
+        return nullptr;
+    }
+    return &Slots[Index];
 }
 
 void UKOInventoryComponent::NotifyInventoryChanged(FName ItemId, int32 PreviousCount, int32 NewCount)
@@ -221,35 +242,27 @@ void UKOInventoryComponent::NotifyInventoryChanged(FName ItemId, int32 PreviousC
     }
 }
 
-bool UKOInventoryComponent::IsItemAccepted(FName ItemId) const
+bool UKOInventoryComponent::IsItemAccepted(EKOSlotKind Kind, FName ItemId) const
 {
-    // 쿼리가 비어 있으면 모두 허용
-    if (AcceptedItemsQuery.IsEmpty())
+    // DataTable에 존재하지 않으면 무조건 거부
+    if (!UKOItemLibrary::Exists(this, Kind, ItemId))
     {
-        return true;
+        return false;
     }
 
-    if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
+    switch (Kind)
     {
-        if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
+    case EKOSlotKind::Item:
+    {
+        if (AcceptedItemsQuery.IsEmpty())
         {
-            return AcceptedItemsQuery.Matches(Row->Categories);
+            return true;
         }
+        const FGameplayTagContainer Categories = UKOItemLibrary::GetItemCategories(this, ItemId);
+        return AcceptedItemsQuery.Matches(Categories);
     }
-    // DataTable에 없는 아이템이라면 거부
+    case EKOSlotKind::Factory:
+        return bAcceptFactories;
+    }
     return false;
-}
-
-int32 UKOInventoryComponent::GetMaxStackForItem(FName ItemId) const
-{
-    constexpr int32 DefaultMaxStack = 100;
-
-    if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
-    {
-        if (const FKOItemRow* Row = LoadSub->FindItemRow(ItemId))
-        {
-            return Row->MaxStack;
-        }
-    }
-    return DefaultMaxStack;
 }

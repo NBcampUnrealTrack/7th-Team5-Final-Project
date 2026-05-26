@@ -10,10 +10,6 @@ class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
 
-/**
- * FKOBuildMenuQuery
- * 빌드 메뉴 노출 후보를 조회할 때 사용하는 필터.
- */
 USTRUCT(BlueprintType)
 struct KARON_API FKOBuildMenuQuery
 {
@@ -50,11 +46,6 @@ struct KARON_API FKOItemRow : public FTableRowBase
     TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
 
-/**
- * FKOFactoryRow
- * 공장 = 건물. RowName이 곧 FactoryId 이며, Inventory의 ItemId와 동일한 컨벤션이다.
- * 배치 메타(BuildingClass/GridSize/PlacementZOffset)를 함께 보유하여 별도 DataAsset 없이 통합 운영.
- */
 USTRUCT(BlueprintType)
 struct KARON_API FKOFactoryRow : public FTableRowBase
 {
@@ -91,6 +82,10 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     /** 빌드 메뉴에 노출할지 여부. false면 디버그/내부 전용. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     bool bShowInBuildMenu = true;
+
+    /** 인벤토리 한 슬롯에 누적 가능한 최대 수량. 기본 1 (건물은 통상 비스택). */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
+    int32 MaxStack = 1;
 
     /**
      * 공장 분류 태그 (예: "Factory.AlloyMaker").

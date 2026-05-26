@@ -19,31 +19,33 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "KO|Inventory")
     int32 MaxSlots = 20;
-
+    
     UPROPERTY(EditDefaultsOnly, Category = "KO|Inventory")
     FGameplayTagQuery AcceptedItemsQuery;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|Inventory")
+    bool bAcceptFactories = true;
 
-    // 아이템 조작 API
-    virtual int32 TryAddItem(FName ItemId, int32 Count);
-
-    virtual bool TryRemoveItem(FName ItemId, int32 Count);
+    // 아이템 조작 API 
+    virtual int32 TryAddItem(EKOSlotKind Kind, FName ItemId, int32 Count);
+    virtual bool  TryRemoveItem(FName ItemId, int32 Count);
 
     bool SplitStack(int32 SlotIndex, int32 SplitCount);
-
     void MergeAllStacks();
 
     // 아이템 조회 API
     int32 GetCountOf(FName ItemId) const;
+    bool  HasEnoughItems(FName ItemId, int32 Count) const;
 
     const TArray<FKOItemSlot>& GetSlots() const { return Slots; }
 
-    bool HasEnoughItems(FName ItemId, int32 Count) const;
+    /** 슬롯 인덱스로 안전 조회. 유효하지 않으면 nullptr 반환. */
+    const FKOItemSlot* GetSlotByIndex(int32 Index) const;
 
 protected:
     UPROPERTY()
     TArray<FKOItemSlot> Slots;
 
     void NotifyInventoryChanged(FName ItemId, int32 PreviousCount, int32 NewCount);
-    virtual bool IsItemAccepted(FName ItemId) const;
-    int32 GetMaxStackForItem(FName ItemId) const;
+    virtual bool IsItemAccepted(EKOSlotKind Kind, FName ItemId) const;
 };
