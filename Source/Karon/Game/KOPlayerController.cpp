@@ -5,6 +5,7 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "UI/KOActivatableWidget.h"
 
 AKOPlayerController::AKOPlayerController()
 {
@@ -18,6 +19,19 @@ void AKOPlayerController::BeginPlay()
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultIMC, 0);
+	}
+
+	CreateRootLayout();
+}
+
+void AKOPlayerController::CreateRootLayout()
+{
+	if (!RootLayoutClass) return;
+
+	RootLayoutInstance = CreateWidget<UKOActivatableWidget>(this, RootLayoutClass);
+	if (RootLayoutInstance)
+	{
+		RootLayoutInstance->AddToViewport();
 	}
 }
 

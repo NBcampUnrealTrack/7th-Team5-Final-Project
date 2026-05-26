@@ -10,6 +10,7 @@ struct FInputActionValue;
 class UKOInputConfig;
 class UInputMappingContext;
 class UKOInteractionComponent;
+class UKOActivatableWidget;
 
 UCLASS()
 class KARON_API AKOPlayerController : public APlayerController
@@ -44,4 +45,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UKOInteractionComponent> InteractionComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UKOActivatableWidget> RootLayoutClass;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UKOActivatableWidget> RootLayoutInstance;
+
+	void CreateRootLayout();
 };
