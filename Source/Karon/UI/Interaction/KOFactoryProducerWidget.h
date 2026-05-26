@@ -7,13 +7,9 @@
 
 class AKOBaseBuilding;
 class UKOEnergyProducerComponent;
+class UTextBlock;
+class UProgressBar;
 
-/**
- * UKOFactoryProducerWidget
- * Producer(에너지 생산 설비) 상호작용 UI.
- * 현재 Producer 전용 상태 변경 메시지 채널이 없어 초기 1회 풀(pull)만 수행.
- * 연료 변동 메시지 도입 시 NativeOnActivated/Deactivated에서 구독을 추가하면 됨.
- */
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOFactoryProducerWidget : public UKOActivatableWidget
 {
@@ -29,11 +25,30 @@ public:
 protected:
     virtual void NativeOnActivated() override;
     virtual void NativeOnDeactivated() override;
+    
+    void Refresh();
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    float RefreshInterval = 0.1f;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> TitleText;
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "KO|UI|Interaction")
-    void BP_OnProducerRefreshed();
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> FuelNameText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> FuelCountText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UProgressBar> FuelBar;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> PowerSpecText;
 
 private:
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;
     TWeakObjectPtr<UKOEnergyProducerComponent> Producer;
+
+    FTimerHandle RefreshTimerHandle;
 };
