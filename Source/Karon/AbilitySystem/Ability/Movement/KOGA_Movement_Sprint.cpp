@@ -3,6 +3,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Hero/KOHeroCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -54,7 +55,7 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 	}
 	
 	// 1. Info 확인 
-	CachedCharacter = GetAvatarCharacter(); 
+	CachedCharacter = Cast<AKOHeroCharacter>(GetAvatarCharacter()); 
 	if (!CachedCharacter)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -78,6 +79,8 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 	{
 		SprintCostEffectHandle = ApplyEffectToSelf(SprintCostEffect);
 	}
+	
+	CachedCharacter->UpdateGait(EGait::Sprint);
 	
 	// 3. Stamina 감소시 마다 달리기 조건 체크 Task 
 	UAbilityTask_WaitAttributeChange* CheckStaminaTask =
@@ -112,6 +115,8 @@ void UKOGA_Movement_Sprint::EndAbility(
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintCostEffectHandle);
 	}
+	
+	CachedCharacter->UpdateGait(EGait::Run); 
 	
 	CachedCharacter = nullptr;
 	CachedMovement = nullptr;

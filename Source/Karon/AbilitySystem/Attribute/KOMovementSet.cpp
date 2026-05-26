@@ -4,8 +4,8 @@
 UKOMovementSet::UKOMovementSet()
 {
 	//TODO: 나중에 DDD로 전환
-	InitMoveSpeed(600.f);
-	InitMaxMoveSpeed(600.f);
+	InitMoveSpeed(400.f);
+	InitMaxMoveSpeed(1500.f);
 	InitJumpStrength(600.f);
 	
 }
@@ -66,7 +66,10 @@ void UKOMovementSet::PostAttributeChange(const FGameplayAttribute& Attribute, fl
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
 	if (Attribute == GetMoveSpeedAttribute())
+	{
 		OnMoveSpeedChanged.Broadcast(OldValue, NewValue);
+	}
+		
 	
 	if (Attribute == GetMaxMoveSpeedAttribute())
 		OnMaxMoveSpeedChanged.Broadcast(OldValue, NewValue);
@@ -81,6 +84,8 @@ void UKOMovementSet::PostGameplayEffectExecute(const struct FGameplayEffectModCa
 	
 	// TODO: Effect 태그, Source Actor 등 문맥 접근이 필요한 처리
 	// 예: 슬로우 태그 감지 → 이펙트/사운드 트리거 이벤트 발행
+	
+	
 }
 
 void UKOMovementSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

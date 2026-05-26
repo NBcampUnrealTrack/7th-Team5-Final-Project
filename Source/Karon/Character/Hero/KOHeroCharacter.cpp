@@ -1,15 +1,14 @@
 ﻿#include "KOHeroCharacter.h"
-
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
-#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Component/KOLockOnComponent.h"
-#include "Component/KOInputComponent.h"          
-#include "EnhancedInputSubsystems.h"             
-#include "Data/KOInputConfig.h"            
-#include "GameFramework/CharacterMovementComponent.h" 
+#include "Camera/CameraComponent.h"
+#include "Component/KOPreCMCTickComponent.h"
 #include "Game/KOPlayerState.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "CharacterTrajectoryComponent.h"
+#include "Animation/KOAnimInstance.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -17,24 +16,40 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
-	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
-	// 카메라 방향으로 캐릭터 회전 OFF
-	bUseControllerRotationYaw   = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll  = false;
-
-	// 이동 방향으로 캐릭터가 자동 회전
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->TargetArmLength = 300.f; 
+	
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
+	
+	SpringArm->CameraLagSpeed = 20.f; 
+	SpringArm->CameraRotationLagSpeed = 50.f; 
+	
+	
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SpringArm);
+	
+	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
+	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
+	Trajectory->PrimaryComponentTick.AddPrerequisite(
+		PreCMCTick,
+		PreCMCTick->PrimaryComponentTick
+	);
 	
 	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
+	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
+	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 }
 
 
 void AKOHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	MainAnimInstance = GetMesh()->GetAnimInstance();
+	
 	
 }
 
@@ -46,11 +61,15 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	if (!PS) return;
 	
 	AbilitySystemComponent = Cast<UKOAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->GiveDefaultAbilities(); 
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	}
+	if (!AbilitySystemComponent) return;
+	
+	AbilitySystemComponent->GiveDefaultAbilities(); 
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	
+	MovementSet = PS->GetMovementSet();
+	HealthSet = PS->GetHealthSet();
+	
+	BindMovementSet(); 
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)
@@ -68,3 +87,15 @@ void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
+void AKOHeroCharacter::UpdateGait(EGait DesiredGait)
+{
+	PreviousGait = CurrentGait;
+	
+	CurrentGait = DesiredGait;
+	
+	UKOAnimInstance* AnimInstance =  Cast<UKOAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!AnimInstance) return;
+	
+	AnimInstance->ReceiveGait(DesiredGait);
+}
