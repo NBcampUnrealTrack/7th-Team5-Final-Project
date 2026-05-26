@@ -29,9 +29,6 @@ class KARON_API IKOGMSInterface
 
 public:
     virtual FGameplayMessageHandle Subscribe(FGameplayTag Channel, const FGameplayMessageCallback& Callback);
-    virtual void Unsubscribe(const FGameplayMessageHandle& Handle);
+    virtual void Unsubscribe(FGameplayMessageHandle& Handle);
     virtual void Broadcast(FGameplayTag Channel, const FInstancedStruct& Payload);
-
-protected:
-    virtual UGMRouterSubsystem* GetGMS() const;
 };

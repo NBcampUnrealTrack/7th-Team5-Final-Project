@@ -1,11 +1,19 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "Messaging/KOGMSInterface.h"
 
-#include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "StructUtils/InstancedStruct.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOGMS, Log, All);
+
+namespace
+{
+    const UWorld* GetWorldFromInterface(const IKOGMSInterface* Self)
+    {
+        const UObject* AsObject = Cast<UObject>(Self);
+        return AsObject ? AsObject->GetWorld() : nullptr;
+    }
+}
 
 FGameplayMessageHandle IKOGMSInterface::Subscribe(FGameplayTag Channel, const FGameplayMessageCallback& Callback)
 {
@@ -15,20 +23,12 @@ FGameplayMessageHandle IKOGMSInterface::Subscribe(FGameplayTag Channel, const FG
         return FGameplayMessageHandle();
     }
 
-    if (UGMRouterSubsystem* GMS = GetGMS())
-    {
-        return GMS->Subscribe(Channel, Callback);
-    }
-
-    return FGameplayMessageHandle();
+    return UGMRouterSubsystem::Subscribe(GetWorldFromInterface(this), Channel, Callback);
 }
 
-void IKOGMSInterface::Unsubscribe(const FGameplayMessageHandle& Handle)
+void IKOGMSInterface::Unsubscribe(FGameplayMessageHandle& Handle)
 {
-    if (UGMRouterSubsystem* GMS = GetGMS())
-    {
-        GMS->Unsubscribe(Handle);
-    }
+    Handle.Unsubscribe();
 }
 
 void IKOGMSInterface::Broadcast(FGameplayTag Channel, const FInstancedStruct& Payload)
@@ -39,31 +39,5 @@ void IKOGMSInterface::Broadcast(FGameplayTag Channel, const FInstancedStruct& Pa
         return;
     }
 
-    if (UGMRouterSubsystem* GMS = GetGMS())
-    {
-        GMS->BroadcastMessage(Channel, Payload);
-    }
-}
-
-UGMRouterSubsystem* IKOGMSInterface::GetGMS() const
-{
-    const UObject* AsObject = Cast<UObject>(this);
-    if (!AsObject)
-    {
-        return nullptr;
-    }
-
-    const UWorld* World = AsObject->GetWorld();
-    if (!World)
-    {
-        return nullptr;
-    }
-
-    const UGameInstance* GI = World->GetGameInstance();
-    if (!GI)
-    {
-        return nullptr;
-    }
-
-    return GI->GetSubsystem<UGMRouterSubsystem>();
+    UGMRouterSubsystem::BroadcastMessage(GetWorldFromInterface(this), Channel, Payload);
 }
