@@ -168,13 +168,14 @@ void UKOGA_Movement_Sprint::TryStartGraceTimer()
 		GraceTimer,
 		[WeakThis]()
 		{
-			if (WeakThis.IsValid())
-				WeakThis->EndAbility(
-					WeakThis->CurrentSpecHandle,
-					WeakThis->CurrentActorInfo,
-					WeakThis->CurrentActivationInfo,
-					true, false
-				);
+			if (!WeakThis.IsValid() || !WeakThis->IsActive()) return;
+			
+			WeakThis->EndAbility(
+				WeakThis->CurrentSpecHandle,
+				WeakThis->CurrentActorInfo,
+				WeakThis->CurrentActivationInfo,
+				true, false
+			);
 		},
 		GraceTime
 		, false
