@@ -3,6 +3,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
+#include "Items/KOItemLibrary.h"
 #include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
@@ -32,8 +33,7 @@ const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
 		return nullptr;
 	}
 
-	const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-	return LoadSub ? LoadSub->FindFactoryRow(FactoryId) : nullptr;
+	return UKOItemLibrary::GetFactoryRow(this, FactoryId);
 }
 
 bool AKOBaseBuilding::CanInteract_Implementation(AActor* /*Interactor*/) const

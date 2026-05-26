@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
-#include "Items/KOItemTypes.h"
+#include "Items/KOItemSlot.h"
 #include "KOInventoryComponent.generated.h"
 
 class UGMRouterSubsystem;

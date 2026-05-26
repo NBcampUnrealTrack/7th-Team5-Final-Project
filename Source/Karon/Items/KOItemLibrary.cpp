@@ -5,12 +5,6 @@
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 
-namespace
-{
-    constexpr int32 GDefaultItemMaxStack    = 100;
-    constexpr int32 GDefaultFactoryMaxStack = 1;
-}
-
 const UKOLoadSubsystem* UKOItemLibrary::GetLoadSubsystem(const UObject* WorldContext)
 {
     return UKOLoadSubsystem::Get(WorldContext);
@@ -26,13 +20,14 @@ const FKOItemRow* UKOItemLibrary::GetItemRow(const UObject* WorldContext, FName 
     return LS->FindItemRow(ItemId);
 }
 
-UStaticMesh* UKOItemLibrary::GetItemMesh(const UObject* WorldContext, FName ItemId)
+const FKOFactoryRow* UKOItemLibrary::GetFactoryRow(const UObject* WorldContext, FName FactoryId)
 {
-    if (const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext))
+    const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
+    if (!LS)
     {
-        return LS->ResolveItemMesh(ItemId);
+        return nullptr;
     }
-    return nullptr;
+    return LS->FindFactoryRow(FactoryId);
 }
 
 FText UKOItemLibrary::GetDisplayName(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
@@ -75,7 +70,7 @@ int32 UKOItemLibrary::GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind,
                 return Row->MaxStack;
             }
         }
-        return GDefaultItemMaxStack;
+        return DefaultItemMaxStack;
 
     case EKOSlotKind::Factory:
         if (LS)
@@ -85,9 +80,9 @@ int32 UKOItemLibrary::GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind,
                 return Row->MaxStack;
             }
         }
-        return GDefaultFactoryMaxStack;
+        return DefaultFactoryMaxStack;
     }
-    return GDefaultItemMaxStack;
+    return DefaultItemMaxStack;
 }
 
 UTexture2D* UKOItemLibrary::GetIcon(const UObject* WorldContext, EKOSlotKind Kind, FName Id)

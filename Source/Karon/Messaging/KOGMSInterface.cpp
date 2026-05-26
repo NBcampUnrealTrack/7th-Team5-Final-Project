@@ -25,11 +25,6 @@ FGameplayMessageHandle IKOGMSInterface::Subscribe(FGameplayTag Channel, const FG
 
 void IKOGMSInterface::Unsubscribe(const FGameplayMessageHandle& Handle)
 {
-    if (!Handle.IsValid())
-    {
-        return;
-    }
-
     if (UGMRouterSubsystem* GMS = GetGMS())
     {
         GMS->Unsubscribe(Handle);
