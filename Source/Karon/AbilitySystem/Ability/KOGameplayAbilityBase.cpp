@@ -55,17 +55,32 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToSelf(
 	TSubclassOf<UGameplayEffect> EffectClass,
 	float Level)
 {
-	UAbilitySystemComponent* ASC = GetASC();
-	if (!ASC || !EffectClass) return FActiveGameplayEffectHandle();
-    
-	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	Context.AddInstigator(GetOwningActorFromActorInfo(), GetAvatarActorFromActorInfo());
-    
-	FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(EffectClass, Level, Context);
+	if (!EffectClass) return FActiveGameplayEffectHandle();
+	
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
 	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
-    
-	return ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+	
+	return ApplyGameplayEffectSpecToOwner(
+	  CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec);
 }
+
+FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToSelf(
+	TSubclassOf<UGameplayEffect> EffectClass,
+	FGameplayTag DataTag,
+	float Amount,
+	float Level)
+{
+	if (!EffectClass) return FActiveGameplayEffectHandle();
+	
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
+	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
+	
+	Spec.Data->SetSetByCallerMagnitude(DataTag, Amount); 
+
+	return ApplyGameplayEffectSpecToOwner(
+		CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, Spec);
+}
+
 
 FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToTarget(
 	AActor* TargetActor,
@@ -78,12 +93,31 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToTarget(
 	UAbilitySystemComponent* TargetASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC) return FActiveGameplayEffectHandle();
-
-	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-	Context.AddInstigator(GetOwningActorFromActorInfo(), GetAvatarActorFromActorInfo());
-
-	FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(EffectClass, Level, Context);
+	
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
 	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
+	
+	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
+}
+
+FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarget(
+	AActor* TargetActor,
+	TSubclassOf<UGameplayEffect> EffectClass, 
+	FGameplayTag DataTag,
+	float Amount,
+	float Level)
+{
+	UAbilitySystemComponent* SourceASC = GetASC();
+	if (!SourceASC || !EffectClass || !TargetActor) return FActiveGameplayEffectHandle();
+
+	UAbilitySystemComponent* TargetASC =
+	UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!TargetASC) return FActiveGameplayEffectHandle();
+	
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
+	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
+	
+	Spec.Data->SetSetByCallerMagnitude(DataTag, Amount);
 
 	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
 }

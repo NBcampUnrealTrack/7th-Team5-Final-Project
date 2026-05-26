@@ -38,11 +38,28 @@ public:
 		TSubclassOf<UGameplayEffect> EffectClass,
 		float Level = 1.f
 	);
+	
+	UFUNCTION(BlueprintCallable, Category = "Ability|Effects")
+	FActiveGameplayEffectHandle ApplyEffectSetByCallerToSelf(
+		TSubclassOf<UGameplayEffect> EffectClass,
+		FGameplayTag DataTag, 
+		float Amount,
+		float Level = 1.f
+	);
 
 	UFUNCTION(BlueprintCallable, Category = "Ability|Effects")
 	FActiveGameplayEffectHandle ApplyEffectToTarget(
 		AActor* TargetActor,
 		TSubclassOf<UGameplayEffect> EffectClass,
+		float Level = 1.f
+	);
+	
+	UFUNCTION(BlueprintCallable, Category = "Ability|Effects")
+	FActiveGameplayEffectHandle ApplyEffectSetByCallerToTarget(
+		AActor* TargetActor,
+		TSubclassOf<UGameplayEffect> EffectClass,
+		FGameplayTag DataTag, 
+		float Amount,
 		float Level = 1.f
 	);
 };
