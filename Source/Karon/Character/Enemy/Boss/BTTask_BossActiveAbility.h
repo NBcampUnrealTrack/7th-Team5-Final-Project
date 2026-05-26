@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "KOBTTask_ActivateBossAbility.generated.h"
+#include "BTTask_BossActiveAbility.generated.h"
 
 UCLASS()
-class KARON_API UKOBTTask_ActivateBossAbility : public UBTTaskNode
+class KARON_API UBTTask_BossActiveAbility : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
 public:
-	UKOBTTask_ActivateBossAbility();
+	UBTTask_BossActiveAbility();
  
 	virtual EBTNodeResult::Type ExecuteTask(
 		UBehaviorTreeComponent& OwnerComp,
@@ -24,7 +24,6 @@ public:
 	) override;
  
 protected:
-	// BT 에디터에서 각 공격마다 태그 설정
 	UPROPERTY(EditAnywhere, Category = "Ability")
 	FGameplayTag AbilityTag;
 };

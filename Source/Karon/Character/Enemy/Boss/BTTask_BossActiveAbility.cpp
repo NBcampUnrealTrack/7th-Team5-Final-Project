@@ -1,18 +1,19 @@
-#include "Character/Enemy/Boss/KOBTTask_ActivateBossAbility.h"
+// Fill out your copyright notice in the Description page of Project Settings.
 
+
+#include "Character/Enemy/Boss/BTTask_BossActiveAbility.h"
+
+#include "AIController.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
-#include "AIController.h"
-
-UKOBTTask_ActivateBossAbility::UKOBTTask_ActivateBossAbility()
+ 
+UBTTask_BossActiveAbility::UBTTask_BossActiveAbility()
 {
 	NodeName = TEXT("Activate Boss Ability");
- 
-	// GA 종료 알림을 받기 위해 true
 	bNotifyTaskFinished = true;
 }
  
-EBTNodeResult::Type UKOBTTask_ActivateBossAbility::ExecuteTask(
+EBTNodeResult::Type UBTTask_BossActiveAbility::ExecuteTask(
 	UBehaviorTreeComponent& OwnerComp,
 	uint8* NodeMemory)
 {
@@ -44,44 +45,42 @@ EBTNodeResult::Type UKOBTTask_ActivateBossAbility::ExecuteTask(
 	{
 		return EBTNodeResult::Failed;
 	}
-	
+ 
+	// GA 종료 델리게이트 바인딩
 	ASC->OnAbilityEnded.AddLambda(
-	 [this, &OwnerComp](const FAbilityEndedData& Data)
-	 {
-		 if (!Data.AbilityThatEnded)
-		 {
-			 return;
-		 }
-
-		 if (!Data.AbilityThatEnded->GetAssetTags().HasTag(AbilityTag))
-		 {
-			 return;
-		 }
-
-		 EBTNodeResult::Type Result = Data.bWasCancelled ? 
-	 		 EBTNodeResult::Failed :
-			 EBTNodeResult::Succeeded;
-
-		 FinishLatentTask(OwnerComp, Result);
-	 }
- );
-	
-	FGameplayTagContainer ActiveTags;
-	ASC->GetOwnedGameplayTags(ActiveTags);
-	
-	// 태그로 GA 발동
-	bool bSuccess = ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(AbilityTag));
+		[this, &OwnerComp](const FAbilityEndedData& Data)
+		{
+			if (!Data.AbilityThatEnded)
+			{
+				return;
+			}
+ 
+			if (!Data.AbilityThatEnded->GetAssetTags().HasTag(AbilityTag))
+			{
+				return;
+			}
+ 
+			EBTNodeResult::Type Result = Data.bWasCancelled ?
+				EBTNodeResult::Failed :
+				EBTNodeResult::Succeeded;
+ 
+			FinishLatentTask(OwnerComp, Result);
+		}
+	);
+ 
+	bool bSuccess = ASC->TryActivateAbilitiesByTag(
+		FGameplayTagContainer(AbilityTag)
+	);
  
 	if (!bSuccess)
 	{
 		return EBTNodeResult::Failed;
 	}
  
-	// GA 종료까지 BT 대기
 	return EBTNodeResult::InProgress;
 }
  
-void UKOBTTask_ActivateBossAbility::OnTaskFinished(
+void UBTTask_BossActiveAbility::OnTaskFinished(
 	UBehaviorTreeComponent& OwnerComp,
 	uint8* NodeMemory,
 	EBTNodeResult::Type TaskResult)
