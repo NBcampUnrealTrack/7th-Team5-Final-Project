@@ -74,6 +74,9 @@ public:
 private:
 	APlayerController* GetOwningPlayerController() const;
 	UKOGridBuildComponent* GetGridBuildComponent() const;
+	
+	void OpenQuickSlotBar();
+	void CloseQuickSlotBar();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build|UI")

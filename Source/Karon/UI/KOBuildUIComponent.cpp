@@ -42,6 +42,63 @@ UKOGridBuildComponent* UKOBuildUIComponent::GetGridBuildComponent() const
 	return OwnerActor->FindComponentByClass<UKOGridBuildComponent>();
 }
 
+void UKOBuildUIComponent::OpenQuickSlotBar()
+{
+	APlayerController* PC = GetOwningPlayerController();
+	if (!PC)
+	{
+		return;
+	}
+
+	if (!QuickSlotBarWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] QuickSlotBarWidgetClass가 설정되지 않았습니다."));
+		return;
+	}
+
+	if (IsValid(QuickSlotBarWidget))
+	{
+		return;
+	}
+
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
+	if (!UISubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
+		return;
+	}
+
+	QuickSlotBarWidget = UISubsystem->PushLayer(
+		KOGameplayTags::UI_Layer_Game,
+		QuickSlotBarWidgetClass
+	);
+
+	if (!QuickSlotBarWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] 퀵슬롯 바 Push 실패"));
+	}
+}
+
+void UKOBuildUIComponent::CloseQuickSlotBar()
+{
+	APlayerController* PC = GetOwningPlayerController();
+
+	if (!QuickSlotBarWidget)
+	{
+		return;
+	}
+
+	if (PC)
+	{
+		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
+		{
+			UISubsystem->PopLayer(QuickSlotBarWidget);
+		}
+	}
+
+	QuickSlotBarWidget = nullptr;
+}
+
 void UKOBuildUIComponent::OpenBuildMenu()
 {
 	APlayerController* PC = GetOwningPlayerController();
@@ -57,60 +114,47 @@ void UKOBuildUIComponent::OpenBuildMenu()
 		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOGridBuildComponent를 찾을 수 없습니다."));
 		return;
 	}
-
-	GridBuildComponent->EnterBuildMenuMode();
-
-	if (QuickSlotBarWidgetClass && !IsValid(QuickSlotBarWidget))
+	
+	if (IsBuildAssignMenuOpen())
 	{
-		UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
-		if (!UISubsystem)
-		{
-			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
-		}
-		else
-		{
-			QuickSlotBarWidget = UISubsystem->PushLayer(
-				KOGameplayTags::UI_Layer_Game,
-				QuickSlotBarWidgetClass
-			);
-
-			if (!QuickSlotBarWidget)
-			{
-				UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 바 Push 실패"));
-			}
-		}
+		CloseBuildAssignMenu();
 	}
 
-	PC->bShowMouseCursor = false; // 마우스 커서는 원래 안보이는데
+	GridBuildComponent->EnterBuildMenuMode();
+	
+	// 건설 모드에서는 퀵슬롯만 보여준다.
+	OpenQuickSlotBar();
+
+	PC->bShowMouseCursor = false;
+	
+	FInputModeGameOnly InputMode;
+	PC->SetInputMode(InputMode);
+	
+	UE_LOG(LogTemp, Log, TEXT("[BuildUI] 건설 모드 열림"));
 }
 
 void UKOBuildUIComponent::CloseBuildMenu()
 {
 	CloseBuildAssignMenu();
 	
-	APlayerController* PC = GetOwningPlayerController();
-
-	if (QuickSlotBarWidget)
-	{
-		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
-		{
-			UISubsystem->PopLayer(QuickSlotBarWidget);
-		}
-
-		QuickSlotBarWidget = nullptr;
-	}
+	CloseQuickSlotBar();
 	
 	if (UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent())
 	{
 		GridBuildComponent->ExitBuildMenuMode();
 	}
 	
+	APlayerController* PC = GetOwningPlayerController();
+
 	if (PC)
 	{
 		PC->bShowMouseCursor = false;
 
 		FInputModeGameOnly InputMode;
 		PC->SetInputMode(InputMode);
+
+		PC->SetIgnoreMoveInput(false); // 이동 가능
+		PC->SetIgnoreLookInput(false); // 카메라 회전 가능
 	}
 	
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 건설 모드 종료"));
@@ -142,45 +186,43 @@ void UKOBuildUIComponent::OpenBuildAssignMenu()
 		return;
 	}
 
-	if (!IsBuildMenuOpen())
+	if (IsBuildAssignMenuOpen())
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 모드가 아닐 때는 설비 할당 UI를 열 수 없습니다."));
 		return;
 	}
 	
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
-	if (!GridBuildComponent)
-	{
-		return;
-	}
 	
-	// 설치 모드 -> I 키 :  BuildMenu 상태 복귀
-	if (GridBuildComponent->IsBuildMode())
+	const bool bWasBuildMenuOpen = IsBuildMenuOpen();
+	
+	// 건설 모드 중 I키를 누르면 기존 동작 유지:
+	// 설치 모드/파괴 모드에서 BuildMenu 상태로 복귀한 뒤 설비 선택 창을 연다.
+	if (bWasBuildMenuOpen && GridBuildComponent)
 	{
-		GridBuildComponent->CancelBuildMode();
+		if (GridBuildComponent->IsBuildMode())
+		{
+			GridBuildComponent->CancelBuildMode();
+		}
+
+		if (GridBuildComponent->IsDestroyMode())
+		{
+			GridBuildComponent->CancelDestroyMode();
+		}
 	}
 
-	// 파괴 모드 -> I 키 : BuildMenu 상태 복귀
-	if (GridBuildComponent->IsDestroyMode())
-	{
-		GridBuildComponent->CancelDestroyMode();
-	}
+	// 건설 모드 밖에서 I를 눌러도 퀵슬롯은 보여야 한다.
+	OpenQuickSlotBar();
 	
 	if (!BuildAssignMenuWidgetClass)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] BuildAssignMenuWidgetClass가 설정되지 않았습니다."));
-		return;
-	}
-	
-	if (IsBuildAssignMenuOpen())
-	{
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] BuildAssignMenuWidgetClass가 설정되지 않았습니다."));
 		return;
 	}
 	
 	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
 	if (!UISubsystem)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
 		return;
 	}
 	
@@ -191,57 +233,59 @@ void UKOBuildUIComponent::OpenBuildAssignMenu()
 
 	if (!BuildAssignMenuWidget)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 설비 할당 UI Push 실패"));
+		UE_LOG(LogTemp, Warning, TEXT("[BuildUI] 설비 할당 UI Push 실패"));
 		return;
 	}
 	
 	PC->bShowMouseCursor = true;
 
 	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(BuildAssignMenuWidget->TakeWidget()); //*
+	InputMode.SetWidgetToFocus(BuildAssignMenuWidget->TakeWidget());
 	InputMode.SetHideCursorDuringCapture(false);
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); //*
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	PC->SetInputMode(InputMode);
 	
-	PC->SetIgnoreMoveInput(true); //*
-	PC->SetIgnoreLookInput(true); //*
+	PC->SetIgnoreMoveInput(true); // 이동 불가능
+	PC->SetIgnoreLookInput(true); // 키메라 회전 불가능
 
-	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 열림"));
+	UE_LOG(LogTemp, Log, TEXT("[BuildUI] 설비 할당 UI 열림"));
 }
 
 void UKOBuildUIComponent::CloseBuildAssignMenu()
 {
-	if (!IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
 	APlayerController* PC = GetOwningPlayerController();
 	
-	if (BuildAssignMenuWidget)
-	{
-		if (PC)
-		{
-			if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
-			{
-				UISubsystem->PopLayer(BuildAssignMenuWidget);
-			}
-		}
-
-		BuildAssignMenuWidget = nullptr;
-	}
-
 	if (PC)
 	{
+		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
+		{
+			if (BuildAssignMenuWidget)
+			{
+				UISubsystem->PopLayer(BuildAssignMenuWidget);
+				BuildAssignMenuWidget = nullptr;
+			}
+		}
+		
 		PC->bShowMouseCursor = false;
 
 		FInputModeGameOnly InputMode;
 		PC->SetInputMode(InputMode);
-
-		PC->SetIgnoreMoveInput(false);
-		PC->SetIgnoreLookInput(false);
+		
+		PC->SetIgnoreMoveInput(false); // 이동 가능
+		PC->SetIgnoreLookInput(false); // 카메라 회전 가능
+	}
+	else
+	{
+		BuildAssignMenuWidget = nullptr;
 	}
 
+	// 건설 모드가 아닌 상태에서 I로 설비 선택 창을 연 경우,
+	// 창을 닫으면 퀵슬롯도 같이 닫는다.
+	if (!IsBuildMenuOpen())
+	{
+		CloseQuickSlotBar();
+	}
+	
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 닫힘"));
 }
 
