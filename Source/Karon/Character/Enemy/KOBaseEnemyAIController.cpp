@@ -6,6 +6,7 @@
 #include "KOBaseEnemy.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Hero/KOHeroCharacter.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense_Damage.h"
 #include "Perception/AISense_Hearing.h"
@@ -53,8 +54,7 @@ ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActo
 	{
 		return ETeamAttitude::Neutral;
 	}
-	//TODO: 태그 대신 Cast로 조건 변경
-	if (Other.ActorHasTag(TEXT("Player")))
+	if (const AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(&Other))
 	{
 		return ETeamAttitude::Hostile;
 	}
@@ -78,14 +78,17 @@ void AKOBaseEnemyAIController::HitEvent()
 	if (BBComp!=nullptr)
 	{
 		BBComp->SetValueAsBool(bIsHitKey, true);
+
 	}
 }
 
 void AKOBaseEnemyAIController::DeadEvent()
 {
-	if (BBComp!=nullptr)
+	if (BBComp!=nullptr&&!bIsDead)
 	{
+		bIsDead=true;
 		BBComp->SetValueAsBool(bIsDeadKey, true);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&AKOBaseEnemyAIController::StopBT,StopBTDelay,false);
 	}
 }
 
@@ -142,11 +145,11 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			if (Actor->ActorHasTag(TEXT("Player")))
+			if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(Actor))
 			{
-				BBComp->SetValueAsObject(TEXT("TargetActor"), Actor);
+				BBComp->SetValueAsObject(TEXT("TargetActor"), Player);
 				//팀에게도 전달
-				MakeAIPerceptionTeamEvent(Actor);
+				MakeAIPerceptionTeamEvent(Player);
 			}
 		}
 		return;
@@ -157,9 +160,9 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			if (Actor->ActorHasTag(TEXT("Player")))
+			if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(Actor))
 			{
-				BBComp->SetValueAsObject(TEXT("TargetActor"), Actor);
+				BBComp->SetValueAsObject(TEXT("TargetActor"), Player);
 			}
 		}
 		else
@@ -214,6 +217,15 @@ void AKOBaseEnemyAIController::MakeAIPerceptionTeamEvent(AActor* TargetActor)
 	if (UAIPerceptionSystem* PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld()))
 	{
 		PerceptionSystem->OnEvent(TeamEvent);
+	}
+}
+
+void AKOBaseEnemyAIController::StopBT()
+{
+	UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(GetBrainComponent());
+	if (BTComp)
+	{
+		BTComp->StopTree(EBTStopMode::Safe);
 	}
 }
 

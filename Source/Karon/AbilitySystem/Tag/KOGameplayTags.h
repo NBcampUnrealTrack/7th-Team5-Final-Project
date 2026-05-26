@@ -120,6 +120,7 @@ namespace KOGameplayTags
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);

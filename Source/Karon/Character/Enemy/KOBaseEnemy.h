@@ -10,6 +10,7 @@ class UKOAnimNotifyComponent;
 class UKOEnemyDataAsset;
 class UGameplayAbility;
 class UKOCombatSet;
+struct FOnAttributeChangeData;
 
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
@@ -34,6 +35,7 @@ protected:
 
 private:
 	void GiveDefaultAbilities();
+	void OnHitCallback(const FOnAttributeChangeData& Data);
 
 	
 public:

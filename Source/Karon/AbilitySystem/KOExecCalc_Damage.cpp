@@ -15,13 +15,13 @@ struct FDamageStatics
 	// Target의 Defensive를 Capture
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Defense);
 	// Target의 Health를 Capture (최종 데미지 적용용)
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
 
 	FDamageStatics()
 	{
 		// UMyAttributeSet의 Defensive, Target에서, Snapshot 안 함 (실시간 값)
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, Defense, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOHealthSet, Health, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOHealthSet, Damage, Target, false);
 	}
 };
 
@@ -36,7 +36,7 @@ UKOExecCalc_Damage::UKOExecCalc_Damage()
 {
 	// Capture할 Attribute 등록
 	RelevantAttributesToCapture.Add(DamageStatics().DefenseDef);
-	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(DamageStatics().DamageDef);
 }
 
 void UKOExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
@@ -83,9 +83,9 @@ void UKOExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecu
 	{
 		OutExecutionOutput.AddOutputModifier(
 			FGameplayModifierEvaluatedData(
-				DamageStatics().HealthProperty,
+				DamageStatics().DamageProperty,
 				EGameplayModOp::Additive,
-				-FinalDamage
+				FinalDamage
 			)
 		);
 

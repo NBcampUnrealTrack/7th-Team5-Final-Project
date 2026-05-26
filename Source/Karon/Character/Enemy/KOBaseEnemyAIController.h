@@ -47,8 +47,8 @@ private:
 	
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
-	
 	void MakeAIPerceptionTeamEvent(AActor* TargetActor);
+	void StopBT();
 	
 protected:
 	UPROPERTY(EditAnywhere)
@@ -87,8 +87,13 @@ protected:
 	float EnemyStrafeSpeed=200.f;
 	float EnemyAttackDelayTime=0.5f;
 	
-
+	//HP가 0이 된 이후 해당 딜레이 이후에 BT를 멈춥니다.
+	float StopBTDelay=1.f;
 	
 private:
 	FGenericTeamId TeamId;
+	FTimerHandle TimerHandle;
+	bool bIsDead=false;
+	
+
 };
