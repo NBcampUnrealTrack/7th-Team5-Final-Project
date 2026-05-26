@@ -106,6 +106,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal02, "Attack.Boss01.Normal02");
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Strong01, "Attack.Boss01.Strong01");
 
+	
 	//Enemy Boss
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal01, "Attack.Boss01.Normal01");
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal02, "Attack.Boss01.Normal02");
