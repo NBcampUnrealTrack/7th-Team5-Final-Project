@@ -6,9 +6,19 @@
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
 
+#include "Component/KOGridBuildComponent.h"
+#include "UI/KOBuildUIComponent.h"
+
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
+	GridBuildComponent = CreateDefaultSubobject<UKOGridBuildComponent>(
+		TEXT("GridBuildComponent")
+	);
+
+	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(
+		TEXT("BuildUIComponent")
+	);
 }
 
 void AKOPlayerController::BeginPlay()
@@ -87,6 +97,11 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
+	if (BuildUIComponent && BuildUIComponent->IsBuildAssignMenuOpen())
+	{
+		return;
+	}
+	
 	const FVector2D LookValue = Value.Get<FVector2D>();
 	
 	AddYawInput(LookValue.X);

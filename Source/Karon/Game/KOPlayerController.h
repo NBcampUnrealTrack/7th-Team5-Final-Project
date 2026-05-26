@@ -10,6 +10,8 @@ struct FInputActionValue;
 class UKOInputConfig;
 class UInputMappingContext;
 class UKOInteractionComponent;
+class UKOGridBuildComponent;
+class UKOBuildUIComponent;
 
 UCLASS()
 class KARON_API AKOPlayerController : public APlayerController
@@ -44,4 +46,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UKOInteractionComponent> InteractionComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UKOGridBuildComponent> GridBuildComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UKOBuildUIComponent> BuildUIComponent;
 };
