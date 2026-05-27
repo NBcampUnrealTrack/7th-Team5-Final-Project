@@ -273,6 +273,9 @@ namespace KOGameplayTags
     // ── Effect | Debuff ───────────────────────────────────────────
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Debuff_Slow);
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Debuff_Stun);
+	
+	// ───────────────────────── Cue ─────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
 
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
