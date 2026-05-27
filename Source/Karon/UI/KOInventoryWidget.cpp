@@ -6,9 +6,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
 #include "GameFramework/PlayerController.h"
-#include "Components/PanelWidget.h"
-#include "Components/UniformGridPanel.h"
-#include "Components/UniformGridSlot.h"
+#include "Components/WrapBox.h"
 
 void UKOInventoryWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
 {
@@ -91,7 +89,7 @@ void UKOInventoryWidget::RebuildSlotWidgets()
         }
         NewSlot->SetupSlot(this, NewIndex);
         SlotWidgets.Add(NewSlot);
-        AttachSlotWidgetToPanel(NewSlot, NewIndex);
+        SlotsPanel->AddChildToWrapBox(NewSlot);
     }
 
     // 남으면 제거
@@ -125,19 +123,3 @@ void UKOInventoryWidget::RebuildSlotWidgets()
     }
 }
 
-void UKOInventoryWidget::AttachSlotWidgetToPanel(UKOInventorySlotWidget* SlotWidget, int32 Index)
-{
-    if (!SlotsPanel || !SlotWidget)
-    {
-        return;
-    }
-
-    UPanelSlot* PanelSlot = SlotsPanel->AddChild(SlotWidget);
-
-    if (UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(PanelSlot))
-    {
-        const int32 Cols = FMath::Max(ColumnsPerRow, 1);
-        GridSlot->SetRow(Index / Cols);
-        GridSlot->SetColumn(Index % Cols);
-    }
-}
