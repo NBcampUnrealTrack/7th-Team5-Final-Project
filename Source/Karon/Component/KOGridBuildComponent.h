@@ -4,11 +4,13 @@
 #include "Components/ActorComponent.h"
 #include "KOGridBuildComponent.generated.h"
 
+struct FKOFactoryRow;
+
 class UMaterialInterface;
 class AKOGhostPreview;
 class UMeshComponent;
 class AKOBaseBuilding;
-struct FKOFactoryRow;
+class UKOInventoryComponent;
 
 UENUM(BlueprintType)
 enum class EKOGridBuildMode : uint8
@@ -120,6 +122,8 @@ protected:
 	void ClearDestroyTargetActor();
 	void ApplyDestroyTargetMaterial(AActor* TargetActor);
 	void RestoreDestroyTargetMaterial();
+	
+	UKOInventoryComponent* GetInventoryComponent() const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
