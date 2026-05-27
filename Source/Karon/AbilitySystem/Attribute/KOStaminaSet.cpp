@@ -69,7 +69,8 @@ void UKOStaminaSet::PostAttributeChange(const FGameplayAttribute& Attribute, flo
 		
 		if (NewValue <= 0.f)
 			ASC->AddLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
-		else if (NewValue >= GetMaxStamina())
+		else if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_StaminaExhausted) &&
+		NewValue >= GetMaxStamina()) 
 			ASC->RemoveLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
 		
 		OnStaminaChanged.Broadcast(OldValue, NewValue);
