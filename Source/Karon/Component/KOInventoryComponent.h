@@ -18,7 +18,7 @@ public:
     UKOInventoryComponent();
 
     UPROPERTY(EditAnywhere, Category = "KO|Inventory")
-    int32 MaxSlots = 20;
+    int32 MaxSlots = 40;
     
     UPROPERTY(EditDefaultsOnly, Category = "KO|Inventory")
     FGameplayTagQuery AcceptedItemsQuery;
