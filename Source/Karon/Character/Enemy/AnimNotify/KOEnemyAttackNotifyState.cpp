@@ -8,6 +8,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Component/KOAnimNotifyComponent.h"
+#include "Character/Hero/KOHeroCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 void UKOEnemyAttackNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -98,6 +99,13 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 		{
 			continue;
 		}
+		//플레이어 클래스만 데미지 가능
+		AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(HittedActor);
+		if (Player==nullptr)
+		{
+			continue;
+		}
+		
 		
 		//피격당한 목록에 추가
 		AnimNotifyComponent->HittedCharacterArray.Add(HittedActor);

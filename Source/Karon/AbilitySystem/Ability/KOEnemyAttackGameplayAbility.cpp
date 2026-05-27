@@ -3,9 +3,12 @@
 
 #include "KOEnemyAttackGameplayAbility.h"
 
+#include <Animation/KOAnimInstance.h>
+
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 
@@ -107,16 +110,15 @@ void UKOEnemyAttackGameplayAbility::OnMontageCancelled()
 void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEventData)
 {
 	//맞은 플레이어의 ASI, ASC를 가져온다.
-	//TODO: 플레이어 디벨롭에 올라오면 구현
-	/*
+	
 	AActor* HittedActor = const_cast<AActor*>(HitGameplayEventData.Target.Get());
 	if (!IsValid(HittedActor))
 	{
 		return;
 	}
 	
-	AKOHeroCharacter* HittedPlayer=Cast<AEDPlayerCharacter>(HittedActor);
-	AEDPlayerCharacter* AttackedPlayer=Cast<AEDPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AKOCharacterBase* HittedPlayer=Cast<AKOCharacterBase>(HittedActor);
+	AKOCharacterBase* AttackedPlayer=Cast<AKOCharacterBase>(GetAvatarActorFromActorInfo());
 	
 	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(HittedActor);
 	if (TargetASI == nullptr)
@@ -129,53 +131,45 @@ void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGamep
 		return;
 	}
 
-	UAbilitySystemComponent* PlayerASC = GetAbilitySystemComponentFromActorInfo();
-	if (!PlayerASC)
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
 	{
 		return;
 	}
 
-	FGameplayEffectContextHandle Context = PlayerASC->MakeEffectContext();
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarActorFromActorInfo()); // 소스 오브젝트는 현재 캐릭터(Avatar)
 
-	FGameplayEffectSpecHandle SpecHandle = PlayerASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
 
-	const UEDPlayerAttributeSet* PlayerAttributeSet = Cast<UEDPlayerAttributeSet>(PlayerASC->GetAttributeSet(UEDPlayerAttributeSet::StaticClass()));
-	if (SpecHandle.IsValid() || IsValid(PlayerAttributeSet))
+	const UKOCombatSet* CombatSet = Cast<UKOCombatSet>(SourceASC->GetAttributeSet(UKOCombatSet::StaticClass()));
+	if (SpecHandle.IsValid() || IsValid(CombatSet))
 	{
 		//AssetTag 로 검색
 		const FGameplayTagContainer& AssetTags=GetAssetTags();
 		FGameplayTag AssetTag=AssetTags.GetByIndex(0);
 		
-		const UEDSkillDataSubsystem* EDSkillDataSubsystem=UEDSkillDataSubsystem::Get(GetWorld());
 		
-		if (AssetTag==FGameplayTag::EmptyTag||!IsValid(EDSkillDataSubsystem))
-		{
-			return;
-		}
 		//공격자의 총합 데미지
-		float SkillFinalDamage =
-			PlayerAttributeSet->GetStrength() * SkillMulStaus->DamageStrengthMultiplier +
-			PlayerAttributeSet->GetDexterity() * SkillMulStaus->DamageDexterityMultiplier +
-			PlayerAttributeSet->GetIntelligence() * SkillMulStaus->DamageIntelligenceMultiplier
-		;
+		//TODO: 스킬데미지 공격력에 비례해 적용
+		float SkillFinalDamage = CombatSet->GetAttackPower();
 
-		SpecHandle.Data->SetSetByCallerMagnitude(FEDGameplayTags::Get().Data_Damage, SkillFinalDamage);
-		PlayerASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage, SkillFinalDamage);
+		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	
 	//디버프 GE
 	for (auto DebuffEffectClass: DebuffEffectClassMap)
 	{
-		FGameplayEffectSpecHandle DebuffSpecHandle = PlayerASC->MakeOutgoingSpec(DebuffEffectClass.Key, 1.0f, Context);
+		FGameplayEffectSpecHandle DebuffSpecHandle = SourceASC->MakeOutgoingSpec(DebuffEffectClass.Key, 1.0f, Context);
 		if (DebuffSpecHandle.IsValid())
 		{
-			DebuffSpecHandle.Data->SetSetByCallerMagnitude(FEDGameplayTags::Get().Data_DebuffTime, DebuffEffectClass.Value);
-			PlayerASC->ApplyGameplayEffectSpecToTarget(*DebuffSpecHandle.Data.Get(), TargetASC);
+			DebuffSpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_DebuffTime, DebuffEffectClass.Value);
+			SourceASC->ApplyGameplayEffectSpecToTarget(*DebuffSpecHandle.Data.Get(), TargetASC);
 		}
 		
 	}
-	*/
+	
 	
 }
 

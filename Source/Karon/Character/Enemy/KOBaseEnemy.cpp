@@ -7,8 +7,10 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "Component/KOAnimNotifyComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
+#include "UI/Enemy/KOEnemyHPBar.h"
 
 
 // Sets default values
@@ -21,6 +23,8 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	HealthSet=CreateDefaultSubobject<UKOHealthSet>(TEXT("HealthSet"));
 	MovementSet=CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
 	CombatSet=CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
+	//TODO: 공격력 DDD로 전환. 현재는 테스트용 공격력 10
+	CombatSet->InitAttackPower(10.f);
 	
 	//AnimNotifyComponent 생성
 	AnimNotifyComponent=CreateDefaultSubobject<UKOAnimNotifyComponent>(TEXT("KOAnimNotifyComponent"));
@@ -30,6 +34,10 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	WeaponMeshComponent->SetupAttachment(GetMesh(), HandSocketName);
 	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	
+	//Enemy HPBar 부착
+	EnemyHPBarWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
+	EnemyHPBarWidgetComponent->SetupAttachment(GetMesh());
+	EnemyHPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void AKOBaseEnemy::SetupEnemy(UKOEnemyDataAsset)
@@ -43,11 +51,25 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataAsset)
 void AKOBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	//
+	
 	if (IsValid(AbilitySystemComponent))
 	{
 		GiveDefaultAbilities();
+		
+		//ASC Duration Callback
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthSet->GetHealthAttribute())
+		.AddUObject(this, &AKOBaseEnemy::OnHitCallback);
 	}
+	//HPBar Binding
+	if (EnemyHPBarWidgetComponent)
+	{
+		if (UKOEnemyHPBar* HPBar = Cast<UKOEnemyHPBar>(EnemyHPBarWidgetComponent->GetWidget()))
+		{
+			OnHPChanged.BindUObject(HPBar, &UKOEnemyHPBar::OnHPChanged);
+		}
+	}
+	
 }
 
 void AKOBaseEnemy::GiveDefaultAbilities()
@@ -64,6 +86,23 @@ void AKOBaseEnemy::GiveDefaultAbilities()
 	}
 }
 
+void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
+{
+	//체력이 0이라면 사망 콟백을 HPBar, AIController로 전달
+	if (Data.NewValue==0.f)
+	{
+		OnHPChanged.ExecuteIfBound(0.f);
+		OnCharacterDead.ExecuteIfBound();
+	}
+	
+	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달
+	else if (Data.NewValue<Data.OldValue)
+	{
+		OnHPChanged.ExecuteIfBound(Data.NewValue/HealthSet->GetMaxHealth());
+		OnCharacterHit.ExecuteIfBound();
+	}
+}
+
 FVector AKOBaseEnemy::GetSocketLocation()
 {
 	if (WeaponMeshComponent->GetSkeletalMeshAsset()!=nullptr)
@@ -71,28 +110,8 @@ FVector AKOBaseEnemy::GetSocketLocation()
 		return WeaponMeshComponent->GetSocketTransform(WeaponSocketName,RTS_World).GetLocation();
 	}
 	
-	// 1. 컴포넌트 자체가 유효한지 확인
-	if (!WeaponMeshComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] WeaponMeshComponent가 nullptr입니다!"));
-		return FVector::ZeroVector;
-	}
-
-	// 2. 메쉬 에셋이 들어있는지 확인
-	if (WeaponMeshComponent->GetSkeletalMeshAsset() == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] SkeletalMeshAsset이 지정되지 않았습니다!"));
-		return FVector::ZeroVector;
-	}
-    
-	// 3. 소켓이 실제로 존재하는지 안전검사
-	if (!WeaponMeshComponent->DoesSocketExist(WeaponSocketName))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[GetSocketLocation] 소켓 이름(%s)을 찾을 수 없습니다! 부모 위치를 반환합니다."), *WeaponSocketName.ToString());
-		return WeaponMeshComponent->GetComponentLocation(); // 0,0,0 대신 컴포넌트 위치라도 반환
-	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("이외의 이유"));
+	
 	//TODO: 무기없을때 소켓 정보 받아오기
 	
 	return FVector::ZeroVector;

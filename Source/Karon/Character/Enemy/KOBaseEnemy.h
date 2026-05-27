@@ -6,13 +6,16 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+class UWidgetComponent;
 class UKOAnimNotifyComponent;
 class UKOEnemyDataAsset;
 class UGameplayAbility;
 class UKOCombatSet;
+struct FOnAttributeChangeData;
 
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
+DECLARE_DELEGATE_OneParam(FOnHUDChangeEvent, float ProgressPercent)
 
 UCLASS()
 class KARON_API AKOBaseEnemy : public AKOCharacterBase
@@ -34,6 +37,7 @@ protected:
 
 private:
 	void GiveDefaultAbilities();
+	void OnHitCallback(const FOnAttributeChangeData& Data);
 
 	
 public:
@@ -48,11 +52,16 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UKOAnimNotifyComponent> AnimNotifyComponent;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> EnemyHPBarWidgetComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS|Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 		
@@ -62,10 +71,10 @@ private:
 	//Delegates
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
+	
 	FOnCharacterEvent OnCharacterHit;
 	FOnCharacterEvent OnCharacterDead;
 	FOnCharacterEvent OnCharacterReset;
 	
-	
-
+	FOnHUDChangeEvent OnHPChanged;
 };

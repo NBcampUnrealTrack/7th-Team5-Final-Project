@@ -81,7 +81,7 @@ namespace KOGameplayTags
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
-	
+	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	
 	// ───────────────────────── Event ──────────────────────────────
 	// ── Event | HitReact ──────────────────────────────────────────
