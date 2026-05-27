@@ -29,7 +29,7 @@ public:
 		bool bWasCancelled
 	) override;
 	
-	virtual void OnMontageCompleted();
+	virtual void OnMontageCompleted() override;
  
 protected:
 	// 충격파 반경

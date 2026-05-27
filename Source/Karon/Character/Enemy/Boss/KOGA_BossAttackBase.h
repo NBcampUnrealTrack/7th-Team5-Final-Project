@@ -38,6 +38,9 @@ public:
 	float AttackRange = 300.f;
  
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Damage")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Montage")
 	TObjectPtr<UAnimMontage> AttackMontage;
  
@@ -51,7 +54,10 @@ protected:
 	virtual void OnMontageCancelled();
  
 	bool IsTargetInRange() const;
- 
+	
+	// 공통 데미지 적용 함수
+	void ApplyDamageToTarget(AActor* TargetActor);
+	
 private:
 	UPROPERTY()
 	TObjectPtr<class UAbilityTask_PlayMontageAndWait> MontageTask;

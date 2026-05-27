@@ -1,12 +1,13 @@
 #include "Character/Enemy/Boss/KOGA_BossAttackBase.h"
 
+#include "AbilitySystemInterface.h"
 #include "AIController.h"
 
 #include "KOAIC_BossChapter01.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/Character.h"
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
@@ -147,3 +148,54 @@ bool UKOGA_BossAttackBase::IsTargetInRange() const
 
 	return FVector::Dist(Avatar->GetActorLocation(), Target->GetActorLocation()) <= AttackRange;
 }
+
+void UKOGA_BossAttackBase::ApplyDamageToTarget(AActor* TargetActor)
+{
+	if (!TargetActor)
+	{
+		return;
+	}
+	
+	if (!DamageEffectClass)
+	{
+		return;
+	}
+ 
+	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(TargetActor);
+	if (!TargetASI)
+	{
+		return;
+	}
+ 
+	UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
+	if (!TargetASC)
+	{
+		return;
+	}
+ 
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+	{
+		return;
+	}
+	
+	const UKOCombatSet* CombatSet = SourceASC->GetSet<UKOCombatSet>();
+	if (!CombatSet)
+	{
+		return;
+	}
+	
+	const float AttackPower = CombatSet->GetAttackPower();
+ 
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(GetAvatarActorFromActorInfo());
+ 
+	FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Context);
+ 
+	if (Spec.IsValid())
+	{
+		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage,AttackPower);
+		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+	}
+}
+

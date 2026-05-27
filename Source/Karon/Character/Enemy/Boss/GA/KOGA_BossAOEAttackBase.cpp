@@ -151,13 +151,8 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 			continue;
 		}
  
-		// 데미지 이벤트 발생
-		FGameplayEventData EventData;
-		EventData.Target = HitActor;
-		GetAbilitySystemComponentFromActorInfo()->HandleGameplayEvent(
-			KOGameplayTags::Event_Boss01_Shockwave,
-			&EventData
-		);
+		// 직접 데미지 적용
+		ApplyDamageToTarget(HitActor);
 	}
 	
 	CurrentShockwaveCount++;
