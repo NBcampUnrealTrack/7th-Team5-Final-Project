@@ -6,7 +6,7 @@
 #include "Components/PanelWidget.h"
 #include "Components/VerticalBoxSlot.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogKOBuildMenu, Log, All);
 
 void UKOBuildAssignMenuWidget::NativeConstruct()
 {
@@ -19,20 +19,20 @@ void UKOBuildAssignMenuWidget::RebuildEntries()
 {
 	if (!EntryContainer)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildAssignMenu] EntryContainer가 없습니다."));
+		UE_LOG(LogKOBuildMenu, Warning, TEXT("[BuildAssignMenu] EntryContainer가 없습니다."));
 		return;
 	}
 
 	if (!EntryWidgetClass)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildAssignMenu] EntryWidgetClass가 설정되지 않았습니다."));
+		UE_LOG(LogKOBuildMenu, Warning, TEXT("[BuildAssignMenu] EntryWidgetClass가 설정되지 않았습니다."));
 		return;
 	}
 
 	UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
 	if (!LoadSub)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildAssignMenu] KOLoadSubsystem을 찾을 수 없습니다."));
+		UE_LOG(LogKOBuildMenu, Warning, TEXT("[BuildAssignMenu] KOLoadSubsystem을 찾을 수 없습니다."));
 		return;
 	}
 
