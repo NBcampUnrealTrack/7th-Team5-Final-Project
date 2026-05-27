@@ -14,6 +14,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Confirm);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleAssignMenu);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Cancel);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Escape);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot1);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot2);
+	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Sprint);

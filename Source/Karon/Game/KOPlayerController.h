@@ -28,26 +28,34 @@ protected:
 	virtual void SetupInputComponent() override;
 
 protected:
+	// 기본 입력
 	void Input_Move(const FInputActionValue& Value);
-
 	void Input_Look(const FInputActionValue& Value);
-
+	void Input_Interact(const FInputActionValue& Value);
+	
+	// 어빌리티 입력
 	void Input_AbilityPressed(FGameplayTag InputTag);
-
 	void Input_AbilityReleased(FGameplayTag InputTag);
 
-	void Input_Interact(const FInputActionValue& Value);
-
+	// 건설 입력
 	void Input_ToggleBuildMode(const FInputActionValue& Value);
+	void Input_ToggleBuildAssignMenu(const FInputActionValue& Value);
 
-	void Input_BuildConfirm(const FInputActionValue& Value);
-
+	void Input_BuildConfirm(const FInputActionValue& Value);	
+	void Input_BuildCancel(const FInputActionValue& Value);
+	void Input_BuildEscape(const FInputActionValue& Value);
+	
 	void Input_BuildToggleDestroy(const FInputActionValue& Value);
+	
+	void Input_SelectBuildQuickSlot1(const FInputActionValue& Value);
+	void Input_SelectBuildQuickSlot2(const FInputActionValue& Value);
 
 private:
 	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
 	void EnterBuildIMC();
 	void ExitBuildIMC();
+	
+	void CreateRootLayout();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -67,10 +75,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UKOBuildUIComponent> BuildUIComponent;
-
-	// BuildMenu UI 도입 전, B 키 진입 시 즉시 사용할 디버그 FactoryId
-	UPROPERTY(EditDefaultsOnly, Category = "Build")
-	FName DebugBuildFactoryId = NAME_None;
+	
+	
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UKOActivatableWidget> RootLayoutClass;
@@ -80,6 +86,4 @@ private:
 	TObjectPtr<UKOActivatableWidget> RootLayoutInstance;
 
 	bool bBuildIMCActive = false;
-
-	void CreateRootLayout();
 };

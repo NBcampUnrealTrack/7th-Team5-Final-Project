@@ -102,6 +102,51 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_BuildToggleDestroy,
 			true
 		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_ToggleAssignMenu,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleBuildAssignMenu,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_Cancel,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildCancel,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_Escape,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildEscape,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_QuickSlot1,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_SelectBuildQuickSlot1,
+			true
+		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_QuickSlot2,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_SelectBuildQuickSlot2,
+			true
+		);
 
 		// Bind Abilities Input Actions
 		TArray<uint32> BindHandles;
@@ -144,7 +189,7 @@ void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 }
 
 void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
-{
+{	
 	if (IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(GetPawn()))
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
@@ -175,100 +220,114 @@ void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 
 void AKOPlayerController::Input_ToggleBuildMode(const FInputActionValue& /*Value*/)
 {
-	if (bBuildIMCActive)
+	if (!BuildUIComponent)
 	{
-		ExitBuildIMC();
+		return;
+	}
+
+	BuildUIComponent->ToggleBuildMenu();
+	
+	if (BuildUIComponent->IsBuildMenuOpen())
+	{
+		EnterBuildIMC();
 	}
 	else
 	{
-		EnterBuildIMC();
+		ExitBuildIMC();
 	}
 }
 
 void AKOPlayerController::Input_BuildConfirm(const FInputActionValue& /*Value*/)
 {
-	if (!GridBuildComponent) return;
-
-	switch (GridBuildComponent->GetCurrentMode())
+	if (!BuildUIComponent)
 	{
-	case EKOGridBuildMode::Build:
-		GridBuildComponent->RequestBuild();
-		break;
-
-	case EKOGridBuildMode::Destroy:
-		GridBuildComponent->RequestDestroy();
-		break;
-
-	default:
-		break;
+		return;
 	}
+
+	BuildUIComponent->ConfirmBuildAction();
 }
 
 void AKOPlayerController::Input_BuildToggleDestroy(const FInputActionValue& /*Value*/)
 {
-	if (!GridBuildComponent) return;
-
-	// Build ↔ Destroy 토글. Build 진입 시 DebugBuildFactoryId 사용.
-	switch (GridBuildComponent->GetCurrentMode())
+	if (!BuildUIComponent)
 	{
-	case EKOGridBuildMode::Build:
-		GridBuildComponent->StartDestroyMode();
-		break;
+		return;
+	}
 
-	case EKOGridBuildMode::Destroy:
-		GridBuildComponent->CancelDestroyMode();
-		if (!DebugBuildFactoryId.IsNone())
-		{
-			GridBuildComponent->StartBuildModeWithId(DebugBuildFactoryId);
-		}
-		break;
+	BuildUIComponent->StartDestroyBuildMode();
+}
 
-	default:
-		// None 상태(예: 진입 직후 FactoryId 미설정으로 빌드 모드 실패)에서 RMB로 Destroy 진입 허용
-		GridBuildComponent->StartDestroyMode();
-		break;
+void AKOPlayerController::Input_ToggleBuildAssignMenu(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->ToggleBuildAssignMenu();
+	}
+}
+
+void AKOPlayerController::Input_BuildCancel(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->CancelBuildAction();
+	}
+}
+
+void AKOPlayerController::Input_BuildEscape(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->EscapeBuildAction();
+	}
+}
+
+void AKOPlayerController::Input_SelectBuildQuickSlot1(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->SelectBuildQuickSlot(0);
+	}
+}
+
+void AKOPlayerController::Input_SelectBuildQuickSlot2(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->SelectBuildQuickSlot(1);
 	}
 }
 
 void AKOPlayerController::EnterBuildIMC()
 {
+	if (bBuildIMCActive)
+	{
+		return;
+	}
+	
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	if (Subsystem && BuildIMC)
 	{
-		Subsystem->RemoveMappingContext(DefaultIMC);
-		Subsystem->AddMappingContext(BuildIMC, 0);
+		Subsystem->AddMappingContext(BuildIMC, 1);
 	}
 
 	bBuildIMCActive = true;
-
-	if (GridBuildComponent && !DebugBuildFactoryId.IsNone())
-	{
-		GridBuildComponent->StartBuildModeWithId(DebugBuildFactoryId);
-	}
 }
 
 void AKOPlayerController::ExitBuildIMC()
 {
-	if (GridBuildComponent)
+	if (!bBuildIMCActive)
 	{
-		GridBuildComponent->CancelCurrentMode();
+		return;
 	}
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	if (Subsystem)
+	if (Subsystem && BuildIMC)
 	{
-		if (BuildIMC)
-		{
-			Subsystem->RemoveMappingContext(BuildIMC);
-		}
-		if (DefaultIMC)
-		{
-			Subsystem->AddMappingContext(DefaultIMC, 0);
-		}
+		Subsystem->RemoveMappingContext(BuildIMC);
 	}
 
 	bBuildIMCActive = false;

@@ -198,13 +198,8 @@ void UKOBuildUIComponent::OpenBuildAssignMenu()
 	PC->bShowMouseCursor = true;
 
 	FInputModeGameAndUI InputMode;
-	InputMode.SetWidgetToFocus(BuildAssignMenuWidget->TakeWidget()); //*
 	InputMode.SetHideCursorDuringCapture(false);
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); //*
 	PC->SetInputMode(InputMode);
-	
-	PC->SetIgnoreMoveInput(true); //*
-	PC->SetIgnoreLookInput(true); //*
 
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 열림"));
 }
@@ -237,9 +232,6 @@ void UKOBuildUIComponent::CloseBuildAssignMenu()
 
 		FInputModeGameOnly InputMode;
 		PC->SetInputMode(InputMode);
-
-		PC->SetIgnoreMoveInput(false);
-		PC->SetIgnoreLookInput(false);
 	}
 
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 닫힘"));
