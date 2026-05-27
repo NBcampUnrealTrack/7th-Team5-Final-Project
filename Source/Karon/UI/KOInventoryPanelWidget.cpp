@@ -1,0 +1,46 @@
+// Copyright Karon Team 5. All Rights Reserved.
+#include "UI/KOInventoryPanelWidget.h"
+#include "UI/KOInventoryWidget.h"
+
+UKOInventoryPanelWidget::UKOInventoryPanelWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
+
+void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
+{
+    if (InventoryWidget)
+    {
+        InventoryWidget->SetInventoryComponent(InComponent);
+    }
+}
+
+void UKOInventoryPanelWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    if (InventoryWidget)
+    {
+        InventoryWidget->OnSlotClicked.AddDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
+    }
+}
+
+void UKOInventoryPanelWidget::NativeDestruct()
+{
+    if (InventoryWidget)
+    {
+        InventoryWidget->OnSlotClicked.RemoveDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
+    }
+
+    Super::NativeDestruct();
+}
+
+void UKOInventoryPanelWidget::HandleSlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    OnSlotClicked(SlotIndex, InSlot);
+}
+
+void UKOInventoryPanelWidget::OnSlotClicked_Implementation(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    // 기본 동작 없음. 자식 클래스/BP에서 오버라이드.
+}

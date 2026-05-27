@@ -6,14 +6,17 @@
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
 #include "Component/KOGridBuildComponent.h"
+#include "Component/KOInventoryComponent.h"
 #include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
+#include "UI/KOUISubsystem.h"
 
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
 	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
-	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
+	BuildUIComponent     = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
+	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
@@ -36,6 +39,10 @@ void AKOPlayerController::CreateRootLayout()
 	if (RootLayoutInstance)
 	{
 		RootLayoutInstance->AddToViewport();
+
+		// CommonUI ActionRouter가 자식 위젯의 activation을 input config refresh로 전파하려면
+		// 루트(RootLayout)가 "receiving input" 상태여야 함. 명시적으로 활성화.
+		RootLayoutInstance->ActivateWidget();
 	}
 }
 
@@ -145,6 +152,15 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_SelectBuildQuickSlot2,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleInventory,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleInventory,
 			true
 		);
 
@@ -294,6 +310,14 @@ void AKOPlayerController::Input_SelectBuildQuickSlot2(const FInputActionValue& /
 	if (BuildUIComponent)
 	{
 		BuildUIComponent->SelectBuildQuickSlot(1);
+	}
+}
+
+void AKOPlayerController::Input_ToggleInventory(const FInputActionValue& /*Value*/)
+{
+	if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
+	{
+		UISub->ToggleWidget(KOGameplayTags::UI_Widget_Inventory);
 	}
 }
 

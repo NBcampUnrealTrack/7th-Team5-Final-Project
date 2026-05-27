@@ -61,6 +61,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "KO|UI")
     void PopLayer(UCommonActivatableWidget* Widget);
 
+    /** 현재 열려있는(활성/스택에 존재) 위젯 인스턴스를 태그로 조회. 없으면 nullptr. */
+    UFUNCTION(BlueprintPure, Category = "KO|UI")
+    UCommonActivatableWidget* FindActiveWidget(FGameplayTag WidgetTag) const;
+
+    /**
+     * 위젯 토글. 열려있으면 닫고, 없으면 PushWidget.
+     * @return 호출 후 위젯이 열린 상태면 true, 닫힌 상태면 false.
+     */
+    UFUNCTION(BlueprintCallable, Category = "KO|UI")
+    bool ToggleWidget(FGameplayTag WidgetTag);
+
 private:
     UFUNCTION()
     void OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
@@ -72,6 +83,9 @@ private:
     /** 위젯 태그 → 로드된 클래스 캐시 (Soft 로드 결과 보관). */
     UPROPERTY(Transient)
     TMap<FGameplayTag, TSubclassOf<UCommonActivatableWidget>> ResolvedClassCache;
+
+    /** 위젯 태그 → 현재 활성 인스턴스. Deactivate 시 자동 제거. */
+    TMap<FGameplayTag, TWeakObjectPtr<UCommonActivatableWidget>> ActiveWidgetsByTag;
 
     FGameplayMessageCallback PushLayerCallback;
     FGameplayMessageHandle PushLayerHandle;
