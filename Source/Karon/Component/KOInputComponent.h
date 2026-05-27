@@ -48,8 +48,13 @@ public:
 
 
 template <class UserClass, typename FuncType>
-void UKOInputComponent::BindNativeAction(const UKOInputConfig* InputConfig, const FGameplayTag& InputTag,
-	ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound)
+void UKOInputComponent::BindNativeAction(
+	const UKOInputConfig* InputConfig,
+	const FGameplayTag& InputTag,
+	ETriggerEvent TriggerEvent,
+	UserClass* Object, 
+	FuncType Func,
+	bool bLogIfNotFound)
 {
 	check(InputConfig);
 	
@@ -60,8 +65,12 @@ void UKOInputComponent::BindNativeAction(const UKOInputConfig* InputConfig, cons
 }
 
 template <class UserClass, typename PressedFuncType, typename ReleasedFuncType>
-void UKOInputComponent::BindAbilityActions(const UKOInputConfig* InputConfig, UserClass* Object,
-	PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles)
+void UKOInputComponent::BindAbilityActions(
+	const UKOInputConfig* InputConfig,
+	UserClass* Object,
+	PressedFuncType PressedFunc, 
+	ReleasedFuncType ReleasedFunc,
+	TArray<uint32>& BindHandles)
 {
 	check(InputConfig);
 
@@ -71,12 +80,24 @@ void UKOInputComponent::BindAbilityActions(const UKOInputConfig* InputConfig, Us
 		{
 			if (PressedFunc)
 			{
-				BindHandles.Add(BindAction(Action.InputAction, ETriggerEvent::Triggered, Object, PressedFunc, Action.InputTag).GetHandle());
+				BindHandles.Add(BindAction(
+					Action.InputAction, 
+					Action.PressedTriggerEvent,
+					Object,
+					PressedFunc,
+					Action.InputTag
+				).GetHandle());
 			}
 			
 			if (ReleasedFunc)
 			{
-				BindHandles.Add(BindAction(Action.InputAction, ETriggerEvent::Completed, Object, ReleasedFunc, Action.InputTag).GetHandle());
+				BindHandles.Add(BindAction(
+					Action.InputAction, 
+					Action.ReleasedTriggerEvent,
+					Object, 
+					ReleasedFunc,
+					Action.InputTag
+				).GetHandle());
 			}
 		}
 	}
