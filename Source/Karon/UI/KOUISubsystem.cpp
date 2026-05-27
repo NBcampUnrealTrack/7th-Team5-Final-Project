@@ -65,6 +65,7 @@ void UKOUISubsystem::Deinitialize()
     PushLayerCallback.Clear();
     Layers.Empty();
     ResolvedClassCache.Empty();
+    ActiveWidgetsByTag.Empty();
 
     Super::Deinitialize();
 }
@@ -109,6 +110,26 @@ UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubc
 
     UCommonActivatableWidget* NewWidget = (*ContainerPtr)->AddWidget<UCommonActivatableWidget>(WidgetClass);
     return NewWidget;
+}
+
+UCommonActivatableWidget* UKOUISubsystem::FindActiveWidget(FGameplayTag WidgetTag) const
+{
+    if (const TWeakObjectPtr<UCommonActivatableWidget>* WeakPtr = ActiveWidgetsByTag.Find(WidgetTag))
+    {
+        return WeakPtr->Get();
+    }
+    return nullptr;
+}
+
+bool UKOUISubsystem::ToggleWidget(FGameplayTag WidgetTag)
+{
+    if (UCommonActivatableWidget* Existing = FindActiveWidget(WidgetTag))
+    {
+        PopLayer(Existing);
+        return false;
+    }
+
+    return PushWidget(WidgetTag) != nullptr;
 }
 
 UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
@@ -159,7 +180,18 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
         ResolvedClassCache.Add(WidgetTag, Class);
     }
 
-    return PushLayer(Entry->LayerTag, Class);
+    UCommonActivatableWidget* NewWidget = PushLayer(Entry->LayerTag, Class);
+    if (NewWidget)
+    {
+        ActiveWidgetsByTag.Add(WidgetTag, NewWidget);
+
+        // 외부 경로(ESC/닫기버튼 등)로 Deactivate되어도 맵에서 자동 제거.
+        NewWidget->OnDeactivated().AddWeakLambda(this, [this, WidgetTag]()
+        {
+            ActiveWidgetsByTag.Remove(WidgetTag);
+        });
+    }
+    return NewWidget;
 }
 
 void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
