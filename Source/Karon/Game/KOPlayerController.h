@@ -11,6 +11,7 @@ class UKOInputConfig;
 class UInputMappingContext;
 class UKOInteractionComponent;
 class UKOGridBuildComponent;
+class UKOInventoryComponent;
 class UKOActivatableWidget;
 
 UCLASS()
@@ -43,6 +44,8 @@ protected:
 
 	void Input_BuildToggleDestroy(const FInputActionValue& Value);
 
+	void Input_ToggleInventory(const FInputActionValue& Value);
+
 private:
 	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
 	void EnterBuildIMC();
@@ -63,6 +66,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UKOGridBuildComponent> GridBuildComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UKOInventoryComponent> InventoryComponent;
 
 	// BuildMenu UI 도입 전, B 키 진입 시 즉시 사용할 디버그 FactoryId
 	UPROPERTY(EditDefaultsOnly, Category = "Build")

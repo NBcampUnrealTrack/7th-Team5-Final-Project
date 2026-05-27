@@ -6,12 +6,15 @@
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
 #include "Component/KOGridBuildComponent.h"
+#include "Component/KOInventoryComponent.h"
 #include "UI/KOActivatableWidget.h"
+#include "UI/KOUISubsystem.h"
 
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
 	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
+	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
@@ -98,6 +101,15 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_BuildToggleDestroy,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleInventory,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleInventory,
 			true
 		);
 
@@ -220,6 +232,14 @@ void AKOPlayerController::Input_BuildToggleDestroy(const FInputActionValue& /*Va
 		// None 상태(예: 진입 직후 FactoryId 미설정으로 빌드 모드 실패)에서 RMB로 Destroy 진입 허용
 		GridBuildComponent->StartDestroyMode();
 		break;
+	}
+}
+
+void AKOPlayerController::Input_ToggleInventory(const FInputActionValue& /*Value*/)
+{
+	if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
+	{
+		UISub->ToggleWidget(KOGameplayTags::UI_Widget_Inventory);
 	}
 }
 
