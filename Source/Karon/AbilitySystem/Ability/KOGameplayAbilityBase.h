@@ -3,7 +3,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "KOGameplayAbilityBase.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class KARON_API UKOGameplayAbilityBase : public UGameplayAbility
 {
 	GENERATED_BODY()
