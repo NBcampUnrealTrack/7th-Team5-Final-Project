@@ -2,6 +2,7 @@
 
 #include "AIController.h"
 #include "KOAIC_BossChapter01.h"
+#include "KOBossBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -45,6 +46,14 @@ void UBTService_BossDetectPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 	
 	if (Distance <= TraceRange)
 	{
+		if (!BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey))
+		{
+			// 처음 감지되는 순간
+			if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
+			{
+				Boss->NotifyPlayerDetected();
+			}
+		}
 		BB->SetValueAsObject(AKOAIC_BossChapter01::TargetActorKey, PlayerCharacter);
 	}
 	else
