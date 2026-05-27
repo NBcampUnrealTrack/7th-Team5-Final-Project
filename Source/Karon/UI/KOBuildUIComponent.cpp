@@ -25,6 +25,17 @@ void UKOBuildUIComponent::BeginPlay()
 
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
+
+	const bool bAssigned = SetBuildQuickSlot(0, TEXT("Boiler"));
+	const bool bAssigned1 = SetBuildQuickSlot(1, TEXT("UndergroundMiningModule"));
+	UE_LOG(LogKOBuildUI, Warning,
+		TEXT("[BuildUI][BeginPlay] Owner=%s, This=%p, SlotCount=%d, 슬롯0 Boiler=%s, 슬롯1 UndergroundMiningModule=%s"),
+		*GetNameSafe(GetOwner()),
+		this,
+		BuildQuickSlots.Num(),
+		bAssigned ? TEXT("성공") : TEXT("실패"),
+		bAssigned1 ? TEXT("성공") : TEXT("실패")
+	);
 }
 
 APlayerController* UKOBuildUIComponent::GetOwningPlayerController() const
@@ -237,7 +248,21 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 
 	if (FactoryId.IsNone())
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다."), SlotIndex + 1);
+		UE_LOG(LogKOBuildUI, Warning,
+			TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다. (This=%p, Owner=%s, SlotCount=%d)"),
+			SlotIndex + 1,
+			this,
+			*GetNameSafe(GetOwner()),
+			BuildQuickSlots.Num()
+		);
+
+		for (int32 Idx = 0; Idx < BuildQuickSlots.Num(); ++Idx)
+		{
+			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI]   슬롯[%d] = %s"),
+				Idx,
+				*BuildQuickSlots[Idx].ToString()
+			);
+		}
 		return;
 	}
 	
