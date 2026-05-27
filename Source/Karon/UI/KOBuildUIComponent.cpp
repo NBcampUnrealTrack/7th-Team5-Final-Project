@@ -9,6 +9,7 @@
 
 #include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Component/KOInventoryComponent.h"
 #include "StructUtils/InstancedStruct.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
@@ -42,6 +43,27 @@ UKOGridBuildComponent* UKOBuildUIComponent::GetGridBuildComponent() const
 	return OwnerActor->FindComponentByClass<UKOGridBuildComponent>();
 }
 
+UKOInventoryComponent* UKOBuildUIComponent::GetInventoryComponent() const
+{
+	APlayerController* PC = GetOwningPlayerController();
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	if (UKOInventoryComponent* InventoryComponent = PC->FindComponentByClass<UKOInventoryComponent>())
+	{
+		return InventoryComponent;
+	}
+
+	if (APawn* Pawn = PC->GetPawn())
+	{
+		return Pawn->FindComponentByClass<UKOInventoryComponent>();
+	}
+
+	return nullptr;
+}
+
 void UKOBuildUIComponent::OpenBuildMenu()
 {
 	APlayerController* PC = GetOwningPlayerController();
@@ -59,58 +81,20 @@ void UKOBuildUIComponent::OpenBuildMenu()
 	}
 
 	GridBuildComponent->EnterBuildMenuMode();
+	
+	OpenQuickSlotBar();
 
-	if (QuickSlotBarWidgetClass && !IsValid(QuickSlotBarWidget))
-	{
-		UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
-		if (!UISubsystem)
-		{
-			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
-		}
-		else
-		{
-			QuickSlotBarWidget = UISubsystem->PushLayer(
-				KOGameplayTags::UI_Layer_Game,
-				QuickSlotBarWidgetClass
-			);
-
-			if (!QuickSlotBarWidget)
-			{
-				UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 바 Push 실패"));
-			}
-		}
-	}
-
-	PC->bShowMouseCursor = false; // 마우스 커서는 원래 안보이는데
+	// 퀵슬롯 BP가 InputMode = All이어도 건설 모드에서는 마우스를 숨긴다.
+	PC->bShowMouseCursor = false;
 }
 
 void UKOBuildUIComponent::CloseBuildMenu()
-{
-	CloseBuildAssignMenu();
-	
-	APlayerController* PC = GetOwningPlayerController();
-
-	if (QuickSlotBarWidget)
-	{
-		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
-		{
-			UISubsystem->PopLayer(QuickSlotBarWidget);
-		}
-
-		QuickSlotBarWidget = nullptr;
-	}
+{	
+	CloseQuickSlotBar();
 	
 	if (UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent())
 	{
 		GridBuildComponent->ExitBuildMenuMode();
-	}
-	
-	if (PC)
-	{
-		PC->bShowMouseCursor = false;
-
-		FInputModeGameOnly InputMode;
-		PC->SetInputMode(InputMode);
 	}
 	
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 건설 모드 종료"));
@@ -134,132 +118,8 @@ bool UKOBuildUIComponent::IsBuildMenuOpen() const
 	return GridBuildComponent && GridBuildComponent->IsBuildSystemActive();
 }
 
-void UKOBuildUIComponent::OpenBuildAssignMenu()
-{
-	APlayerController* PC = GetOwningPlayerController();
-	if (!PC)
-	{
-		return;
-	}
-
-	if (!IsBuildMenuOpen())
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 모드가 아닐 때는 설비 할당 UI를 열 수 없습니다."));
-		return;
-	}
-	
-	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
-	if (!GridBuildComponent)
-	{
-		return;
-	}
-	
-	// 설치 모드 -> I 키 :  BuildMenu 상태 복귀
-	if (GridBuildComponent->IsBuildMode())
-	{
-		GridBuildComponent->CancelBuildMode();
-	}
-
-	// 파괴 모드 -> I 키 : BuildMenu 상태 복귀
-	if (GridBuildComponent->IsDestroyMode())
-	{
-		GridBuildComponent->CancelDestroyMode();
-	}
-	
-	if (!BuildAssignMenuWidgetClass)
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] BuildAssignMenuWidgetClass가 설정되지 않았습니다."));
-		return;
-	}
-	
-	if (IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
-	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
-	if (!UISubsystem)
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
-		return;
-	}
-	
-	BuildAssignMenuWidget = UISubsystem->PushLayer(
-		KOGameplayTags::UI_Layer_GameMenu,
-		BuildAssignMenuWidgetClass
-	);
-
-	if (!BuildAssignMenuWidget)
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 설비 할당 UI Push 실패"));
-		return;
-	}
-	
-	PC->bShowMouseCursor = true;
-
-	FInputModeGameAndUI InputMode;
-	InputMode.SetHideCursorDuringCapture(false);
-	PC->SetInputMode(InputMode);
-
-	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 열림"));
-}
-
-void UKOBuildUIComponent::CloseBuildAssignMenu()
-{
-	if (!IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
-	APlayerController* PC = GetOwningPlayerController();
-	
-	if (BuildAssignMenuWidget)
-	{
-		if (PC)
-		{
-			if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC))
-			{
-				UISubsystem->PopLayer(BuildAssignMenuWidget);
-			}
-		}
-
-		BuildAssignMenuWidget = nullptr;
-	}
-
-	if (PC)
-	{
-		PC->bShowMouseCursor = false;
-
-		FInputModeGameOnly InputMode;
-		PC->SetInputMode(InputMode);
-	}
-
-	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 설비 할당 UI 닫힘"));
-}
-
-void UKOBuildUIComponent::ToggleBuildAssignMenu()
-{
-	if (IsBuildAssignMenuOpen())
-	{
-		CloseBuildAssignMenu();
-		return;
-	}
-	OpenBuildAssignMenu();
-}
-
-bool UKOBuildUIComponent::IsBuildAssignMenuOpen() const
-{
-	return IsValid(BuildAssignMenuWidget);
-}
-
 void UKOBuildUIComponent::EscapeBuildAction()
 {
-	if (IsBuildAssignMenuOpen())
-	{
-		CloseBuildAssignMenu();
-		return;
-	}
-
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	if (!GridBuildComponent)
 	{
@@ -325,12 +185,7 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 }
 
 void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
-{
-	if (IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
+{	
 	if (!IsBuildMenuOpen())
 	{
 		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 메뉴가 열려 있지 않습니다."));
@@ -347,6 +202,16 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 	if (FactoryId.IsNone())
 	{
 		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다."), SlotIndex + 1);
+		return;
+	}
+	
+	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	if (!InventoryComponent || !InventoryComponent->HasEnoughItems(FactoryId, 1))
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d 설비 수량이 없습니다: %s"),
+			SlotIndex + 1,
+			*FactoryId.ToString()
+		);
 		return;
 	}
 
@@ -374,13 +239,48 @@ int32 UKOBuildUIComponent::GetQuickSlotCount() const
 	return BuildQuickSlots.Num();
 }
 
-void UKOBuildUIComponent::StartDestroyBuildMode()
+void UKOBuildUIComponent::OpenQuickSlotBar()
 {
-	if (IsBuildAssignMenuOpen())
+	APlayerController* PC = GetOwningPlayerController();
+	if (!PC)
 	{
 		return;
 	}
-	
+
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
+	if (!UISubsystem)
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
+		return;
+	}
+
+	UISubsystem->PushWidget(KOGameplayTags::UI_Widget_QuickSlotBar);
+}
+
+void UKOBuildUIComponent::CloseQuickSlotBar()
+{
+	APlayerController* PC = GetOwningPlayerController();
+
+	if (!PC)
+	{
+		return;
+	}
+
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
+	if (!UISubsystem)
+	{
+		return;
+	}
+
+	if (UCommonActivatableWidget* Existing =
+		UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_QuickSlotBar))
+	{
+		UISubsystem->PopLayer(Existing);
+	}
+}
+
+void UKOBuildUIComponent::StartDestroyBuildMode()
+{
 	if (!IsBuildMenuOpen())
 	{
 		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 메뉴가 열려 있지 않아 파괴 모드로 들어갈 수 없습니다."));
@@ -398,11 +298,6 @@ void UKOBuildUIComponent::StartDestroyBuildMode()
 
 void UKOBuildUIComponent::ConfirmBuildAction()
 {
-	if (IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	if (!GridBuildComponent)
 	{
@@ -423,12 +318,7 @@ void UKOBuildUIComponent::ConfirmBuildAction()
 }
 
 void UKOBuildUIComponent::CancelBuildAction()
-{
-	if (IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
+{	
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	if (!GridBuildComponent)
 	{

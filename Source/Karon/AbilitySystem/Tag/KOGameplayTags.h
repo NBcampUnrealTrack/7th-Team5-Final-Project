@@ -14,8 +14,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Confirm);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleInventory);
-	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleAssignMenu);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Cancel);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Escape);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot1);
@@ -112,6 +110,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Producer);
 	/** 인벤토리 패널 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Inventory);
+	/** 퀵슬롯 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_QuickSlotBar);
 	
 	//** 보스 체력바 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);

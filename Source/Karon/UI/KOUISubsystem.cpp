@@ -139,6 +139,12 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
         UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushWidget: WidgetTag가 유효하지 않습니다."));
         return nullptr;
     }
+    
+    // 중복 push 방지(에: 건설 모드, 인벤토리 -> 퀵슬롯)
+    if (UCommonActivatableWidget* Existing = FindActiveWidget(WidgetTag))
+    {
+        return Existing;
+    }
 
     const UKOUISettings* Settings = UKOUISettings::Get();
     if (!Settings)

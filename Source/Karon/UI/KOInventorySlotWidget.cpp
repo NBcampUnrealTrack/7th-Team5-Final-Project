@@ -6,6 +6,9 @@
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
 #include "InputCoreTypes.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "KOItemDragDropOperation.h"
+#include "Component/KOInventoryComponent.h"
 
 void UKOInventorySlotWidget::SetupSlot(UKOInventoryWidget* InOwningInventory, int32 InSlotIndex)
 {
@@ -71,14 +74,50 @@ void UKOInventorySlotWidget::ApplyVisuals()
 
 FReply UKOInventorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-    if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+    if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
     {
         if (UKOInventoryWidget* Owner = OwningInventory.Get())
         {
             Owner->NotifySlotClicked(SlotIndex, SlotData);
-            return FReply::Handled();
         }
+
+        FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
+            InMouseEvent,
+            this,
+            EKeys::LeftMouseButton
+        );
+
+        return Reply.NativeReply;
     }
 
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
+void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
+    UDragDropOperation*& OutOperation)
+{
+    Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+    
+    if (!SlotData.HasItem())
+    {
+        return;
+    }
+
+    UKOInventoryComponent* InventoryComponent = nullptr;
+
+    if (UKOInventoryWidget* Owner = OwningInventory.Get())
+    {
+        InventoryComponent = Owner->GetInventoryComponent();
+    }
+
+    OutOperation = UKOItemDragDropOperation::CreateItemDragOperation(
+        this,
+        SlotData,
+        CachedDisplayName,
+        CachedIcon.Get(),
+        DragVisualSize,
+        DragVisualOpacity,
+        SlotIndex,
+        InventoryComponent
+    );
 }

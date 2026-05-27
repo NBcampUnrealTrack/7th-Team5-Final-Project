@@ -5,6 +5,7 @@
 #include "Building/KOBaseBuilding.h"
 #include "Building/KOGhostPreview.h"
 #include "DrawDebugHelpers.h"
+#include "KOInventoryComponent.h"
 #include "HAL/IConsoleManager.h"
 
 #include "Components/MeshComponent.h"
@@ -413,6 +414,23 @@ void UKOGridBuildComponent::RequestBuild()
 		UE_LOG(LogKOBuild, Warning, TEXT("[Build] BuildingClass 참조가 만료되었습니다."));
 		return;
 	}
+	
+	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	if (!InventoryComponent)
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] InventoryComponent를 찾을 수 없습니다."));
+		return;
+	}
+
+	constexpr int32 BuildConsumeCount = 1;
+
+	if (!InventoryComponent->HasEnoughItems(CurrentFactoryId, BuildConsumeCount))
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 설비 아이템 수량이 부족합니다. FactoryId=%s"),
+			*CurrentFactoryId.ToString()
+		);
+		return;
+	}
 
 	// 건물 스폰
 	AKOBaseBuilding* NewBuilding = World->SpawnActor<AKOBaseBuilding>(
@@ -437,8 +455,21 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize,
 		NewBuilding
 	);
+	
+	const FName BuiltFactoryId = CurrentFactoryId;
 
-	UE_LOG(LogTemp, Log, TEXT("[Build] 건물 설치 완료: %s / Grid(%d, %d) / Size(%d, %d)"),
+	if (!InventoryComponent->TryRemoveItem(BuiltFactoryId, BuildConsumeCount))
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Build] 설비 아이템 소모 실패. 설치를 롤백합니다. FactoryId=%s"),
+			*BuiltFactoryId.ToString()
+		);
+
+		GridSub->FreeAreaByActor(NewBuilding);
+		NewBuilding->Destroy();
+		return;
+	}
+
+	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건물 설치 완료: %s / Grid(%d, %d) / Size(%d, %d)"),
 		*NewBuilding->GetName(),
 		CurrentAnchor.X,
 		CurrentAnchor.Y,
@@ -446,7 +477,9 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize.Y
 	);
 
-	if (!bKeepBuildModeAfterPlacement)
+	const bool bFactoryDepleted = InventoryComponent->GetCountOf(BuiltFactoryId) <= 0;
+
+	if (!bKeepBuildModeAfterPlacement || bFactoryDepleted)
 	{
 		CancelBuildMode();
 	}
@@ -757,6 +790,27 @@ void UKOGridBuildComponent::RestoreDestroyTargetMaterial()
 			);
 		}
 	}
+}
+
+UKOInventoryComponent* UKOGridBuildComponent::GetInventoryComponent() const
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	if (UKOInventoryComponent* InventoryComponent = PC->FindComponentByClass<UKOInventoryComponent>())
+	{
+		return InventoryComponent;
+	}
+
+	if (APawn* Pawn = PC->GetPawn())
+	{
+		return Pawn->FindComponentByClass<UKOInventoryComponent>();
+	}
+
+	return nullptr;
 }
 
 bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollisionChannel TraceChannel) const

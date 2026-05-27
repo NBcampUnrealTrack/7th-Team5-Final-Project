@@ -7,6 +7,7 @@
 
 class UCommonActivatableWidget;
 class UKOGridBuildComponent;
+class UKOInventoryComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOBuildUIComponent : public UActorComponent, public IKOGMSInterface
@@ -31,20 +32,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build|UI")
 	bool IsBuildMenuOpen() const;
-	
-	UFUNCTION(BlueprintCallable, Category = "Build|UI")
-	void OpenBuildAssignMenu();
 
-	UFUNCTION(BlueprintCallable, Category = "Build|UI")
-	void CloseBuildAssignMenu();
-	// I키
-	UFUNCTION(BlueprintCallable, Category = "Build|UI")
-	void ToggleBuildAssignMenu();
-
-	UFUNCTION(BlueprintCallable, Category = "Build|UI")
-	bool IsBuildAssignMenuOpen() const;
-
-	// UI에서 설비를 퀵슬롯에 등록할 때 호출
+	// 퀵슬롯에 등록할 때 호출
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	bool SetBuildQuickSlot(int32 SlotIndex, FName FactoryId);
 
@@ -57,6 +46,12 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
 	int32 GetQuickSlotCount() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void OpenQuickSlotBar();
+
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void CloseQuickSlotBar();
 	
 	// X 키
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
@@ -74,19 +69,14 @@ public:
 private:
 	APlayerController* GetOwningPlayerController() const;
 	UKOGridBuildComponent* GetGridBuildComponent() const;
-
+	UKOInventoryComponent* GetInventoryComponent() const;
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build|UI")
 	TSubclassOf<UCommonActivatableWidget> QuickSlotBarWidgetClass;
 
 	UPROPERTY()
 	TObjectPtr<UCommonActivatableWidget> QuickSlotBarWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Build|UI")
-	TSubclassOf<UCommonActivatableWidget> BuildAssignMenuWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UCommonActivatableWidget> BuildAssignMenuWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Build|QuickSlot")
 	int32 QuickSlotCount = 5;

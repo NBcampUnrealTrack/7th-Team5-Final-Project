@@ -7,9 +7,11 @@
 #include "KOBuildQuickSlotWidget.generated.h"
 
 class UImage;
-class UDragDropOperation;
 class UTexture2D;
+class UTextBlock;
+class UDragDropOperation;
 class UKOBuildUIComponent;
+class UKOInventoryComponent;
 
 UCLASS()
 class KARON_API UKOBuildQuickSlotWidget : public UUserWidget, public IKOGMSInterface
@@ -44,13 +46,29 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SlotIconImage;
 	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> CountText;
+	
+	// 투명도
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
+	float NormalOpacity = 1.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
+	float DepletedOpacity = 0.25f;
+	
 private:
 	FGameplayMessageHandle QuickSlotChangedHandle;
+	FGameplayMessageHandle InventoryChangedHandle;
+	
+	FGameplayMessageCallback QuickSlotChangedCallback;
+	FGameplayMessageCallback InventoryChangedCallback;
+	
+	UKOBuildUIComponent* GetBuildUIComponent() const;
+	UKOInventoryComponent* GetInventoryComponent() const;
 
 	UFUNCTION()
 	void HandleQuickSlotChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
 
-	UKOBuildUIComponent* GetBuildUIComponent() const;
-	
-	FGameplayMessageCallback Callback;
+	UFUNCTION()
+	void HandleInventoryChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
 };

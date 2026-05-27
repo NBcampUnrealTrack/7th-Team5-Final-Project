@@ -11,8 +11,6 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Confirm,        "Input.Native.Build.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_ToggleDestroy,  "Input.Native.Build.ToggleDestroy");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleInventory,      "Input.Native.ToggleInventory");
-	
-	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_ToggleAssignMenu,  "Input.Native.Build.ToggleAssignMenu");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Cancel,  "Input.Native.Build.Cancel");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Escape,  "Input.Native.Build.Escape");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot1,  "Input.Native.Build.QuickSlot1");
@@ -63,7 +61,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Factory_Processor, "UI.Widget.Factory.Processor");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Factory_Producer,  "UI.Widget.Factory.Producer");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Inventory,         "UI.Widget.Inventory");
-	
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_QuickSlotBar,      "UI.Widget.QuickSlotBar");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Boss_HealthBar, "UI.Widget.Boss.HealthBar");
 
 	// ─── Data / Message Channels ──────────────────────────────────────────────
