@@ -7,8 +7,10 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "Component/KOAnimNotifyComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
+#include "UI/Enemy/KOEnemyHPBar.h"
 
 
 // Sets default values
@@ -32,6 +34,10 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	WeaponMeshComponent->SetupAttachment(GetMesh(), HandSocketName);
 	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	
+	//Enemy HPBar 부착
+	EnemyHPBarWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
+	EnemyHPBarWidgetComponent->SetupAttachment(GetMesh());
+	EnemyHPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void AKOBaseEnemy::SetupEnemy(UKOEnemyDataAsset)
@@ -55,7 +61,14 @@ void AKOBaseEnemy::BeginPlay()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthSet->GetHealthAttribute())
 		.AddUObject(this, &AKOBaseEnemy::OnHitCallback);
 	}
-	
+	//HPBar Binding
+	if (EnemyHPBarWidgetComponent)
+	{
+		if (UKOEnemyHPBar* HPBar = Cast<UKOEnemyHPBar>(EnemyHPBarWidgetComponent->GetWidget()))
+		{
+			OnHPChanged.BindUObject(HPBar, &UKOEnemyHPBar::OnHPChanged);
+		}
+	}
 	
 }
 
@@ -75,15 +88,17 @@ void AKOBaseEnemy::GiveDefaultAbilities()
 
 void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 {
-	//체력이 0이라면 사망 콟백을 AIController로 전달
+	//체력이 0이라면 사망 콟백을 HPBar, AIController로 전달
 	if (Data.NewValue==0.f)
 	{
+		OnHPChanged.ExecuteIfBound(0.f);
 		OnCharacterDead.ExecuteIfBound();
 	}
 	
-	//체력이 감소했다면 피격 콜백을 AIController로 전달
+	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달
 	else if (Data.NewValue<Data.OldValue)
 	{
+		OnHPChanged.ExecuteIfBound(Data.NewValue/HealthSet->GetMaxHealth());
 		OnCharacterHit.ExecuteIfBound();
 	}
 }
