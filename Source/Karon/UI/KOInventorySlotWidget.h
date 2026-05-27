@@ -10,6 +10,7 @@ class UImage;
 class UTextBlock;
 class UTexture2D;
 class UKOInventoryWidget;
+class UDragDropOperation;
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOInventorySlotWidget : public UUserWidget
@@ -28,6 +29,12 @@ public:
 
 protected:
     virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+    
+    virtual void NativeOnDragDetected(
+        const FGeometry& InGeometry,
+        const FPointerEvent& InMouseEvent,
+        UDragDropOperation*& OutOperation
+    ) override;
 
     /** WBP에서 같은 이름으로 위젯을 만들면 자동 바인딩. 비주얼만 디자인. */
     UPROPERTY(meta = (BindWidgetOptional))
@@ -46,6 +53,12 @@ protected:
     /** 빈 슬롯일 때 CountText 숨김 여부 (true면 Collapsed). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
     bool bHideCountWhenEmpty = true;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|UI|Inventory|Drag")
+    FVector2D DragVisualSize = FVector2D(64.0f, 64.0f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|UI|Inventory|Drag")
+    float DragVisualOpacity = 0.85f;
 
 private:
     void ApplyVisuals();
