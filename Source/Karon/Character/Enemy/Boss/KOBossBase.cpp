@@ -26,15 +26,34 @@ UAbilitySystemComponent* AKOBossBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
- 
+
+void AKOBossBase::NotifyPlayerDetected()
+{
+	if (bPlayerDetected)
+	{
+		return;
+	}
+
+	bPlayerDetected = true;
+	OnBossDetectedPlayer.Broadcast();
+}
+
+void AKOBossBase::NotifyDeathAnimEnd()
+{
+	OnBossDeathAnimEnd.Broadcast();
+}
+
 void AKOBossBase::BeginPlay()
 {
 	Super::BeginPlay();
  
-	// 테스트용 데이터에셋 로드
-	if (DefaultDataAsset) StartAsyncLoad(DefaultDataAsset);
-	
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	
+	// 테스트용 데이터에셋 로드
+	if (DefaultDataAsset)
+	{
+		StartAsyncLoad(DefaultDataAsset);
+	}
 	
 	if (HealthSet)
 	{
@@ -172,7 +191,14 @@ void AKOBossBase::ApplyMeshAndAnim()
 
 void AKOBossBase::ApplyStats()
 {
-	if (!AbilitySystemComponent) return;
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+	if (!DataAsset)
+	{
+		return;
+	}
 	
 	AbilitySystemComponent->ApplyModToAttributeUnsafe(
 		UKOHealthSet::GetMaxHealthAttribute(),

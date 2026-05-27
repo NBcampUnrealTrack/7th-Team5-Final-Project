@@ -16,6 +16,8 @@ class UKOBossDataAsset;
 class UStreamableHandle;
 
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
+DECLARE_MULTICAST_DELEGATE(FOnBossDetectedPlayer);
+DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
 
 UCLASS()
 class KARON_API AKOBossBase : public ACharacter, public IAbilitySystemInterface
@@ -33,6 +35,13 @@ public:
  
 	// 델리게이트
 	FOnBossReady OnBossReady;
+	FOnBossDetectedPlayer OnBossDetectedPlayer;
+	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
+	
+	UKOBossDataAsset* GetDataAsset() const {return DataAsset;}
+	
+	void NotifyPlayerDetected();
+	void NotifyDeathAnimEnd();
  
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +81,8 @@ private:
 	void ApplyMeshAndAnim();
 	void ApplyStats();
 	void ApplyAbilities();
+	
+	bool bPlayerDetected = false;
  
 	// 페이즈 관리
 public:

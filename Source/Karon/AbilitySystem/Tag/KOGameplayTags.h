@@ -113,6 +113,9 @@ namespace KOGameplayTags
 	/** 인벤토리 패널 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Inventory);
 	
+	//** 보스 체력바 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);
+	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Inventory_Changed);
