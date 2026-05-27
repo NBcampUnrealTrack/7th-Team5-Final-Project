@@ -20,6 +20,9 @@ class KARON_API UKOInGameRootLayout : public UKOActivatableWidget
 {
     GENERATED_BODY()
 
+public:
+    UKOInGameRootLayout();
+
 protected:
     virtual void NativeConstruct() override;
 

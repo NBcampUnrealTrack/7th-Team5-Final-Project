@@ -37,6 +37,10 @@ void AKOPlayerController::CreateRootLayout()
 	if (RootLayoutInstance)
 	{
 		RootLayoutInstance->AddToViewport();
+
+		// CommonUI ActionRouter가 자식 위젯의 activation을 input config refresh로 전파하려면
+		// 루트(RootLayout)가 "receiving input" 상태여야 함. 명시적으로 활성화.
+		RootLayoutInstance->ActivateWidget();
 	}
 }
 

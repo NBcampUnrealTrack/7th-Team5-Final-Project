@@ -36,12 +36,24 @@
 #include "CoreMinimal.h"
 #include "CommonActivatableWidget.h"
 #include "Messaging/KOGMSInterface.h"
+#include "Input/CommonUIInputTypes.h"
 #include "KOActivatableWidget.generated.h"
+
+/** KO 위젯이 활성화될 때 적용할 입력 모드 */
+UENUM(BlueprintType)
+enum class EKOUIInputMode : uint8
+{
+    Default UMETA(DisplayName = "Default"),
+    Game    UMETA(DisplayName = "Game"),
+    Menu    UMETA(DisplayName = "Menu (UI only)"),
+    All     UMETA(DisplayName = "All (Game + UI)"),
+};
 
 /**
  * KOActivatableWidget
  * 프로젝트 전용 CommonActivatableWidget 베이스.
- * GMRouter 연동은 IKOGMSInterface를 통해
+ * - GMRouter 연동은 IKOGMSInterface를 통해 제공
+ * - GetDesiredInputConfig를 InputMode 프로퍼티 기반으로 일괄 처리
  */
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOActivatableWidget : public UCommonActivatableWidget, public IKOGMSInterface
@@ -51,4 +63,14 @@ class KARON_API UKOActivatableWidget : public UCommonActivatableWidget, public I
 protected:
     virtual void NativeOnActivated() override;
     virtual void NativeOnDeactivated() override;
+
+    /** InputMode 프로퍼티 값에 따라 FUIInputConfig를 반환. */
+    virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
+
+protected: // properties
+    UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+    EKOUIInputMode InputMode = EKOUIInputMode();
+
+    UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true, EditConditionHides = "InputMode == EKOUIInputMode::Menu"))
+    EMouseCaptureMode MouseCaptureMode = EMouseCaptureMode::CaptureDuringMouseDown;
 };

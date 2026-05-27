@@ -16,10 +16,12 @@ class UKOInventoryComponent;
  */
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOInventoryPanelWidget : public UKOActivatableWidget
-{
+{ 
     GENERATED_BODY()
 
 public:
+    UKOInventoryPanelWidget();
+    
     /** 외부에서 InventoryComponent를 명시적으로 주입하고 싶을 때 사용. (없으면 PC/Pawn 자동 폴백) */
     UFUNCTION(BlueprintCallable, Category = "KO|UI|Inventory")
     void SetInventoryComponent(UKOInventoryComponent* InComponent);
