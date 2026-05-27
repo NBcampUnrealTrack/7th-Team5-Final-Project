@@ -1,5 +1,4 @@
 ﻿#include "KOGA_StaminaExhausted.h"
-
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
