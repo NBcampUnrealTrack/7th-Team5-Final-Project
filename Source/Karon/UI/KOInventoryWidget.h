@@ -10,7 +10,6 @@
 
 class UKOInventoryComponent;
 class UKOInventorySlotWidget;
-class UPanelWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
     FKOOnInventorySlotClicked,
@@ -41,17 +40,13 @@ protected:
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
 
-    /** WBP에 같은 이름의 패널(UniformGridPanel / WrapBox / GridPanel 등)을 배치하면 자동 바인딩. */
+    /** WBP에 WrapBox를 'SlotsPanel'이라는 이름으로 배치하면 자동 바인딩. */
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UPanelWidget> SlotsPanel;
+    TObjectPtr<class UWrapBox> SlotsPanel;
 
     /** 인스턴스화할 슬롯 위젯 클래스 (WBP_InventorySlot). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
     TSubclassOf<UKOInventorySlotWidget> SlotWidgetClass;
-
-    /** UniformGridPanel일 때 사용할 한 행당 칸 수. 다른 패널 타입에서는 무시. */
-    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory", meta = (ClampMin = "1"))
-    int32 ColumnsPerRow = 5;
 
     UPROPERTY(BlueprintReadOnly, Category = "KO|UI|Inventory")
     TObjectPtr<UKOInventoryComponent> InventoryComponent;
@@ -64,9 +59,6 @@ private:
 
     /** Slots 배열을 SlotWidgets에 반영. 필요한 만큼만 생성/제거. */
     void RebuildSlotWidgets();
-
-    /** Index 위치의 SlotWidget을 패널에 부착. UniformGridPanel이면 Row/Col 자동 설정. */
-    void AttachSlotWidgetToPanel(UKOInventorySlotWidget* SlotWidget, int32 Index);
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UKOInventorySlotWidget>> SlotWidgets;
