@@ -16,6 +16,11 @@
 
 #define LOCTEXT_NAMESPACE "KOFactoryProcessorWidget"
 
+UKOFactoryProcessorWidget::UKOFactoryProcessorWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
+
 namespace
 {
     FText StateToText(EKOFactoryState State)

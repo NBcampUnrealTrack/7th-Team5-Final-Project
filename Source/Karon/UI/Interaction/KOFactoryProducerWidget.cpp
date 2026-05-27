@@ -15,6 +15,11 @@
 
 #define LOCTEXT_NAMESPACE "KOFactoryProducerWidget"
 
+UKOFactoryProducerWidget::UKOFactoryProducerWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
+
 void UKOFactoryProducerWidget::NativeOnActivated()
 {
     Super::NativeOnActivated();

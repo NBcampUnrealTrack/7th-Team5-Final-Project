@@ -16,6 +16,8 @@ class KARON_API UKOFactoryProcessorWidget : public UKOActivatableWidget
     GENERATED_BODY()
 
 public:
+    UKOFactoryProcessorWidget();
+
     UFUNCTION(BlueprintPure, Category = "KO|UI|Interaction")
     AKOBaseBuilding* GetTargetBuilding() const { return TargetBuilding.Get(); }
 
