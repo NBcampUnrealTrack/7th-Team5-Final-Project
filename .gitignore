@@ -19,6 +19,9 @@ Saved/
 .vscode/
 .idea/
 
+# Test Files
+Content/Test/
+
 # Claude AI Assistant temporary files
 .claude/
 

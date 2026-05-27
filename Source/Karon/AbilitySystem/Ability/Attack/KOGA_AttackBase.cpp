@@ -16,35 +16,17 @@ void UKOGA_AttackBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	ACharacter* AvatarCharacter = GetAvatarCharacter();
-	if (!AvatarCharacter || !AttackMontage)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,
-		NAME_None,
-		AttackMontage,
-		1.0f	// 나중 오버클럭을 도입 시 공격 속도 계수로 교체
-	);
-	
-	MontageTask->OnCompleted.AddDynamic(this, &UKOGA_AttackBase::OnMontageCompleted);
-	MontageTask->OnInterrupted.AddDynamic(this, &UKOGA_AttackBase::OnMontageCancelled);
-	MontageTask->OnCancelled.AddDynamic(this, &UKOGA_AttackBase::OnMontageCancelled);
+	FGameplayTag BaseEventTag = FGameplayTag::RequestGameplayTag(FName("Event"));
 	
 	UAbilityTask_WaitGameplayEvent* EventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		AttackEventTag,
+		BaseEventTag,
 		nullptr,
 		false,
 		false
 	); 
 
 	EventTask->EventReceived.AddDynamic(this, &UKOGA_AttackBase::OnGameplayEventReceived);
-	
-	MontageTask->ReadyForActivation();
 	EventTask->ReadyForActivation();
 }
 
@@ -62,6 +44,11 @@ void UKOGA_AttackBase::OnMontageCompleted()
 void UKOGA_AttackBase::OnMontageCancelled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void UKOGA_AttackBase::OnMontageBlendOut()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void UKOGA_AttackBase::OnGameplayEventReceived(FGameplayEventData Payload)
