@@ -10,6 +10,8 @@
 #include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
 #include "UI/KOUISubsystem.h"
+#include "CommonActivatableWidget.h"
+#include "Items/KOItemSlot.h"
 
 AKOPlayerController::AKOPlayerController()
 {
@@ -29,6 +31,29 @@ void AKOPlayerController::BeginPlay()
 	}
 
 	CreateRootLayout();
+	
+#if !(UE_BUILD_SHIPPING)
+	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
+	{
+		 FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("ModuleDismantler"),
+			3
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("BasicModule"),
+			100
+		);	
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("Boiler"),
+			2
+		);
+	}
+#endif
 }
 
 void AKOPlayerController::CreateRootLayout()
@@ -109,15 +134,6 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_BuildToggleDestroy,
 			true
 		);
-		
-		KOIC->BindNativeAction(
-			InputConfig,
-			KOGameplayTags::Input_Native_Build_ToggleAssignMenu,
-			ETriggerEvent::Started,
-			this,
-			&ThisClass::Input_ToggleBuildAssignMenu,
-			true
-		);
 
 		KOIC->BindNativeAction(
 			InputConfig,
@@ -193,11 +209,6 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
-	if (BuildUIComponent && BuildUIComponent->IsBuildAssignMenuOpen())
-	{
-		return;
-	}
-	
 	const FVector2D LookValue = Value.Get<FVector2D>();
 
 	AddYawInput(LookValue.X);
@@ -240,6 +251,18 @@ void AKOPlayerController::Input_ToggleBuildMode(const FInputActionValue& /*Value
 	{
 		return;
 	}
+	
+	if (!BuildUIComponent->IsBuildMenuOpen())
+	{
+		if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
+		{
+			if (UCommonActivatableWidget* InventoryWidget = 
+				UISub->FindActiveWidget(KOGameplayTags::UI_Widget_Inventory))
+			{
+				UISub->PopLayer(InventoryWidget);
+			}
+		}
+	}
 
 	BuildUIComponent->ToggleBuildMenu();
 	
@@ -271,14 +294,6 @@ void AKOPlayerController::Input_BuildToggleDestroy(const FInputActionValue& /*Va
 	}
 
 	BuildUIComponent->StartDestroyBuildMode();
-}
-
-void AKOPlayerController::Input_ToggleBuildAssignMenu(const FInputActionValue& /*Value*/)
-{
-	if (BuildUIComponent)
-	{
-		BuildUIComponent->ToggleBuildAssignMenu();
-	}
 }
 
 void AKOPlayerController::Input_BuildCancel(const FInputActionValue& /*Value*/)
@@ -315,9 +330,39 @@ void AKOPlayerController::Input_SelectBuildQuickSlot2(const FInputActionValue& /
 
 void AKOPlayerController::Input_ToggleInventory(const FInputActionValue& /*Value*/)
 {
-	if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
+	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
 	{
-		UISub->ToggleWidget(KOGameplayTags::UI_Widget_Inventory);
+		return;
+	}
+	
+	UKOUISubsystem* UISub = UKOUISubsystem::Get(this);
+	if (!UISub)
+	{
+		return;
+	}
+	
+	if (UCommonActivatableWidget* InventoryWidget = UISub->FindActiveWidget(KOGameplayTags::UI_Widget_Inventory))
+	{
+		UISub->PopLayer(InventoryWidget);
+
+		if (BuildUIComponent)
+		{
+			BuildUIComponent->CloseQuickSlotBar();
+		}
+
+		return;
+	}
+	
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->OpenQuickSlotBar();
+	}
+
+	UCommonActivatableWidget* InventoryWidget =	UISub->PushWidget(KOGameplayTags::UI_Widget_Inventory);
+
+	if (!InventoryWidget && BuildUIComponent)
+	{
+		BuildUIComponent->CloseQuickSlotBar();
 	}
 }
 
