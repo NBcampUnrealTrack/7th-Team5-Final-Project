@@ -2,6 +2,11 @@
 #include "UI/KOInventoryPanelWidget.h"
 #include "UI/KOInventoryWidget.h"
 
+UKOInventoryPanelWidget::UKOInventoryPanelWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
+
 void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
 {
     if (InventoryWidget)
