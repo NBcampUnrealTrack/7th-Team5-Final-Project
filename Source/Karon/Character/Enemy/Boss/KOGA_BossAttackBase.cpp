@@ -6,9 +6,11 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Character.h"
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
+
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Attacking);
  
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Attacking);
@@ -34,7 +36,7 @@ void UKOGA_BossAttackBase::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
+
 	if (!AttackMontage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
