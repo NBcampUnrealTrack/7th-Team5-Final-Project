@@ -1,8 +1,11 @@
 #include "KOBaseBuilding.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Component/KOEnergyProducerComponent.h"
+#include "Component/KOFactoryProcessorComponent.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
+#include "Items/KOItemLibrary.h"
 #include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
@@ -32,8 +35,7 @@ const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
 		return nullptr;
 	}
 
-	const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-	return LoadSub ? LoadSub->FindFactoryRow(FactoryId) : nullptr;
+	return UKOItemLibrary::GetFactoryRow(this, FactoryId);
 }
 
 bool AKOBaseBuilding::CanInteract_Implementation(AActor* /*Interactor*/) const
@@ -62,6 +64,27 @@ void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 	UE_LOG(LogTemp, Log, TEXT("[Building] OnInteract 브로드캐스트: FactoryId=%s, Interactor=%s"),
 		*FactoryId.ToString(),
 		Interactor ? *Interactor->GetName() : TEXT("None"));
+
+	// 컴포넌트 유무로 표시할 UI 결정 (Processor / Producer는 상호 배타).
+	FGameplayTag WidgetTag;
+	if (FindComponentByClass<UKOFactoryProcessorComponent>())
+	{
+		WidgetTag = KOGameplayTags::UI_Widget_Factory_Processor;
+	}
+	else if (FindComponentByClass<UKOEnergyProducerComponent>())
+	{
+		WidgetTag = KOGameplayTags::UI_Widget_Factory_Producer;
+	}
+
+	if (WidgetTag.IsValid())
+	{
+		FKOUIPushLayerRequest UIReq;
+		UIReq.WidgetTag = WidgetTag;
+		UGMRouterSubsystem::BroadcastMessage(
+			World,
+			KOGameplayTags::Data_Message_UI_PushLayerRequest,
+			FInstancedStruct::Make(UIReq));
+	}
 }
 
 FText AKOBaseBuilding::GetInteractionPrompt_Implementation() const

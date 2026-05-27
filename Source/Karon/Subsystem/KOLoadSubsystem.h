@@ -7,7 +7,6 @@
 #include "KOLoadSubsystem.generated.h"
 
 class UTexture2D;
-class UStaticMesh;
 class AKOBaseBuilding;
 
 /**
@@ -16,7 +15,7 @@ class AKOBaseBuilding;
  *
  * [API]
  * FindItemRow / FindFactoryRow / FindRecipeRow — 모두 RowName(FName) 키 기반.
- * ResolveItemIcon / ResolveItemMesh / ResolveBuildingClass — 소프트 레퍼런스 지연 로드.
+ * ResolveItemIcon / ResolveBuildingClass — 소프트 레퍼런스 지연 로드.
  */
 UCLASS()
 class KARON_API UKOLoadSubsystem : public UGameInstanceSubsystem
@@ -34,7 +33,6 @@ public:
     const FKORecipeRow*  FindRecipeRow(FName RecipeId)     const;
 
     UTexture2D*   ResolveItemIcon(FName ItemId) const;
-    UStaticMesh*  ResolveItemMesh(FName ItemId) const;
 
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
@@ -72,7 +70,6 @@ private:
 
     // 약한 참조 관련 Mutable 처리
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedIcons;
-    mutable TMap<FName, TWeakObjectPtr<UStaticMesh>> ResolvedMeshes;
     mutable TMap<FName, TWeakObjectPtr<UClass>>      ResolvedBuildingClasses;
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedFactoryIcons;
 };

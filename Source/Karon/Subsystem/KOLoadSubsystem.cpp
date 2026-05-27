@@ -5,7 +5,6 @@
 #include "Data/KODataRegistrySettings.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture2D.h"
-#include "Engine/StaticMesh.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOLoad, Log, All);
@@ -39,7 +38,6 @@ void UKOLoadSubsystem::Deinitialize()
     FactoryCache.Empty();
     RecipeCache.Empty();
     ResolvedIcons.Empty();
-    ResolvedMeshes.Empty();
     ResolvedBuildingClasses.Empty();
     ResolvedFactoryIcons.Empty();
     LoadedTables.Empty();
@@ -183,43 +181,6 @@ UTexture2D* UKOLoadSubsystem::ResolveItemIcon(FName ItemId) const
 
     ResolvedIcons.Add(ItemId, Texture);
     return Texture;
-}
-
-UStaticMesh* UKOLoadSubsystem::ResolveItemMesh(FName ItemId) const
-{
-    if (const TWeakObjectPtr<UStaticMesh>* Cached = ResolvedMeshes.Find(ItemId))
-    {
-        if (Cached->IsValid())
-        {
-            return Cached->Get();
-        }
-    }
-
-    const FKOItemRow* Row = FindItemRow(ItemId);
-    if (!Row)
-    {
-        UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemMesh: 알 수 없는 ItemId '%s'."),
-            *ItemId.ToString());
-        return nullptr;
-    }
-
-    if (Row->WorldMesh.IsNull())
-    {
-        return nullptr;
-    }
-
-    UStaticMesh* Mesh = Row->WorldMesh.LoadSynchronous();
-    if (!Mesh)
-    {
-        UE_LOG(LogKOLoad, Warning,
-            TEXT("UKOLoadSubsystem::ResolveItemMesh: '%s' 로드 실패 (ItemId='%s')."),
-            *Row->WorldMesh.ToSoftObjectPath().ToString(), *ItemId.ToString());
-        return nullptr;
-    }
-
-    ResolvedMeshes.Add(ItemId, Mesh);
-    return Mesh;
 }
 
 UClass* UKOLoadSubsystem::ResolveBuildingClass(FName FactoryId) const

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KOItemTypes.generated.h"
+#include "KOItemSlot.generated.h"
 
 /**
  * 슬롯이 가리키는 데이터 원본 종류.

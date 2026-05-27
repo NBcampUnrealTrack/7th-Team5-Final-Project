@@ -27,9 +27,13 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UCommonActivatableWidgetContainerBase> GameLayer;
 
-    /** 인벤토리·빌드 메뉴·공장 상호작용 패널 등 중간 레이어. */
+    /** 인벤토리·빌드 메뉴·공장 상호작용 패널 등 중간 레이어. 게임 시간은 흐름. */
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UCommonActivatableWidgetContainerBase> GameMenuLayer;
+
+    /** Pause / Settings / Quit-to-Title 등 게임을 멈추는 전체 메뉴 레이어. */
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UCommonActivatableWidgetContainerBase> MenuLayer;
 
     /** 확인 다이얼로그 등 최상위 모달 레이어. */
     UPROPERTY(meta = (BindWidget))

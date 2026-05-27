@@ -7,7 +7,6 @@
 #include "KODataTableTypes.generated.h"
 
 class UTexture2D;
-class UStaticMesh;
 class AKOBaseBuilding;
 
 USTRUCT(BlueprintType)
@@ -40,10 +39,6 @@ struct KARON_API FKOItemRow : public FTableRowBase
     /** UI 아이콘 텍스처 — 소프트 레퍼런스, UKOLoadSubsystem::ResolveItemIcon()으로 로드 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     TSoftObjectPtr<UTexture2D> Icon;
-
-    /** 월드에 배치될 스태틱 메시 — 소프트 레퍼런스, UKOLoadSubsystem::ResolveItemMesh()으로 로드 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
-    TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
 
 USTRUCT(BlueprintType)

@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Items/KOItemTypes.h"
+#include "Items/KOItemSlot.h"
 #include "KOInventorySlotWidget.generated.h"
 
 class UTexture2D;

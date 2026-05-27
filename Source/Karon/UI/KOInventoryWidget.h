@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
-#include "Items/KOItemTypes.h"
+#include "Items/KOItemSlot.h"
 #include "GMRouterSubsystem.h"
 #include "KOInventoryWidget.generated.h"
 

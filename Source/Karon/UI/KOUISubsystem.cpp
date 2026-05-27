@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Messaging/KOMessageTypes.h"
+#include "UI/KOUISettings.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "CommonActivatableWidget.h"
 
@@ -63,6 +64,7 @@ void UKOUISubsystem::Deinitialize()
 
     PushLayerCallback.Clear();
     Layers.Empty();
+    ResolvedClassCache.Empty();
 
     Super::Deinitialize();
 }
@@ -109,6 +111,57 @@ UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubc
     return NewWidget;
 }
 
+UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
+{
+    if (!WidgetTag.IsValid())
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushWidget: WidgetTag가 유효하지 않습니다."));
+        return nullptr;
+    }
+
+    const UKOUISettings* Settings = UKOUISettings::Get();
+    if (!Settings)
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushWidget: KOUISettings 접근 실패."));
+        return nullptr;
+    }
+
+    const FKOUIWidgetEntry* Entry = Settings->WidgetMap.Find(WidgetTag);
+    if (!Entry || !Entry->LayerTag.IsValid())
+    {
+        UE_LOG(LogKOUI, Warning,
+            TEXT("KOUISubsystem::PushWidget: WidgetMap에 매핑이 없거나 LayerTag가 유효하지 않습니다. Tag=%s"),
+            *WidgetTag.ToString());
+        return nullptr;
+    }
+
+    // 캐시 우선 조회 후, 없으면 Soft 참조를 동기 로드하고 캐시.
+    TSubclassOf<UCommonActivatableWidget> Class = ResolvedClassCache.FindRef(WidgetTag);
+    if (!Class)
+    {
+        if (Entry->WidgetClass.IsNull())
+        {
+            UE_LOG(LogKOUI, Warning,
+                TEXT("KOUISubsystem::PushWidget: WidgetClass 가 비어 있습니다. Tag=%s"),
+                *WidgetTag.ToString());
+            return nullptr;
+        }
+
+        Class = Entry->WidgetClass.LoadSynchronous();
+        if (!Class)
+        {
+            UE_LOG(LogKOUI, Warning,
+                TEXT("KOUISubsystem::PushWidget: WidgetClass 로드 실패. Tag=%s Path=%s"),
+                *WidgetTag.ToString(), *Entry->WidgetClass.ToString());
+            return nullptr;
+        }
+
+        ResolvedClassCache.Add(WidgetTag, Class);
+    }
+
+    return PushLayer(Entry->LayerTag, Class);
+}
+
 void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
 {
     if (!IsValid(Widget))
@@ -131,5 +184,5 @@ void UKOUISubsystem::OnPushLayerRequestReceived(FGameplayTag Channel, const FIns
         return;
     }
 
-    PushLayer(Request->LayerTag, Request->WidgetClass);
+    PushWidget(Request->WidgetTag);
 }

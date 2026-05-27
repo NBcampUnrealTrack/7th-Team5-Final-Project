@@ -10,6 +10,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Move);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Look);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Interact);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleBuildMode);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Confirm);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
@@ -94,6 +97,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Menu);
 	/** 모달 다이얼로그 레이어 (최상위) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Modal);
+
+	//── UI Widget ────────────────────────────────────────────────────────────
+	/** Processor 설비 상호작용 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Processor);
+	/** Producer 설비 상호작용 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Producer);
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
@@ -104,6 +113,22 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
+
+	// ─── Factory Category ─────────────────────────────────────────────────────
+	/** 보일러 (Producer) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_Boiler);
+	/** 모듈 분해기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_ModuleDismantler);
+	/** 합금 제련기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_AlloyMaker);
+	/** 기어 프레스 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_GearPress);
+	/** 파이프 공방 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PipeWorkshop);
+	/** 지하 채굴 모듈 (Producer) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_UndergroundMiningModule);
+	/** 무기 작업대 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_WeaponWorkbench);
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
