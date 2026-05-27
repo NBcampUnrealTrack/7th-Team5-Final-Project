@@ -73,9 +73,9 @@ void UKOFactoryProducerWidget::Refresh()
     if (FuelNameText)
     {
         FText FuelName = FText::GetEmpty();
-        if (!Prod->FuelItemId.IsNone())
+        if (Prod->FuelCategoryTag.IsValid())
         {
-            FuelName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, Prod->FuelItemId);
+            FuelName = FText::FromName(Prod->FuelCategoryTag.GetTagName());
         }
         FuelNameText->SetText(FuelName);
     }

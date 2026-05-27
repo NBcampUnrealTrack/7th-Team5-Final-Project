@@ -204,9 +204,14 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
         return false;
     }
     
-    for (const TPair<FName, int32>& In : Recipe->Inputs)
+    for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
     {
-        int32* Have = InputBuffer.Find(In.Key);
+        const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        int32* Have = InputBuffer.Find(ItemId);
         if (!Have)
         {
             return false;
@@ -214,7 +219,7 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
         *Have -= In.Value;
         if (*Have <= 0)
         {
-            InputBuffer.Remove(In.Key);
+            InputBuffer.Remove(ItemId);
         }
     }
 
@@ -238,9 +243,17 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
 
     if (Recipe)
     {
-        for (const TPair<FName, int32>& Out : Recipe->Outputs)
+        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
         {
-            int32& Current = OutputBuffer.FindOrAdd(Out.Key);
+            const FName ItemId = LoadSub ? LoadSub->FindItemIdByTag(Out.Key) : NAME_None;
+            if (ItemId.IsNone())
+            {
+                UE_LOG(LogTemp, Warning,
+                    TEXT("[Factory] OnCycleComplete: ItemTag '%s' 해석 실패 — 출력 누락"),
+                    *Out.Key.ToString());
+                continue;
+            }
+            int32& Current = OutputBuffer.FindOrAdd(ItemId);
             Current += Out.Value;
         }
     }
@@ -255,9 +268,20 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
 
 bool UKOFactoryProcessorComponent::HasInputsFor(const FKORecipeRow& Recipe) const
 {
-    for (const TPair<FName, int32>& In : Recipe.Inputs)
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
     {
-        const int32* Have = InputBuffer.Find(In.Key);
+        return false;
+    }
+
+    for (const TPair<FGameplayTag, int32>& In : Recipe.Inputs)
+    {
+        const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        const int32* Have = InputBuffer.Find(ItemId);
         if (!Have || *Have < In.Value)
         {
             return false;
@@ -268,9 +292,20 @@ bool UKOFactoryProcessorComponent::HasInputsFor(const FKORecipeRow& Recipe) cons
 
 bool UKOFactoryProcessorComponent::CanFitOutputs(const FKORecipeRow& Recipe) const
 {
-    for (const TPair<FName, int32>& Out : Recipe.Outputs)
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
     {
-        const int32* Current = OutputBuffer.Find(Out.Key);
+        return false;
+    }
+
+    for (const TPair<FGameplayTag, int32>& Out : Recipe.Outputs)
+    {
+        const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        const int32* Current = OutputBuffer.Find(ItemId);
         const int32 After = (Current ? *Current : 0) + Out.Value;
         if (After > MaxBufferPerItem)
         {

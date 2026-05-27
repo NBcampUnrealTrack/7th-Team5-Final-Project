@@ -32,6 +32,9 @@ public:
     const FKOFactoryRow* FindFactoryRow(FName FactoryId)   const;
     const FKORecipeRow*  FindRecipeRow(FName RecipeId)     const;
 
+    /** ItemTag로 ItemId(RowName) 역조회. 매핑이 없으면 NAME_None. */
+    FName FindItemIdByTag(FGameplayTag ItemTag) const;
+
     UTexture2D*   ResolveItemIcon(FName ItemId) const;
 
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
@@ -67,6 +70,9 @@ private:
     TMap<FName, const FKOItemRow*>    ItemCache;
     TMap<FName, const FKOFactoryRow*> FactoryCache;
     TMap<FName, const FKORecipeRow*>  RecipeCache;
+
+    /** ItemTag → ItemId 역인덱스. LoadAll에서 ItemCache 채운 직후 빌드. */
+    TMap<FGameplayTag, FName>         ItemTagToId;
 
     // 약한 참조 관련 Mutable 처리
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedIcons;

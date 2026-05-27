@@ -28,6 +28,14 @@ struct KARON_API FKOItemRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FText DisplayName;
 
+    /**
+     * 이 아이템의 고유 식별 태그 (예: "Item.Coal", "Item.BronzePlate").
+     * Recipe의 Inputs/Outputs 키로 사용되며, LoadSubsystem에서 ItemId(RowName)와 1:1 매핑된다.
+     * 중복 불가 — 같은 태그를 가진 두 ItemRow가 있으면 첫 등록만 유지.
+     */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+    FGameplayTag ItemTag;
+
     /** 아이템 카테고리 태그 집합 (예: Item.Category.Resource, Item.Category.Weapon) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FGameplayTagContainer Categories;
@@ -120,13 +128,13 @@ struct KARON_API FKORecipeRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     FGameplayTag AllowedFactoryTag;
 
-    /** 입력 재료: ItemId(=Item DataTable의 RowName) → 사이클당 소비 수량 */
+    /** 입력 재료: ItemTag(FKOItemRow::ItemTag) → 사이클당 소비 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    TMap<FName, int32> Inputs;
+    TMap<FGameplayTag, int32> Inputs;
 
-    /** 출력 산물: ItemId(=Item DataTable의 RowName) → 사이클당 생산 수량 */
+    /** 출력 산물: ItemTag(FKOItemRow::ItemTag) → 사이클당 생산 수량 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
-    TMap<FName, int32> Outputs;
+    TMap<FGameplayTag, int32> Outputs;
 
     /** 생산 사이클 1회 소요 시간(초) */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")

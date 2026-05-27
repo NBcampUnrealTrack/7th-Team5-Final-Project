@@ -2,9 +2,13 @@
 
 #include "Component/KOEnergyProducerComponent.h"
 
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/KODataTableTypes.h"
 #include "Subsystem/KOEnergySubsystem.h"
+#include "Subsystem/KOLoadSubsystem.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
+    : FuelCategoryTag(KOGameplayTags::Item_Category_EnergyResource)
 {
     PrimaryComponentTick.bCanEverTick = false;
 }
@@ -33,7 +37,15 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
     {
         return Count;
     }
-    if (!FuelItemId.IsNone() && ItemId != FuelItemId)
+
+    if (!FuelCategoryTag.IsValid())
+    {
+        return Count;
+    }
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(ItemId) : nullptr;
+    if (!Row || !Row->Categories.HasTag(FuelCategoryTag))
     {
         return Count;
     }

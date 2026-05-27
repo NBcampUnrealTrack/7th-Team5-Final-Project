@@ -88,6 +88,19 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
+
+	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Item_BasicModule, "Item.BasicModule");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Coal,        "Item.Coal");
+	UE_DEFINE_GAMEPLAY_TAG(Item_CoalDust,    "Item.CoalDust");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Copper,      "Item.Copper");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Tin,         "Item.Tin");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Bronze,      "Item.Bronze");
+	UE_DEFINE_GAMEPLAY_TAG(Item_BronzePlate, "Item.BronzePlate");
+	UE_DEFINE_GAMEPLAY_TAG(Item_MiningPipe,  "Item.MiningPipe");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
+	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
 	
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");

@@ -159,6 +159,30 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
 	/** 무기 카테고리 (BronzeSword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
+	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
+
+	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
+	/** 기초 모듈 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicModule);
+	/** 석탄 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Coal);
+	/** 석탄가루 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_CoalDust);
+	/** 구리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Copper);
+	/** 주석 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Tin);
+	/** 청동 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Bronze);
+	/** 청동판 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzePlate);
+	/** 채굴 파이프 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_MiningPipe);
+	/** 기어 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
+	/** 청동검 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzeSword);
 
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);

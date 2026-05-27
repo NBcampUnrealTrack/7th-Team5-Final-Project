@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "Subsystem/KOEnergyTypes.h"
 #include "KOEnergyProducerComponent.generated.h"
 
@@ -13,9 +14,12 @@ class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOE
 
 public:
     UKOEnergyProducerComponent();
-    /** 받아들이는 연료 아이템 ID */
+    /**
+     * 받아들이는 연료 카테고리 태그. FKOItemRow::Categories 에 이 태그가 포함되면 연료로 인정.
+     * 기본값: "Item.Category.EnergyResource".
+     */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    FName FuelItemId;
+    FGameplayTag FuelCategoryTag;
 
     /** 연료 1개 소모 시 생산되는 총 에너지량 */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
