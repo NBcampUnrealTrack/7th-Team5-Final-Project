@@ -20,6 +20,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Build|Drag")
 	TObjectPtr<UTexture2D> Icon = nullptr;
-	
-	// 갯수 추가(설비도 아이템으로 갯수 있음)
 };

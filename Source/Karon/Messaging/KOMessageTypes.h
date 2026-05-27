@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Component/KOGridBuildComponent.h"
 #include "KOMessageTypes.generated.h"
 
 /**
@@ -92,4 +93,20 @@ struct FKOBuildQuickSlotChangedMessage
 
     UPROPERTY()
     FName FactoryId = NAME_None;
+};
+
+/**
+ * 건설 모드 변경 메시지
+ * 채널: KOGameplayTags::Data_Message_Build_ModeChanged
+ */
+USTRUCT()
+struct FKOBuildModeChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    EKOGridBuildMode PreviousMode = EKOGridBuildMode::None;
+
+    UPROPERTY()
+    EKOGridBuildMode NewMode = EKOGridBuildMode::None;
 };

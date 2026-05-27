@@ -121,6 +121,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
 	/** 건물 퀵슬롯 변경 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotChanged);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_ModeChanged);
+	
 
 	// ─── Factory Category ─────────────────────────────────────────────────────
 	/** 보일러 (Producer) */
