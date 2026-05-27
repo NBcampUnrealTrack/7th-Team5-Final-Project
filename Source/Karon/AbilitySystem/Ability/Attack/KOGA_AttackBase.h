@@ -13,6 +13,7 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
+protected:	
 	// ─── Ability Life Cycle ───────────────────────────────────────────────────
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -48,11 +49,9 @@ public:
 	void OnMontageCancelled();
 	
 	UFUNCTION()
-	void OnGameplayEventReceived(FGameplayEventData Payload);
+	void OnMontageBlendOut();
 	
-	
+	UFUNCTION()
+	virtual void OnGameplayEventReceived(FGameplayEventData Payload);
 
-	
-
-	
 };
