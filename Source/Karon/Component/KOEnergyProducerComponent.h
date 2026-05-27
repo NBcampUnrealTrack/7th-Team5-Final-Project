@@ -6,7 +6,7 @@
 #include "Subsystem/KOEnergyTypes.h"
 #include "KOEnergyProducerComponent.generated.h"
 
-UCLASS(ClassGroup = "KO|Factory")
+UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
 class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOEnergyProducer
 {
     GENERATED_BODY()

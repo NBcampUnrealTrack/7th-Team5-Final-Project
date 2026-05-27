@@ -17,7 +17,7 @@ enum class EKOFactoryState : uint8
     OutputBlocked   // 출력 버퍼 가득 참
 };
 
-UCLASS(ClassGroup = "KO|Factory")
+UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
 class KARON_API UKOFactoryProcessorComponent : public UActorComponent, public IKOEnergyConsumer
 {
     GENERATED_BODY()
