@@ -88,7 +88,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
 	
-	// ─── SetbyCaller ──────────────────────────────────────────────
+	// ─── Set by Caller ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
@@ -123,6 +123,9 @@ namespace KOGameplayTags
 	// ── Effect | Buff ─────────────────────────────────────────────
 	
 	// ── Effect | Debuff ───────────────────────────────────────────
+	
+	// ───────────────────────── Effect ─────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact, "GameplayCue.HitImpact");
 	
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health, "Data.Attribute.Health");
