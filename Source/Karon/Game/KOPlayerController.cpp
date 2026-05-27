@@ -6,14 +6,17 @@
 #include "Component/KOInputComponent.h"
 #include "Component/KOInteractionComponent.h"
 #include "Component/KOGridBuildComponent.h"
+#include "Component/KOInventoryComponent.h"
 #include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
+#include "UI/KOUISubsystem.h"
 
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
 	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
-	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
+	BuildUIComponent     = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
+	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
@@ -149,6 +152,15 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_SelectBuildQuickSlot2,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleInventory,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleInventory,
 			true
 		);
 
@@ -298,6 +310,14 @@ void AKOPlayerController::Input_SelectBuildQuickSlot2(const FInputActionValue& /
 	if (BuildUIComponent)
 	{
 		BuildUIComponent->SelectBuildQuickSlot(1);
+	}
+}
+
+void AKOPlayerController::Input_ToggleInventory(const FInputActionValue& /*Value*/)
+{
+	if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
+	{
+		UISub->ToggleWidget(KOGameplayTags::UI_Widget_Inventory);
 	}
 }
 

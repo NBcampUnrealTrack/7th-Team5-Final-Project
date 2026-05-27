@@ -11,6 +11,7 @@ class UKOInputConfig;
 class UInputMappingContext;
 class UKOInteractionComponent;
 class UKOGridBuildComponent;
+class UKOInventoryComponent;
 class UKOActivatableWidget;
 class UKOBuildUIComponent;
 
@@ -50,6 +51,9 @@ protected:
 	void Input_SelectBuildQuickSlot1(const FInputActionValue& Value);
 	void Input_SelectBuildQuickSlot2(const FInputActionValue& Value);
 
+	// 인벤토리 입력
+	void Input_ToggleInventory(const FInputActionValue& Value);
+
 private:
 	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
 	void EnterBuildIMC();
@@ -75,6 +79,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UKOBuildUIComponent> BuildUIComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UKOInventoryComponent> InventoryComponent;
 	
 	
 
