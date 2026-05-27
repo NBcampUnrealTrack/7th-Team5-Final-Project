@@ -12,13 +12,8 @@
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
-	GridBuildComponent = CreateDefaultSubobject<UKOGridBuildComponent>(
-		TEXT("GridBuildComponent")
-	);
-
-	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(
-		TEXT("BuildUIComponent")
-	);
+	GridBuildComponent = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
+	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
 }
 
 void AKOPlayerController::BeginPlay()

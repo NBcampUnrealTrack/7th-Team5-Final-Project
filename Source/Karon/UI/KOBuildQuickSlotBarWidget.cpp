@@ -5,7 +5,7 @@
 #include "KOBuildQuickSlotWidget.h"
 #include "KOBuildUIComponent.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogKOBuildSlot, Log, All);
 
 void UKOBuildQuickSlotBarWidget::NativeConstruct()
 {
@@ -29,20 +29,20 @@ void UKOBuildQuickSlotBarWidget::RebuildSlots()
 {
 	if (!SlotContainer)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildQuickSlotBar] SlotContainer가 없습니다."));
+		UE_LOG(LogKOBuildSlot, Warning, TEXT("[BuildQuickSlotBar] SlotContainer가 없습니다."));
 		return;
 	}
 
 	if (!QuickSlotWidgetClass)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildQuickSlotBar] QuickSlotWidgetClass가 설정되지 않았습니다."));
+		UE_LOG(LogKOBuildSlot, Warning, TEXT("[BuildQuickSlotBar] QuickSlotWidgetClass가 설정되지 않았습니다."));
 		return;
 	}
 
 	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
 	if (!BuildUIComponent)
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildQuickSlotBar] KOBuildUIComponent를 찾을 수 없습니다."));
+		UE_LOG(LogKOBuildSlot, Warning, TEXT("[BuildQuickSlotBar] KOBuildUIComponent를 찾을 수 없습니다."));
 		return;
 	}
 

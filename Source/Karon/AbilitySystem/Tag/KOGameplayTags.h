@@ -104,7 +104,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
-	/** 건물 퀵슬롯 변경 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
+	/** 건물 퀵슬롯 변경 메시지 채널 (UKOBuildUIComponent 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotChanged);
 
 	// ─── Item Category ────────────────────────────────────────────────────────
