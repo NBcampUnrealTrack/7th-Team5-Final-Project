@@ -11,6 +11,12 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Confirm,        "Input.Native.Build.Confirm");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_ToggleDestroy,  "Input.Native.Build.ToggleDestroy");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_ToggleAssignMenu,  "Input.Native.Build.ToggleAssignMenu");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Cancel,  "Input.Native.Build.Cancel");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Escape,  "Input.Native.Build.Escape");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot1,  "Input.Native.Build.QuickSlot1");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot2,  "Input.Native.Build.QuickSlot2");
+	
 	// ── Input | Ability | Movement ────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Movement_Jump, "Input.Ability.Movement.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Movement_Sprint, "Input.Ability.Movement.Sprint");
@@ -61,6 +67,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Factory_StateChanged, "Data.Message.Factory.StateChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotChanged, "Data.Message.Build.QuickSlotChanged");
 
 	// ─── Factory Category ─────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Factory_Boiler,                  "Factory.Boiler");
