@@ -36,11 +36,7 @@ void UKOGA_HitReact::ActivateAbility(
 	}
 	
 	// 2. Caching 
-	if (TriggerEventData) 
-		CachedTriggerEventData = *TriggerEventData;
-		
-	// const AActor* CachedInstigator;
-	// CachedInstigator = CachedTriggerEventData.Instigator;
+	if (TriggerEventData) CachedTriggerEventData = *TriggerEventData;
 	
 	// 3. Select Direction For Monatge 
 	const FGameplayTagContainer& Tags = CachedTriggerEventData.InstigatorTags;
@@ -127,10 +123,13 @@ void UKOGA_HitReact::OnHitStopFinished()
 			true
 		);
 	
-	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	MontageTask->ReadyForActivation();
+	if (MontageTask)
+	{
+		MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+		MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+		MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+		MontageTask->ReadyForActivation();
+	}
 } 
 
 void UKOGA_HitReact::OnMontageCompleted()

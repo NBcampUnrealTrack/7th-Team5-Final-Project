@@ -12,7 +12,6 @@ class KARON_API UUKOGASDebugLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-
 	// 태그로 GameplayEvent 발생
 	UFUNCTION(BlueprintCallable, Category="KO|Debug|GAS", meta=(ToolTip="선택한 액터에게 GameplayEvent 를 전송합니다"))
 	static void SendDebugEvent(AActor* TargetActor, FGameplayTag EventTag, float Magnitude = 0.f);
@@ -32,8 +31,6 @@ public:
 	// 활성 GE 이름 목록 반환 (표시용)
 	UFUNCTION(BlueprintCallable, Category="KO|Debug|GAS")
 	static TArray<FString> GetActiveGENames(AActor* TargetActor);
-	
-	static  
 };
 
 #endif
