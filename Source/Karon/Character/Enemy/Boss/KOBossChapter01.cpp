@@ -3,7 +3,8 @@
 #include "TimerManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
  
-AKOBossChapter01::AKOBossChapter01()
+AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 }
  

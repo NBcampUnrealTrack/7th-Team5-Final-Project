@@ -10,7 +10,7 @@ class KARON_API AKOBossChapter01 : public AKOBossBase
 	GENERATED_BODY()
  
 public:
-	AKOBossChapter01();
+	AKOBossChapter01(const FObjectInitializer& ObjectInitializer);
  
 protected:
 	virtual void BeginPlay() override;

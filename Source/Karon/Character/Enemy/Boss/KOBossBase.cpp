@@ -1,30 +1,27 @@
 #include "KOBossBase.h"
  
 #include "AbilitySystemComponent.h"
+#include "Karon/AbilitySystem/KOAbilitySystemComponent.h" 
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
- 
-AKOBossBase::AKOBossBase()
+
+AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent = CreateDefaultSubobject<UKOAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-	
+
 	HealthSet   = CreateDefaultSubobject<UKOHealthSet>("HealthSet");
-	CombatSet   = CreateDefaultSubobject<UKOCombatSet>("CombatSet");
 	MovementSet = CreateDefaultSubobject<UKOMovementSet>("MovementSet");
-}
- 
-UAbilitySystemComponent* AKOBossBase::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent;
+	
+	CombatSet = CreateDefaultSubobject<UKOCombatSet>("CombatSet");
 }
 
 void AKOBossBase::NotifyPlayerDetected()
@@ -48,7 +45,9 @@ void AKOBossBase::BeginPlay()
 	Super::BeginPlay();
  
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	
+
+	BindMovementSet();
+
 	// 테스트용 데이터에셋 로드
 	if (DefaultDataAsset)
 	{
@@ -59,13 +58,6 @@ void AKOBossBase::BeginPlay()
 	{
 		HealthSet->OnHealthChanged.AddUniqueDynamic(
 			this, &AKOBossBase::OnHealthChangedCallback
-		);
-	}
- 
-	if (MovementSet)
-	{
-		MovementSet->OnMoveSpeedChanged.AddUniqueDynamic(
-			this, &AKOBossBase::OnMoveSpeedChangedCallback
 		);
 	}
 }
@@ -98,15 +90,7 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 		OnPhaseChanged(2);
 	}
 }
- 
-void AKOBossBase::OnMoveSpeedChangedCallback(float OldVal, float NewVal)
-{
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->MaxWalkSpeed = NewVal;
-	}
-}
- 
+
 // 비동기 로드 시작 
 void AKOBossBase::StartAsyncLoad(UKOBossDataAsset* InDataAsset)
 {
@@ -163,8 +147,7 @@ void AKOBossBase::OnAssetsLoaded()
 	ApplyMeshAndAnim();
 	ApplyStats();
 	ApplyAbilities();
- 
-	// 자식 보스 추가 초기화 호출
+	
 	OnBossInitialized();
  
 	OnBossReady.Broadcast();
@@ -262,5 +245,3 @@ void AKOBossBase::ApplyAbilities()
 		AbilitySystemComponent->GiveAbility(Spec);
 	}
 }
- 
-
