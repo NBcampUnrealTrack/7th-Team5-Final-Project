@@ -52,7 +52,11 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
 
     const int32 Space = FMath::Max(0, MaxFuelBuffer - FuelInBuffer);
     const int32 ToAdd = FMath::Min(Space, Count);
-    FuelInBuffer += ToAdd;
+    if (ToAdd > 0)
+    {
+        FuelInBuffer += ToAdd;
+        FuelItemId    = ItemId;
+    }
     return Count - ToAdd;
 }
 
@@ -96,5 +100,6 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     {
         FuelInBuffer = 0;
         FuelDebt     = 0.f;
+        FuelItemId   = NAME_None;
     }
 }

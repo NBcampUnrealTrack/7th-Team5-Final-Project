@@ -4,6 +4,7 @@
 #include "Building/KOBaseBuilding.h"
 #include "Component/KOEnergyProducerComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "Component/KOInventoryComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
@@ -12,6 +13,8 @@
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
 #include "TimerManager.h"
+#include "UI/Interaction/KOFactorySlotWidget.h"
+#include "UI/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProducerWidget"
 
@@ -36,6 +39,30 @@ void UKOFactoryProducerWidget::NativeOnActivated()
 
     Producer = TargetBuilding->FindComponentByClass<UKOEnergyProducerComponent>();
     if (!Producer.IsValid()) return;
+
+    if (FuelSlot)
+    {
+        FuelSlot->SetupFuelSlot(Producer.Get());
+    }
+
+    if (InventoryWidget)
+    {
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            UKOInventoryComponent* PlayerInv = PC->FindComponentByClass<UKOInventoryComponent>();
+            if (!PlayerInv)
+            {
+                if (APawn* Pawn = PC->GetPawn())
+                {
+                    PlayerInv = Pawn->FindComponentByClass<UKOInventoryComponent>();
+                }
+            }
+            if (PlayerInv)
+            {
+                InventoryWidget->SetInventoryComponent(PlayerInv);
+            }
+        }
+    }
 
     Refresh();
 
@@ -109,6 +136,11 @@ void UKOFactoryProducerWidget::Refresh()
             FText::AsNumber(Prod->PowerPerFuelUnit),
             FText::AsNumber(Prod->BurnRatePerSecond));
         PowerSpecText->SetText(Spec);
+    }
+
+    if (FuelSlot)
+    {
+        FuelSlot->RefreshFromComponent();
     }
 }
 

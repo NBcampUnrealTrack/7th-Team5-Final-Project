@@ -37,6 +37,7 @@ public:
     int32 TryInsertFuel(FName ItemId, int32 Count);
 
     int32 GetFuelCount() const { return FuelInBuffer; }
+    FName GetFuelItemId() const { return FuelItemId; }
 
     // IKOEnergyProducer 
     virtual float GetPowerOutput(float DeltaSeconds) const override;
@@ -52,4 +53,7 @@ private:
 
     /** 소수 단위 연료 보유량 */
     float FuelDebt = 0.f;
+
+    /** 현재 적재된 연료 아이템 ID (UI 표시용). 비었을 때 NAME_None. */
+    FName FuelItemId = NAME_None;
 };

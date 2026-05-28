@@ -33,6 +33,9 @@ public:
     
     int32 TryInsertItem(FName ItemId, int32 Count);
     int32 TryExtractItem(FName ItemId, int32 Count);
+
+    /** TryExtractItem 후 인벤토리가 못 받은 잔량을 OutputBuffer에 되돌리는 헬퍼. 캡 검증 없음(직전 추출량 이하 가정). */
+    void  RestoreOutputBuffer(FName ItemId, int32 Count);
     bool  ManualStart();
     
     float GetProgress() const;

@@ -4,6 +4,8 @@
 #include "Building/KOBaseBuilding.h"
 #include "Component/KOFactoryProcessorComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "Component/KOInventoryComponent.h"
+#include "Components/PanelWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
@@ -13,6 +15,8 @@
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
+#include "UI/Interaction/KOFactorySlotWidget.h"
+#include "UI/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProcessorWidget"
 
@@ -68,6 +72,27 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
     Processor = TargetBuilding->FindComponentByClass<UKOFactoryProcessorComponent>();
     if (!Processor.IsValid()) return;
 
+    if (InventoryWidget)
+    {
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            UKOInventoryComponent* PlayerInv = PC->FindComponentByClass<UKOInventoryComponent>();
+            if (!PlayerInv)
+            {
+                if (APawn* Pawn = PC->GetPawn())
+                {
+                    PlayerInv = Pawn->FindComponentByClass<UKOInventoryComponent>();
+                }
+            }
+            if (PlayerInv)
+            {
+                InventoryWidget->SetInventoryComponent(PlayerInv);
+            }
+        }
+    }
+
+    BuildIOSlots();
+
     Refresh();
 
     if (UWorld* World = GetWorld())
@@ -88,10 +113,114 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     }
     RefreshTimerHandle.Invalidate();
 
+    if (InputSlotsPanel)  InputSlotsPanel->ClearChildren();
+    if (OutputSlotsPanel) OutputSlotsPanel->ClearChildren();
+    InputSlotWidgets.Reset();
+    OutputSlotWidgets.Reset();
+
     Processor.Reset();
     TargetBuilding.Reset();
 
     Super::NativeOnDeactivated();
+}
+
+void UKOFactoryProcessorWidget::BuildIOSlots()
+{
+    AKOBaseBuilding* Building = TargetBuilding.Get();
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Building || !Proc)
+    {
+        return;
+    }
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
+    {
+        return;
+    }
+
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid())
+    {
+        return;
+    }
+
+    // 이 공장 카테고리에 매칭되는 모든 레시피의 입력/출력 ItemId 유니온 수집.
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    TArray<FName> InputItemIds;
+    TArray<FName> OutputItemIds;
+
+    for (const FName& RecipeId : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
+        {
+            continue;
+        }
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
+        {
+            continue;
+        }
+
+        for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
+        {
+            const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+            if (!ItemId.IsNone())
+            {
+                InputItemIds.AddUnique(ItemId);
+            }
+        }
+        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
+        {
+            const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
+            if (!ItemId.IsNone())
+            {
+                OutputItemIds.AddUnique(ItemId);
+            }
+        }
+    }
+
+    if (InputSlotsPanel && InputSlotClass)
+    {
+        InputSlotsPanel->ClearChildren();
+        InputSlotWidgets.Reset();
+        for (const FName& ItemId : InputItemIds)
+        {
+            UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, InputSlotClass);
+            if (!SlotWidget) continue;
+            SlotWidget->SetupInputSlot(Proc, ItemId);
+            InputSlotsPanel->AddChild(SlotWidget);
+            InputSlotWidgets.Add(SlotWidget);
+        }
+    }
+
+    if (OutputSlotsPanel && OutputSlotClass)
+    {
+        OutputSlotsPanel->ClearChildren();
+        OutputSlotWidgets.Reset();
+        for (const FName& ItemId : OutputItemIds)
+        {
+            UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, OutputSlotClass);
+            if (!SlotWidget) continue;
+            SlotWidget->SetupOutputSlot(Proc, ItemId);
+            OutputSlotsPanel->AddChild(SlotWidget);
+            OutputSlotWidgets.Add(SlotWidget);
+        }
+    }
+}
+
+void UKOFactoryProcessorWidget::RefreshIOSlots()
+{
+    for (UKOFactorySlotWidget* SlotWidget : InputSlotWidgets)
+    {
+        if (SlotWidget) SlotWidget->RefreshFromComponent();
+    }
+    for (UKOFactorySlotWidget* SlotWidget : OutputSlotWidgets)
+    {
+        if (SlotWidget) SlotWidget->RefreshFromComponent();
+    }
 }
 
 void UKOFactoryProcessorWidget::Refresh()
@@ -147,6 +276,8 @@ void UKOFactoryProcessorWidget::Refresh()
     {
         OutputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetOutputBuffer())));
     }
+
+    RefreshIOSlots();
 }
 
 #undef LOCTEXT_NAMESPACE

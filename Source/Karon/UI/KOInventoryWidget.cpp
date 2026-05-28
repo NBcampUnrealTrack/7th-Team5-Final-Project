@@ -1,7 +1,9 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/KOInventoryWidget.h"
 #include "UI/KOInventorySlotWidget.h"
+#include "UI/KOItemDragDropOperation.h"
 #include "Component/KOInventoryComponent.h"
+#include "Component/KOFactoryProcessorComponent.h"
 #include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
@@ -38,6 +40,49 @@ void UKOInventoryWidget::NativeDestruct()
     InventoryChangedCallback.Clear();
 
     Super::NativeDestruct();
+}
+
+bool UKOInventoryWidget::NativeOnDrop(
+    const FGeometry& InGeometry,
+    const FDragDropEvent& InDragDropEvent,
+    UDragDropOperation* InOperation)
+{
+    UKOItemDragDropOperation* DragOp = Cast<UKOItemDragDropOperation>(InOperation);
+    if (!DragOp || !DragOp->HasItem())
+    {
+        return false;
+    }
+
+    UKOFactoryProcessorComponent* SourceProc = DragOp->SourceProcessor;
+    if (!SourceProc)
+    {
+        return false;
+    }
+
+    if (!InventoryComponent)
+    {
+        return false;
+    }
+
+    const FName ItemId = DragOp->GetItemId();
+    const int32 Count  = DragOp->GetCount();
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return false;
+    }
+
+    const int32 Extracted = SourceProc->TryExtractItem(ItemId, Count);
+    if (Extracted <= 0)
+    {
+        return false;
+    }
+
+    const int32 Rejected = InventoryComponent->TryAddItem(EKOSlotKind::Item, ItemId, Extracted);
+    if (Rejected > 0)
+    {
+        SourceProc->RestoreOutputBuffer(ItemId, Rejected);
+    }
+    return true;
 }
 
 void UKOInventoryWidget::OnInventoryChangedGMS(FGameplayTag Channel, const FInstancedStruct& Payload)

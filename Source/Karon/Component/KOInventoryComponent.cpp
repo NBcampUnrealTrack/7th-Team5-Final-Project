@@ -111,6 +111,37 @@ bool UKOInventoryComponent::TryRemoveItem(FName ItemId, int32 Count)
     return true;
 }
 
+int32 UKOInventoryComponent::RemoveAtSlot(int32 SlotIndex, int32 Count)
+{
+    if (Count <= 0 || !Slots.IsValidIndex(SlotIndex))
+    {
+        return 0;
+    }
+
+    FKOItemSlot& Slot = Slots[SlotIndex];
+    if (!Slot.HasItem())
+    {
+        return 0;
+    }
+
+    const FName ItemId       = Slot.ItemId;
+    const int32 PreviousTotal = GetCountOf(ItemId);
+    const int32 ToRemove      = FMath::Min(Slot.Count, Count);
+
+    Slot.Count -= ToRemove;
+    if (Slot.Count == 0)
+    {
+        Slots.RemoveAt(SlotIndex);
+    }
+
+    const int32 NewTotal = GetCountOf(ItemId);
+    if (NewTotal != PreviousTotal)
+    {
+        NotifyInventoryChanged(ItemId, PreviousTotal, NewTotal);
+    }
+    return ToRemove;
+}
+
 bool UKOInventoryComponent::SplitStack(int32 SlotIndex, int32 SplitCount)
 {
     if (!Slots.IsValidIndex(SlotIndex))

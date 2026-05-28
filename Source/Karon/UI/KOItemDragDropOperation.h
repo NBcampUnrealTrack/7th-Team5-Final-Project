@@ -7,6 +7,7 @@
 
 class UTexture2D;
 class UKOInventoryComponent;
+class UKOFactoryProcessorComponent;
 
 UCLASS()
 class KARON_API UKOItemDragDropOperation : public UDragDropOperation
@@ -22,6 +23,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
 	TObjectPtr<UKOInventoryComponent> SourceInventoryComponent = nullptr;
+
+	/** 출력 슬롯에서 드래그한 경우 세팅. 인벤토리 드롭 시 TryExtractItem 호출 대상. */
+	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
+	TObjectPtr<UKOFactoryProcessorComponent> SourceProcessor = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Build|Drag")
 	FText DisplayName;
@@ -39,7 +44,8 @@ public:
 		const FVector2D& InDragVisualSize,
 		float InDragVisualOpacity,
 		int32 InSourceSlotIndex = INDEX_NONE,
-		UKOInventoryComponent* InSourceInventoryComponent = nullptr
+		UKOInventoryComponent* InSourceInventoryComponent = nullptr,
+		UKOFactoryProcessorComponent* InSourceProcessor = nullptr
 	);
 	bool HasItem() const
 	{

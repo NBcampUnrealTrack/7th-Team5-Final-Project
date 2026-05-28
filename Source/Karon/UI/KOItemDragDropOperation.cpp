@@ -10,7 +10,8 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	const FVector2D& InDragVisualSize,
 	float InDragVisualOpacity,
 	int32 InSourceSlotIndex,
-	UKOInventoryComponent* InSourceInventoryComponent
+	UKOInventoryComponent* InSourceInventoryComponent,
+	UKOFactoryProcessorComponent* InSourceProcessor
 )
 {
 	if (!Outer)
@@ -34,6 +35,7 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	DragOperation->ItemSlot = InItemSlot;
 	DragOperation->SourceSlotIndex = InSourceSlotIndex;
 	DragOperation->SourceInventoryComponent = InSourceInventoryComponent;
+	DragOperation->SourceProcessor = InSourceProcessor;
 	DragOperation->DisplayName = InDisplayName;
 	DragOperation->Icon = InIcon;
 

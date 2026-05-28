@@ -9,6 +9,9 @@ class AKOBaseBuilding;
 class UKOFactoryProcessorComponent;
 class UTextBlock;
 class UProgressBar;
+class UPanelWidget;
+class UKOFactorySlotWidget;
+class UKOInventoryWidget;
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOFactoryProcessorWidget : public UKOActivatableWidget
@@ -54,9 +57,33 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> OutputBufferText;
 
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UPanelWidget> InputSlotsPanel;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UPanelWidget> OutputSlotsPanel;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UKOInventoryWidget> InventoryWidget;
+
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    TSubclassOf<UKOFactorySlotWidget> InputSlotClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    TSubclassOf<UKOFactorySlotWidget> OutputSlotClass;
+
 private:
+    void BuildIOSlots();
+    void RefreshIOSlots();
+
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;
     TWeakObjectPtr<UKOFactoryProcessorComponent> Processor;
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UKOFactorySlotWidget>> InputSlotWidgets;
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UKOFactorySlotWidget>> OutputSlotWidgets;
 
     FTimerHandle RefreshTimerHandle;
 };

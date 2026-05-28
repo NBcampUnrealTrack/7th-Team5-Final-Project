@@ -26,9 +26,12 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "KO|Inventory")
     bool bAcceptFactories = true;
 
-    // 아이템 조작 API 
+    // 아이템 조작 API
     virtual int32 TryAddItem(EKOSlotKind Kind, FName ItemId, int32 Count);
     virtual bool  TryRemoveItem(FName ItemId, int32 Count);
+
+    /** 슬롯 인덱스 기반 차감. 실제 차감된 수량 반환. */
+    int32 RemoveAtSlot(int32 SlotIndex, int32 Count);
 
     bool SplitStack(int32 SlotIndex, int32 SplitCount);
     void MergeAllStacks();

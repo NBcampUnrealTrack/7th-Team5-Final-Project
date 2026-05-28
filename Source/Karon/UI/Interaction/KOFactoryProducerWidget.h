@@ -9,6 +9,8 @@ class AKOBaseBuilding;
 class UKOEnergyProducerComponent;
 class UTextBlock;
 class UProgressBar;
+class UKOFactorySlotWidget;
+class UKOInventoryWidget;
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOFactoryProducerWidget : public UKOActivatableWidget
@@ -47,6 +49,12 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> PowerSpecText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UKOFactorySlotWidget> FuelSlot;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UKOInventoryWidget> InventoryWidget;
 
 private:
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;

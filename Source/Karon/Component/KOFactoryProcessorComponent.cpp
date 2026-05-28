@@ -105,6 +105,16 @@ int32 UKOFactoryProcessorComponent::TryExtractItem(FName ItemId, int32 Count)
     return Taken;
 }
 
+void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    int32& Current = OutputBuffer.FindOrAdd(ItemId);
+    Current += Count;
+}
+
 bool UKOFactoryProcessorComponent::ManualStart()
 {
     if (State != EKOFactoryState::Idle)
