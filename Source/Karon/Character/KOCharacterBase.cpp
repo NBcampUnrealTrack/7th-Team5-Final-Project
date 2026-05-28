@@ -1,8 +1,5 @@
 ﻿#include "KOCharacterBase.h"
-#include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
-#include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Animation/KOAnimInstance.h"
 #include "Component/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
@@ -27,6 +24,7 @@ void AKOCharacterBase::BeginPlay()
 
 void AKOCharacterBase::BindMovementSet()
 {
+	// 이거 자식 클래스에서 호출 해서 바인드 해줘야함. 
 	MovementSet->OnMoveSpeedChanged.AddDynamic(this, &ThisClass::OnMoveSpeedChanged);
 	OnMoveSpeedChanged(0.f, MovementSet->GetMoveSpeed());
 	
