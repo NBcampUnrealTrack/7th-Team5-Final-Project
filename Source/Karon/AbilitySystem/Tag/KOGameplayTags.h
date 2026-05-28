@@ -256,7 +256,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	
 	// ───────────────────────── Event ──────────────────────────────
-    // ── Event | HitReact ──────────────────────────────────────────
+    // ── Event | Hit ───────────────────────────────────────────────
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit);
+	
+	// ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
 	

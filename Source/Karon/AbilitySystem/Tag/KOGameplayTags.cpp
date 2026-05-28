@@ -117,6 +117,9 @@ namespace KOGameplayTags
 	// ── Event | Stamina ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Stamina_Exhausted, "Event.Stamina.Exhausted");
 	
+	// ── Event | Hit ───────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Hit, "Event.Hit");
+	
 	// ── Event | HitReact ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact, "Event.HitReact");
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Forward, "Event.HitReact.Forward");
