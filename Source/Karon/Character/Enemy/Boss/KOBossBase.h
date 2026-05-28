@@ -3,8 +3,9 @@
 #include "CoreMinimal.h"
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
- 
+
 struct FStreamableHandle;
+class UKOCombatSet;
 class UKOBossDataAsset;
 class UStreamableHandle;
  
@@ -32,17 +33,19 @@ public:
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
 	void NotifyPlayerDetected();
+	
 	void NotifyDeathAnimEnd();
- 
+	
+	virtual void OnGroggyEnd() {}
+	
+	virtual void OnGroggyBegin() {}
+	
 protected:
 	virtual void BeginPlay() override;
 	
 	virtual void OnBossInitialized() {}
 	
 	virtual void OnPhaseChanged(int32 NewPhase) {}
-	
-	virtual void OnGroggyBegin() {}
-	virtual void OnGroggyEnd() {}
 	
 	virtual void OnBossDeath() {}
 	

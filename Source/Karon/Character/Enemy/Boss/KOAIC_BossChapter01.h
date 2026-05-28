@@ -25,4 +25,6 @@ public:
 	static const FName bIsInTraceRangeKey;
 	static const FName bIsPhase2Key;
 	static const FName bIsGroggyKey;
+	static const FName bIsAttackingKey;
+	static const FName bIsDeadKey;
 };

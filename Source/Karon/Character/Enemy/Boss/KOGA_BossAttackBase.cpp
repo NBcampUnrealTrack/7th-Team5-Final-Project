@@ -12,10 +12,10 @@
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
 
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Attacking);
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
  
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Attacking);
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Groggy);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
 }
  
 void UKOGA_BossAttackBase::ActivateAbility(
