@@ -105,6 +105,16 @@ int32 UKOFactoryProcessorComponent::TryExtractItem(FName ItemId, int32 Count)
     return Taken;
 }
 
+void UKOFactoryProcessorComponent::SetSelectedRecipe(FName RecipeId)
+{
+    if (SelectedRecipeId == RecipeId)
+    {
+        return;
+    }
+    SelectedRecipeId = RecipeId;
+    EvaluateAutoStart();
+}
+
 void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count)
 {
     if (ItemId.IsNone() || Count <= 0)
@@ -172,26 +182,25 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
         return NAME_None;
     }
 
-    TArray<FName> AllRecipes;
-    LoadSub->GetAllRecipeIds(AllRecipes);
-
-    for (const FName& RecipeId : AllRecipes)
+    if (SelectedRecipeId.IsNone())
     {
-        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
-        {
-            continue;
-        }
-        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
-        {
-            continue;
-        }
-        if (HasInputsFor(*Recipe) && CanFitOutputs(*Recipe))
-        {
-            return RecipeId;
-        }
+        return NAME_None;
     }
-    return NAME_None;
+
+    const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId);
+    if (!Selected || !Selected->AllowedFactoryTag.IsValid())
+    {
+        return NAME_None;
+    }
+    if (!MyRow->FactoryCategoryTag.MatchesTag(Selected->AllowedFactoryTag))
+    {
+        return NAME_None;
+    }
+    if (!HasInputsFor(*Selected) || !CanFitOutputs(*Selected))
+    {
+        return NAME_None;
+    }
+    return SelectedRecipeId;
 }
 
 bool UKOFactoryProcessorComponent::TryStartCycle()
@@ -347,44 +356,19 @@ void UKOFactoryProcessorComponent::EvaluateAutoStart()
     {
         return;
     }
-    
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    if (!LoadSub)
-    {
-        return;
-    }
-    const FName FactoryId = GetOwnerFactoryId();
-    if (FactoryId.IsNone())
-    {
-        return;
-    }
-    const FKOFactoryRow* MyRow = LoadSub->FindFactoryRow(FactoryId);
-    if (!MyRow || !MyRow->FactoryCategoryTag.IsValid())
-    {
-        return;
-    }
 
-    TArray<FName> AllRecipes;
-    LoadSub->GetAllRecipeIds(AllRecipes);
-    bool bAnyOutputBlocked = false;
-    for (const FName& RecipeId : AllRecipes)
+    bool bOutputBlocked = false;
+    if (!SelectedRecipeId.IsNone())
     {
-        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
+        if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
         {
-            continue;
-        }
-        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
-        {
-            continue;
-        }
-        if (HasInputsFor(*Recipe) && !CanFitOutputs(*Recipe))
-        {
-            bAnyOutputBlocked = true;
-            break;
+            if (const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId))
+            {
+                bOutputBlocked = HasInputsFor(*Selected) && !CanFitOutputs(*Selected);
+            }
         }
     }
-    SetState(bAnyOutputBlocked ? EKOFactoryState::OutputBlocked : EKOFactoryState::Idle);
+    SetState(bOutputBlocked ? EKOFactoryState::OutputBlocked : EKOFactoryState::Idle);
 }
 
 void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)

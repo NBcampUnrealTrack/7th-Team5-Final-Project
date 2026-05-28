@@ -15,7 +15,9 @@
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
+#include "Components/Button.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
+#include "UI/Interaction/KOFactoryRecipeEntryWidget.h"
 #include "UI/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProcessorWidget"
@@ -93,6 +95,12 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
 
     BuildIOSlots();
 
+    if (RecipeButton && !RecipeButton->OnClicked.IsAlreadyBound(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked))
+    {
+        RecipeButton->OnClicked.AddDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
+    }
+    SetRecipeSelectVisible(false);
+
     Refresh();
 
     if (UWorld* World = GetWorld())
@@ -118,10 +126,97 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     InputSlotWidgets.Reset();
     OutputSlotWidgets.Reset();
 
+    if (RecipeButton)
+    {
+        RecipeButton->OnClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
+    }
+    if (RecipeSelectPanel) RecipeSelectPanel->ClearChildren();
+    for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
+    {
+        if (Entry)
+        {
+            Entry->OnRecipeClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        }
+    }
+    RecipeEntryWidgets.Reset();
+
     Processor.Reset();
     TargetBuilding.Reset();
 
     Super::NativeOnDeactivated();
+}
+
+void UKOFactoryProcessorWidget::HandleRecipeButtonClicked()
+{
+    const bool bVisible = RecipeSelectPanel && RecipeSelectPanel->GetVisibility() != ESlateVisibility::Collapsed;
+    if (bVisible)
+    {
+        SetRecipeSelectVisible(false);
+        return;
+    }
+    PopulateRecipeSelect();
+    SetRecipeSelectVisible(true);
+}
+
+void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
+{
+    if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+    {
+        Proc->SetSelectedRecipe(InRecipeId);
+    }
+    SetRecipeSelectVisible(false);
+    Refresh();
+}
+
+void UKOFactoryProcessorWidget::SetRecipeSelectVisible(bool bVisible)
+{
+    if (!RecipeSelectPanel) return;
+    RecipeSelectPanel->SetVisibility(bVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+}
+
+void UKOFactoryProcessorWidget::PopulateRecipeSelect()
+{
+    if (!RecipeSelectPanel || !RecipeEntryClass) return;
+
+    AKOBaseBuilding* Building = TargetBuilding.Get();
+    if (!Building) return;
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!LoadSub || !FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid()) return;
+
+    // 기존 엔트리 정리
+    for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
+    {
+        if (Entry)
+        {
+            Entry->OnRecipeClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        }
+    }
+    RecipeEntryWidgets.Reset();
+    RecipeSelectPanel->ClearChildren();
+
+    auto AddEntry = [this](FName InRecipeId, const FText& InLabel)
+    {
+        UKOFactoryRecipeEntryWidget* Entry = CreateWidget<UKOFactoryRecipeEntryWidget>(this, RecipeEntryClass);
+        if (!Entry) return;
+        Entry->SetRecipe(InRecipeId, InLabel);
+        Entry->OnRecipeClicked.AddDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        RecipeSelectPanel->AddChild(Entry);
+        RecipeEntryWidgets.Add(Entry);
+    };
+
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    for (const FName& RecipeId : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid()) continue;
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag)) continue;
+
+        AddEntry(RecipeId, Recipe->DisplayName);
+    }
 }
 
 void UKOFactoryProcessorWidget::BuildIOSlots()

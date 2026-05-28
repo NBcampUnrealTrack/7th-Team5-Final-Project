@@ -10,8 +10,10 @@ class UKOFactoryProcessorComponent;
 class UTextBlock;
 class UProgressBar;
 class UPanelWidget;
+class UButton;
 class UKOFactorySlotWidget;
 class UKOInventoryWidget;
+class UKOFactoryRecipeEntryWidget;
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOFactoryProcessorWidget : public UKOActivatableWidget
@@ -72,9 +74,27 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
     TSubclassOf<UKOFactorySlotWidget> OutputSlotClass;
 
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UButton> RecipeButton;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UPanelWidget> RecipeSelectPanel;
+
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    TSubclassOf<UKOFactoryRecipeEntryWidget> RecipeEntryClass;
+
 private:
     void BuildIOSlots();
     void RefreshIOSlots();
+
+    void PopulateRecipeSelect();
+    void SetRecipeSelectVisible(bool bVisible);
+
+    UFUNCTION()
+    void HandleRecipeButtonClicked();
+
+    UFUNCTION()
+    void HandleRecipeEntryClicked(FName InRecipeId);
 
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;
     TWeakObjectPtr<UKOFactoryProcessorComponent> Processor;
@@ -84,6 +104,9 @@ private:
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UKOFactorySlotWidget>> OutputSlotWidgets;
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UKOFactoryRecipeEntryWidget>> RecipeEntryWidgets;
 
     FTimerHandle RefreshTimerHandle;
 };
