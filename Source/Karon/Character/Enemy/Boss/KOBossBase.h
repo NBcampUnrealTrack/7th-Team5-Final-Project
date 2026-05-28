@@ -1,34 +1,26 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
+ 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "AbilitySystemInterface.h"
+#include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
 
 struct FStreamableHandle;
-class UAbilitySystemComponent;
-class UKOHealthSet;
 class UKOCombatSet;
-class UKOMovementSet;
 class UKOBossDataAsset;
 class UStreamableHandle;
-
+ 
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
 DECLARE_MULTICAST_DELEGATE(FOnBossDetectedPlayer);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
-
+ 
 UCLASS()
-class KARON_API AKOBossBase : public ACharacter, public IAbilitySystemInterface
+class KARON_API AKOBossBase : public AKOCharacterBase
 {
 	GENERATED_BODY()
  
 public:
-	AKOBossBase();
-	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
- 
+	AKOBossBase(const FObjectInitializer& ObjectInitializer);
+
 	// 외부 호출
 	UFUNCTION(BlueprintCallable, Category = "Boss")
 	void StartAsyncLoad(UKOBossDataAsset* InDataAsset);
@@ -38,11 +30,16 @@ public:
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
 	
-	UKOBossDataAsset* GetDataAsset() const {return DataAsset;}
+	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
 	void NotifyPlayerDetected();
+	
 	void NotifyDeathAnimEnd();
- 
+	
+	virtual void OnGroggyEnd() {}
+	
+	virtual void OnGroggyBegin() {}
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -50,28 +47,16 @@ protected:
 	
 	virtual void OnPhaseChanged(int32 NewPhase) {}
 	
-	virtual void OnGroggyBegin() {}
-	virtual void OnGroggyEnd() {}
-	
 	virtual void OnBossDeath() {}
 	
-	UPROPERTY(VisibleAnywhere, Category = "GAS")
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
- 
-	UPROPERTY()
-	TObjectPtr<UKOHealthSet> HealthSet;
- 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Combat")
 	TObjectPtr<UKOCombatSet> CombatSet;
- 
-	UPROPERTY()
-	TObjectPtr<UKOMovementSet> MovementSet;
  
 	UPROPERTY()
 	TObjectPtr<UKOBossDataAsset> DataAsset;
 	
 	// 비동기 로드 테스트
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="DataTest")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTest")
 	TObjectPtr<UKOBossDataAsset> DefaultDataAsset;
  
 private:
@@ -88,13 +73,11 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float PhaseRatio = 0.5f;
+ 
 private:
 	bool bPhase2Triggered = false;
-
-	// ─── 델리게이트 콜백 함수 ────────────────────────────────
+ 
+	// 델리게이트 콜백 함수
 	UFUNCTION()
 	void OnHealthChangedCallback(float OldVal, float NewVal);
- 
-	UFUNCTION()
-	void OnMoveSpeedChangedCallback(float OldVal, float NewVal);
 };

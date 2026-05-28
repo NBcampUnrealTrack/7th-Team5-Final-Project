@@ -3,9 +3,12 @@
 #include "AIController.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "KOAIC_BossChapter01.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+
  
 UBTService_BossCh01_AttackCheck::UBTService_BossCh01_AttackCheck()
 {
@@ -61,14 +64,18 @@ void UBTService_BossCh01_AttackCheck::TickNode(
 		BossPawn->GetActorLocation(),
 		PlayerCharacter->GetActorLocation()
 	);
- 
+	
+	const bool bIsAttacking = ASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Attacking);
+
 	for (const FBossAttackInfo& Info : AttackInfos)
 	{
-		bool bOnCooldown = ASC->HasMatchingGameplayTag(Info.CooldownTag);
-
+		const bool bOnCooldown = ASC->HasMatchingGameplayTag(Info.CooldownTag);
+ 
 		BB->SetValueAsBool(
 			Info.BBKey,
-			!bOnCooldown && Distance <= Info.AttackRange
+			!bIsAttacking && !bOnCooldown && Distance <= Info.AttackRange
 		);
 	}
+
+	BB->SetValueAsBool(AKOAIC_BossChapter01::bIsAttackingKey, bIsAttacking);
 }

@@ -6,6 +6,9 @@ const FName AKOAIC_BossChapter01::TargetActorKey = TEXT("TargetActor");
 const FName AKOAIC_BossChapter01::bIsInTraceRangeKey = TEXT("bIsInTraceRange");
 const FName AKOAIC_BossChapter01::bIsPhase2Key = TEXT("bIsPhase2");
 const FName AKOAIC_BossChapter01::bIsGroggyKey = TEXT("bIsGroggy");
+const FName AKOAIC_BossChapter01::bIsAttackingKey = TEXT("bIsAttacking");
+const FName AKOAIC_BossChapter01::bIsDeadKey = TEXT("bIsDead");
+
  
 AKOAIC_BossChapter01::AKOAIC_BossChapter01()
 {

@@ -1,11 +1,14 @@
 #include "Character/Enemy/Boss/GA/KOGA_BossAOEAttackBase.h"
 
 #include "AbilitySystemComponent.h"
+#include "AIController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
 #include "Engine/OverlapResult.h"
 
 UKOGA_BossAOEAttackBase::UKOGA_BossAOEAttackBase()
@@ -108,9 +111,9 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 			32,
 			FColor::Red,
 			false,
-			ShockwaveInterval,
+			0.5f,
 			0,
-			2.f,
+			3.f,
 			FVector(1, 0, 0),
 			FVector(0, 1, 0)
 		);
@@ -161,9 +164,19 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShockwaveTimerHandle);
 		
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
+		if (Pawn)
+		{
+			AAIController* AIC = Cast<AAIController>(Pawn->GetController());
+			if (AIC)
+			{
+				if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+				{
+					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
+				}
+			}
+		}
 		
-		// TODO: 그로기 진입 처리
-		// 보스 액터에서 OnGroggyBegin 호출
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
 }
