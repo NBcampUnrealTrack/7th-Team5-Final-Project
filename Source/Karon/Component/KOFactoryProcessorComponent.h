@@ -79,6 +79,7 @@ private:
     void  EvaluateAutoStart();
     void  SetState(EKOFactoryState NewState);
     void  BroadcastStateChanged() const;
+    void  BroadcastProcessorChanged() const;
 
     AKOBaseBuilding* GetOwnerBuilding() const;
     FName GetOwnerFactoryId()           const;

@@ -131,6 +131,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotSelectionChanged);
 	/** 건설 모드 변경 메시지 채널 (KOGridBuildComponent 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_ModeChanged);
+	/** Producer 연료 변경 메시지 채널 (FKOProducerFuelChangedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Producer_FuelChanged);
+	/** Processor 변경 메시지 채널 (FKOProcessorChangedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Processor_Changed);
 
 	// ─── Factory Category ─────────────────────────────────────────────────────
 	/** 보일러 (Producer) */
@@ -197,8 +201,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
-	
-	// 여기서부터 중복
 
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);

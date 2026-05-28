@@ -1,6 +1,7 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/Interaction/KOFactoryProcessorWidget.h"
 
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Building/KOBaseBuilding.h"
 #include "Component/KOFactoryProcessorComponent.h"
 #include "Component/KOInteractionComponent.h"
@@ -13,6 +14,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
+#include "Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
 #include "Components/Button.h"
@@ -101,13 +104,19 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
     }
     SetRecipeSelectVisible(false);
 
-    Refresh();
+    // GMS 구독: Processor의 Recipe/State/Buffer 변동 이벤트
+    ProcessorChangedCallback.BindDynamic(this, &UKOFactoryProcessorWidget::HandleProcessorChangedMessage);
+    ProcessorChangedHandle = Subscribe(KOGameplayTags::Data_Message_Processor_Changed, ProcessorChangedCallback);
+
+    RefreshStaticInfo();
+    RefreshEventDriven();
+    TickRefresh();
 
     if (UWorld* World = GetWorld())
     {
         World->GetTimerManager().SetTimer(
             RefreshTimerHandle,
-            FTimerDelegate::CreateUObject(this, &UKOFactoryProcessorWidget::Refresh),
+            FTimerDelegate::CreateUObject(this, &UKOFactoryProcessorWidget::TickRefresh),
             RefreshInterval,
             /*bLoop=*/true);
     }
@@ -140,6 +149,10 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     }
     RecipeEntryWidgets.Reset();
 
+    Unsubscribe(ProcessorChangedHandle);
+    ProcessorChangedHandle = FGameplayMessageHandle();
+    ProcessorChangedCallback.Clear();
+
     Processor.Reset();
     TargetBuilding.Reset();
 
@@ -163,9 +176,9 @@ void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
     if (UKOFactoryProcessorComponent* Proc = Processor.Get())
     {
         Proc->SetSelectedRecipe(InRecipeId);
+        // SetSelectedRecipe 내부에서 BroadcastProcessorChanged → HandleProcessorChangedMessage가 UI 갱신.
     }
     SetRecipeSelectVisible(false);
-    Refresh();
 }
 
 void UKOFactoryProcessorWidget::SetRecipeSelectVisible(bool bVisible)
@@ -318,27 +331,50 @@ void UKOFactoryProcessorWidget::RefreshIOSlots()
     }
 }
 
-void UKOFactoryProcessorWidget::Refresh()
+void UKOFactoryProcessorWidget::RefreshStaticInfo()
 {
     AKOBaseBuilding* Building = TargetBuilding.Get();
-    UKOFactoryProcessorComponent* Proc = Processor.Get();
-    if (!Building || !Proc) return;
+    if (!Building) return;
 
     if (TitleText)
     {
         const FKOFactoryRow* Row = Building->GetFactoryRow();
         TitleText->SetText(Row ? Row->DisplayName : FText::GetEmpty());
     }
+}
+
+void UKOFactoryProcessorWidget::TickRefresh()
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc) return;
+
+    if (ProgressBar)
+    {
+        ProgressBar->SetPercent(Proc->GetProgress());
+    }
+
+    if (SupplyBar)
+    {
+        SupplyBar->SetPercent(FMath::Clamp(Proc->GetLastSupplyRatio(), 0.f, 1.f));
+    }
+}
+
+void UKOFactoryProcessorWidget::RefreshEventDriven()
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc) return;
 
     if (RecipeText)
     {
         FText RecipeName = FText::GetEmpty();
-        const FName RecipeId = Proc->GetActiveRecipeId();
-        if (!RecipeId.IsNone())
+        const FName ActiveId   = Proc->GetActiveRecipeId();
+        const FName SelectedId = Proc->GetSelectedRecipe();
+        const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
+        if (!ShownId.IsNone())
         {
             if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
             {
-                if (const FKORecipeRow* Row = Load->FindRecipeRow(RecipeId))
+                if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
                 {
                     RecipeName = Row->DisplayName;
                 }
@@ -352,16 +388,6 @@ void UKOFactoryProcessorWidget::Refresh()
         StateText->SetText(StateToText(Proc->GetState()));
     }
 
-    if (ProgressBar)
-    {
-        ProgressBar->SetPercent(Proc->GetProgress());
-    }
-
-    if (SupplyBar)
-    {
-        SupplyBar->SetPercent(FMath::Clamp(Proc->GetLastSupplyRatio(), 0.f, 1.f));
-    }
-
     if (InputBufferText)
     {
         InputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetInputBuffer())));
@@ -373,6 +399,15 @@ void UKOFactoryProcessorWidget::Refresh()
     }
 
     RefreshIOSlots();
+}
+
+void UKOFactoryProcessorWidget::HandleProcessorChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+    const FKOProcessorChangedMessage* Msg = Payload.GetPtr<FKOProcessorChangedMessage>();
+    if (!Msg) return;
+    if (Msg->Processor.Get() != Processor.Get()) return;
+
+    RefreshEventDriven();
 }
 
 #undef LOCTEXT_NAMESPACE

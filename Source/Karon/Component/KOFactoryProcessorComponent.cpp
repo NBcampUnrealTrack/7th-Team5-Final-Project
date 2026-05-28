@@ -73,6 +73,7 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
 
     if (ToAdd > 0)
     {
+        BroadcastProcessorChanged();
         EvaluateAutoStart();
     }
     return Remaining;
@@ -98,6 +99,8 @@ int32 UKOFactoryProcessorComponent::TryExtractItem(FName ItemId, int32 Count)
         OutputBuffer.Remove(ItemId);
     }
 
+    BroadcastProcessorChanged();
+
     if (State == EKOFactoryState::OutputBlocked)
     {
         EvaluateAutoStart();
@@ -112,6 +115,7 @@ void UKOFactoryProcessorComponent::SetSelectedRecipe(FName RecipeId)
         return;
     }
     SelectedRecipeId = RecipeId;
+    BroadcastProcessorChanged();
     EvaluateAutoStart();
 }
 
@@ -123,6 +127,7 @@ void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count
     }
     int32& Current = OutputBuffer.FindOrAdd(ItemId);
     Current += Count;
+    BroadcastProcessorChanged();
 }
 
 int32 UKOFactoryProcessorComponent::TryExtractInputItem(FName ItemId, int32 Count)
@@ -144,6 +149,10 @@ int32 UKOFactoryProcessorComponent::TryExtractInputItem(FName ItemId, int32 Coun
     {
         InputBuffer.Remove(ItemId);
     }
+    if (Taken > 0)
+    {
+        BroadcastProcessorChanged();
+    }
     return Taken;
 }
 
@@ -155,6 +164,7 @@ void UKOFactoryProcessorComponent::RestoreInputBuffer(FName ItemId, int32 Count)
     }
     int32& Current = InputBuffer.FindOrAdd(ItemId);
     Current += Count;
+    BroadcastProcessorChanged();
 }
 
 bool UKOFactoryProcessorComponent::ManualStart()
@@ -278,6 +288,7 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
     CurrentCycleSeconds = FMath::Max(0.f, Recipe->CycleSeconds);
     Progress            = 0.f;
 
+    BroadcastProcessorChanged(); // InputBuffer 차감 + ActiveRecipe 변화
     SetState(EKOFactoryState::Running);
     
     if (CurrentCycleSeconds <= KINDA_SMALL_NUMBER)
@@ -313,6 +324,7 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
     CurrentCycleSeconds = 0.f;
     Progress            = 0.f;
 
+    BroadcastProcessorChanged(); // OutputBuffer 증가 + ActiveRecipe 해제
     SetState(EKOFactoryState::Idle);
     EvaluateAutoStart();
 }
@@ -411,6 +423,23 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
     }
     State = NewState;
     BroadcastStateChanged();
+    BroadcastProcessorChanged();
+}
+
+void UKOFactoryProcessorComponent::BroadcastProcessorChanged() const
+{
+    const UWorld* World = GetWorld();
+    if (!World) return;
+    UGameInstance* GI = World->GetGameInstance();
+    if (!GI) return;
+    UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>();
+    if (!GMS) return;
+
+    FKOProcessorChangedMessage Msg;
+    Msg.Processor = const_cast<UKOFactoryProcessorComponent*>(this);
+    GMS->BroadcastMessage(
+        KOGameplayTags::Data_Message_Processor_Changed,
+        FInstancedStruct::Make(Msg));
 }
 
 void UKOFactoryProcessorComponent::BroadcastStateChanged() const

@@ -126,3 +126,35 @@ struct FKOBuildModeChangedMessage
     UPROPERTY()
     EKOGridBuildMode NewMode = EKOGridBuildMode::None;
 };
+
+/**
+ * Producer 연료 변경 메시지 (적재 / 비움 — 카운트 매 틱 변화는 브로드캐스트하지 않음)
+ * 채널: KOGameplayTags::Data_Message_Producer_FuelChanged
+ */
+USTRUCT()
+struct FKOProducerFuelChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TWeakObjectPtr<class UKOEnergyProducerComponent> Producer;
+
+    UPROPERTY()
+    FName FuelItemId = NAME_None;
+
+    UPROPERTY()
+    int32 FuelCount = 0;
+};
+
+/**
+ * Processor 상태/버퍼/레시피 변경 메시지 (Progress 진행은 매 틱이라 미포함).
+ * 채널: KOGameplayTags::Data_Message_Processor_Changed
+ */
+USTRUCT()
+struct FKOProcessorChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TWeakObjectPtr<class UKOFactoryProcessorComponent> Processor;
+};

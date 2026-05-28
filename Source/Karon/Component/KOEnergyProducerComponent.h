@@ -54,6 +54,8 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
+    void BroadcastFuelChanged() const;
+
     /** 정수 단위 연료 보유량. */
     int32 FuelInBuffer = 0;
 

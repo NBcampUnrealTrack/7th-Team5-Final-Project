@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
+#include "GMRouterSubsystem.h"
 #include "KOFactoryProcessorWidget.generated.h"
 
 class AKOBaseBuilding;
@@ -32,8 +33,15 @@ public:
 protected:
     virtual void NativeOnActivated() override;
     virtual void NativeOnDeactivated() override;
-    
-    void Refresh();
+
+    /** ProgressBar/SupplyBar처럼 매 틱 변하는 요소 전용. */
+    void TickRefresh();
+
+    /** Title 1회 세팅용. */
+    void RefreshStaticInfo();
+
+    /** Recipe/State/Buffer/IOSlots 등 이벤트 기반 요소 갱신. */
+    void RefreshEventDriven();
     
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
     float RefreshInterval = 0.1f;
@@ -96,6 +104,9 @@ private:
     UFUNCTION()
     void HandleRecipeEntryClicked(FName InRecipeId);
 
+    UFUNCTION()
+    void HandleProcessorChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
+
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;
     TWeakObjectPtr<UKOFactoryProcessorComponent> Processor;
 
@@ -109,4 +120,7 @@ private:
     TArray<TObjectPtr<UKOFactoryRecipeEntryWidget>> RecipeEntryWidgets;
 
     FTimerHandle RefreshTimerHandle;
+
+    FGameplayMessageCallback ProcessorChangedCallback;
+    FGameplayMessageHandle   ProcessorChangedHandle;
 };

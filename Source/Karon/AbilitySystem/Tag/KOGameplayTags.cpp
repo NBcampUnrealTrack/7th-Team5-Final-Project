@@ -70,6 +70,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotChanged, "Data.Message.Build.QuickSlotChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Producer_FuelChanged,   "Data.Message.Producer.FuelChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Processor_Changed,      "Data.Message.Processor.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotSelectionChanged, "Data.Message.Build.QuickSlotSelectionChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_ModeChanged, "Data.Message.Build.ModeChanged");
 
