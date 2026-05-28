@@ -99,7 +99,12 @@ namespace KOGameplayTags
 	
 	// ── Event | HitReact ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact, "Event.HitReact");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Forward, "Event.HitReact.Forward");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Backward, "Event.HitReact.Backward");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Left, "Event.HitReact.Left");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Right, "Event.HitReact.Right");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_KnockBack_Launch, "Event.HitReact.KnockBack_Launch"); 
 	// ── Event | Death ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Death, "Event.Death");
 	
@@ -126,6 +131,7 @@ namespace KOGameplayTags
 	
 	// ───────────────────────── Effect ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact, "GameplayCue.HitImpact");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Death, "GameplayCue.Death");
 	
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health, "Data.Attribute.Health");
@@ -133,6 +139,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_State_Invincible, "Data.State.Invincible");
 
 	// ── Enemy Boss ────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal01, "Attack.Boss01.Normal01");

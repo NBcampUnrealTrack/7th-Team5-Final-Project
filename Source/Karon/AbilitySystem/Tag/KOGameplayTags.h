@@ -69,7 +69,12 @@ namespace KOGameplayTags
 	
 	// ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Forward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Backward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Left);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Right);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
     // ── Event | Death ─────────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 
@@ -196,7 +201,7 @@ namespace KOGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_InAir);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Sprinting);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Rolling);
-
+	
     // ── State | Character | Attacking ─────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);
 	//TODO:
@@ -215,7 +220,8 @@ namespace KOGameplayTags
 	// ───────────────────────── Event ──────────────────────────────
     // ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
+	
     // ── Event | Death ─────────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 
@@ -239,13 +245,16 @@ namespace KOGameplayTags
 	
 	// ───────────────────────── Cue ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Death);
+	
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat); 
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_State_Invincible);
 	
 	//Enemy Boss
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attack_Boss01_Normal01);
