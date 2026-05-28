@@ -60,6 +60,33 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
     return Count - ToAdd;
 }
 
+int32 UKOEnergyProducerComponent::TryExtractFuel(int32 Count)
+{
+    if (Count <= 0 || FuelInBuffer <= 0 || FuelItemId.IsNone())
+    {
+        return 0;
+    }
+    const int32 Taken = FMath::Min(FuelInBuffer, Count);
+    FuelInBuffer -= Taken;
+    if (FuelInBuffer <= 0)
+    {
+        FuelInBuffer = 0;
+        FuelDebt     = 0.f;
+        FuelItemId   = NAME_None;
+    }
+    return Taken;
+}
+
+void UKOEnergyProducerComponent::RestoreFuelBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    FuelInBuffer += Count;
+    FuelItemId    = ItemId;
+}
+
 float UKOEnergyProducerComponent::GetPowerOutput(float DeltaSeconds) const
 {
     if (DeltaSeconds <= 0.f || PowerPerFuelUnit <= 0.f || BurnRatePerSecond <= 0.f)

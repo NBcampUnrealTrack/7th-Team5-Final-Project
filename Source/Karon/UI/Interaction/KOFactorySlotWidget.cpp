@@ -9,9 +9,12 @@
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
 #include "InputCoreTypes.h"
+#include "Data/KODataTableTypes.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
+#include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOItemDragDropOperation.h"
+#include "UI/KOItemDragSource.h"
 
 void UKOFactorySlotWidget::SetupFuelSlot(UKOEnergyProducerComponent* InProducer)
 {
@@ -86,16 +89,54 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
 {
     const bool bHasItem = !ItemId.IsNone() && Count > 0;
 
+    // 비어 있는 Input/Output 슬롯에서, 선택된 레시피가 이 SlotItemId를 사용하면 미리보기 아이콘.
+    bool bShowPreview = false;
+    if (!bHasItem
+        && (Mode == EKOFactorySlotMode::ProcessorInput || Mode == EKOFactorySlotMode::ProcessorOutput)
+        && !SlotItemId.IsNone())
+    {
+        if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+        {
+            const FName SelectedId = Proc->GetSelectedRecipe();
+            if (!SelectedId.IsNone())
+            {
+                if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
+                {
+                    if (const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(SelectedId))
+                    {
+                        const TMap<FGameplayTag, int32>& Map =
+                            (Mode == EKOFactorySlotMode::ProcessorInput) ? Recipe->Inputs : Recipe->Outputs;
+                        for (const TPair<FGameplayTag, int32>& Pair : Map)
+                        {
+                            if (LoadSub->FindItemIdByTag(Pair.Key) == SlotItemId)
+                            {
+                                bShowPreview = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if (IconImage)
     {
-        UTexture2D* Icon = bHasItem
-            ? UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemId)
-            : EmptySlotIcon.Get();
+        UTexture2D* Icon = nullptr;
+        if (bHasItem || bShowPreview)
+        {
+            Icon = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemId.IsNone() ? SlotItemId : ItemId);
+        }
+        else
+        {
+            Icon = EmptySlotIcon.Get();
+        }
 
         if (Icon)
         {
             IconImage->SetBrushFromTexture(Icon);
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+            IconImage->SetRenderOpacity(bShowPreview ? PreviewOpacity : 1.f);
         }
         else
         {
@@ -109,6 +150,7 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
         {
             CountText->SetText(FText::AsNumber(Count));
             CountText->SetVisibility(ESlateVisibility::HitTestInvisible);
+            CountText->SetRenderOpacity(1.f);
         }
         else
         {
@@ -122,7 +164,8 @@ FReply UKOFactorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry
 {
     const bool bDragSourceMode =
         Mode == EKOFactorySlotMode::ProcessorOutput ||
-        Mode == EKOFactorySlotMode::ProcessorInput;
+        Mode == EKOFactorySlotMode::ProcessorInput  ||
+        Mode == EKOFactorySlotMode::Fuel;
 
     if (bDragSourceMode && InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
     {
@@ -146,37 +189,78 @@ void UKOFactorySlotWidget::NativeOnDragDetected(
 
     const bool bIsInput  = Mode == EKOFactorySlotMode::ProcessorInput;
     const bool bIsOutput = Mode == EKOFactorySlotMode::ProcessorOutput;
-    if (!bIsInput && !bIsOutput)
+    const bool bIsFuel   = Mode == EKOFactorySlotMode::Fuel;
+    if (!bIsInput && !bIsOutput && !bIsFuel)
     {
         return;
     }
 
-    UKOFactoryProcessorComponent* Proc = Processor.Get();
-    if (!Proc || SlotItemId.IsNone() || CachedCount <= 0)
+    FName PayloadItemId = NAME_None;
+    int32 PayloadCount  = 0;
+
+    if (bIsFuel)
     {
-        return;
+        UKOEnergyProducerComponent* Prod = Producer.Get();
+        if (!Prod || Prod->GetFuelItemId().IsNone() || Prod->GetFuelCount() <= 0)
+        {
+            return;
+        }
+        PayloadItemId = Prod->GetFuelItemId();
+        PayloadCount  = Prod->GetFuelCount();
+    }
+    else
+    {
+        UKOFactoryProcessorComponent* Proc = Processor.Get();
+        if (!Proc || SlotItemId.IsNone() || CachedCount <= 0)
+        {
+            return;
+        }
+        PayloadItemId = SlotItemId;
+        PayloadCount  = CachedCount;
     }
 
     FKOItemSlot Payload;
     Payload.Kind   = EKOSlotKind::Item;
-    Payload.ItemId = SlotItemId;
-    Payload.Count  = CachedCount;
+    Payload.ItemId = PayloadItemId;
+    Payload.Count  = PayloadCount;
 
-    const FText DisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, SlotItemId);
-    UTexture2D* Icon        = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, SlotItemId);
+    const FText DisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, PayloadItemId);
+    UTexture2D* Icon        = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, PayloadItemId);
 
-    OutOperation = UKOItemDragDropOperation::CreateItemDragOperation(
+    UKOItemDragDropOperation* DragOp = UKOItemDragDropOperation::CreateItemDragOperation(
         this,
         Payload,
         DisplayName,
         Icon,
         DragVisualSize,
         DragVisualOpacity,
-        INDEX_NONE,
-        nullptr,
-        Proc,
-        bIsInput
+        nullptr
     );
+    if (!DragOp)
+    {
+        return;
+    }
+
+    if (bIsFuel)
+    {
+        UKOProducerFuelItemSource* Src = NewObject<UKOProducerFuelItemSource>(DragOp);
+        Src->Producer = Producer;
+        DragOp->Source = Src;
+    }
+    else if (bIsInput)
+    {
+        UKOProcessorInputItemSource* Src = NewObject<UKOProcessorInputItemSource>(DragOp);
+        Src->Processor = Processor;
+        DragOp->Source = Src;
+    }
+    else // bIsOutput
+    {
+        UKOProcessorOutputItemSource* Src = NewObject<UKOProcessorOutputItemSource>(DragOp);
+        Src->Processor = Processor;
+        DragOp->Source = Src;
+    }
+
+    OutOperation = DragOp;
 }
 
 bool UKOFactorySlotWidget::NativeOnDrop(
@@ -202,44 +286,36 @@ bool UKOFactorySlotWidget::NativeOnDrop(
         return false;
     }
 
-    // Processor에서 출발한 드래그는 인벤토리만 받음. 슬롯 간 직접 이동 금지.
-    if (DragOp->SourceProcessor != nullptr)
+    // 인벤토리 슬롯에서 출발한 드래그만 받음.
+    UKOItemDragSource* Source = DragOp->Source;
+    if (!Source || !Source->IsInventorySource())
     {
         return false;
     }
 
-    UKOInventoryComponent* SourceInv = DragOp->SourceInventoryComponent;
-    const int32 SourceSlotIdx        = DragOp->SourceSlotIndex;
-    const FName ItemId               = DragOp->GetItemId();
-    const int32 Count                = DragOp->GetCount();
-    if (!SourceInv || SourceSlotIdx == INDEX_NONE || ItemId.IsNone() || Count <= 0)
+    const FName ItemId = DragOp->GetItemId();
+    const int32 Count  = DragOp->GetCount();
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return false;
+    }
+
+    if (Mode == EKOFactorySlotMode::ProcessorInput && !SlotItemId.IsNone() && ItemId != SlotItemId)
     {
         return false;
     }
 
     int32 Remaining = Count;
-
     if (Mode == EKOFactorySlotMode::Fuel)
     {
         UKOEnergyProducerComponent* Prod = Producer.Get();
-        if (!Prod)
-        {
-            return false;
-        }
+        if (!Prod) return false;
         Remaining = Prod->TryInsertFuel(ItemId, Count);
     }
     else // ProcessorInput
     {
         UKOFactoryProcessorComponent* Proc = Processor.Get();
-        if (!Proc)
-        {
-            return false;
-        }
-        // 이 슬롯이 특정 ItemId에 바인딩돼 있으면 다른 아이템 거부
-        if (!SlotItemId.IsNone() && ItemId != SlotItemId)
-        {
-            return false;
-        }
+        if (!Proc) return false;
         Remaining = Proc->TryInsertItem(ItemId, Count);
     }
 
@@ -249,7 +325,7 @@ bool UKOFactorySlotWidget::NativeOnDrop(
         return false;
     }
 
-    SourceInv->RemoveAtSlot(SourceSlotIdx, Inserted);
+    Source->Extract(ItemId, Inserted);
     RefreshFromComponent();
     return true;
 }

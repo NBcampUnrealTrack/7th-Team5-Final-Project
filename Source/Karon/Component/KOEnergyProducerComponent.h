@@ -36,6 +36,12 @@ public:
     /** 연료 적재. 반환값: 받지 못한 잔여 수량. */
     int32 TryInsertFuel(FName ItemId, int32 Count);
 
+    /** 연료 회수. 현재 적재된 FuelItemId 기준으로 차감. 반환값: 실제 추출 수량. */
+    int32 TryExtractFuel(int32 Count);
+
+    /** TryExtractFuel 후 인벤토리가 못 받은 잔량을 되돌리는 헬퍼. 캡 검증 없음. */
+    void  RestoreFuelBuffer(FName ItemId, int32 Count);
+
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
 

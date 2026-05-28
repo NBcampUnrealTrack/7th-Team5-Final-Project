@@ -1,6 +1,7 @@
-﻿#include "KOItemDragDropOperation.h"
+#include "KOItemDragDropOperation.h"
 
 #include "Components/Image.h"
+#include "UI/KOItemDragSource.h"
 
 UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	UObject* Outer,
@@ -9,10 +10,7 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	UTexture2D* InIcon,
 	const FVector2D& InDragVisualSize,
 	float InDragVisualOpacity,
-	int32 InSourceSlotIndex,
-	UKOInventoryComponent* InSourceInventoryComponent,
-	UKOFactoryProcessorComponent* InSourceProcessor,
-	bool bInSourceFromInputBuffer
+	UKOItemDragSource* InSource
 )
 {
 	if (!Outer)
@@ -26,32 +24,24 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	}
 
 	UKOItemDragDropOperation* DragOperation = NewObject<UKOItemDragDropOperation>(Outer);
-
 	if (!DragOperation)
 	{
 		return nullptr;
 	}
 
-	// 드래그 아이템 정보
-	DragOperation->ItemSlot = InItemSlot;
-	DragOperation->SourceSlotIndex = InSourceSlotIndex;
-	DragOperation->SourceInventoryComponent = InSourceInventoryComponent;
-	DragOperation->SourceProcessor = InSourceProcessor;
-	DragOperation->bSourceFromInputBuffer = bInSourceFromInputBuffer;
+	DragOperation->ItemSlot    = InItemSlot;
 	DragOperation->DisplayName = InDisplayName;
-	DragOperation->Icon = InIcon;
+	DragOperation->Icon        = InIcon;
+	DragOperation->Source      = InSource;
 
-	// 마우스를 따라다닐 드래그 아이콘 위젯
 	if (InIcon)
 	{
 		UImage* DragVisualImage = NewObject<UImage>(DragOperation);
-
 		if (DragVisualImage)
 		{
 			DragVisualImage->SetBrushFromTexture(InIcon);
 			DragVisualImage->SetBrushSize(InDragVisualSize);
 			DragVisualImage->SetOpacity(InDragVisualOpacity);
-
 			DragOperation->DefaultDragVisual = DragVisualImage;
 		}
 	}

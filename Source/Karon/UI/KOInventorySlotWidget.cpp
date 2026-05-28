@@ -8,6 +8,8 @@
 #include "InputCoreTypes.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "KOItemDragDropOperation.h"
+#include "KOItemDragSource.h"
+#include "UI/KOInventoryWidget.h"
 #include "Component/KOInventoryComponent.h"
 
 void UKOInventorySlotWidget::SetupSlot(UKOInventoryWidget* InOwningInventory, int32 InSlotIndex)
@@ -110,16 +112,23 @@ void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, c
         InventoryComponent = Owner->GetInventoryComponent();
     }
 
-    OutOperation = UKOItemDragDropOperation::CreateItemDragOperation(
+    UKOItemDragDropOperation* DragOp = UKOItemDragDropOperation::CreateItemDragOperation(
         this,
         SlotData,
         CachedDisplayName,
         CachedIcon.Get(),
         DragVisualSize,
         DragVisualOpacity,
-        SlotIndex,
-        InventoryComponent
+        nullptr
     );
+    if (DragOp && InventoryComponent)
+    {
+        UKOInventorySlotItemSource* Src = NewObject<UKOInventorySlotItemSource>(DragOp);
+        Src->Inventory = InventoryComponent;
+        Src->SlotIndex = SlotIndex;
+        DragOp->Source = Src;
+    }
+    OutOperation = DragOp;
 }
 
 bool UKOInventorySlotWidget::NativeOnDrop(
@@ -133,13 +142,14 @@ bool UKOInventorySlotWidget::NativeOnDrop(
         return false;
     }
 
-    // Processor에서 출발한 드래그는 인벤토리 패널이 처리. 슬롯 단위 스왑 대상 아님.
-    if (DragOp->SourceProcessor != nullptr)
+    UKOInventorySlotItemSource* InvSource = Cast<UKOInventorySlotItemSource>(DragOp->Source);
+    if (!InvSource)
     {
+        // 인벤토리 슬롯이 아닌 출발지(Factory 등)는 인벤토리 패널이 처리.
         return false;
     }
 
-    UKOInventoryComponent* SourceInv = DragOp->SourceInventoryComponent;
+    UKOInventoryComponent* SourceInv = InvSource->GetInventory();
     if (!SourceInv)
     {
         return false;
@@ -155,5 +165,5 @@ bool UKOInventorySlotWidget::NativeOnDrop(
         return false;
     }
 
-    return MyInv->SwapSlots(DragOp->SourceSlotIndex, SlotIndex);
+    return MyInv->SwapSlots(InvSource->SlotIndex, SlotIndex);
 }

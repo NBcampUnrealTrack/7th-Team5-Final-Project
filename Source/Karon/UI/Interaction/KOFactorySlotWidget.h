@@ -52,6 +52,10 @@ protected:
     UPROPERTY(EditAnywhere, Category = "KO|UI|Factory|Drag")
     float DragVisualOpacity = 0.85f;
 
+    /** 레시피 선택 시 비어있는 슬롯에 ItemId 아이콘을 표시할 때의 불투명도. */
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Factory")
+    float PreviewOpacity = 0.3f;
+
 private:
     void ApplyVisual(FName ItemId, int32 Count);
 

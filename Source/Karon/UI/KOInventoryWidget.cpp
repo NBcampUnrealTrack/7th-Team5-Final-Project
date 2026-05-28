@@ -2,8 +2,8 @@
 #include "UI/KOInventoryWidget.h"
 #include "UI/KOInventorySlotWidget.h"
 #include "UI/KOItemDragDropOperation.h"
+#include "UI/KOItemDragSource.h"
 #include "Component/KOInventoryComponent.h"
-#include "Component/KOFactoryProcessorComponent.h"
 #include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
@@ -53,9 +53,10 @@ bool UKOInventoryWidget::NativeOnDrop(
         return false;
     }
 
-    UKOFactoryProcessorComponent* SourceProc = DragOp->SourceProcessor;
-    if (!SourceProc)
+    UKOItemDragSource* Source = DragOp->Source;
+    if (!Source || Source->IsInventorySource())
     {
+        // 인벤토리에서 인벤토리로의 드래그는 슬롯 위젯이 swap으로 처리.
         return false;
     }
 
@@ -71,10 +72,7 @@ bool UKOInventoryWidget::NativeOnDrop(
         return false;
     }
 
-    const bool bFromInput = DragOp->bSourceFromInputBuffer;
-    const int32 Extracted = bFromInput
-        ? SourceProc->TryExtractInputItem(ItemId, Count)
-        : SourceProc->TryExtractItem(ItemId, Count);
+    const int32 Extracted = Source->Extract(ItemId, Count);
     if (Extracted <= 0)
     {
         return false;
@@ -83,14 +81,7 @@ bool UKOInventoryWidget::NativeOnDrop(
     const int32 Rejected = InventoryComponent->TryAddItem(EKOSlotKind::Item, ItemId, Extracted);
     if (Rejected > 0)
     {
-        if (bFromInput)
-        {
-            SourceProc->RestoreInputBuffer(ItemId, Rejected);
-        }
-        else
-        {
-            SourceProc->RestoreOutputBuffer(ItemId, Rejected);
-        }
+        Source->Restore(ItemId, Rejected);
     }
     return true;
 }
