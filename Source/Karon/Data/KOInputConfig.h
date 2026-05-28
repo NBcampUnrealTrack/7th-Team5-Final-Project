@@ -21,7 +21,7 @@ public:
 	FGameplayTag InputTag; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Category = "TriggerEvent"))
-	ETriggerEvent PressedTriggerEvent = ETriggerEvent::Triggered;
+	ETriggerEvent PressedTriggerEvent = ETriggerEvent::Started;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Category = "TriggerEvent"))
 	ETriggerEvent ReleasedTriggerEvent = ETriggerEvent::Completed;

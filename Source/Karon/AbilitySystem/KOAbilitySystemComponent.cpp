@@ -13,7 +13,7 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) ||
 				AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
+				UE_LOG(LogTemp, Log, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
 				
 				InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
@@ -28,9 +28,10 @@ void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
 	{
 		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 		{
-			if (AbilitySpec.Ability && AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
+			if (AbilitySpec.Ability && 
+				(AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag) || AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
+				UE_LOG(LogTemp, Log, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
 				
 				InputReleasedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.Remove(AbilitySpec.Handle);
