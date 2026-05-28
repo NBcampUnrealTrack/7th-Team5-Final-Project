@@ -1,20 +1,35 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/Interaction/KOFactoryProcessorWidget.h"
 
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Building/KOBaseBuilding.h"
 #include "Component/KOFactoryProcessorComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "Component/KOInventoryComponent.h"
+#include "Components/PanelWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
 #include "Data/KODataTableTypes.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
+#include "Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
+#include "Components/Button.h"
+#include "UI/Interaction/KOFactorySlotWidget.h"
+#include "UI/Interaction/KOFactoryRecipeEntryWidget.h"
+#include "UI/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProcessorWidget"
+
+UKOFactoryProcessorWidget::UKOFactoryProcessorWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
 
 namespace
 {
@@ -63,13 +78,48 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
     Processor = TargetBuilding->FindComponentByClass<UKOFactoryProcessorComponent>();
     if (!Processor.IsValid()) return;
 
-    Refresh();
+    if (InventoryWidget)
+    {
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            UKOInventoryComponent* PlayerInv = PC->FindComponentByClass<UKOInventoryComponent>();
+            if (!PlayerInv)
+            {
+                if (APawn* Pawn = PC->GetPawn())
+                {
+                    PlayerInv = Pawn->FindComponentByClass<UKOInventoryComponent>();
+                }
+            }
+            if (PlayerInv)
+            {
+                InventoryWidget->SetInventoryComponent(PlayerInv);
+            }
+        }
+    }
+
+    BuildIOSlots();
+
+    if (RecipeButton && !RecipeButton->OnClicked.IsAlreadyBound(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked))
+    {
+        RecipeButton->OnClicked.AddDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
+    }
+
+    bShowingRecipePanel = false;
+    ApplyPanelSwitch();
+
+    // GMS 구독: Processor의 Recipe/State/Buffer 변동 이벤트
+    ProcessorChangedCallback.BindDynamic(this, &UKOFactoryProcessorWidget::HandleProcessorChangedMessage);
+    ProcessorChangedHandle = Subscribe(KOGameplayTags::Data_Message_Processor_Changed, ProcessorChangedCallback);
+
+    RefreshStaticInfo();
+    RefreshEventDriven();
+    TickRefresh();
 
     if (UWorld* World = GetWorld())
     {
         World->GetTimerManager().SetTimer(
             RefreshTimerHandle,
-            FTimerDelegate::CreateUObject(this, &UKOFactoryProcessorWidget::Refresh),
+            FTimerDelegate::CreateUObject(this, &UKOFactoryProcessorWidget::TickRefresh),
             RefreshInterval,
             /*bLoop=*/true);
     }
@@ -83,33 +133,272 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     }
     RefreshTimerHandle.Invalidate();
 
+    if (InputSlotsPanel)  InputSlotsPanel->ClearChildren();
+    if (OutputSlotsPanel) OutputSlotsPanel->ClearChildren();
+    InputSlotWidgets.Reset();
+    OutputSlotWidgets.Reset();
+
+    if (RecipeButton)
+    {
+        RecipeButton->OnClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
+    }
+    if (RecipeSelectPanel) RecipeSelectPanel->ClearChildren();
+    for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
+    {
+        if (Entry)
+        {
+            Entry->OnRecipeClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        }
+    }
+    RecipeEntryWidgets.Reset();
+
+    Unsubscribe(ProcessorChangedHandle);
+    ProcessorChangedHandle = FGameplayMessageHandle();
+    ProcessorChangedCallback.Clear();
+
     Processor.Reset();
     TargetBuilding.Reset();
 
     Super::NativeOnDeactivated();
 }
 
-void UKOFactoryProcessorWidget::Refresh()
+void UKOFactoryProcessorWidget::HandleRecipeButtonClicked()
+{
+    // RecipeButton -> Recipe 패널 진입. Inventory는 숨김.
+    bShowingRecipePanel = true;
+    ApplyPanelSwitch();
+}
+
+void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
+{
+    if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+    {
+        Proc->SetSelectedRecipe(InRecipeId);
+        // SetSelectedRecipe 내부에서 BroadcastProcessorChanged → HandleProcessorChangedMessage가 UI 갱신.
+    }
+
+    // 레시피 선택 후 Inventory 패널로 복귀.
+    bShowingRecipePanel = false;
+    ApplyPanelSwitch();
+}
+
+void UKOFactoryProcessorWidget::ApplyPanelSwitch()
+{
+    if (bShowingRecipePanel)
+    {
+        PopulateRecipeSelect();
+    }
+
+    if (PanelSwitcher)
+    {
+        PanelSwitcher->SetActiveWidgetIndex(bShowingRecipePanel ? RecipePanelIndex : InventoryPanelIndex);
+    }
+}
+
+void UKOFactoryProcessorWidget::PopulateRecipeSelect()
+{
+    if (!RecipeSelectPanel || !RecipeEntryClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect early-out: Panel=%s, EntryClass=%s"),
+            RecipeSelectPanel ? TEXT("OK") : TEXT("NULL"),
+            RecipeEntryClass ? TEXT("OK") : TEXT("NULL"));
+        return;
+    }
+
+    AKOBaseBuilding* Building = TargetBuilding.Get();
+    if (!Building) return;
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!LoadSub || !FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect early-out: LoadSub=%s, Row=%s, Tag=%s"),
+            LoadSub ? TEXT("OK") : TEXT("NULL"),
+            FactoryRow ? TEXT("OK") : TEXT("NULL"),
+            (FactoryRow && FactoryRow->FactoryCategoryTag.IsValid()) ? *FactoryRow->FactoryCategoryTag.ToString() : TEXT("INVALID"));
+        return;
+    }
+
+    // 기존 엔트리 정리
+    for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
+    {
+        if (Entry)
+        {
+            Entry->OnRecipeClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        }
+    }
+    RecipeEntryWidgets.Reset();
+    RecipeSelectPanel->ClearChildren();
+
+    auto AddEntry = [this](FName InRecipeId, const FText& InLabel)
+    {
+        UKOFactoryRecipeEntryWidget* Entry = CreateWidget<UKOFactoryRecipeEntryWidget>(this, RecipeEntryClass);
+        if (!Entry) return;
+        Entry->SetRecipe(InRecipeId, InLabel);
+        Entry->OnRecipeClicked.AddDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeEntryClicked);
+        RecipeSelectPanel->AddChild(Entry);
+        RecipeEntryWidgets.Add(Entry);
+    };
+
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    for (const FName& RecipeId : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid()) continue;
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag)) continue;
+
+        AddEntry(RecipeId, Recipe->DisplayName);
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect: %d entries added (FactoryTag=%s)"),
+        RecipeEntryWidgets.Num(), *FactoryRow->FactoryCategoryTag.ToString());
+}
+
+void UKOFactoryProcessorWidget::BuildIOSlots()
 {
     AKOBaseBuilding* Building = TargetBuilding.Get();
     UKOFactoryProcessorComponent* Proc = Processor.Get();
-    if (!Building || !Proc) return;
+    if (!Building || !Proc)
+    {
+        return;
+    }
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
+    {
+        return;
+    }
+
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid())
+    {
+        return;
+    }
+
+    // 이 공장 카테고리에 매칭되는 모든 레시피의 입력/출력 ItemId 유니온 수집.
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    TArray<FName> InputItemIds;
+    TArray<FName> OutputItemIds;
+
+    for (const FName& RecipeId : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
+        {
+            continue;
+        }
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
+        {
+            continue;
+        }
+
+        for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
+        {
+            const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+            if (!ItemId.IsNone())
+            {
+                InputItemIds.AddUnique(ItemId);
+            }
+        }
+        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
+        {
+            const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
+            if (!ItemId.IsNone())
+            {
+                OutputItemIds.AddUnique(ItemId);
+            }
+        }
+    }
+
+    if (InputSlotsPanel && InputSlotClass)
+    {
+        InputSlotsPanel->ClearChildren();
+        InputSlotWidgets.Reset();
+        for (const FName& ItemId : InputItemIds)
+        {
+            UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, InputSlotClass);
+            if (!SlotWidget) continue;
+            SlotWidget->SetupInputSlot(Proc, ItemId);
+            InputSlotsPanel->AddChild(SlotWidget);
+            InputSlotWidgets.Add(SlotWidget);
+        }
+    }
+
+    if (OutputSlotsPanel && OutputSlotClass)
+    {
+        OutputSlotsPanel->ClearChildren();
+        OutputSlotWidgets.Reset();
+        for (const FName& ItemId : OutputItemIds)
+        {
+            UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, OutputSlotClass);
+            if (!SlotWidget) continue;
+            SlotWidget->SetupOutputSlot(Proc, ItemId);
+            OutputSlotsPanel->AddChild(SlotWidget);
+            OutputSlotWidgets.Add(SlotWidget);
+        }
+    }
+}
+
+void UKOFactoryProcessorWidget::RefreshIOSlots()
+{
+    for (UKOFactorySlotWidget* SlotWidget : InputSlotWidgets)
+    {
+        if (SlotWidget) SlotWidget->RefreshFromComponent();
+    }
+    for (UKOFactorySlotWidget* SlotWidget : OutputSlotWidgets)
+    {
+        if (SlotWidget) SlotWidget->RefreshFromComponent();
+    }
+}
+
+void UKOFactoryProcessorWidget::RefreshStaticInfo()
+{
+    AKOBaseBuilding* Building = TargetBuilding.Get();
+    if (!Building) return;
 
     if (TitleText)
     {
         const FKOFactoryRow* Row = Building->GetFactoryRow();
         TitleText->SetText(Row ? Row->DisplayName : FText::GetEmpty());
     }
+}
+
+void UKOFactoryProcessorWidget::TickRefresh()
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc) return;
+
+    if (ProgressBar)
+    {
+        ProgressBar->SetPercent(Proc->GetProgress());
+    }
+
+    if (SupplyBar)
+    {
+        SupplyBar->SetPercent(FMath::Clamp(Proc->GetLastSupplyRatio(), 0.f, 1.f));
+    }
+}
+
+void UKOFactoryProcessorWidget::RefreshEventDriven()
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc) return;
 
     if (RecipeText)
     {
         FText RecipeName = FText::GetEmpty();
-        const FName RecipeId = Proc->GetActiveRecipeId();
-        if (!RecipeId.IsNone())
+        const FName ActiveId   = Proc->GetActiveRecipeId();
+        const FName SelectedId = Proc->GetSelectedRecipe();
+        const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
+        if (!ShownId.IsNone())
         {
             if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
             {
-                if (const FKORecipeRow* Row = Load->FindRecipeRow(RecipeId))
+                if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
                 {
                     RecipeName = Row->DisplayName;
                 }
@@ -123,16 +412,6 @@ void UKOFactoryProcessorWidget::Refresh()
         StateText->SetText(StateToText(Proc->GetState()));
     }
 
-    if (ProgressBar)
-    {
-        ProgressBar->SetPercent(Proc->GetProgress());
-    }
-
-    if (SupplyBar)
-    {
-        SupplyBar->SetPercent(FMath::Clamp(Proc->GetLastSupplyRatio(), 0.f, 1.f));
-    }
-
     if (InputBufferText)
     {
         InputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetInputBuffer())));
@@ -142,6 +421,17 @@ void UKOFactoryProcessorWidget::Refresh()
     {
         OutputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetOutputBuffer())));
     }
+
+    RefreshIOSlots();
+}
+
+void UKOFactoryProcessorWidget::HandleProcessorChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+    const FKOProcessorChangedMessage* Msg = Payload.GetPtr<FKOProcessorChangedMessage>();
+    if (!Msg) return;
+    if (Msg->Processor.Get() != Processor.Get()) return;
+
+    RefreshEventDriven();
 }
 
 #undef LOCTEXT_NAMESPACE

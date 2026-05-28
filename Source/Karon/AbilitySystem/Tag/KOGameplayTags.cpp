@@ -12,9 +12,11 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_ToggleDestroy,  "Input.Native.Build.ToggleDestroy");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleInventory,      "Input.Native.ToggleInventory");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Cancel,  "Input.Native.Build.Cancel");
-	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Escape,  "Input.Native.Build.Escape");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot1,  "Input.Native.Build.QuickSlot1");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot2,  "Input.Native.Build.QuickSlot2");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot3,  "Input.Native.Build.QuickSlot3");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot4,  "Input.Native.Build.QuickSlot4");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot5,  "Input.Native.Build.QuickSlot5");
 	
 	// ── Input | Ability | Movement ────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Movement_Jump, "Input.Ability.Movement.Jump");
@@ -70,6 +72,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotChanged, "Data.Message.Build.QuickSlotChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Producer_FuelChanged,   "Data.Message.Producer.FuelChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Processor_Changed,      "Data.Message.Processor.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotSelectionChanged, "Data.Message.Build.QuickSlotSelectionChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_ModeChanged, "Data.Message.Build.ModeChanged");
 
@@ -88,6 +92,19 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
+
+	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Item_BasicModule, "Item.BasicModule");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Coal,        "Item.Coal");
+	UE_DEFINE_GAMEPLAY_TAG(Item_CoalDust,    "Item.CoalDust");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Copper,      "Item.Copper");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Tin,         "Item.Tin");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Bronze,      "Item.Bronze");
+	UE_DEFINE_GAMEPLAY_TAG(Item_BronzePlate, "Item.BronzePlate");
+	UE_DEFINE_GAMEPLAY_TAG(Item_MiningPipe,  "Item.MiningPipe");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
+	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
 	
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");

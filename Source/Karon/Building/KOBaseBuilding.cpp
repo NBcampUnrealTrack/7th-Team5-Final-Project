@@ -4,11 +4,14 @@
 #include "Component/KOEnergyProducerComponent.h"
 #include "Component/KOFactoryProcessorComponent.h"
 #include "Data/KODataTableTypes.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "GMRouterSubsystem.h"
 #include "Items/KOItemLibrary.h"
 #include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "UI/KOUISubsystem.h"
 
 AKOBaseBuilding::AKOBaseBuilding()
 {
@@ -78,12 +81,31 @@ void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 
 	if (WidgetTag.IsValid())
 	{
-		FKOUIPushLayerRequest UIReq;
-		UIReq.WidgetTag = WidgetTag;
-		UGMRouterSubsystem::BroadcastMessage(
-			World,
-			KOGameplayTags::Data_Message_UI_PushLayerRequest,
-			FInstancedStruct::Make(UIReq));
+		// Interactor(Pawn) → PC → UISubsystem 경로로 토글. 인벤토리(Tab)와 같은 패턴.
+		APlayerController* PC = nullptr;
+		if (APawn* Pawn = Cast<APawn>(Interactor))
+		{
+			PC = Cast<APlayerController>(Pawn->GetController());
+		}
+		else
+		{
+			PC = Cast<APlayerController>(Interactor);
+		}
+
+		if (UKOUISubsystem* UISub = UKOUISubsystem::Get(PC))
+		{
+			UISub->ToggleWidget(WidgetTag);
+		}
+		else
+		{
+			// 폴백: UISubsystem 직접 접근 실패 시 기존 메시지 경로 사용.
+			FKOUIPushLayerRequest UIReq;
+			UIReq.WidgetTag = WidgetTag;
+			UGMRouterSubsystem::BroadcastMessage(
+				World,
+				KOGameplayTags::Data_Message_UI_PushLayerRequest,
+				FInstancedStruct::Make(UIReq));
+		}
 	}
 }
 

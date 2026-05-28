@@ -1,9 +1,14 @@
 ﻿#include "KOBuildQuickSlotWidget.h"
 
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Image.h"
 #include "GameFramework/PlayerController.h"
+#include "InputCoreTypes.h"
+#include "Items/KOItemLibrary.h"
+#include "Items/KOItemSlot.h"
 #include "KOItemDragDropOperation.h"
 #include "KOBuildUIComponent.h"
+#include "KOItemDragSource.h"
 
 #include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -126,7 +131,19 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 	
 	auto ApplyEmptyVisual = [this]()
 	{
-		SlotIconImage->SetVisibility(ESlateVisibility::Hidden);
+		if (EmptySlotIcon)
+		{
+			SlotIconImage->SetBrushFromTexture(EmptySlotIcon);
+			SlotIconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
+			SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			// EmptySlotIcon이 없으면 이전 텍스처를 숨겨야 잔상이 남지 않음.
+			SlotIconImage->SetBrushFromTexture(nullptr);
+			SlotIconImage->SetVisibility(ESlateVisibility::Hidden);
+		}
+
 		SlotIconImage->SetRenderOpacity(NormalOpacity);
 
 		if (CountText)
@@ -166,9 +183,10 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 		return;
 	}
 
-	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	SlotIconImage->SetBrushFromTexture(Icon);
-	
+	SlotIconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
+	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+
 	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
 
 	const bool bHasInventory = InventoryComponent != nullptr;
@@ -189,6 +207,78 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 	}
 }
 
+FReply UKOBuildQuickSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+	{
+		UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+		if (BuildUIComponent)
+		{
+			const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
+			if (!AssignedFactoryId.IsNone())
+			{
+				FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
+					InMouseEvent,
+					this,
+					EKeys::LeftMouseButton
+				);
+				return Reply.NativeReply;
+			}
+		}
+	}
+
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
+void UKOBuildQuickSlotWidget::NativeOnDragDetected(
+	const FGeometry& InGeometry,
+	const FPointerEvent& InMouseEvent,
+	UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+	if (!BuildUIComponent)
+	{
+		return;
+	}
+
+	const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
+	if (AssignedFactoryId.IsNone())
+	{
+		return;
+	}
+
+	FKOItemSlot Payload;
+	Payload.Kind   = EKOSlotKind::Factory;
+	Payload.ItemId = AssignedFactoryId;
+	Payload.Count  = 1;
+
+	const FText DisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Factory, AssignedFactoryId);
+	UTexture2D* Icon        = UKOItemLibrary::GetIcon(this, EKOSlotKind::Factory, AssignedFactoryId);
+
+	UKOItemDragDropOperation* DragOp = UKOItemDragDropOperation::CreateItemDragOperation(
+		this,
+		Payload,
+		DisplayName,
+		Icon,
+		DragVisualSize,
+		DragVisualOpacity,
+		nullptr
+	);
+	if (!DragOp)
+	{
+		return;
+	}
+
+	UKOBuildQuickSlotItemSource* Src = NewObject<UKOBuildQuickSlotItemSource>(DragOp);
+	Src->BuildUI   = BuildUIComponent;
+	Src->SlotIndex = SlotIndex;
+	DragOp->Source = Src;
+
+	OutOperation = DragOp;
+}
+
 bool UKOBuildQuickSlotWidget::NativeOnDrop(
 	const FGeometry& InGeometry,
 	const FDragDropEvent& InDragDropEvent,
@@ -206,7 +296,7 @@ bool UKOBuildQuickSlotWidget::NativeOnDrop(
 	{
 		return false;
 	}
-	
+
 	if (!ItemDragOperation->IsFactory())
 	{
 		return false;
@@ -225,6 +315,17 @@ bool UKOBuildQuickSlotWidget::NativeOnDrop(
 		return false;
 	}
 
+	// QuickSlot -> QuickSlot: 두 칸 교환.
+	if (UKOBuildQuickSlotItemSource* QuickSrc = Cast<UKOBuildQuickSlotItemSource>(ItemDragOperation->Source))
+	{
+		if (QuickSrc->SlotIndex == SlotIndex)
+		{
+			return false;
+		}
+		return BuildUIComponent->SwapBuildQuickSlot(QuickSrc->SlotIndex, SlotIndex);
+	}
+
+	// 그 외(예: Inventory에서 출발) -> 단순 할당.
 	return BuildUIComponent->SetBuildQuickSlot(SlotIndex, FactoryId);
 }
 

@@ -17,7 +17,7 @@ enum class EKOFactoryState : uint8
     OutputBlocked   // 출력 버퍼 가득 참
 };
 
-UCLASS(ClassGroup = "KO|Factory")
+UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
 class KARON_API UKOFactoryProcessorComponent : public UActorComponent, public IKOEnergyConsumer
 {
     GENERATED_BODY()
@@ -33,6 +33,19 @@ public:
     
     int32 TryInsertItem(FName ItemId, int32 Count);
     int32 TryExtractItem(FName ItemId, int32 Count);
+
+    /** InputBuffer에서 차감해서 회수. 실제 추출된 수량 반환. */
+    int32 TryExtractInputItem(FName ItemId, int32 Count);
+
+    /** TryExtractItem 후 인벤토리가 못 받은 잔량을 OutputBuffer에 되돌리는 헬퍼. 캡 검증 없음(직전 추출량 이하 가정). */
+    void  RestoreOutputBuffer(FName ItemId, int32 Count);
+
+    /** TryExtractInputItem 후 인벤토리가 못 받은 잔량을 InputBuffer에 되돌리는 헬퍼. */
+    void  RestoreInputBuffer(FName ItemId, int32 Count);
+
+    /** 수동 레시피 선택. NAME_None을 넘기면 자동 선택으로 복귀. 즉시 가동 시도. */
+    void  SetSelectedRecipe(FName RecipeId);
+    FName GetSelectedRecipe() const { return SelectedRecipeId; }
     bool  ManualStart();
     
     float GetProgress() const;
@@ -66,6 +79,7 @@ private:
     void  EvaluateAutoStart();
     void  SetState(EKOFactoryState NewState);
     void  BroadcastStateChanged() const;
+    void  BroadcastProcessorChanged() const;
 
     AKOBaseBuilding* GetOwnerBuilding() const;
     FName GetOwnerFactoryId()           const;
@@ -73,6 +87,7 @@ private:
     // Internal State
     EKOFactoryState State = EKOFactoryState::Idle;
     FName  ActiveRecipeId      = NAME_None;
+    FName  SelectedRecipeId    = NAME_None;
     float  CurrentCycleSeconds = 0.f;
     float  Progress            = 0.f;   
     float  LastSupplyRatio     = 1.f;  

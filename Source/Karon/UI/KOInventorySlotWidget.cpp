@@ -8,6 +8,8 @@
 #include "InputCoreTypes.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "KOItemDragDropOperation.h"
+#include "KOItemDragSource.h"
+#include "UI/KOInventoryWidget.h"
 #include "Component/KOInventoryComponent.h"
 
 void UKOInventorySlotWidget::SetupSlot(UKOInventoryWidget* InOwningInventory, int32 InSlotIndex)
@@ -43,6 +45,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         if (TextureToShow)
         {
             IconImage->SetBrushFromTexture(TextureToShow);
+            IconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
         }
         else
@@ -110,14 +113,58 @@ void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, c
         InventoryComponent = Owner->GetInventoryComponent();
     }
 
-    OutOperation = UKOItemDragDropOperation::CreateItemDragOperation(
+    UKOItemDragDropOperation* DragOp = UKOItemDragDropOperation::CreateItemDragOperation(
         this,
         SlotData,
         CachedDisplayName,
         CachedIcon.Get(),
         DragVisualSize,
         DragVisualOpacity,
-        SlotIndex,
-        InventoryComponent
+        nullptr
     );
+    if (DragOp && InventoryComponent)
+    {
+        UKOInventorySlotItemSource* Src = NewObject<UKOInventorySlotItemSource>(DragOp);
+        Src->Inventory = InventoryComponent;
+        Src->SlotIndex = SlotIndex;
+        DragOp->Source = Src;
+    }
+    OutOperation = DragOp;
+}
+
+bool UKOInventorySlotWidget::NativeOnDrop(
+    const FGeometry& InGeometry,
+    const FDragDropEvent& InDragDropEvent,
+    UDragDropOperation* InOperation)
+{
+    UKOItemDragDropOperation* DragOp = Cast<UKOItemDragDropOperation>(InOperation);
+    if (!DragOp || !DragOp->HasItem())
+    {
+        return false;
+    }
+
+    UKOInventorySlotItemSource* InvSource = Cast<UKOInventorySlotItemSource>(DragOp->Source);
+    if (!InvSource)
+    {
+        // 인벤토리 슬롯이 아닌 출발지(Factory 등)는 인벤토리 패널이 처리.
+        return false;
+    }
+
+    UKOInventoryComponent* SourceInv = InvSource->GetInventory();
+    if (!SourceInv)
+    {
+        return false;
+    }
+
+    UKOInventoryComponent* MyInv = nullptr;
+    if (UKOInventoryWidget* Owner = OwningInventory.Get())
+    {
+        MyInv = Owner->GetInventoryComponent();
+    }
+    if (!MyInv || MyInv != SourceInv)
+    {
+        return false;
+    }
+
+    return MyInv->SwapSlots(InvSource->SlotIndex, SlotIndex);
 }

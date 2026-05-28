@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/DragDropOperation.h"
@@ -6,7 +6,7 @@
 #include "KOItemDragDropOperation.generated.h"
 
 class UTexture2D;
-class UKOInventoryComponent;
+class UKOItemDragSource;
 
 UCLASS()
 class KARON_API UKOItemDragDropOperation : public UDragDropOperation
@@ -17,20 +17,17 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
 	FKOItemSlot ItemSlot;
 
-	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
-	int32 SourceSlotIndex = INDEX_NONE;
-
-	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
-	TObjectPtr<UKOInventoryComponent> SourceInventoryComponent = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Build|Drag")
+	UPROPERTY(BlueprintReadWrite, Category = "KO|DragDrop")
 	FText DisplayName;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Build|Drag")
+	UPROPERTY(BlueprintReadWrite, Category = "KO|DragDrop")
 	TObjectPtr<UTexture2D> Icon = nullptr;
-	
+
+	/** 드래그 출발지 폴리모픽 어댑터. Extract/Restore만 호출하면 됨. */
+	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
+	TObjectPtr<UKOItemDragSource> Source = nullptr;
+
 public:
-	// 드래그 시작 함수
 	static UKOItemDragDropOperation* CreateItemDragOperation(
 		UObject* Outer,
 		const FKOItemSlot& InItemSlot,
@@ -38,9 +35,9 @@ public:
 		UTexture2D* InIcon,
 		const FVector2D& InDragVisualSize,
 		float InDragVisualOpacity,
-		int32 InSourceSlotIndex = INDEX_NONE,
-		UKOInventoryComponent* InSourceInventoryComponent = nullptr
+		UKOItemDragSource* InSource = nullptr
 	);
+
 	bool HasItem() const
 	{
 		return ItemSlot.HasItem();

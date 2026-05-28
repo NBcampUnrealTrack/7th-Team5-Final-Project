@@ -39,6 +39,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Interaction|Trace")
 	float TraceDistance = 500.f;
 
+	/** 스피어 트레이스 반경(cm). 0 이하이면 라인 트레이스로 폴백. */
+	UPROPERTY(EditAnywhere, Category = "Interaction|Trace")
+	float TraceRadius = 20.f;
+
 	UPROPERTY(EditAnywhere, Category = "Interaction|Trace")
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Visibility;
 

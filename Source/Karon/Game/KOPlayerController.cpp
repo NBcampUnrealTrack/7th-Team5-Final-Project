@@ -35,22 +35,28 @@ void AKOPlayerController::BeginPlay()
 #if !(UE_BUILD_SHIPPING)
 	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
 	{
-		 FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("ModuleDismantler"),
-			3
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BasicModule"),
-			100
-		);	
-		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
 			TEXT("Boiler"),
 			2
+		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Coal"),
+			50
+		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("UndergroundMiningModule"),
+			2
+		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("MiningPipe"),
+			50
 		);
 	}
 #endif
@@ -146,15 +152,6 @@ void AKOPlayerController::SetupInputComponent()
 
 		KOIC->BindNativeAction(
 			InputConfig,
-			KOGameplayTags::Input_Native_Build_Escape,
-			ETriggerEvent::Started,
-			this,
-			&ThisClass::Input_BuildEscape,
-			true
-		);
-
-		KOIC->BindNativeAction(
-			InputConfig,
 			KOGameplayTags::Input_Native_Build_QuickSlot1,
 			ETriggerEvent::Started,
 			this,
@@ -168,6 +165,33 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_SelectBuildQuickSlot2,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_QuickSlot3,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_SelectBuildQuickSlot3,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_QuickSlot4,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_SelectBuildQuickSlot4,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_QuickSlot5,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_SelectBuildQuickSlot5,
 			true
 		);
 
@@ -293,7 +317,7 @@ void AKOPlayerController::Input_BuildToggleDestroy(const FInputActionValue& /*Va
 		return;
 	}
 
-	BuildUIComponent->StartDestroyBuildMode();
+	BuildUIComponent->ToggleDestroyBuildMode();
 }
 
 void AKOPlayerController::Input_BuildCancel(const FInputActionValue& /*Value*/)
@@ -301,14 +325,6 @@ void AKOPlayerController::Input_BuildCancel(const FInputActionValue& /*Value*/)
 	if (BuildUIComponent)
 	{
 		BuildUIComponent->CancelBuildAction();
-	}
-}
-
-void AKOPlayerController::Input_BuildEscape(const FInputActionValue& /*Value*/)
-{
-	if (BuildUIComponent)
-	{
-		BuildUIComponent->EscapeBuildAction();
 	}
 }
 
@@ -325,6 +341,30 @@ void AKOPlayerController::Input_SelectBuildQuickSlot2(const FInputActionValue& /
 	if (BuildUIComponent)
 	{
 		BuildUIComponent->SelectBuildQuickSlot(1);
+	}
+}
+
+void AKOPlayerController::Input_SelectBuildQuickSlot3(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->SelectBuildQuickSlot(2);
+	}
+}
+
+void AKOPlayerController::Input_SelectBuildQuickSlot4(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->SelectBuildQuickSlot(3);
+	}
+}
+
+void AKOPlayerController::Input_SelectBuildQuickSlot5(const FInputActionValue& /*Value*/)
+{
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->SelectBuildQuickSlot(4);
 	}
 }
 

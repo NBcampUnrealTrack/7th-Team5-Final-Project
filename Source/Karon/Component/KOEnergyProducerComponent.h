@@ -3,19 +3,23 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "Subsystem/KOEnergyTypes.h"
 #include "KOEnergyProducerComponent.generated.h"
 
-UCLASS(ClassGroup = "KO|Factory")
+UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
 class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOEnergyProducer
 {
     GENERATED_BODY()
 
 public:
     UKOEnergyProducerComponent();
-    /** 받아들이는 연료 아이템 ID */
+    /**
+     * 받아들이는 연료 카테고리 태그. FKOItemRow::Categories 에 이 태그가 포함되면 연료로 인정.
+     * 기본값: "Item.Category.EnergyResource".
+     */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    FName FuelItemId;
+    FGameplayTag FuelCategoryTag;
 
     /** 연료 1개 소모 시 생산되는 총 에너지량 */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
@@ -32,7 +36,14 @@ public:
     /** 연료 적재. 반환값: 받지 못한 잔여 수량. */
     int32 TryInsertFuel(FName ItemId, int32 Count);
 
+    /** 연료 회수. 현재 적재된 FuelItemId 기준으로 차감. 반환값: 실제 추출 수량. */
+    int32 TryExtractFuel(int32 Count);
+
+    /** TryExtractFuel 후 인벤토리가 못 받은 잔량을 되돌리는 헬퍼. 캡 검증 없음. */
+    void  RestoreFuelBuffer(FName ItemId, int32 Count);
+
     int32 GetFuelCount() const { return FuelInBuffer; }
+    FName GetFuelItemId() const { return FuelItemId; }
 
     // IKOEnergyProducer 
     virtual float GetPowerOutput(float DeltaSeconds) const override;
@@ -43,9 +54,14 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 private:
+    void BroadcastFuelChanged() const;
+
     /** 정수 단위 연료 보유량. */
     int32 FuelInBuffer = 0;
 
     /** 소수 단위 연료 보유량 */
     float FuelDebt = 0.f;
+
+    /** 현재 적재된 연료 아이템 ID (UI 표시용). 비었을 때 NAME_None. */
+    FName FuelItemId = NAME_None;
 };

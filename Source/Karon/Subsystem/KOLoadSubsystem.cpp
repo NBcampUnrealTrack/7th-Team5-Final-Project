@@ -37,6 +37,7 @@ void UKOLoadSubsystem::Deinitialize()
     ItemCache.Empty();
     FactoryCache.Empty();
     RecipeCache.Empty();
+    ItemTagToId.Empty();
     ResolvedIcons.Empty();
     ResolvedBuildingClasses.Empty();
     ResolvedFactoryIcons.Empty();
@@ -122,9 +123,42 @@ void UKOLoadSubsystem::LoadAll()
     IndexTableRowsByName<FKOFactoryRow>(Settings->FactoryTables, FactoryCache, TEXT("Factory"));
     IndexTableRowsByName<FKORecipeRow> (Settings->RecipeTables,  RecipeCache,  TEXT("Recipe"));
 
+    // ItemTag → ItemId 역인덱스 빌드
+    ItemTagToId.Reset();
+    for (const TPair<FName, const FKOItemRow*>& Pair : ItemCache)
+    {
+        const FKOItemRow* Row = Pair.Value;
+        if (!Row || !Row->ItemTag.IsValid())
+        {
+            continue;
+        }
+
+        if (ItemTagToId.Contains(Row->ItemTag))
+        {
+            UE_LOG(LogKOLoad, Warning,
+                TEXT("UKOLoadSubsystem: 중복 ItemTag '%s' (기존='%s', 신규='%s' — 무시)."),
+                *Row->ItemTag.ToString(),
+                *ItemTagToId[Row->ItemTag].ToString(),
+                *Pair.Key.ToString());
+            continue;
+        }
+
+        ItemTagToId.Add(Row->ItemTag, Pair.Key);
+    }
+
     UE_LOG(LogKOLoad, Log,
-        TEXT("UKOLoadSubsystem: LoadAll complete. Items=%d, Factories=%d, Recipes=%d."),
-        ItemCache.Num(), FactoryCache.Num(), RecipeCache.Num());
+        TEXT("UKOLoadSubsystem: LoadAll complete. Items=%d, Factories=%d, Recipes=%d, ItemTags=%d."),
+        ItemCache.Num(), FactoryCache.Num(), RecipeCache.Num(), ItemTagToId.Num());
+}
+
+FName UKOLoadSubsystem::FindItemIdByTag(FGameplayTag ItemTag) const
+{
+    if (!ItemTag.IsValid())
+    {
+        return NAME_None;
+    }
+    const FName* Found = ItemTagToId.Find(ItemTag);
+    return Found ? *Found : NAME_None;
 }
 
 const FKOItemRow* UKOLoadSubsystem::FindItemRow(FName ItemId) const

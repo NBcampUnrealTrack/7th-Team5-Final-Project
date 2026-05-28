@@ -73,6 +73,7 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
 
     if (ToAdd > 0)
     {
+        BroadcastProcessorChanged();
         EvaluateAutoStart();
     }
     return Remaining;
@@ -98,11 +99,72 @@ int32 UKOFactoryProcessorComponent::TryExtractItem(FName ItemId, int32 Count)
         OutputBuffer.Remove(ItemId);
     }
 
+    BroadcastProcessorChanged();
+
     if (State == EKOFactoryState::OutputBlocked)
     {
         EvaluateAutoStart();
     }
     return Taken;
+}
+
+void UKOFactoryProcessorComponent::SetSelectedRecipe(FName RecipeId)
+{
+    if (SelectedRecipeId == RecipeId)
+    {
+        return;
+    }
+    SelectedRecipeId = RecipeId;
+    BroadcastProcessorChanged();
+    EvaluateAutoStart();
+}
+
+void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    int32& Current = OutputBuffer.FindOrAdd(ItemId);
+    Current += Count;
+    BroadcastProcessorChanged();
+}
+
+int32 UKOFactoryProcessorComponent::TryExtractInputItem(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return 0;
+    }
+
+    int32* Found = InputBuffer.Find(ItemId);
+    if (!Found || *Found <= 0)
+    {
+        return 0;
+    }
+
+    const int32 Taken = FMath::Min(*Found, Count);
+    *Found -= Taken;
+    if (*Found <= 0)
+    {
+        InputBuffer.Remove(ItemId);
+    }
+    if (Taken > 0)
+    {
+        BroadcastProcessorChanged();
+    }
+    return Taken;
+}
+
+void UKOFactoryProcessorComponent::RestoreInputBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    int32& Current = InputBuffer.FindOrAdd(ItemId);
+    Current += Count;
+    BroadcastProcessorChanged();
 }
 
 bool UKOFactoryProcessorComponent::ManualStart()
@@ -162,26 +224,25 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
         return NAME_None;
     }
 
-    TArray<FName> AllRecipes;
-    LoadSub->GetAllRecipeIds(AllRecipes);
-
-    for (const FName& RecipeId : AllRecipes)
+    if (SelectedRecipeId.IsNone())
     {
-        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
-        {
-            continue;
-        }
-        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
-        {
-            continue;
-        }
-        if (HasInputsFor(*Recipe) && CanFitOutputs(*Recipe))
-        {
-            return RecipeId;
-        }
+        return NAME_None;
     }
-    return NAME_None;
+
+    const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId);
+    if (!Selected || !Selected->AllowedFactoryTag.IsValid())
+    {
+        return NAME_None;
+    }
+    if (!MyRow->FactoryCategoryTag.MatchesTag(Selected->AllowedFactoryTag))
+    {
+        return NAME_None;
+    }
+    if (!HasInputsFor(*Selected) || !CanFitOutputs(*Selected))
+    {
+        return NAME_None;
+    }
+    return SelectedRecipeId;
 }
 
 bool UKOFactoryProcessorComponent::TryStartCycle()
@@ -204,9 +265,14 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
         return false;
     }
     
-    for (const TPair<FName, int32>& In : Recipe->Inputs)
+    for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
     {
-        int32* Have = InputBuffer.Find(In.Key);
+        const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        int32* Have = InputBuffer.Find(ItemId);
         if (!Have)
         {
             return false;
@@ -214,7 +280,7 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
         *Have -= In.Value;
         if (*Have <= 0)
         {
-            InputBuffer.Remove(In.Key);
+            InputBuffer.Remove(ItemId);
         }
     }
 
@@ -222,6 +288,7 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
     CurrentCycleSeconds = FMath::Max(0.f, Recipe->CycleSeconds);
     Progress            = 0.f;
 
+    BroadcastProcessorChanged(); // InputBuffer 차감 + ActiveRecipe 변화
     SetState(EKOFactoryState::Running);
     
     if (CurrentCycleSeconds <= KINDA_SMALL_NUMBER)
@@ -238,9 +305,17 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
 
     if (Recipe)
     {
-        for (const TPair<FName, int32>& Out : Recipe->Outputs)
+        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
         {
-            int32& Current = OutputBuffer.FindOrAdd(Out.Key);
+            const FName ItemId = LoadSub ? LoadSub->FindItemIdByTag(Out.Key) : NAME_None;
+            if (ItemId.IsNone())
+            {
+                UE_LOG(LogTemp, Warning,
+                    TEXT("[Factory] OnCycleComplete: ItemTag '%s' 해석 실패 — 출력 누락"),
+                    *Out.Key.ToString());
+                continue;
+            }
+            int32& Current = OutputBuffer.FindOrAdd(ItemId);
             Current += Out.Value;
         }
     }
@@ -249,15 +324,27 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
     CurrentCycleSeconds = 0.f;
     Progress            = 0.f;
 
+    BroadcastProcessorChanged(); // OutputBuffer 증가 + ActiveRecipe 해제
     SetState(EKOFactoryState::Idle);
     EvaluateAutoStart();
 }
 
 bool UKOFactoryProcessorComponent::HasInputsFor(const FKORecipeRow& Recipe) const
 {
-    for (const TPair<FName, int32>& In : Recipe.Inputs)
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
     {
-        const int32* Have = InputBuffer.Find(In.Key);
+        return false;
+    }
+
+    for (const TPair<FGameplayTag, int32>& In : Recipe.Inputs)
+    {
+        const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        const int32* Have = InputBuffer.Find(ItemId);
         if (!Have || *Have < In.Value)
         {
             return false;
@@ -268,9 +355,20 @@ bool UKOFactoryProcessorComponent::HasInputsFor(const FKORecipeRow& Recipe) cons
 
 bool UKOFactoryProcessorComponent::CanFitOutputs(const FKORecipeRow& Recipe) const
 {
-    for (const TPair<FName, int32>& Out : Recipe.Outputs)
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
     {
-        const int32* Current = OutputBuffer.Find(Out.Key);
+        return false;
+    }
+
+    for (const TPair<FGameplayTag, int32>& Out : Recipe.Outputs)
+    {
+        const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
+        if (ItemId.IsNone())
+        {
+            return false;
+        }
+        const int32* Current = OutputBuffer.Find(ItemId);
         const int32 After = (Current ? *Current : 0) + Out.Value;
         if (After > MaxBufferPerItem)
         {
@@ -302,44 +400,19 @@ void UKOFactoryProcessorComponent::EvaluateAutoStart()
     {
         return;
     }
-    
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    if (!LoadSub)
-    {
-        return;
-    }
-    const FName FactoryId = GetOwnerFactoryId();
-    if (FactoryId.IsNone())
-    {
-        return;
-    }
-    const FKOFactoryRow* MyRow = LoadSub->FindFactoryRow(FactoryId);
-    if (!MyRow || !MyRow->FactoryCategoryTag.IsValid())
-    {
-        return;
-    }
 
-    TArray<FName> AllRecipes;
-    LoadSub->GetAllRecipeIds(AllRecipes);
-    bool bAnyOutputBlocked = false;
-    for (const FName& RecipeId : AllRecipes)
+    bool bOutputBlocked = false;
+    if (!SelectedRecipeId.IsNone())
     {
-        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
+        if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
         {
-            continue;
-        }
-        if (!MyRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
-        {
-            continue;
-        }
-        if (HasInputsFor(*Recipe) && !CanFitOutputs(*Recipe))
-        {
-            bAnyOutputBlocked = true;
-            break;
+            if (const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId))
+            {
+                bOutputBlocked = HasInputsFor(*Selected) && !CanFitOutputs(*Selected);
+            }
         }
     }
-    SetState(bAnyOutputBlocked ? EKOFactoryState::OutputBlocked : EKOFactoryState::Idle);
+    SetState(bOutputBlocked ? EKOFactoryState::OutputBlocked : EKOFactoryState::Idle);
 }
 
 void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
@@ -350,6 +423,23 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
     }
     State = NewState;
     BroadcastStateChanged();
+    BroadcastProcessorChanged();
+}
+
+void UKOFactoryProcessorComponent::BroadcastProcessorChanged() const
+{
+    const UWorld* World = GetWorld();
+    if (!World) return;
+    UGameInstance* GI = World->GetGameInstance();
+    if (!GI) return;
+    UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>();
+    if (!GMS) return;
+
+    FKOProcessorChangedMessage Msg;
+    Msg.Processor = const_cast<UKOFactoryProcessorComponent*>(this);
+    GMS->BroadcastMessage(
+        KOGameplayTags::Data_Message_Processor_Changed,
+        FInstancedStruct::Make(Msg));
 }
 
 void UKOFactoryProcessorComponent::BroadcastStateChanged() const

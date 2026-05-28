@@ -1,9 +1,11 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/Interaction/KOFactoryProducerWidget.h"
 
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Building/KOBaseBuilding.h"
 #include "Component/KOEnergyProducerComponent.h"
 #include "Component/KOInteractionComponent.h"
+#include "Component/KOInventoryComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
@@ -11,9 +13,19 @@
 #include "GameFramework/PlayerController.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
+#include "Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOEnergySubsystem.h"
 #include "TimerManager.h"
+#include "UI/Interaction/KOFactorySlotWidget.h"
+#include "UI/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProducerWidget"
+
+UKOFactoryProducerWidget::UKOFactoryProducerWidget()
+{
+    InputMode = EKOUIInputMode::All;
+}
 
 void UKOFactoryProducerWidget::NativeOnActivated()
 {
@@ -32,13 +44,45 @@ void UKOFactoryProducerWidget::NativeOnActivated()
     Producer = TargetBuilding->FindComponentByClass<UKOEnergyProducerComponent>();
     if (!Producer.IsValid()) return;
 
-    Refresh();
+    if (FuelSlot)
+    {
+        FuelSlot->SetupFuelSlot(Producer.Get());
+    }
 
+    if (InventoryWidget)
+    {
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            UKOInventoryComponent* PlayerInv = PC->FindComponentByClass<UKOInventoryComponent>();
+            if (!PlayerInv)
+            {
+                if (APawn* Pawn = PC->GetPawn())
+                {
+                    PlayerInv = Pawn->FindComponentByClass<UKOInventoryComponent>();
+                }
+            }
+            if (PlayerInv)
+            {
+                InventoryWidget->SetInventoryComponent(PlayerInv);
+            }
+        }
+    }
+
+    // GMS 구독: 연료 변경 시 FuelNameText 갱신
+    FuelChangedCallback.BindDynamic(this, &UKOFactoryProducerWidget::HandleFuelChangedMessage);
+    FuelChangedHandle = Subscribe(KOGameplayTags::Data_Message_Producer_FuelChanged, FuelChangedCallback);
+
+    // 1회만 세팅하면 충분한 정적 정보
+    RefreshStaticInfo();
+    RefreshFuelNameText();
+
+    // 동적 요소(바 + 슬롯)만 주기적 갱신
+    TickRefresh();
     if (UWorld* World = GetWorld())
     {
         World->GetTimerManager().SetTimer(
             RefreshTimerHandle,
-            FTimerDelegate::CreateUObject(this, &UKOFactoryProducerWidget::Refresh),
+            FTimerDelegate::CreateUObject(this, &UKOFactoryProducerWidget::TickRefresh),
             RefreshInterval,
             /*bLoop=*/true);
     }
@@ -52,13 +96,17 @@ void UKOFactoryProducerWidget::NativeOnDeactivated()
     }
     RefreshTimerHandle.Invalidate();
 
+    Unsubscribe(FuelChangedHandle);
+    FuelChangedHandle = FGameplayMessageHandle();
+    FuelChangedCallback.Clear();
+
     Producer.Reset();
     TargetBuilding.Reset();
 
     Super::NativeOnDeactivated();
 }
 
-void UKOFactoryProducerWidget::Refresh()
+void UKOFactoryProducerWidget::RefreshStaticInfo()
 {
     AKOBaseBuilding* Building = TargetBuilding.Get();
     UKOEnergyProducerComponent* Prod = Producer.Get();
@@ -70,24 +118,41 @@ void UKOFactoryProducerWidget::Refresh()
         TitleText->SetText(Row ? Row->DisplayName : FText::GetEmpty());
     }
 
-    if (FuelNameText)
+    if (PowerSpecText)
     {
-        FText FuelName = FText::GetEmpty();
-        if (!Prod->FuelItemId.IsNone())
-        {
-            FuelName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, Prod->FuelItemId);
-        }
-        FuelNameText->SetText(FuelName);
+        const FText Spec = FText::Format(
+            LOCTEXT("PowerSpecFormat", "{0}/연료, {1}/s"),
+            FText::AsNumber(Prod->PowerPerFuelUnit),
+            FText::AsNumber(Prod->BurnRatePerSecond));
+        PowerSpecText->SetText(Spec);
+    }
+}
+
+void UKOFactoryProducerWidget::RefreshFuelNameText()
+{
+    if (!FuelNameText) return;
+
+    UKOEnergyProducerComponent* Prod = Producer.Get();
+    if (!Prod)
+    {
+        FuelNameText->SetText(FText::GetEmpty());
+        return;
     }
 
-    if (FuelCountText)
+    const FName FuelItemId = Prod->GetFuelItemId();
+    if (FuelItemId.IsNone())
     {
-        const FText CountText = FText::Format(
-            LOCTEXT("FuelCountFormat", "{0} / {1}"),
-            FText::AsNumber(Prod->GetFuelCount()),
-            FText::AsNumber(Prod->MaxFuelBuffer));
-        FuelCountText->SetText(CountText);
+        FuelNameText->SetText(FText::GetEmpty());
+        return;
     }
+
+    FuelNameText->SetText(UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, FuelItemId));
+}
+
+void UKOFactoryProducerWidget::TickRefresh()
+{
+    UKOEnergyProducerComponent* Prod = Producer.Get();
+    if (!Prod) return;
 
     if (FuelBar)
     {
@@ -97,14 +162,35 @@ void UKOFactoryProducerWidget::Refresh()
         FuelBar->SetPercent(FMath::Clamp(Ratio, 0.f, 1.f));
     }
 
-    if (PowerSpecText)
+    if (FuelSlot)
     {
-        const FText Spec = FText::Format(
-            LOCTEXT("PowerSpecFormat", "{0}/연료, {1}/s"),
-            FText::AsNumber(Prod->PowerPerFuelUnit),
-            FText::AsNumber(Prod->BurnRatePerSecond));
-        PowerSpecText->SetText(Spec);
+        FuelSlot->RefreshFromComponent();
     }
+
+    if (EnergyText)
+    {
+        if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
+        {
+            const FText EnergyStr = FText::Format(
+                LOCTEXT("EnergyFormat", "{0} / {1}"),
+                FText::AsNumber(FMath::FloorToInt(Energy->GetStoredEnergy())),
+                FText::AsNumber(FMath::FloorToInt(Energy->GetCapacity())));
+            EnergyText->SetText(EnergyStr);
+        }
+        else
+        {
+            EnergyText->SetText(FText::GetEmpty());
+        }
+    }
+}
+
+void UKOFactoryProducerWidget::HandleFuelChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+    const FKOProducerFuelChangedMessage* Msg = Payload.GetPtr<FKOProducerFuelChangedMessage>();
+    if (!Msg) return;
+    if (Msg->Producer.Get() != Producer.Get()) return; // 다른 Producer 메시지면 무시
+
+    RefreshFuelNameText();
 }
 
 #undef LOCTEXT_NAMESPACE

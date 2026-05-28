@@ -15,9 +15,11 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleInventory);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Cancel);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Escape);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot1);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot2);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot3);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot4);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot5);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
@@ -131,6 +133,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotSelectionChanged);
 	/** 건설 모드 변경 메시지 채널 (KOGridBuildComponent 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_ModeChanged);
+	/** Producer 연료 변경 메시지 채널 (FKOProducerFuelChangedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Producer_FuelChanged);
+	/** Processor 변경 메시지 채널 (FKOProcessorChangedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Processor_Changed);
 
 	// ─── Factory Category ─────────────────────────────────────────────────────
 	/** 보일러 (Producer) */
@@ -159,6 +165,30 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
 	/** 무기 카테고리 (BronzeSword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
+	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
+
+	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
+	/** 기초 모듈 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicModule);
+	/** 석탄 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Coal);
+	/** 석탄가루 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_CoalDust);
+	/** 구리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Copper);
+	/** 주석 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Tin);
+	/** 청동 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Bronze);
+	/** 청동판 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzePlate);
+	/** 채굴 파이프 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_MiningPipe);
+	/** 기어 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
+	/** 청동검 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzeSword);
 
 	// ─── SetbyCaller ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
@@ -173,8 +203,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
-	
-	// 여기서부터 중복
 
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);

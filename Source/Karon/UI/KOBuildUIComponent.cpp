@@ -152,35 +152,6 @@ bool UKOBuildUIComponent::IsBuildMenuOpen() const
 	return GridBuildComponent && GridBuildComponent->IsBuildSystemActive();
 }
 
-void UKOBuildUIComponent::EscapeBuildAction()
-{
-	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
-	if (!GridBuildComponent)
-	{
-		return;
-	}
-
-	if (GridBuildComponent->IsBuildMode())
-	{
-		GridBuildComponent->CancelBuildMode();
-		ClearSelectedBuildQuickSlot();
-		return;
-	}
-
-	if (GridBuildComponent->IsDestroyMode())
-	{
-		GridBuildComponent->CancelDestroyMode();
-		ClearSelectedBuildQuickSlot();
-		return;
-	}
-
-	if (GridBuildComponent->IsBuildMenuMode())
-	{
-		// ESC로도 건설 모드 종료 금지
-		return;
-	}
-}
-
 bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 {
 	if (!BuildQuickSlots.IsValidIndex(SlotIndex))
@@ -220,6 +191,35 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 	return true;
 }
 
+bool UKOBuildUIComponent::SwapBuildQuickSlot(int32 SlotIndexA, int32 SlotIndexB)
+{
+	if (SlotIndexA == SlotIndexB)
+	{
+		return false;
+	}
+	if (!BuildQuickSlots.IsValidIndex(SlotIndexA) || !BuildQuickSlots.IsValidIndex(SlotIndexB))
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 잘못된 퀵슬롯 인덱스 스왑: %d <-> %d"), SlotIndexA, SlotIndexB);
+		return false;
+	}
+
+	BuildQuickSlots.Swap(SlotIndexA, SlotIndexB);
+
+	auto BroadcastSlot = [this](int32 SlotIndex)
+	{
+		FKOBuildQuickSlotChangedMessage Message;
+		Message.SlotIndex = SlotIndex;
+		Message.FactoryId = BuildQuickSlots[SlotIndex];
+		Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+	};
+
+	BroadcastSlot(SlotIndexA);
+	BroadcastSlot(SlotIndexB);
+
+	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 퀵슬롯 스왑: %d <-> %d"), SlotIndexA + 1, SlotIndexB + 1);
+	return true;
+}
+
 void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 {	
 	if (!IsBuildMenuOpen())
@@ -237,7 +237,21 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 
 	if (FactoryId.IsNone())
 	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다."), SlotIndex + 1);
+		UE_LOG(LogKOBuildUI, Warning,
+			TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다. (This=%p, Owner=%s, SlotCount=%d)"),
+			SlotIndex + 1,
+			this,
+			*GetNameSafe(GetOwner()),
+			BuildQuickSlots.Num()
+		);
+
+		for (int32 Idx = 0; Idx < BuildQuickSlots.Num(); ++Idx)
+		{
+			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI]   슬롯[%d] = %s"),
+				Idx,
+				*BuildQuickSlots[Idx].ToString()
+			);
+		}
 		return;
 	}
 	
@@ -339,6 +353,31 @@ void UKOBuildUIComponent::StartDestroyBuildMode()
 	GridBuildComponent->StartDestroyMode();
 	
 	ClearSelectedBuildQuickSlot();
+}
+
+void UKOBuildUIComponent::ToggleDestroyBuildMode()
+{
+	if (!IsBuildMenuOpen())
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 메뉴가 열려 있지 않아 파괴 모드 토글 불가."));
+		return;
+	}
+
+	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
+	if (!GridBuildComponent)
+	{
+		return;
+	}
+
+	if (GridBuildComponent->IsDestroyMode())
+	{
+		GridBuildComponent->CancelDestroyMode();
+	}
+	else
+	{
+		GridBuildComponent->StartDestroyMode();
+		ClearSelectedBuildQuickSlot();
+	}
 }
 
 void UKOBuildUIComponent::ConfirmBuildAction()

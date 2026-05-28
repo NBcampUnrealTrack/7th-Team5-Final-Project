@@ -2,9 +2,18 @@
 
 #include "Component/KOEnergyProducerComponent.h"
 
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/KODataTableTypes.h"
+#include "GMRouterSubsystem.h"
+#include "Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
+#include "Subsystem/KOLoadSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "Engine/World.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
+    : FuelCategoryTag(KOGameplayTags::Item_Category_EnergyResource)
 {
     PrimaryComponentTick.bCanEverTick = false;
 }
@@ -33,15 +42,60 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
     {
         return Count;
     }
-    if (!FuelItemId.IsNone() && ItemId != FuelItemId)
+
+    if (!FuelCategoryTag.IsValid())
+    {
+        return Count;
+    }
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(ItemId) : nullptr;
+    if (!Row || !Row->Categories.HasTag(FuelCategoryTag))
     {
         return Count;
     }
 
     const int32 Space = FMath::Max(0, MaxFuelBuffer - FuelInBuffer);
     const int32 ToAdd = FMath::Min(Space, Count);
-    FuelInBuffer += ToAdd;
+    if (ToAdd > 0)
+    {
+        FuelInBuffer += ToAdd;
+        FuelItemId    = ItemId;
+        BroadcastFuelChanged();
+    }
     return Count - ToAdd;
+}
+
+int32 UKOEnergyProducerComponent::TryExtractFuel(int32 Count)
+{
+    if (Count <= 0 || FuelInBuffer <= 0 || FuelItemId.IsNone())
+    {
+        return 0;
+    }
+    const int32 Taken = FMath::Min(FuelInBuffer, Count);
+    FuelInBuffer -= Taken;
+    if (FuelInBuffer <= 0)
+    {
+        FuelInBuffer = 0;
+        FuelDebt     = 0.f;
+        FuelItemId   = NAME_None;
+    }
+    if (Taken > 0)
+    {
+        BroadcastFuelChanged();
+    }
+    return Taken;
+}
+
+void UKOEnergyProducerComponent::RestoreFuelBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    FuelInBuffer += Count;
+    FuelItemId    = ItemId;
+    BroadcastFuelChanged();
 }
 
 float UKOEnergyProducerComponent::GetPowerOutput(float DeltaSeconds) const
@@ -82,7 +136,31 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
 
     if (FuelInBuffer <= 0)
     {
+        const bool bWasFueled = !FuelItemId.IsNone();
         FuelInBuffer = 0;
         FuelDebt     = 0.f;
+        FuelItemId   = NAME_None;
+        if (bWasFueled)
+        {
+            BroadcastFuelChanged();
+        }
     }
+}
+
+void UKOEnergyProducerComponent::BroadcastFuelChanged() const
+{
+    const UWorld* World = GetWorld();
+    if (!World) return;
+    UGameInstance* GI = World->GetGameInstance();
+    if (!GI) return;
+    UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>();
+    if (!GMS) return;
+
+    FKOProducerFuelChangedMessage Msg;
+    Msg.Producer   = const_cast<UKOEnergyProducerComponent*>(this);
+    Msg.FuelItemId = FuelItemId;
+    Msg.FuelCount  = FuelInBuffer;
+    GMS->BroadcastMessage(
+        KOGameplayTags::Data_Message_Producer_FuelChanged,
+        FInstancedStruct::Make(Msg));
 }

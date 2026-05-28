@@ -36,6 +36,12 @@ protected:
         UDragDropOperation*& OutOperation
     ) override;
 
+    virtual bool NativeOnDrop(
+        const FGeometry& InGeometry,
+        const FDragDropEvent& InDragDropEvent,
+        UDragDropOperation* InOperation
+    ) override;
+
     /** WBP에서 같은 이름으로 위젯을 만들면 자동 바인딩. 비주얼만 디자인. */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> IconImage;
@@ -49,6 +55,10 @@ protected:
     /** 빈 슬롯일 때 IconImage에 그릴 텍스처. None이면 IconImage를 Hidden 처리. */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
     TObjectPtr<UTexture2D> EmptySlotIcon;
+
+    /** IconImage에 강제할 Desired Size (정사각). SetBrushFromTexture가 텍스처 원본 해상도로 ImageSize를 덮어쓰는 문제 방지용. */
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
+    float SlotIconSize = 1000.f;
 
     /** 빈 슬롯일 때 CountText 숨김 여부 (true면 Collapsed). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")

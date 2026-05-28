@@ -39,6 +39,7 @@ public:
 protected:
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
+    virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
     /** WBP에 WrapBox를 'SlotsPanel'이라는 이름으로 배치하면 자동 바인딩. */
     UPROPERTY(meta = (BindWidget))

@@ -42,18 +42,20 @@ protected:
 	void Input_ToggleBuildMode(const FInputActionValue& Value);
 	void Input_ToggleBuildAssignMenu(const FInputActionValue& Value);
 
-	void Input_BuildConfirm(const FInputActionValue& Value);	
+	void Input_BuildConfirm(const FInputActionValue& Value);
 	void Input_BuildCancel(const FInputActionValue& Value);
-	void Input_BuildEscape(const FInputActionValue& Value);
-	
+
 	void Input_BuildToggleDestroy(const FInputActionValue& Value);
-	
+
 	void Input_SelectBuildQuickSlot1(const FInputActionValue& Value);
 	void Input_SelectBuildQuickSlot2(const FInputActionValue& Value);
+	void Input_SelectBuildQuickSlot3(const FInputActionValue& Value);
+	void Input_SelectBuildQuickSlot4(const FInputActionValue& Value);
+	void Input_SelectBuildQuickSlot5(const FInputActionValue& Value);
 
 	// 인벤토리 입력
 	void Input_ToggleInventory(const FInputActionValue& Value);
-
+	
 private:
 	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
 	void EnterBuildIMC();

@@ -1,6 +1,8 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/KOInventoryWidget.h"
 #include "UI/KOInventorySlotWidget.h"
+#include "UI/KOItemDragDropOperation.h"
+#include "UI/KOItemDragSource.h"
 #include "Component/KOInventoryComponent.h"
 #include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -38,6 +40,50 @@ void UKOInventoryWidget::NativeDestruct()
     InventoryChangedCallback.Clear();
 
     Super::NativeDestruct();
+}
+
+bool UKOInventoryWidget::NativeOnDrop(
+    const FGeometry& InGeometry,
+    const FDragDropEvent& InDragDropEvent,
+    UDragDropOperation* InOperation)
+{
+    UKOItemDragDropOperation* DragOp = Cast<UKOItemDragDropOperation>(InOperation);
+    if (!DragOp || !DragOp->HasItem())
+    {
+        return false;
+    }
+
+    UKOItemDragSource* Source = DragOp->Source;
+    if (!Source || Source->IsInventorySource())
+    {
+        // 인벤토리에서 인벤토리로의 드래그는 슬롯 위젯이 swap으로 처리.
+        return false;
+    }
+
+    if (!InventoryComponent)
+    {
+        return false;
+    }
+
+    const FName ItemId = DragOp->GetItemId();
+    const int32 Count  = DragOp->GetCount();
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return false;
+    }
+
+    const int32 Extracted = Source->Extract(ItemId, Count);
+    if (Extracted <= 0)
+    {
+        return false;
+    }
+
+    const int32 Rejected = InventoryComponent->TryAddItem(EKOSlotKind::Item, ItemId, Extracted);
+    if (Rejected > 0)
+    {
+        Source->Restore(ItemId, Rejected);
+    }
+    return true;
 }
 
 void UKOInventoryWidget::OnInventoryChangedGMS(FGameplayTag Channel, const FInstancedStruct& Payload)
