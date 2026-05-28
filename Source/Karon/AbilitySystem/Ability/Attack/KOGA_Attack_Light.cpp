@@ -65,7 +65,7 @@ void UKOGA_Attack_Light::OnGameplayEventReceived(FGameplayEventData Payload)
 		return;
 	}
 	
-	if (Payload.EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Combo.Window.Open")))
+	if (Payload.EventTag == KOGameplayTags::Event_Combo_Window_Open)
 	{
 		bIsComboWindowOpen = true;
 
@@ -73,19 +73,19 @@ void UKOGA_Attack_Light::OnGameplayEventReceived(FGameplayEventData Payload)
 		return;
 	}
 	
-	if (Payload.EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Input.Heavy")))
-	{
-		BufferedInput = EAttackInputType::Heavy;
-		return;
-	}
+	// if (Payload.EventTag == KOGameplayTags::Event_Input_Heavy)
+	// {
+	// 	BufferedInput = EAttackInputType::Heavy;
+	// 	return;
+	// }
 	
-	if (Payload.EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Input.Light")))
-	{
-		BufferedInput = EAttackInputType::Light;
-		return;
-	}
+	// if (Payload.EventTag == KOGameplayTags::Event_Input_Light)
+	// {
+	// 	BufferedInput = EAttackInputType::Light;
+	// 	return;
+	// }
 	
-	if (Payload.EventTag == FGameplayTag::RequestGameplayTag(FName("Event.Combo.Window.Close")))
+	if (Payload.EventTag == KOGameplayTags::Event_Combo_Window_Close)
 	{
 		bIsComboWindowOpen = false;
 		FString Context = TEXT("Combo Branch Check");
