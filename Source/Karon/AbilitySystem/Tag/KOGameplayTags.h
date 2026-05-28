@@ -125,8 +125,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
-	/** 건물 퀵슬롯 변경 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
+	/** 건물 퀵슬롯 변경 메시지 채널 (KOBuildQuickSlotWidget 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotChanged);
+	/** 건설 퀵슬롯 선택 변경 메시지 채널 (KOBuildUIComponent 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_QuickSlotSelectionChanged);
+	/** 건설 모드 변경 메시지 채널 (KOGridBuildComponent 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Build_ModeChanged);
 
 	// ─── Factory Category ─────────────────────────────────────────────────────
 	/** 보일러 (Producer) */
@@ -169,6 +173,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
+	
+	// 여기서부터 중복
 
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);

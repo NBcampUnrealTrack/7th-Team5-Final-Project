@@ -15,6 +15,10 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
 
+#include "Messaging/KOMessageTypes.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "StructUtils/InstancedStruct.h"
+
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
 static TAutoConsoleVariable<int32> CVarKODrawBuildTrace(
@@ -79,7 +83,7 @@ void UKOGridBuildComponent::EnterBuildMenuMode()
 
 	ExitBuildMenuMode();
 
-	CurrentMode = EKOGridBuildMode::BuildMenu;
+	SetCurrentMode(EKOGridBuildMode::BuildMenu);
 	SetComponentTickEnabled(false);
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건설 메뉴 모드 시작"));
@@ -96,7 +100,7 @@ void UKOGridBuildComponent::ExitBuildMenuMode()
 		ClearDestroyTargetActor();
 	}
 
-	CurrentMode = EKOGridBuildMode::None;
+	SetCurrentMode(EKOGridBuildMode::None);
 	SetComponentTickEnabled(false);
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건설 메뉴 모드 종료"));
@@ -164,7 +168,7 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 	CurrentBuildingClass = BuildingClass;
 	CurrentBuildingSize = Row->GridSize;
 
-	CurrentMode = EKOGridBuildMode::Placing;
+	SetCurrentMode(EKOGridBuildMode::Placing);
 	SetComponentTickEnabled(true);
 	bCurrentPlacementValid = false;
 
@@ -520,7 +524,7 @@ void UKOGridBuildComponent::CancelBuildMode()
 	
 	ClearPlacementState();
 
-	CurrentMode = EKOGridBuildMode::BuildMenu;
+	SetCurrentMode(EKOGridBuildMode::BuildMenu);
 	SetComponentTickEnabled(false);
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Build] 설치 모드 종료 - 건설 메뉴로 복귀"));
@@ -541,7 +545,7 @@ void UKOGridBuildComponent::StartDestroyMode()
 	
 	CancelCurrentMode();
 
-	CurrentMode = EKOGridBuildMode::Destroying;
+	SetCurrentMode(EKOGridBuildMode::Destroying);
 	SetComponentTickEnabled(true);
 
 	UpdateDestroyTargetPreview();
@@ -558,7 +562,7 @@ void UKOGridBuildComponent::CancelDestroyMode()
 	
 	ClearDestroyTargetActor();
 
-	CurrentMode = EKOGridBuildMode::BuildMenu;
+	SetCurrentMode(EKOGridBuildMode::BuildMenu);
 	SetComponentTickEnabled(false);
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료 - 건설 메뉴로 복귀"));
@@ -811,6 +815,34 @@ UKOInventoryComponent* UKOGridBuildComponent::GetInventoryComponent() const
 	}
 
 	return nullptr;
+}
+
+void UKOGridBuildComponent::SetCurrentMode(EKOGridBuildMode NewMode)
+{
+	if (CurrentMode == NewMode)
+	{
+		return;
+	}
+
+	const EKOGridBuildMode PreviousMode = CurrentMode;
+	CurrentMode = NewMode;
+
+	FKOBuildModeChangedMessage Message;
+	Message.PreviousMode = PreviousMode;
+	Message.NewMode = NewMode;
+
+	Broadcast(
+		KOGameplayTags::Data_Message_Build_ModeChanged,
+		FInstancedStruct::Make(Message)
+	);
+
+	UE_LOG(
+		LogKOBuild,
+		Log,
+		TEXT("[Build] Mode Changed: %d -> %d"),
+		static_cast<uint8>(PreviousMode),
+		static_cast<uint8>(NewMode)
+	);
 }
 
 bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollisionChannel TraceChannel) const
