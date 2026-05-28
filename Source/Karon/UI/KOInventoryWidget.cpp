@@ -71,7 +71,10 @@ bool UKOInventoryWidget::NativeOnDrop(
         return false;
     }
 
-    const int32 Extracted = SourceProc->TryExtractItem(ItemId, Count);
+    const bool bFromInput = DragOp->bSourceFromInputBuffer;
+    const int32 Extracted = bFromInput
+        ? SourceProc->TryExtractInputItem(ItemId, Count)
+        : SourceProc->TryExtractItem(ItemId, Count);
     if (Extracted <= 0)
     {
         return false;
@@ -80,7 +83,14 @@ bool UKOInventoryWidget::NativeOnDrop(
     const int32 Rejected = InventoryComponent->TryAddItem(EKOSlotKind::Item, ItemId, Extracted);
     if (Rejected > 0)
     {
-        SourceProc->RestoreOutputBuffer(ItemId, Rejected);
+        if (bFromInput)
+        {
+            SourceProc->RestoreInputBuffer(ItemId, Rejected);
+        }
+        else
+        {
+            SourceProc->RestoreOutputBuffer(ItemId, Rejected);
+        }
     }
     return true;
 }

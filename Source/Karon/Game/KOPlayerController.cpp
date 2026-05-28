@@ -64,6 +64,12 @@ void AKOPlayerController::BeginPlay()
 			TEXT("UndergroundMiningModule"),
 			2
 		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("MiningPipe"),
+			50
+		);
 	}
 #endif
 }

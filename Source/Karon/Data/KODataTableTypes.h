@@ -58,14 +58,6 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     FText DisplayName;
 
-    /** 이 공장이 노출하는 아이템 입력 슬롯 수 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    int32 InputSlots = 1;
-
-    /** 이 공장이 노출하는 아이템 출력 슬롯 수 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
-    int32 OutputSlots = 1;
-
     /** 기본 생산 사이클 시간(초). 레시피에서 재정의될 수 있다. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     float BaseCycleSeconds = 2.f;

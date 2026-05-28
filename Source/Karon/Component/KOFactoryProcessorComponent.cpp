@@ -125,6 +125,38 @@ void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count
     Current += Count;
 }
 
+int32 UKOFactoryProcessorComponent::TryExtractInputItem(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return 0;
+    }
+
+    int32* Found = InputBuffer.Find(ItemId);
+    if (!Found || *Found <= 0)
+    {
+        return 0;
+    }
+
+    const int32 Taken = FMath::Min(*Found, Count);
+    *Found -= Taken;
+    if (*Found <= 0)
+    {
+        InputBuffer.Remove(ItemId);
+    }
+    return Taken;
+}
+
+void UKOFactoryProcessorComponent::RestoreInputBuffer(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+    int32& Current = InputBuffer.FindOrAdd(ItemId);
+    Current += Count;
+}
+
 bool UKOFactoryProcessorComponent::ManualStart()
 {
     if (State != EKOFactoryState::Idle)

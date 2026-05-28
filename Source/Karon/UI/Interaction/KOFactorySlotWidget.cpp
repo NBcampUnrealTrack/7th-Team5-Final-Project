@@ -120,7 +120,11 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
 
 FReply UKOFactorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-    if (Mode == EKOFactorySlotMode::ProcessorOutput && InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+    const bool bDragSourceMode =
+        Mode == EKOFactorySlotMode::ProcessorOutput ||
+        Mode == EKOFactorySlotMode::ProcessorInput;
+
+    if (bDragSourceMode && InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
     {
         FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
             InMouseEvent,
@@ -140,7 +144,9 @@ void UKOFactorySlotWidget::NativeOnDragDetected(
 {
     Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-    if (Mode != EKOFactorySlotMode::ProcessorOutput)
+    const bool bIsInput  = Mode == EKOFactorySlotMode::ProcessorInput;
+    const bool bIsOutput = Mode == EKOFactorySlotMode::ProcessorOutput;
+    if (!bIsInput && !bIsOutput)
     {
         return;
     }
@@ -168,7 +174,8 @@ void UKOFactorySlotWidget::NativeOnDragDetected(
         DragVisualOpacity,
         INDEX_NONE,
         nullptr,
-        Proc
+        Proc,
+        bIsInput
     );
 }
 
@@ -191,6 +198,12 @@ bool UKOFactorySlotWidget::NativeOnDrop(
 
     // 일반 아이템(EKOSlotKind::Item) 만 받음. Factory 카드는 거부.
     if (DragOp->ItemSlot.Kind != EKOSlotKind::Item)
+    {
+        return false;
+    }
+
+    // Processor에서 출발한 드래그는 인벤토리만 받음. 슬롯 간 직접 이동 금지.
+    if (DragOp->SourceProcessor != nullptr)
     {
         return false;
     }

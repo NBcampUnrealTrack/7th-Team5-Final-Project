@@ -11,7 +11,8 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	float InDragVisualOpacity,
 	int32 InSourceSlotIndex,
 	UKOInventoryComponent* InSourceInventoryComponent,
-	UKOFactoryProcessorComponent* InSourceProcessor
+	UKOFactoryProcessorComponent* InSourceProcessor,
+	bool bInSourceFromInputBuffer
 )
 {
 	if (!Outer)
@@ -36,6 +37,7 @@ UKOItemDragDropOperation* UKOItemDragDropOperation::CreateItemDragOperation(
 	DragOperation->SourceSlotIndex = InSourceSlotIndex;
 	DragOperation->SourceInventoryComponent = InSourceInventoryComponent;
 	DragOperation->SourceProcessor = InSourceProcessor;
+	DragOperation->bSourceFromInputBuffer = bInSourceFromInputBuffer;
 	DragOperation->DisplayName = InDisplayName;
 	DragOperation->Icon = InIcon;
 

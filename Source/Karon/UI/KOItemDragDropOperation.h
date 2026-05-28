@@ -24,9 +24,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
 	TObjectPtr<UKOInventoryComponent> SourceInventoryComponent = nullptr;
 
-	/** 출력 슬롯에서 드래그한 경우 세팅. 인벤토리 드롭 시 TryExtractItem 호출 대상. */
+	/** Processor의 Input/Output 슬롯에서 드래그한 경우 세팅. 인벤토리 드롭 시 회수 대상. */
 	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
 	TObjectPtr<UKOFactoryProcessorComponent> SourceProcessor = nullptr;
+
+	/** SourceProcessor가 설정된 경우, true면 InputBuffer에서 / false면 OutputBuffer에서 회수. */
+	UPROPERTY(BlueprintReadOnly, Category = "KO|DragDrop")
+	bool bSourceFromInputBuffer = false;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Build|Drag")
 	FText DisplayName;
@@ -45,7 +49,8 @@ public:
 		float InDragVisualOpacity,
 		int32 InSourceSlotIndex = INDEX_NONE,
 		UKOInventoryComponent* InSourceInventoryComponent = nullptr,
-		UKOFactoryProcessorComponent* InSourceProcessor = nullptr
+		UKOFactoryProcessorComponent* InSourceProcessor = nullptr,
+		bool bInSourceFromInputBuffer = false
 	);
 	bool HasItem() const
 	{
