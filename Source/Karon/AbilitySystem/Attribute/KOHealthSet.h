@@ -24,6 +24,9 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
+private:
+	void HandleDeathEvent(); 
+	
 public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Health); 
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, MaxHealth); 

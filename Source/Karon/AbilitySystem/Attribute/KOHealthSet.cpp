@@ -1,5 +1,6 @@
 ﻿#include "KOHealthSet.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UKOHealthSet::UKOHealthSet()
@@ -69,16 +70,18 @@ void UKOHealthSet::PostGameplayEffectExecute(const struct FGameplayEffectModCall
 {
 	Super::PostGameplayEffectExecute(Data);
 	
-	// FKOEffectContext Context = CacheEffectContext(Data);
+	 FKOEffectContext Context = CacheEffectContext(Data);
 	
 	// Handle Damage 
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		float DamageAmount = GetDamage();
 		
-		// TODO: 무적 체크 
-		// if (Context.TargetASC->HasMatchingGameplayTag(TAG_State_Invincible))
-		// 	DamageAmount = 0.f;
+		// 무적이면 데미지 0 
+		if (Context.TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Invincible))
+		{
+			DamageAmount = 0.f;
+		}
 		
 		float NewHealth = FMath::Clamp(
 			GetHealth() - DamageAmount, 
@@ -89,9 +92,10 @@ void UKOHealthSet::PostGameplayEffectExecute(const struct FGameplayEffectModCall
 		SetHealth(NewHealth);
 		SetDamage(0.f); // 메타 데이터 초기화 
 		
+		// 사망 처리 
 		if (NewHealth <= 0.f)
 		{
-			// TODO: OnDeath 이벤트  
+			HandleDeathEvent(); 
 		}
 	}
 	
@@ -116,6 +120,20 @@ void UKOHealthSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& O
 	// 일반 어트리뷰트만 복제 
 	DOREPLIFETIME_CONDITION_NOTIFY(UKOHealthSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UKOHealthSet, MaxHealth, COND_None, REPNOTIFY_Always);
+}
+
+void UKOHealthSet::HandleDeathEvent()
+{
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent(); 
+	if (ASC)
+	{
+		// Ability 호출 (몽타주 재생 / GE_Death 적용) 
+		ASC->AddLooseGameplayTag(KOGameplayTags::Event_Death); 
+				
+		// TODO: GMS 호출 
+		// -> KOCharacterBase : 이동 비활성화
+		// -> 사망 UI 호출 
+	}
 }
 
 void UKOHealthSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
