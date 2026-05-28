@@ -8,6 +8,7 @@
 class UKOInventoryComponent;
 class UKOFactoryProcessorComponent;
 class UKOEnergyProducerComponent;
+class UKOBuildUIComponent;
 
 /**
  * 드래그가 시작된 출발지를 추상화. 드롭 핸들러는 종류를 알 필요 없이
@@ -77,6 +78,21 @@ public:
 
     virtual int32 Extract(FName ItemId, int32 Count) override;
     virtual void  Restore(FName ItemId, int32 Count) override;
+};
+
+/** Build QuickSlot 칸에서 출발. 인벤토리처럼 보관소가 아니므로 Extract/Restore는 no-op. */
+UCLASS()
+class KARON_API UKOBuildQuickSlotItemSource : public UKOItemDragSource
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY()
+    TWeakObjectPtr<UKOBuildUIComponent> BuildUI;
+
+    int32 SlotIndex = INDEX_NONE;
+
+    UKOBuildUIComponent* GetBuildUI() const { return BuildUI.Get(); }
 };
 
 /** Producer의 FuelBuffer에서 출발. */

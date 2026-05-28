@@ -231,6 +231,35 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 	return true;
 }
 
+bool UKOBuildUIComponent::SwapBuildQuickSlot(int32 SlotIndexA, int32 SlotIndexB)
+{
+	if (SlotIndexA == SlotIndexB)
+	{
+		return false;
+	}
+	if (!BuildQuickSlots.IsValidIndex(SlotIndexA) || !BuildQuickSlots.IsValidIndex(SlotIndexB))
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 잘못된 퀵슬롯 인덱스 스왑: %d <-> %d"), SlotIndexA, SlotIndexB);
+		return false;
+	}
+
+	BuildQuickSlots.Swap(SlotIndexA, SlotIndexB);
+
+	auto BroadcastSlot = [this](int32 SlotIndex)
+	{
+		FKOBuildQuickSlotChangedMessage Message;
+		Message.SlotIndex = SlotIndex;
+		Message.FactoryId = BuildQuickSlots[SlotIndex];
+		Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+	};
+
+	BroadcastSlot(SlotIndexA);
+	BroadcastSlot(SlotIndexB);
+
+	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 퀵슬롯 스왑: %d <-> %d"), SlotIndexA + 1, SlotIndexB + 1);
+	return true;
+}
+
 void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 {	
 	if (!IsBuildMenuOpen())

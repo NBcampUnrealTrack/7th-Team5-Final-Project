@@ -45,6 +45,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         if (TextureToShow)
         {
             IconImage->SetBrushFromTexture(TextureToShow);
+            IconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
         }
         else

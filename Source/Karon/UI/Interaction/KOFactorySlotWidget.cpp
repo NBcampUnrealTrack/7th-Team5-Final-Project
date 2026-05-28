@@ -135,6 +135,7 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
         if (Icon)
         {
             IconImage->SetBrushFromTexture(Icon);
+            IconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
             IconImage->SetRenderOpacity(bShowPreview ? PreviewOpacity : 1.f);
         }

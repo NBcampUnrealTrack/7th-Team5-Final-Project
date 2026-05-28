@@ -56,6 +56,10 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
     TObjectPtr<UTexture2D> EmptySlotIcon;
 
+    /** IconImage에 강제할 Desired Size (정사각). SetBrushFromTexture가 텍스처 원본 해상도로 ImageSize를 덮어쓰는 문제 방지용. */
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
+    float SlotIconSize = 64.f;
+
     /** 빈 슬롯일 때 CountText 숨김 여부 (true면 Collapsed). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Inventory")
     bool bHideCountWhenEmpty = true;
