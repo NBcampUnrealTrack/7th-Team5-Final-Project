@@ -1,6 +1,7 @@
 ﻿#include "KOGrantSet.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "Utility/Log/KOLogManager.h"
 
 void FKOAbilitySetHandles::RemoveFromASC(UAbilitySystemComponent* ASC)
 {
@@ -36,7 +37,7 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 
 		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
 
-		UE_LOG(LogTemp, Log, TEXT("[AbilitySet] Ability  | %-30s | Lv.%d | Tag: %s"),
+		KO_LOG(GAS, Log, TEXT("[AbilitySet] Ability  | %-30s | Lv.%d | Tag: %s"),
 			*Spec.Ability->GetName(), Entry.AbilityLevel,
 			Entry.InputTag.IsValid() ? *Entry.InputTag.ToString() : TEXT("None"));
 	}
@@ -55,7 +56,7 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 		FActiveGameplayEffectHandle Handle = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data);
 		OutHandles.EffectHandles.Add(Handle);
 		
-		UE_LOG(LogTemp, Log, TEXT("[GrantSet] Effect  | %-30s | Lv.%.1f"),
+		KO_LOG(GAS, Log, TEXT("[GrantSet] Effect  | %-30s | Lv.%.1f"),
 			*Spec.Data->Def->GetName(), Entry.EffectLevel);
 	}
 }

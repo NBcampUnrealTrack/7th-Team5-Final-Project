@@ -10,6 +10,7 @@
 #include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
 #include "UI/KOUISubsystem.h"
+#include "Utility/Log/KOLogManager.h"
 #include "CommonActivatableWidget.h"
 #include "Items/KOItemSlot.h"
 
@@ -245,7 +246,7 @@ void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[PC] : %s Pressed."), *InputTag.GetTagName().ToString());
+			KO_LOG(Input, Log, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
 			KOASC->AbilityInputTagPressed(InputTag);
 		}
 	}
@@ -259,7 +260,7 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 	UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent());
 	if (!KOASC) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("[PC] : %s Released."), *InputTag.GetTagName().ToString());
+	KO_LOG(Input, Log, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
 	KOASC->AbilityInputTagReleased(InputTag);
 }
 

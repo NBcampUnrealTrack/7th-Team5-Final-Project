@@ -3,6 +3,7 @@
 #include "Component/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
+#include "Utility/Log/KOLogManager.h"
 
 
 AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
@@ -36,7 +37,7 @@ void AKOCharacterBase::OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
 	
-	UE_LOG(LogTemp, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
+	KO_LOGS(GAS, Attribute, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
 }
 
 void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength)
