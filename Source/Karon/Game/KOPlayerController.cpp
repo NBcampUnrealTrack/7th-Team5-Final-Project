@@ -52,6 +52,18 @@ void AKOPlayerController::BeginPlay()
 			TEXT("Boiler"),
 			2
 		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Coal"),
+			50
+		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("UndergroundMiningModule"),
+			2
+		);
 	}
 #endif
 }
