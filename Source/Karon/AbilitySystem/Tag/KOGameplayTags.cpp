@@ -130,14 +130,18 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
 
 	// ── Enemy Boss ────────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss_Death, "Ability.Boss.Death");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss_Groggy, "Ability.Boss.Groggy");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal01, "Attack.Boss01.Normal01");
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Normal02, "Attack.Boss01.Normal02");
 	UE_DEFINE_GAMEPLAY_TAG(Attack_Boss01_Strong01, "Attack.Boss01.Strong01");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss01_Shockwave, "Event.Boss01.Shockwave");
 	
-	UE_DEFINE_GAMEPLAY_TAG(State_Attacking, "State.Attacking");
-	UE_DEFINE_GAMEPLAY_TAG(State_Groggy, "State.Groggy");
+	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Attacking, "State.Boss.Attacking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dead, "State.Boss.Dead");
+	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Groggy, "State.Boss.Groggy");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss01_Normal01, "Cooldown.Boss01.Normal01")
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss01_Normal02, "Cooldown.Boss01.Normal02")
