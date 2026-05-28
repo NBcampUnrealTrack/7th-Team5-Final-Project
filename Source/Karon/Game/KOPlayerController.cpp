@@ -10,6 +10,7 @@
 #include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
 #include "UI/KOUISubsystem.h"
+#include "Utility/Log/KOLogManager.h"
 
 AKOPlayerController::AKOPlayerController()
 {
@@ -193,7 +194,7 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
-	if (BuildUIComponent && BuildUIComponent->IsBuildAssignMenuOpen())
+	if (BuildUIComponent && BuildUIComponent->IsBuildAssignMenuOpen()) // 이거 InputMode를 GameAndUI로 바꾸면 알아서 막힐듯? 
 	{
 		return;
 	}
@@ -210,7 +211,7 @@ void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[PC] : %s Pressed."), *InputTag.GetTagName().ToString());
+			KO_LOG(Input, Log, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
 			KOASC->AbilityInputTagPressed(InputTag);
 		}
 	}
@@ -224,7 +225,7 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 	UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent());
 	if (!KOASC) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("[PC] : %s Released."), *InputTag.GetTagName().ToString());
+	KO_LOG(Input, Log, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
 	KOASC->AbilityInputTagReleased(InputTag);
 }
 

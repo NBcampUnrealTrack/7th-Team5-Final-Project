@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 
+
 UKOGA_Death::UKOGA_Death()
 {
 	InstancingPolicy   = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
@@ -25,12 +26,9 @@ void UKOGA_Death::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	UE_LOG(LogTemp,Warning,TEXT("[GA_Death] : Activated.")); 
-	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		UE_LOG(LogTemp,Warning,TEXT("[GA_Death] : Fail to Commit."));
 		return;
 	}
 	
@@ -38,7 +36,6 @@ void UKOGA_Death::ActivateAbility(
 	if (!ASC)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		UE_LOG(LogTemp,Warning,TEXT("[GA_Death] : ASC is Null."));
 		return;
 	}
 	
@@ -49,11 +46,6 @@ void UKOGA_Death::ActivateAbility(
 	if (GE_Death)
 	{
 		ApplyEffectToSelf(GE_Death); 
-		UE_LOG(LogTemp,Warning,TEXT("[GA_Death] : ApplyEffectToSelf."));
-	}
-	else
-	{
-		UE_LOG(LogTemp,Warning,TEXT("[GA_Death] : Fail to ApplyEffectToSelf."));
 	}
 	
 
