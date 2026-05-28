@@ -16,6 +16,7 @@ class KARON_API UKOEnemyAttackGameplayAbility : public UKOGameplayAbilityBase
 	
 public:
 	UKOEnemyAttackGameplayAbility();
+	
 	virtual bool CanActivateAbility(
 		const FGameplayAbilitySpecHandle Handle, 
 		const FGameplayAbilityActorInfo* ActorInfo, 
@@ -23,12 +24,14 @@ public:
 		const FGameplayTagContainer* TargetTags = nullptr, 
 		OUT FGameplayTagContainer* OptionalRelevantTags = nullptr
 	) const override;
+	
 	virtual void ActivateAbility(
 	   const FGameplayAbilitySpecHandle Handle,
 	   const FGameplayAbilityActorInfo* ActorInfo,
 	   const FGameplayAbilityActivationInfo ActivationInfo,
 	   const FGameplayEventData* TriggerEventData
    ) override;
+	
 	virtual void EndAbility(
 	   const FGameplayAbilitySpecHandle Handle,
 	   const FGameplayAbilityActorInfo* ActorInfo,
