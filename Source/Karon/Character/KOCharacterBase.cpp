@@ -44,3 +44,14 @@ void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJum
 	GetCharacterMovement()->JumpZVelocity = NewJumpStrength;
 }
 
+void AKOCharacterBase::OnCharacterDead()
+{
+	// TODO: GMS로 연결 (BeginPlay) 
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->DisableMovement();
+		CMC->StopMovementImmediately(); 
+	}
+	
+}
+
