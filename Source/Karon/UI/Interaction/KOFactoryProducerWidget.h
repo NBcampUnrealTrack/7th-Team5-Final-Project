@@ -54,6 +54,9 @@ protected:
     TObjectPtr<UTextBlock> PowerSpecText;
 
     UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> EnergyText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UKOFactorySlotWidget> FuelSlot;
 
     UPROPERTY(meta = (BindWidgetOptional))

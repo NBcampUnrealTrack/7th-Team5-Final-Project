@@ -15,6 +15,7 @@
 #include "Items/KOItemSlot.h"
 #include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOEnergySubsystem.h"
 #include "TimerManager.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
 #include "UI/KOInventoryWidget.h"
@@ -164,6 +165,22 @@ void UKOFactoryProducerWidget::TickRefresh()
     if (FuelSlot)
     {
         FuelSlot->RefreshFromComponent();
+    }
+
+    if (EnergyText)
+    {
+        if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
+        {
+            const FText EnergyStr = FText::Format(
+                LOCTEXT("EnergyFormat", "{0} / {1}"),
+                FText::AsNumber(FMath::FloorToInt(Energy->GetStoredEnergy())),
+                FText::AsNumber(FMath::FloorToInt(Energy->GetCapacity())));
+            EnergyText->SetText(EnergyStr);
+        }
+        else
+        {
+            EnergyText->SetText(FText::GetEmpty());
+        }
     }
 }
 
