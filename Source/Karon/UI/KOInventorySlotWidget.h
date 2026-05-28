@@ -36,6 +36,12 @@ protected:
         UDragDropOperation*& OutOperation
     ) override;
 
+    virtual bool NativeOnDrop(
+        const FGeometry& InGeometry,
+        const FDragDropEvent& InDragDropEvent,
+        UDragDropOperation* InOperation
+    ) override;
+
     /** WBP에서 같은 이름으로 위젯을 만들면 자동 바인딩. 비주얼만 디자인. */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> IconImage;

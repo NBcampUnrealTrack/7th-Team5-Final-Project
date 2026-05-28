@@ -33,6 +33,9 @@ public:
     /** 슬롯 인덱스 기반 차감. 실제 차감된 수량 반환. */
     int32 RemoveAtSlot(int32 SlotIndex, int32 Count);
 
+    /** 두 슬롯 인덱스 스왑(또는 같은 ItemId면 머지). 두 인덱스 모두 현재 Slots 범위 내여야 함. */
+    bool  SwapSlots(int32 IndexA, int32 IndexB);
+
     bool SplitStack(int32 SlotIndex, int32 SplitCount);
     void MergeAllStacks();
 
@@ -46,6 +49,15 @@ public:
     const FKOItemSlot* GetSlotByIndex(int32 Index) const;
 
 protected:
+    virtual void InitializeComponent() override;
+    virtual void BeginPlay() override;
+
+    /** Slots를 MaxSlots 크기로 패딩(빈 슬롯으로). 이미 충분하면 no-op. */
+    void EnsureSlotsCapacity();
+
+    /** 첫 빈 슬롯 인덱스. 없으면 INDEX_NONE. */
+    int32 FindFirstEmptySlot() const;
+
     UPROPERTY()
     TArray<FKOItemSlot> Slots;
 

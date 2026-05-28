@@ -121,3 +121,39 @@ void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, c
         InventoryComponent
     );
 }
+
+bool UKOInventorySlotWidget::NativeOnDrop(
+    const FGeometry& InGeometry,
+    const FDragDropEvent& InDragDropEvent,
+    UDragDropOperation* InOperation)
+{
+    UKOItemDragDropOperation* DragOp = Cast<UKOItemDragDropOperation>(InOperation);
+    if (!DragOp || !DragOp->HasItem())
+    {
+        return false;
+    }
+
+    // Processor에서 출발한 드래그는 인벤토리 패널이 처리. 슬롯 단위 스왑 대상 아님.
+    if (DragOp->SourceProcessor != nullptr)
+    {
+        return false;
+    }
+
+    UKOInventoryComponent* SourceInv = DragOp->SourceInventoryComponent;
+    if (!SourceInv)
+    {
+        return false;
+    }
+
+    UKOInventoryComponent* MyInv = nullptr;
+    if (UKOInventoryWidget* Owner = OwningInventory.Get())
+    {
+        MyInv = Owner->GetInventoryComponent();
+    }
+    if (!MyInv || MyInv != SourceInv)
+    {
+        return false;
+    }
+
+    return MyInv->SwapSlots(DragOp->SourceSlotIndex, SlotIndex);
+}
