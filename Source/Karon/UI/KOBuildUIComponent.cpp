@@ -64,6 +64,39 @@ UKOInventoryComponent* UKOBuildUIComponent::GetInventoryComponent() const
 	return nullptr;
 }
 
+void UKOBuildUIComponent::SetSelectedBuildQuickSlot(int32 NewSlotIndex)
+{
+	if (SelectedQuickSlotIndex == NewSlotIndex)
+	{
+		return;
+	}
+
+	const int32 PreviousSlotIndex = SelectedQuickSlotIndex;
+	SelectedQuickSlotIndex = NewSlotIndex;
+
+	FKOBuildQuickSlotSelectionChangedMessage Message;
+	Message.PreviousSlotIndex = PreviousSlotIndex;
+	Message.NewSlotIndex = SelectedQuickSlotIndex;
+
+	Broadcast(
+		KOGameplayTags::Data_Message_Build_QuickSlotSelectionChanged,
+		FInstancedStruct::Make(Message)
+	);
+
+	UE_LOG(
+		LogKOBuildUI,
+		Log,
+		TEXT("[BuildUI] 선택 퀵슬롯 변경: %d -> %d"),
+		PreviousSlotIndex + 1,
+		SelectedQuickSlotIndex + 1
+	);
+}
+
+void UKOBuildUIComponent::ClearSelectedBuildQuickSlot()
+{
+	SetSelectedBuildQuickSlot(INDEX_NONE);
+}
+
 void UKOBuildUIComponent::OpenBuildMenu()
 {
 	APlayerController* PC = GetOwningPlayerController();
@@ -90,6 +123,7 @@ void UKOBuildUIComponent::OpenBuildMenu()
 
 void UKOBuildUIComponent::CloseBuildMenu()
 {	
+	ClearSelectedBuildQuickSlot();
 	CloseQuickSlotBar();
 	
 	if (UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent())
@@ -129,12 +163,14 @@ void UKOBuildUIComponent::EscapeBuildAction()
 	if (GridBuildComponent->IsBuildMode())
 	{
 		GridBuildComponent->CancelBuildMode();
+		ClearSelectedBuildQuickSlot();
 		return;
 	}
 
 	if (GridBuildComponent->IsDestroyMode())
 	{
 		GridBuildComponent->CancelDestroyMode();
+		ClearSelectedBuildQuickSlot();
 		return;
 	}
 
@@ -222,6 +258,8 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 	}
 
 	GridBuildComponent->StartBuildModeWithId(FactoryId);
+	
+	SetSelectedBuildQuickSlot(SlotIndex);
 }
 
 FName UKOBuildUIComponent::GetBuildQuickSlot(int32 SlotIndex) const
@@ -237,6 +275,11 @@ FName UKOBuildUIComponent::GetBuildQuickSlot(int32 SlotIndex) const
 int32 UKOBuildUIComponent::GetQuickSlotCount() const
 {
 	return BuildQuickSlots.Num();
+}
+
+int32 UKOBuildUIComponent::GetSelectedBuildQuickSlotIndex() const
+{
+	return SelectedQuickSlotIndex;
 }
 
 void UKOBuildUIComponent::OpenQuickSlotBar()
@@ -294,6 +337,8 @@ void UKOBuildUIComponent::StartDestroyBuildMode()
 	}
 
 	GridBuildComponent->StartDestroyMode();
+	
+	ClearSelectedBuildQuickSlot();
 }
 
 void UKOBuildUIComponent::ConfirmBuildAction()
@@ -328,12 +373,14 @@ void UKOBuildUIComponent::CancelBuildAction()
 	if (GridBuildComponent->IsBuildMode())
 	{
 		GridBuildComponent->CancelBuildMode();
+		ClearSelectedBuildQuickSlot();
 		return;
 	}
 	
 	if (GridBuildComponent->IsDestroyMode())
 	{
 		GridBuildComponent->CancelDestroyMode();
+		ClearSelectedBuildQuickSlot();
 		return;
 	}
 	

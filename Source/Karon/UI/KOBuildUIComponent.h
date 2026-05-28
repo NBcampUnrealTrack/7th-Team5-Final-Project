@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
 	int32 GetQuickSlotCount() const;
 	
+	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
+	int32 GetSelectedBuildQuickSlotIndex() const;
+	
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	void OpenQuickSlotBar();
 
@@ -71,6 +74,9 @@ private:
 	UKOGridBuildComponent* GetGridBuildComponent() const;
 	UKOInventoryComponent* GetInventoryComponent() const;
 	
+	void SetSelectedBuildQuickSlot(int32 NewSlotIndex);
+	void ClearSelectedBuildQuickSlot();
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Build|UI")
 	TSubclassOf<UCommonActivatableWidget> QuickSlotBarWidgetClass;
@@ -83,4 +89,7 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Build|QuickSlot")
 	TArray<FName> BuildQuickSlots;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Build|QuickSlot")
+	int32 SelectedQuickSlotIndex = INDEX_NONE;
 };

@@ -11,11 +11,13 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Component/KOInventoryComponent.h"
 #include "Components/TextBlock.h"
+#include "Components/Border.h"
 
 void UKOBuildQuickSlotWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
+	RefreshSlotNumber();
 	RefreshSlot();
 }
 
@@ -42,7 +44,18 @@ void UKOBuildQuickSlotWidget::NativeConstruct()
 		KOGameplayTags::Data_Message_Inventory_Changed,
 		InventoryChangedCallback
 	);
+	
+	QuickSlotSelectionChangedCallback.BindDynamic(
+		this,
+		&UKOBuildQuickSlotWidget::HandleQuickSlotSelectionChangedMessage
+	);
 
+	QuickSlotSelectionChangedHandle = Subscribe(
+		KOGameplayTags::Data_Message_Build_QuickSlotSelectionChanged,
+		QuickSlotSelectionChangedCallback
+	);
+
+	RefreshSelectedVisual();
 	RefreshSlot();
 }
 
@@ -55,6 +68,10 @@ void UKOBuildQuickSlotWidget::NativeDestruct()
 	Unsubscribe(InventoryChangedHandle);
 	InventoryChangedHandle = FGameplayMessageHandle();
 	InventoryChangedCallback.Clear();
+	
+	Unsubscribe(QuickSlotSelectionChangedHandle);
+	QuickSlotSelectionChangedHandle = FGameplayMessageHandle();
+	QuickSlotSelectionChangedCallback.Clear();
 
 	Super::NativeDestruct();
 }
@@ -95,7 +112,9 @@ void UKOBuildQuickSlotWidget::SetupSlot(int32 InSlotIndex)
 {
 	SlotIndex = InSlotIndex;
 
+	RefreshSlotNumber();
 	RefreshSlot();
+	RefreshSelectedVisual();
 }
 
 void UKOBuildQuickSlotWidget::RefreshSlot()
@@ -107,11 +126,7 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 	
 	auto ApplyEmptyVisual = [this]()
 	{
-		if (EmptySlotIcon)
-		{
-			SlotIconImage->SetBrushFromTexture(EmptySlotIcon);
-		}
-
+		SlotIconImage->SetVisibility(ESlateVisibility::Hidden);
 		SlotIconImage->SetRenderOpacity(NormalOpacity);
 
 		if (CountText)
@@ -151,6 +166,7 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 		return;
 	}
 
+	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	SlotIconImage->SetBrushFromTexture(Icon);
 	
 	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
@@ -259,4 +275,59 @@ void UKOBuildQuickSlotWidget::HandleInventoryChangedMessage(FGameplayTag Channel
 	}
 
 	RefreshSlot();
+}
+
+void UKOBuildQuickSlotWidget::HandleQuickSlotSelectionChangedMessage(FGameplayTag Channel,
+	const FInstancedStruct& Payload)
+{
+	const FKOBuildQuickSlotSelectionChangedMessage* Message =
+		Payload.GetPtr<FKOBuildQuickSlotSelectionChangedMessage>();
+
+	if (!Message)
+	{
+		return;
+	}
+
+	if (Message->PreviousSlotIndex != SlotIndex &&
+		Message->NewSlotIndex != SlotIndex)
+	{
+		return;
+	}
+
+	RefreshSelectedVisual();
+}
+
+void UKOBuildQuickSlotWidget::RefreshSelectedVisual()
+{
+	if (!SelectedFrameBorder)
+	{
+		return;
+	}
+
+	const UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+	if (!BuildUIComponent)
+	{
+		SelectedFrameBorder->SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+
+	const bool bIsSelected =
+		BuildUIComponent->GetSelectedBuildQuickSlotIndex() == SlotIndex;
+
+	SelectedFrameBorder->SetVisibility(
+		bIsSelected
+			? ESlateVisibility::HitTestInvisible
+			: ESlateVisibility::Collapsed
+	);
+}
+
+void UKOBuildQuickSlotWidget::RefreshSlotNumber()
+{
+	if (!SlotNumberText)
+	{
+		return;
+	}
+
+	SlotNumberText->SetText(FText::AsNumber(SlotIndex + 1));
+	SlotNumberText->SetVisibility(ESlateVisibility::HitTestInvisible);
 }

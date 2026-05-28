@@ -7,6 +7,7 @@
 #include "KOBuildQuickSlotWidget.generated.h"
 
 class UImage;
+class UBorder;
 class UTexture2D;
 class UTextBlock;
 class UDragDropOperation;
@@ -40,14 +41,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot", meta = (ExposeOnSpawn = "true"))
 	int32 SlotIndex = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
-	TObjectPtr<UTexture2D> EmptySlotIcon = nullptr;
-
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SlotIconImage;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> CountText;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> SlotNumberText;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UBorder> SelectedFrameBorder;
 	
 	// 투명도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
@@ -57,18 +61,27 @@ protected:
 	float DepletedOpacity = 0.25f;
 	
 private:
-	FGameplayMessageHandle QuickSlotChangedHandle;
-	FGameplayMessageHandle InventoryChangedHandle;
-	
-	FGameplayMessageCallback QuickSlotChangedCallback;
-	FGameplayMessageCallback InventoryChangedCallback;
-	
 	UKOBuildUIComponent* GetBuildUIComponent() const;
 	UKOInventoryComponent* GetInventoryComponent() const;
+	
+	FGameplayMessageHandle QuickSlotChangedHandle;
+	FGameplayMessageCallback QuickSlotChangedCallback;
+	
+	FGameplayMessageHandle InventoryChangedHandle;
+	FGameplayMessageCallback InventoryChangedCallback;
+	
+	FGameplayMessageHandle QuickSlotSelectionChangedHandle;
+	FGameplayMessageCallback QuickSlotSelectionChangedCallback;
 
 	UFUNCTION()
 	void HandleQuickSlotChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
 
 	UFUNCTION()
 	void HandleInventoryChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
+	
+	UFUNCTION()
+	void HandleQuickSlotSelectionChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
+	
+	void RefreshSlotNumber();
+	void RefreshSelectedVisual();
 };

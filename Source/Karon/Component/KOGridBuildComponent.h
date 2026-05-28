@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Messaging/KOGMSInterface.h"
 #include "KOGridBuildComponent.generated.h"
 
 struct FKOFactoryRow;
@@ -35,7 +36,7 @@ public:
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class KARON_API UKOGridBuildComponent : public UActorComponent
+class KARON_API UKOGridBuildComponent : public UActorComponent, public IKOGMSInterface
 {
 	GENERATED_BODY()
 
@@ -124,6 +125,9 @@ protected:
 	void RestoreDestroyTargetMaterial();
 	
 	UKOInventoryComponent* GetInventoryComponent() const;
+	
+private:
+	void SetCurrentMode(EKOGridBuildMode NewMode);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
