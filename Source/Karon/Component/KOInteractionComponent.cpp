@@ -89,5 +89,12 @@ bool UKOInteractionComponent::TraceFromScreenCenter(FHitResult& OutHit) const
 		Params.AddIgnoredActor(Pawn);
 	}
 
+	if (TraceRadius > 0.f)
+	{
+		const FCollisionShape Shape = FCollisionShape::MakeSphere(TraceRadius);
+		return World->SweepSingleByChannel(
+			OutHit, TraceStart, TraceEnd, FQuat::Identity, TraceChannel, Shape, Params);
+	}
+
 	return World->LineTraceSingleByChannel(OutHit, TraceStart, TraceEnd, TraceChannel, Params);
 }

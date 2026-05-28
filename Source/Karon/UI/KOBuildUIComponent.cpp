@@ -25,17 +25,6 @@ void UKOBuildUIComponent::BeginPlay()
 
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
-
-	const bool bAssigned = SetBuildQuickSlot(0, TEXT("Boiler"));
-	const bool bAssigned1 = SetBuildQuickSlot(1, TEXT("UndergroundMiningModule"));
-	UE_LOG(LogKOBuildUI, Warning,
-		TEXT("[BuildUI][BeginPlay] Owner=%s, This=%p, SlotCount=%d, 슬롯0 Boiler=%s, 슬롯1 UndergroundMiningModule=%s"),
-		*GetNameSafe(GetOwner()),
-		this,
-		BuildQuickSlots.Num(),
-		bAssigned ? TEXT("성공") : TEXT("실패"),
-		bAssigned1 ? TEXT("성공") : TEXT("실패")
-	);
 }
 
 APlayerController* UKOBuildUIComponent::GetOwningPlayerController() const
@@ -161,35 +150,6 @@ bool UKOBuildUIComponent::IsBuildMenuOpen() const
 {
 	const UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	return GridBuildComponent && GridBuildComponent->IsBuildSystemActive();
-}
-
-void UKOBuildUIComponent::EscapeBuildAction()
-{
-	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
-	if (!GridBuildComponent)
-	{
-		return;
-	}
-
-	if (GridBuildComponent->IsBuildMode())
-	{
-		GridBuildComponent->CancelBuildMode();
-		ClearSelectedBuildQuickSlot();
-		return;
-	}
-
-	if (GridBuildComponent->IsDestroyMode())
-	{
-		GridBuildComponent->CancelDestroyMode();
-		ClearSelectedBuildQuickSlot();
-		return;
-	}
-
-	if (GridBuildComponent->IsBuildMenuMode())
-	{
-		// ESC로도 건설 모드 종료 금지
-		return;
-	}
 }
 
 bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
@@ -393,6 +353,31 @@ void UKOBuildUIComponent::StartDestroyBuildMode()
 	GridBuildComponent->StartDestroyMode();
 	
 	ClearSelectedBuildQuickSlot();
+}
+
+void UKOBuildUIComponent::ToggleDestroyBuildMode()
+{
+	if (!IsBuildMenuOpen())
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 건설 메뉴가 열려 있지 않아 파괴 모드 토글 불가."));
+		return;
+	}
+
+	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
+	if (!GridBuildComponent)
+	{
+		return;
+	}
+
+	if (GridBuildComponent->IsDestroyMode())
+	{
+		GridBuildComponent->CancelDestroyMode();
+	}
+	else
+	{
+		GridBuildComponent->StartDestroyMode();
+		ClearSelectedBuildQuickSlot();
+	}
 }
 
 void UKOBuildUIComponent::ConfirmBuildAction()

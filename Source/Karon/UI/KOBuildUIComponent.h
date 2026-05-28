@@ -63,15 +63,16 @@ public:
 	// X 키
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void StartDestroyBuildMode();
+
+	// X 키 토글: DestroyMode이면 취소, 아니면 진입.
+	UFUNCTION(BlueprintCallable, Category = "Build|Action")
+	void ToggleDestroyBuildMode();
 	// 좌클릭
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void ConfirmBuildAction();
 	// 우클릭
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void CancelBuildAction();
-	// ESC
-	UFUNCTION(BlueprintCallable, Category = "Build|Action")
-	void EscapeBuildAction();
 
 private:
 	APlayerController* GetOwningPlayerController() const;
