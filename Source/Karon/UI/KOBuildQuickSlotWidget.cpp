@@ -131,7 +131,6 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 	
 	auto ApplyEmptyVisual = [this]()
 	{
-		SlotIconImage->SetVisibility(ESlateVisibility::Hidden);
 		if (EmptySlotIcon)
 		{
 			SlotIconImage->SetBrushFromTexture(EmptySlotIcon);
@@ -184,7 +183,6 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 		return;
 	}
 
-	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
 	SlotIconImage->SetBrushFromTexture(Icon);
 	SlotIconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
 	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);

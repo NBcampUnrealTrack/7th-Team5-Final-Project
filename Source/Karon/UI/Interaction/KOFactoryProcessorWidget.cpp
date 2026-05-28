@@ -9,6 +9,7 @@
 #include "Components/PanelWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
 #include "Data/KODataTableTypes.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -102,7 +103,9 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
     {
         RecipeButton->OnClicked.AddDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
     }
-    SetRecipeSelectVisible(false);
+
+    bShowingRecipePanel = false;
+    ApplyPanelSwitch();
 
     // GMS 구독: Processor의 Recipe/State/Buffer 변동 이벤트
     ProcessorChangedCallback.BindDynamic(this, &UKOFactoryProcessorWidget::HandleProcessorChangedMessage);
@@ -161,14 +164,9 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
 
 void UKOFactoryProcessorWidget::HandleRecipeButtonClicked()
 {
-    const bool bVisible = RecipeSelectPanel && RecipeSelectPanel->GetVisibility() != ESlateVisibility::Collapsed;
-    if (bVisible)
-    {
-        SetRecipeSelectVisible(false);
-        return;
-    }
-    PopulateRecipeSelect();
-    SetRecipeSelectVisible(true);
+    // RecipeButton -> Recipe 패널 진입. Inventory는 숨김.
+    bShowingRecipePanel = true;
+    ApplyPanelSwitch();
 }
 
 void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
@@ -178,25 +176,48 @@ void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
         Proc->SetSelectedRecipe(InRecipeId);
         // SetSelectedRecipe 내부에서 BroadcastProcessorChanged → HandleProcessorChangedMessage가 UI 갱신.
     }
-    SetRecipeSelectVisible(false);
+
+    // 레시피 선택 후 Inventory 패널로 복귀.
+    bShowingRecipePanel = false;
+    ApplyPanelSwitch();
 }
 
-void UKOFactoryProcessorWidget::SetRecipeSelectVisible(bool bVisible)
+void UKOFactoryProcessorWidget::ApplyPanelSwitch()
 {
-    if (!RecipeSelectPanel) return;
-    RecipeSelectPanel->SetVisibility(bVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+    if (bShowingRecipePanel)
+    {
+        PopulateRecipeSelect();
+    }
+
+    if (PanelSwitcher)
+    {
+        PanelSwitcher->SetActiveWidgetIndex(bShowingRecipePanel ? RecipePanelIndex : InventoryPanelIndex);
+    }
 }
 
 void UKOFactoryProcessorWidget::PopulateRecipeSelect()
 {
-    if (!RecipeSelectPanel || !RecipeEntryClass) return;
+    if (!RecipeSelectPanel || !RecipeEntryClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect early-out: Panel=%s, EntryClass=%s"),
+            RecipeSelectPanel ? TEXT("OK") : TEXT("NULL"),
+            RecipeEntryClass ? TEXT("OK") : TEXT("NULL"));
+        return;
+    }
 
     AKOBaseBuilding* Building = TargetBuilding.Get();
     if (!Building) return;
 
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
-    if (!LoadSub || !FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid()) return;
+    if (!LoadSub || !FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect early-out: LoadSub=%s, Row=%s, Tag=%s"),
+            LoadSub ? TEXT("OK") : TEXT("NULL"),
+            FactoryRow ? TEXT("OK") : TEXT("NULL"),
+            (FactoryRow && FactoryRow->FactoryCategoryTag.IsValid()) ? *FactoryRow->FactoryCategoryTag.ToString() : TEXT("INVALID"));
+        return;
+    }
 
     // 기존 엔트리 정리
     for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
@@ -230,6 +251,9 @@ void UKOFactoryProcessorWidget::PopulateRecipeSelect()
 
         AddEntry(RecipeId, Recipe->DisplayName);
     }
+
+    UE_LOG(LogTemp, Warning, TEXT("[Processor] PopulateRecipeSelect: %d entries added (FactoryTag=%s)"),
+        RecipeEntryWidgets.Num(), *FactoryRow->FactoryCategoryTag.ToString());
 }
 
 void UKOFactoryProcessorWidget::BuildIOSlots()
