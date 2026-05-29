@@ -5,6 +5,7 @@
 
 AKOCameraManager::AKOCameraManager()
 {
-	ViewPitchMin = -70.f;
-	ViewPitchMax = 70.f;
+	ViewPitchMin = -40.f;
+	ViewPitchMax = -40.f;
 }
+

@@ -13,4 +13,5 @@ class KARON_API AKOCameraManager : public APlayerCameraManager
 public:
 	AKOCameraManager();
 	
+	
 };
