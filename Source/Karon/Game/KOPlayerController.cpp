@@ -214,6 +214,15 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_AbilityReleased,
 			BindHandles
 		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleSKillTree,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleSkillTree,
+			true
+			);
 	}
 }
 
@@ -443,4 +452,15 @@ void AKOPlayerController::ExitBuildIMC()
 	}
 
 	bBuildIMCActive = false;
+}
+
+void AKOPlayerController::Input_ToggleSkillTree(const FInputActionValue& Value)
+{
+	UKOUISubsystem* UISubsystem = GetLocalPlayer()->GetSubsystem<UKOUISubsystem>();
+	if (UISubsystem == nullptr)
+	{
+		return;
+	}
+	
+	UISubsystem->PushWidget(KOGameplayTags::UI_Layer_Game);
 }
