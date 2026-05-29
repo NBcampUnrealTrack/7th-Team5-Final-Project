@@ -2,6 +2,21 @@
 
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
+#include "Utility/Log/KOLogManager.h"
+
+void UKOAttributeSetBase::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+	
+	if (FMath::Abs(NewValue - OldValue) < 1.0f) return; 
+	
+	KO_LOGS(GAS, Attribute, Log, TEXT("[%s] %s : %.1f → %.1f"),
+		*GetClass()->GetName(),
+		*Attribute.GetName(),
+		OldValue,
+		NewValue
+	); 
+}
 
 void UKOAttributeSetBase::AdjustCurrentForMaxChange(
 	FGameplayAttributeData& Current, 
