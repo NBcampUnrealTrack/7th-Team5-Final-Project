@@ -60,7 +60,19 @@ void UKOAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGameP
 	// 2. 찾은 어빌리티를 실제로 실행(Activate)합니다.
 	for (const FGameplayAbilitySpecHandle& SpecHandle : AbilitiesToActivate)
 	{
-		TryActivateAbility(SpecHandle);
+		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->IsActive())
+			{
+				// 이미 활성 중이면 InputPressed 호출
+				AbilitySpecInputPressed(*Spec);
+			}
+			else
+			{
+				// 비활성 상태면 활성화 시도
+				TryActivateAbility(SpecHandle);
+			}
+		}
 	}
 	
 	// 3. Released 어빌리티 처리
