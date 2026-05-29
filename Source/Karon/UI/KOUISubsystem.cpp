@@ -191,10 +191,21 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
     {
         ActiveWidgetsByTag.Add(WidgetTag, NewWidget);
 
-        // 외부 경로(ESC/닫기버튼 등)로 Deactivate되어도 맵에서 자동 제거.
+        TWeakObjectPtr<UCommonActivatableWidget> WeakWidget = NewWidget;
+
+        // Stack에서 다른 위젯이 위로 올라오면 이 위젯은 Deactivate(suspend)된다.
+        // suspend/pop 구분이 어려우므로 일단 맵에서 빼두고, 다시 Activate되면(resume) 재등록한다.
         NewWidget->OnDeactivated().AddWeakLambda(this, [this, WidgetTag]()
         {
             ActiveWidgetsByTag.Remove(WidgetTag);
+        });
+
+        NewWidget->OnActivated().AddWeakLambda(this, [this, WidgetTag, WeakWidget]()
+        {
+            if (UCommonActivatableWidget* W = WeakWidget.Get())
+            {
+                ActiveWidgetsByTag.Add(WidgetTag, W);
+            }
         });
     }
     return NewWidget;
