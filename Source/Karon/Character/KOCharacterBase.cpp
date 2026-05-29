@@ -1,11 +1,9 @@
 ﻿#include "KOCharacterBase.h"
-#include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
-#include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Animation/KOAnimInstance.h"
 #include "Component/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
+#include "Utility/Log/KOLogManager.h"
 
 
 AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
@@ -27,6 +25,7 @@ void AKOCharacterBase::BeginPlay()
 
 void AKOCharacterBase::BindMovementSet()
 {
+	// 이거 자식 클래스에서 호출 해서 바인드 해줘야함. 
 	MovementSet->OnMoveSpeedChanged.AddDynamic(this, &ThisClass::OnMoveSpeedChanged);
 	OnMoveSpeedChanged(0.f, MovementSet->GetMoveSpeed());
 	
@@ -38,11 +37,22 @@ void AKOCharacterBase::OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
 	
-	UE_LOG(LogTemp, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
+	KO_LOGS(GAS, Attribute, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
 }
 
 void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength)
 {
 	GetCharacterMovement()->JumpZVelocity = NewJumpStrength;
+}
+
+void AKOCharacterBase::OnCharacterDead()
+{
+	// TODO: GMS로 연결 (BeginPlay) 
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->DisableMovement();
+		CMC->StopMovementImmediately(); 
+	}
+	
 }
 

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
 #include "KOInputConfig.generated.h"
@@ -18,6 +19,12 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Category = "InputTag"))
 	FGameplayTag InputTag; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Category = "TriggerEvent"))
+	ETriggerEvent PressedTriggerEvent = ETriggerEvent::Started;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Category = "TriggerEvent"))
+	ETriggerEvent ReleasedTriggerEvent = ETriggerEvent::Completed;
 };
 
 UCLASS(BlueprintType, Const)

@@ -36,6 +36,8 @@ protected:
 	UFUNCTION()
 	virtual void OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength);
 	
+	UFUNCTION()
+	virtual void OnCharacterDead();
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;

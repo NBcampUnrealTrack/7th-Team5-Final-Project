@@ -4,6 +4,7 @@
 #include "KOStaminaSet.h"
 
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UKOStaminaSet::UKOStaminaSet()
@@ -60,13 +61,29 @@ void UKOStaminaSet::PostAttributeBaseChange(const FGameplayAttribute& Attribute,
 // Current값 변경 후 - UI/이벤트
 void UKOStaminaSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
+	// 메타 데이터의 경우 처리 x 
+	if (Attribute == GetStaminaDrainAttribute() || Attribute == GetStaminaRegenAttribute()) return; 
+	
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
 	if (Attribute == GetStaminaAttribute())
+	{    
+		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+		
+		if (NewValue <= 0.f)
+			ASC->AddLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
+		else if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_StaminaExhausted) &&
+		NewValue >= GetMaxStamina()) 
+			ASC->RemoveLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
+		
 		OnStaminaChanged.Broadcast(OldValue, NewValue);
+	}
+		
 
 	if (Attribute == GetMaxStaminaAttribute())
 		OnMaxStaminaChanged.Broadcast(OldValue, NewValue);
+	
+	
 }
 
 // GE 실행 완료 후 - 스테미나 사용 / 리젠 
@@ -86,8 +103,6 @@ void UKOStaminaSet::PostGameplayEffectExecute(const struct FGameplayEffectModCal
 		
 		SetStamina(NewStamina);
 		SetStaminaDrain(0.f);
-		
-		// TODO: 스테미나고갈 
 	}
 	
 	// Handle Regen Stamina 

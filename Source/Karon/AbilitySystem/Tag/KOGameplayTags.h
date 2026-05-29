@@ -28,7 +28,8 @@ namespace KOGameplayTags
 
     // ── Input | Ability | Attack ──────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Combo);
-    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Light);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Charge);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Dash);
 
@@ -57,15 +58,24 @@ namespace KOGameplayTags
 
     // ── State | Character | Etc ───────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Dead);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_StaminaExhausted);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Stunned);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Invincible);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_NoStaminaRegen);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	
 	// ───────────────────────── Event ──────────────────────────────
-    // ── Event | HitReact ──────────────────────────────────────────
+	// ── Event | Stamina ──────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Stamina_Exhausted);
+	
+	// ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Forward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Backward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Left);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Right);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
     // ── Event | Death ─────────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 
@@ -229,7 +239,7 @@ namespace KOGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_InAir);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Sprinting);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Rolling);
-
+	
     // ── State | Character | Attacking ─────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);
 	//TODO:
@@ -246,9 +256,13 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	
 	// ───────────────────────── Event ──────────────────────────────
-    // ── Event | HitReact ──────────────────────────────────────────
+    // ── Event | Hit ───────────────────────────────────────────────
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit);
+	
+	// ── Event | HitReact ──────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
+	
     // ── Event | Death ─────────────────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 
@@ -269,13 +283,19 @@ namespace KOGameplayTags
     // ── Effect | Debuff ───────────────────────────────────────────
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Debuff_Slow);
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Debuff_Stun);
-
+	
+	// ───────────────────────── Cue ─────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Death);
+	
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat); 
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_State_Invincible);
 	
 	//Enemy Boss
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss_Death);

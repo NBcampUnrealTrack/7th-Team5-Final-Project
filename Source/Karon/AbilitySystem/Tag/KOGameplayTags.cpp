@@ -25,6 +25,7 @@ namespace KOGameplayTags
 	
 	// ── Input | Ability | Attack ──────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Combo, "Input.Ability.Attack.Combo");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Light, "Input.Ability.Attack.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Heavy, "Input.Ability.Attack.Heavy");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Charge, "Input.Ability.Attack.Charge");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Dash, "Input.Ability.Attack.Dash");
@@ -48,6 +49,7 @@ namespace KOGameplayTags
 	
 	// ── State | Character | Etc ───────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Dead, "State.Character.Dead");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_StaminaExhausted, "State.Character.StaminaExhausted"); 
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Stunned, "State.Character.Stunned");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Invincible, "State.Character.Invincible");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
@@ -106,15 +108,26 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
 	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
 	
-	// ─── SetbyCaller ──────────────────────────────────────────────
+	// ─── Set by Caller ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	
 	// ───────────────────────── Event ──────────────────────────────
+	// ── Event | Stamina ──────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Stamina_Exhausted, "Event.Stamina.Exhausted");
+	
+	// ── Event | Hit ───────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Hit, "Event.Hit");
+	
 	// ── Event | HitReact ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact, "Event.HitReact");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Forward, "Event.HitReact.Forward");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Backward, "Event.HitReact.Backward");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Left, "Event.HitReact.Left");
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Right, "Event.HitReact.Right");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_KnockBack_Launch, "Event.HitReact.KnockBack_Launch"); 
 	// ── Event | Death ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Death, "Event.Death");
 	
@@ -139,12 +152,18 @@ namespace KOGameplayTags
 	
 	// ── Effect | Debuff ───────────────────────────────────────────
 	
+	// ───────────────────────── Effect ─────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_HitImpact, "GameplayCue.HitImpact");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Death, "GameplayCue.Death");
+	
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health, "Data.Attribute.Health");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_State_Invincible, "Data.State.Invincible");
 
 	// ── Enemy Boss ────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss_Death, "Ability.Boss.Death");

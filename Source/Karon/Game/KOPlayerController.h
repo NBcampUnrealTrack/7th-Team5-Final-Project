@@ -15,6 +15,14 @@ class UKOInventoryComponent;
 class UKOActivatableWidget;
 class UKOBuildUIComponent;
 
+// TODO: 
+// 공장 <-> 전투 맵이 분리되면 컨트롤러를 두개로 관리하는것도 나쁘지않을듯? 
+//		맵이 분리되는 거면 굳이 이걸 전투 쪽에서도 들고 있을 필요는 없어서 
+// 공장 컨트롤러 <-> 전투 컨트롤러 
+// 공통 로직은 이동 화면 전환 정도 ? 
+// 이거 베이스로 올려버리면 깔 - 끔 할 듯 
+
+
 UCLASS()
 class KARON_API AKOPlayerController : public APlayerController
 {
@@ -84,8 +92,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UKOInventoryComponent> InventoryComponent;
-	
-	
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UKOActivatableWidget> RootLayoutClass;

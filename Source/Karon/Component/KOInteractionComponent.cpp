@@ -1,4 +1,3 @@
-// Copyright Karon Team 5. All Rights Reserved.
 #include "KOInteractionComponent.h"
 
 #include "Engine/World.h"
