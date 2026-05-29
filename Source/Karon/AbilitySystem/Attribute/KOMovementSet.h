@@ -9,7 +9,7 @@ class KARON_API UKOMovementSet : public UKOAttributeSetBase
 {
 	GENERATED_BODY()
 	
-	public:
+public:
 	UKOMovementSet();
 	
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
