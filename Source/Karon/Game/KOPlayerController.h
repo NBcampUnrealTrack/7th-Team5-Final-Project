@@ -64,6 +64,10 @@ protected:
 	// 인벤토리 입력
 	void Input_ToggleInventory(const FInputActionValue& Value);
 	
+	// 스킬창 입력 
+	void Input_ToggleSkillTree(const FInputActionValue& Value);
+
+	
 private:
 	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
 	void EnterBuildIMC();
