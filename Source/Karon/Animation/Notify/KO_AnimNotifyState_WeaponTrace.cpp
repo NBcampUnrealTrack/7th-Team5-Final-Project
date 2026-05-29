@@ -1,21 +1,26 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KO_AnimNotifyState_WeaponTrace.h"
+﻿#include "KO_AnimNotifyState_WeaponTrace.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/KOComboActionData.h"
 
-void UKO_AnimNotifyState_WeaponTrace::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                                  float TotalDuration, const FAnimNotifyEventReference& EventReference)
+void UKO_AnimNotifyState_WeaponTrace::NotifyBegin(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
+    float TotalDuration,
+    const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	
 	HitActors.Empty();
 }
 
-void UKO_AnimNotifyState_WeaponTrace::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-	float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UKO_AnimNotifyState_WeaponTrace::NotifyTick(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
+	float FrameDeltaTime,
+	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 	
@@ -76,14 +81,20 @@ void UKO_AnimNotifyState_WeaponTrace::NotifyTick(USkeletalMeshComponent* MeshCom
 				PayloadData.Instigator = OwnerActor;
 				PayloadData.Target = HitActor;
 				
-				FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Hit"));
+				FGameplayAbilityTargetData_SingleTargetHit* TargetData = 
+					new FGameplayAbilityTargetData_SingleTargetHit(HitResult);
+				PayloadData.TargetData.Add(TargetData);
+				
+				FGameplayTag EventTag = KOGameplayTags::Event_Hit;
 				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, EventTag, PayloadData);
 			}
 		}
 	}
 }
 
-void UKO_AnimNotifyState_WeaponTrace::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UKO_AnimNotifyState_WeaponTrace::NotifyEnd(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
