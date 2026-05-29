@@ -29,6 +29,10 @@ UCLASS(Abstract)
 class KARON_API UKOAttributeSetBase : public UAttributeSet
 {
 	GENERATED_BODY()
+	
+public:
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute,float OldValue, float NewValue) override;
+	
 protected:
 	// ─── Utility Functions  ────────────────────────────────────────────────────
 	void AdjustCurrentForMaxChange(

@@ -57,6 +57,9 @@ void UKOHealthSet::PostAttributeBaseChange(const FGameplayAttribute& Attribute, 
 // Current값 변경 후 - UI/이벤트
 void UKOHealthSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
+	// 메타 데이터에 경우 처리 x 
+	if (Attribute == GetDamageAttribute() || Attribute == GetHealingAttribute()) return;
+	
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
 	if (Attribute == GetHealthAttribute())

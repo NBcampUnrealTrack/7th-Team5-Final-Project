@@ -61,6 +61,9 @@ void UKOStaminaSet::PostAttributeBaseChange(const FGameplayAttribute& Attribute,
 // Current값 변경 후 - UI/이벤트
 void UKOStaminaSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
+	// 메타 데이터의 경우 처리 x 
+	if (Attribute == GetStaminaDrainAttribute() || Attribute == GetStaminaRegenAttribute()) return; 
+	
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
 	if (Attribute == GetStaminaAttribute())
