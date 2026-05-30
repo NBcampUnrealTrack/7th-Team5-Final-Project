@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#if WITH_EDITOR
-
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GameplayTagContainer.h"
@@ -33,4 +31,3 @@ public:
 	static TArray<FString> GetActiveGENames(AActor* TargetActor);
 };
 
-#endif
