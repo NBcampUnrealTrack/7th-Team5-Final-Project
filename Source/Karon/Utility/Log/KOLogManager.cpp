@@ -23,6 +23,7 @@ FKOLogManager::FKOLogManager()
 	for (bool& b : bEnabled) { b = true; } 
 	FMemory::Memset(CategoryEntries, 0, sizeof(CategoryEntries));
 
+#if !NO_LOGGING
 	Register(ELogCategory::Char,     &LogKO_Char,     TEXT("Char"));
 	Register(ELogCategory::GAS,      &LogKO_GAS,      TEXT("GAS"));
 	Register(ELogCategory::Combat,   &LogKO_Combat,   TEXT("Combat"));
@@ -33,7 +34,8 @@ FKOLogManager::FKOLogManager()
 	Register(ELogCategory::Data,     &LogKO_Data,     TEXT("Data"));
 	Register(ELogCategory::AI,       &LogKO_AI,       TEXT("AI"));
 	Register(ELogCategory::Factory,  &LogKO_Factory,  TEXT("Factory"));
-
+#endif
+	
 	// 그룹 정의
 	GroupMap.Add(
 		ELogGroup::Character,
