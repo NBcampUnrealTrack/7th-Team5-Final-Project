@@ -23,7 +23,7 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false;
 	
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return false;
 	
 	UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement(); 
@@ -31,6 +31,10 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	
 	// 떨어지는 경우 
 	if (CharacterMovement->IsFalling()) return false; 
+	
+	// 스테미나가 없는 경우 
+	const float Stamina = GetASC()->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
+	if (Stamina <= 0.f) return false;
 	
 	// 움직이지 않는 경우 
 	const FVector Velocity = CharacterMovement->Velocity;
@@ -116,9 +120,12 @@ void UKOGA_Movement_Sprint::EndAbility(
 		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintCostEffectHandle);
 	}
 	
-	CachedCharacter->UpdateGait(EGait::Run); 
+	if (CachedCharacter)
+	{
+		CachedCharacter->UpdateGait(EGait::Run); 
+		CachedCharacter = nullptr;
+	}
 	
-	CachedCharacter = nullptr;
 	CachedMovement = nullptr;
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

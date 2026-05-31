@@ -1,6 +1,6 @@
 ﻿#include "KOAbilitySystemComponent.h"
 #include "Karon/Data/KOGrantSet.h"
-
+#include "Utility/Log/KOLogManager.h"
 
 void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
@@ -10,10 +10,10 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 		{
 			if (!AbilitySpec.Ability) continue; 
 			
-			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) ||
+			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) || 
 				AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 			{
-				UE_LOG(LogTemp, Log, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
+				KO_LOG(Input, Log, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
 				
 				InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
@@ -29,9 +29,10 @@ void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
 		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 		{
 			if (AbilitySpec.Ability && 
-				(AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag) || AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
+				(AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag) || 
+					AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
 			{
-				UE_LOG(LogTemp, Log, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
+				KO_LOG(Input, Log, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
 				
 				InputReleasedSpecHandles.AddUnique(AbilitySpec.Handle);
 				InputHeldSpecHandles.Remove(AbilitySpec.Handle);
@@ -42,40 +43,33 @@ void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
 
 void UKOAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGamePaused)
 {
-	TArray<FGameplayAbilitySpecHandle> AbilitiesToActivate;
+	// 1. Held 재활성화 (조건 회복 시) - 가장 먼저
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputHeldSpecHandles)
+	{
+		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->Ability && !Spec->IsActive())
+				TryActivateAbility(SpecHandle);
+		}
+	}
 	
-	// 1. 입력 태그와 일치하는 어빌리티 핸들을 찾습니다.
+	// 2. Pressed 처리
 	for (const FGameplayAbilitySpecHandle& SpecHandle : InputPressedSpecHandles)
 	{
-		if (FGameplayAbilitySpec* Spec  = FindAbilitySpecFromHandle(SpecHandle))
+		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
 		{
 			if (Spec->Ability)
 			{
 				Spec->InputPressed = true;
-				AbilitiesToActivate.AddUnique(SpecHandle); 
+				if (Spec->IsActive())
+					AbilitySpecInputPressed(*Spec);
+				else
+					TryActivateAbility(SpecHandle);
 			}
 		}
 	}
 	
-	// 2. 찾은 어빌리티를 실제로 실행(Activate)합니다.
-	for (const FGameplayAbilitySpecHandle& SpecHandle : AbilitiesToActivate)
-	{
-		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
-		{
-			if (Spec->IsActive())
-			{
-				// 이미 활성 중이면 InputPressed 호출
-				AbilitySpecInputPressed(*Spec);
-			}
-			else
-			{
-				// 비활성 상태면 활성화 시도
-				TryActivateAbility(SpecHandle);
-			}
-		}
-	}
-	
-	// 3. Released 어빌리티 처리
+	// 3. Released 처리
 	for (const FGameplayAbilitySpecHandle& SpecHandle : InputReleasedSpecHandles)
 	{
 		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
@@ -83,12 +77,11 @@ void UKOAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGameP
 			if (Spec->Ability)
 			{
 				Spec->InputPressed = false;
-				AbilitySpecInputReleased(*Spec); 
+				AbilitySpecInputReleased(*Spec);
 			}
 		}
 	}
-	
-	// 4. 프레임이 끝날 때 Pressed와 Released 배열은 비워줌 Held는 유지
+
 	InputPressedSpecHandles.Reset();
 	InputReleasedSpecHandles.Reset();
 }

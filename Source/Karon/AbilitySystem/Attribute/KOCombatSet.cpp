@@ -1,7 +1,5 @@
 ﻿#include "KOCombatSet.h"
 
-#include "Net/UnrealNetwork.h"
-
 UKOCombatSet::UKOCombatSet()
 {
 }
@@ -71,26 +69,3 @@ void UKOCombatSet::PostGameplayEffectExecute(const struct FGameplayEffectModCall
 	Super::PostGameplayEffectExecute(Data);
 }
 
-void UKOCombatSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOCombatSet, AttackPower, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOCombatSet, Defense, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOCombatSet, AttackSpeed, COND_None, REPNOTIFY_Always);
-}
-
-void UKOCombatSet::OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOCombatSet, AttackPower, OldAttackPower);
-}
-
-void UKOCombatSet::OnRep_Defense(const FGameplayAttributeData& OldDefense)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOCombatSet, Defense, OldDefense);
-}
-
-void UKOCombatSet::OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOCombatSet, AttackSpeed, OldAttackSpeed);
-}

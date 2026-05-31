@@ -1,5 +1,4 @@
 ﻿#include "KOMovementSet.h"
-#include "Net/UnrealNetwork.h"
 
 UKOMovementSet::UKOMovementSet()
 {
@@ -7,7 +6,6 @@ UKOMovementSet::UKOMovementSet()
 	InitMoveSpeed(400.f);
 	InitMaxMoveSpeed(1500.f);
 	InitJumpStrength(600.f);
-	
 }
 
 void UKOMovementSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -84,30 +82,4 @@ void UKOMovementSet::PostGameplayEffectExecute(const struct FGameplayEffectModCa
 	
 	// TODO: Effect 태그, Source Actor 등 문맥 접근이 필요한 처리
 	// 예: 슬로우 태그 감지 → 이펙트/사운드 트리거 이벤트 발행
-	
-	
-}
-
-void UKOMovementSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOMovementSet, MoveSpeed,    COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOMovementSet, MaxMoveSpeed, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOMovementSet, JumpStrength, COND_None, REPNOTIFY_Always);
-}
-
-void UKOMovementSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOMovementSet, MoveSpeed, OldMoveSpeed);
-}
-
-void UKOMovementSet::OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOMovementSet, MaxMoveSpeed, OldMaxMoveSpeed);
-}
-
-void UKOMovementSet::OnRep_JumpStrength(const FGameplayAttributeData& OldJumpStrength)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOMovementSet, JumpStrength, OldJumpStrength);
 }
