@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KOEnemyHPBar.h"
+#include "UI/Enemy/KOEnemyHPBar.h"
 
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Components/ProgressBar.h"

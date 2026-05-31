@@ -3,9 +3,9 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Building/KOBaseBuilding.h"
-#include "Component/KOEnergyProducerComponent.h"
-#include "Component/KOInteractionComponent.h"
-#include "Component/KOInventoryComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Interaction/KOInteractionComponent.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
@@ -18,7 +18,7 @@
 #include "Subsystem/KOEnergySubsystem.h"
 #include "TimerManager.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
-#include "UI/KOInventoryWidget.h"
+#include "UI/Inventory/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProducerWidget"
 

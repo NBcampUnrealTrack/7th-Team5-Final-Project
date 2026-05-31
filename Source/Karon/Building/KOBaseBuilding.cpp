@@ -1,8 +1,8 @@
 #include "KOBaseBuilding.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Component/KOEnergyProducerComponent.h"
-#include "Component/KOFactoryProcessorComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Data/KODataTableTypes.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"

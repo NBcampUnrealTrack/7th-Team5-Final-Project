@@ -2,9 +2,9 @@
 #include "UI/Interaction/KOFactorySlotWidget.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Component/KOEnergyProducerComponent.h"
-#include "Component/KOFactoryProcessorComponent.h"
-#include "Component/KOInventoryComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
@@ -13,8 +13,8 @@
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "UI/KOItemDragDropOperation.h"
-#include "UI/KOItemDragSource.h"
+#include "UI/Inventory/KOItemDragDropOperation.h"
+#include "UI/Inventory/KOItemDragSource.h"
 
 void UKOFactorySlotWidget::SetupFuelSlot(UKOEnergyProducerComponent* InProducer)
 {

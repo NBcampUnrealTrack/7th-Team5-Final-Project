@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
-#include "Component/KOGridBuildComponent.h"
+#include "Component/Build/KOGridBuildComponent.h"
 #include "KOMessageTypes.generated.h"
 
 /**
