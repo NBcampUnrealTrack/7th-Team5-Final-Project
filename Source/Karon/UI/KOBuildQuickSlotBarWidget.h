@@ -17,9 +17,15 @@ class KARON_API UKOBuildQuickSlotBarWidget : public UKOActivatableWidget
 {
 	GENERATED_BODY()
 
+public:
+	UKOBuildQuickSlotBarWidget();
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+
+	/** Back(ESC) 입력 시 건설 메뉴 전체를 종료한다(IMC/그리드/퀵슬롯바 일괄 정리). */
+	virtual bool NativeOnHandleBackAction() override;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")

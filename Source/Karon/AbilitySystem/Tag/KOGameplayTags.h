@@ -107,6 +107,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat); 
 	
 	
+	//── UI Layout (Root) ─────────────────────────────────────────────────────
+	/** 인게임 루트 레이아웃 컨텍스트 (UKOUISettings::RootLayoutMap 키) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layout_InGame);
+	/** 타이틀 루트 레이아웃 컨텍스트 (UKOUISettings::RootLayoutMap 키) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layout_Title);
+
 	//── UI Layer ─────────────────────────────────────────────────────────────
 	/** 게임 플레이 중 항상 표시되는 HUD 레이어 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Game);
@@ -129,14 +135,20 @@ namespace KOGameplayTags
 	
 	//** 보스 체력바 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);
-	
+	/** 스킬 트리 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
+	/** 타이틀 메뉴 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TitleMenu);
+
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Inventory_Changed);
 	/** 팩토리 상태 변경 메시지 채널 (FKOFactoryStateChangedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Factory_StateChanged);
-	/** UI 레이어 Push 요청 메시지 채널 (FKOUIPushLayerRequest 페이로드) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_PushLayerRequest);
+	/** UI 위젯 열기 요청 메시지 채널 (FKOUIWidgetRequest 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_OpenWidget);
+	/** UI 위젯 닫기 요청 메시지 채널 (FKOUIWidgetRequest 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_UI_CloseWidget);
 	/** 건물 상호작용 메시지 채널 (FKOBuildingInteractedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Building_Interacted);
 	/** 건물 퀵슬롯 변경 메시지 채널 (KOBuildQuickSlotWidget 페이로드) */

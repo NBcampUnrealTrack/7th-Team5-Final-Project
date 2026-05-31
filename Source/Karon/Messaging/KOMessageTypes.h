@@ -46,12 +46,14 @@ struct FKOFactoryStateChangedMessage
 };
 
 /**
- * UI 레이어 Push 요청 메시지
- * 채널: KOGameplayTags::Data_Message_UI_PushLayerRequest ("Data.Message.UI.PushLayerRequest")
+ * UI 위젯 열기/닫기 요청 메시지 (Open/Close 공용)
+ * 채널:
+ *   - KOGameplayTags::Data_Message_UI_OpenWidget  ("Data.Message.UI.OpenWidget")
+ *   - KOGameplayTags::Data_Message_UI_CloseWidget ("Data.Message.UI.CloseWidget")
  * Layer / WidgetClass 매핑은 UKOUISettings::WidgetMap 에서 해석되므로 태그만 전달한다.
  */
 USTRUCT()
-struct FKOUIPushLayerRequest
+struct FKOUIWidgetRequest
 {
     GENERATED_BODY()
 

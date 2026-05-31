@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "GMRouterSubsystem.h"
+#include "StructUtils/InstancedStruct.h"
 #include "KOPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -12,7 +14,6 @@ class UInputMappingContext;
 class UKOInteractionComponent;
 class UKOGridBuildComponent;
 class UKOInventoryComponent;
-class UKOActivatableWidget;
 class UKOBuildUIComponent;
 
 // TODO: 
@@ -34,6 +35,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void SetupInputComponent() override;
 
 protected:
@@ -46,8 +49,8 @@ protected:
 	void Input_AbilityPressed(FGameplayTag InputTag);
 	void Input_AbilityReleased(FGameplayTag InputTag);
 
-	// 건설 입력
-	void Input_ToggleBuildMode(const FInputActionValue& Value);
+	// 건설 입력 (열기 전용 — 닫기는 Back)
+	void Input_OpenBuildMode(const FInputActionValue& Value);
 	void Input_ToggleBuildAssignMenu(const FInputActionValue& Value);
 
 	void Input_BuildConfirm(const FInputActionValue& Value);
@@ -61,19 +64,21 @@ protected:
 	void Input_SelectBuildQuickSlot4(const FInputActionValue& Value);
 	void Input_SelectBuildQuickSlot5(const FInputActionValue& Value);
 
-	// 인벤토리 입력
-	void Input_ToggleInventory(const FInputActionValue& Value);
-	
-	// 스킬창 입력 
-	void Input_ToggleSkillTree(const FInputActionValue& Value);
+	// 인벤토리 입력 (열기 전용 — 닫기는 Back)
+	void Input_OpenInventory(const FInputActionValue& Value);
 
-	
+	// 스킬창 입력 (열기 전용 — 닫기는 Back)
+	void Input_OpenSkillTree(const FInputActionValue& Value);
+
+
 private:
-	// DefaultIMC ↔ BuildIMC 스왑 + GridBuildComponent 진입/종료
+	// DefaultIMC ↔ BuildIMC 스왑. 건설 모드 진입/종료(Data.Message.Build.ModeChanged)에 반응.
 	void EnterBuildIMC();
 	void ExitBuildIMC();
-	
-	void CreateRootLayout();
+
+	// 건설 모드 변경 메시지 수신 → BuildIMC 추가/제거.
+	UFUNCTION()
+	void OnBuildModeChanged(FGameplayTag Channel, const FInstancedStruct& Payload);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -97,12 +102,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UKOInventoryComponent> InventoryComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UKOActivatableWidget> RootLayoutClass;
-
 private:
-	UPROPERTY()
-	TObjectPtr<UKOActivatableWidget> RootLayoutInstance;
-
 	bool bBuildIMCActive = false;
+
+	// 건설 모드 변경 메시지 구독 (BuildIMC 관리용).
+	FGameplayMessageCallback BuildModeChangedCallback;
+	FGameplayMessageHandle   BuildModeChangedHandle;
 };

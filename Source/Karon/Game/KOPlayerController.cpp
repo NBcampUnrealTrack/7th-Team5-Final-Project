@@ -7,11 +7,12 @@
 #include "Component/KOInteractionComponent.h"
 #include "Component/KOGridBuildComponent.h"
 #include "Component/KOInventoryComponent.h"
-#include "UI/KOActivatableWidget.h"
 #include "UI/KOBuildUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
-#include "CommonActivatableWidget.h"
+#include "Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
+#include "Engine/GameInstance.h"
 #include "Items/KOItemSlot.h"
 
 AKOPlayerController::AKOPlayerController()
@@ -31,8 +32,20 @@ void AKOPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(DefaultIMC, 0);
 	}
 
-	CreateRootLayout();
-	
+	// 루트 레이아웃은 UISubsystem이 UKOUISettings::RootLayoutMap을 참조해 생성·소유한다.
+	// 컨트롤러는 위젯 클래스/인스턴스를 직접 들지 않고 컨텍스트 태그만 넘긴다.
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		UISubsystem->SetRootLayout(KOGameplayTags::UI_Layout_InGame);
+	}
+
+	// 건설 모드 진입/종료에 따른 BuildIMC 전환을 토글키가 아닌 모드 변경 메시지로 구동.
+	BuildModeChangedCallback.BindDynamic(this, &AKOPlayerController::OnBuildModeChanged);
+	BuildModeChangedHandle = UGMRouterSubsystem::Subscribe(
+		GetWorld(),
+		KOGameplayTags::Data_Message_Build_ModeChanged,
+		BuildModeChangedCallback);
+
 #if !(UE_BUILD_SHIPPING)
 	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
 	{
@@ -63,18 +76,42 @@ void AKOPlayerController::BeginPlay()
 #endif
 }
 
-void AKOPlayerController::CreateRootLayout()
+void AKOPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (!RootLayoutClass) return;
-
-	RootLayoutInstance = CreateWidget<UKOActivatableWidget>(this, RootLayoutClass);
-	if (RootLayoutInstance)
+	if (BuildModeChangedHandle.IsValid())
 	{
-		RootLayoutInstance->AddToViewport();
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>())
+			{
+				GMS->Unsubscribe(BuildModeChangedHandle);
+			}
+		}
+		BuildModeChangedHandle = FGameplayMessageHandle();
+	}
+	BuildModeChangedCallback.Clear();
 
-		// CommonUI ActionRouter가 자식 위젯의 activation을 input config refresh로 전파하려면
-		// 루트(RootLayout)가 "receiving input" 상태여야 함. 명시적으로 활성화.
-		RootLayoutInstance->ActivateWidget();
+	Super::EndPlay(EndPlayReason);
+}
+
+void AKOPlayerController::OnBuildModeChanged(FGameplayTag /*Channel*/, const FInstancedStruct& Payload)
+{
+	const FKOBuildModeChangedMessage* Message = Payload.GetPtr<FKOBuildModeChangedMessage>();
+	if (!Message)
+	{
+		return;
+	}
+
+	const bool bWasActive = Message->PreviousMode != EKOGridBuildMode::None;
+	const bool bIsActive  = Message->NewMode != EKOGridBuildMode::None;
+
+	if (bIsActive && !bWasActive)
+	{
+		EnterBuildIMC();
+	}
+	else if (!bIsActive && bWasActive)
+	{
+		ExitBuildIMC();
 	}
 }
 
@@ -120,7 +157,7 @@ void AKOPlayerController::SetupInputComponent()
 			KOGameplayTags::Input_Native_ToggleBuildMode,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_ToggleBuildMode,
+			&ThisClass::Input_OpenBuildMode,
 			true
 		);
 
@@ -201,7 +238,7 @@ void AKOPlayerController::SetupInputComponent()
 			KOGameplayTags::Input_Native_ToggleInventory,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_ToggleInventory,
+			&ThisClass::Input_OpenInventory,
 			true
 		);
 
@@ -220,7 +257,7 @@ void AKOPlayerController::SetupInputComponent()
 			KOGameplayTags::Input_Native_ToggleSKillTree,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_ToggleSkillTree,
+			&ThisClass::Input_OpenSkillTree,
 			true
 			);
 	}
@@ -281,35 +318,23 @@ void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 	}
 }
 
-void AKOPlayerController::Input_ToggleBuildMode(const FInputActionValue& /*Value*/)
+void AKOPlayerController::Input_OpenBuildMode(const FInputActionValue& /*Value*/)
 {
 	if (!BuildUIComponent)
 	{
 		return;
 	}
-	
-	if (!BuildUIComponent->IsBuildMenuOpen())
-	{
-		if (UKOUISubsystem* UISub = UKOUISubsystem::Get(this))
-		{
-			if (UCommonActivatableWidget* InventoryWidget = 
-				UISub->FindActiveWidget(KOGameplayTags::UI_Widget_Inventory))
-			{
-				UISub->PopLayer(InventoryWidget);
-			}
-		}
-	}
 
-	BuildUIComponent->ToggleBuildMenu();
-	
+	// 열기 전용. 이미 열려 있으면 무시(닫기는 Back). IMC 전환은 OnBuildModeChanged가 담당.
 	if (BuildUIComponent->IsBuildMenuOpen())
 	{
-		EnterBuildIMC();
+		return;
 	}
-	else
-	{
-		ExitBuildIMC();
-	}
+
+	// 건설 진입 시 인벤토리는 닫는다.
+	UKOUISubsystem::RequestCloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
+
+	BuildUIComponent->OpenBuildMenu();
 }
 
 void AKOPlayerController::Input_BuildConfirm(const FInputActionValue& /*Value*/)
@@ -380,42 +405,21 @@ void AKOPlayerController::Input_SelectBuildQuickSlot5(const FInputActionValue& /
 	}
 }
 
-void AKOPlayerController::Input_ToggleInventory(const FInputActionValue& /*Value*/)
+void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/)
 {
+	// 건설 중에는 인벤토리를 열지 않는다.
 	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
 	{
 		return;
 	}
-	
-	UKOUISubsystem* UISub = UKOUISubsystem::Get(this);
-	if (!UISub)
-	{
-		return;
-	}
-	
-	if (UCommonActivatableWidget* InventoryWidget = UISub->FindActiveWidget(KOGameplayTags::UI_Widget_Inventory))
-	{
-		UISub->PopLayer(InventoryWidget);
 
-		if (BuildUIComponent)
-		{
-			BuildUIComponent->CloseQuickSlotBar();
-		}
-
-		return;
-	}
-	
+	// 열기 전용. 닫기는 Back(인벤토리 패널의 bIsBackHandler). 드래그 대상인 퀵슬롯 바를 함께 연다.
 	if (BuildUIComponent)
 	{
 		BuildUIComponent->OpenQuickSlotBar();
 	}
 
-	UCommonActivatableWidget* InventoryWidget =	UISub->PushWidget(KOGameplayTags::UI_Widget_Inventory);
-
-	if (!InventoryWidget && BuildUIComponent)
-	{
-		BuildUIComponent->CloseQuickSlotBar();
-	}
+	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
 }
 
 void AKOPlayerController::EnterBuildIMC()
@@ -454,13 +458,8 @@ void AKOPlayerController::ExitBuildIMC()
 	bBuildIMCActive = false;
 }
 
-void AKOPlayerController::Input_ToggleSkillTree(const FInputActionValue& Value)
+void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/)
 {
-	UKOUISubsystem* UISubsystem = GetLocalPlayer()->GetSubsystem<UKOUISubsystem>();
-	if (UISubsystem == nullptr)
-	{
-		return;
-	}
-	
-	UISubsystem->PushWidget(KOGameplayTags::UI_Layer_Game);
+	// 열기 전용. 닫기는 Back(스킬트리 팝업의 bIsBackHandler).
+	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
 }

@@ -298,42 +298,13 @@ int32 UKOBuildUIComponent::GetSelectedBuildQuickSlotIndex() const
 
 void UKOBuildUIComponent::OpenQuickSlotBar()
 {
-	APlayerController* PC = GetOwningPlayerController();
-	if (!PC)
-	{
-		return;
-	}
-
-	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
-	if (!UISubsystem)
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] KOUISubsystem을 찾을 수 없습니다."));
-		return;
-	}
-
-	UISubsystem->PushWidget(KOGameplayTags::UI_Widget_QuickSlotBar);
+	// 호출 일원화: 서브시스템을 직접 잡지 않고 GMS 경로로 열기 요청.
+	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 
 void UKOBuildUIComponent::CloseQuickSlotBar()
 {
-	APlayerController* PC = GetOwningPlayerController();
-
-	if (!PC)
-	{
-		return;
-	}
-
-	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(PC);
-	if (!UISubsystem)
-	{
-		return;
-	}
-
-	if (UCommonActivatableWidget* Existing =
-		UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_QuickSlotBar))
-	{
-		UISubsystem->PopLayer(Existing);
-	}
+	UKOUISubsystem::RequestCloseWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 
 void UKOBuildUIComponent::StartDestroyBuildMode()

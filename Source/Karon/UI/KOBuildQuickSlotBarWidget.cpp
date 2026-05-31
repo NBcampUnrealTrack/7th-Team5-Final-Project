@@ -12,6 +12,27 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildSlot, Log, All);
 
+UKOBuildQuickSlotBarWidget::UKOBuildQuickSlotBarWidget()
+{
+	// Back(ESC) 입력을 이 위젯이 받아 건설 모드 종료로 라우팅한다. (토글 제거 → Back 일원화)
+	bIsBackHandler = true;
+}
+
+bool UKOBuildQuickSlotBarWidget::NativeOnHandleBackAction()
+{
+	// 건설 메뉴가 열려 있으면 단순 Deactivate가 아니라 메뉴 전체를 닫는다.
+	if (UKOBuildUIComponent* BuildUI = GetBuildUIComponent())
+	{
+		if (BuildUI->IsBuildMenuOpen())
+		{
+			BuildUI->CloseBuildMenu();
+			return true;
+		}
+	}
+
+	return Super::NativeOnHandleBackAction();
+}
+
 void UKOBuildQuickSlotBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

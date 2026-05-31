@@ -29,6 +29,9 @@
 UKOFactoryProcessorWidget::UKOFactoryProcessorWidget()
 {
     InputMode = EKOUIInputMode::All;
+
+    // Back(ESC) 입력 시 자동으로 Deactivate되어 닫힌다. (토글/재상호작용 제거 → Back 일원화)
+    bIsBackHandler = true;
 }
 
 namespace

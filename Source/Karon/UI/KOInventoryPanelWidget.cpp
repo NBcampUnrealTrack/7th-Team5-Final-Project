@@ -5,6 +5,9 @@
 UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 {
     InputMode = EKOUIInputMode::All;
+
+    // Back(ESC) 입력 시 자동으로 Deactivate되어 스택에서 닫힌다. (토글 제거 → Back 일원화)
+    bIsBackHandler = true;
 }
 
 void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)

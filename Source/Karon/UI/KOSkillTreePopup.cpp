@@ -3,6 +3,13 @@
 #include "KOSkillTreePopup.h"
 #include "KOSkillNodeWidget.h"
 
+UKOSkillTreePopup::UKOSkillTreePopup()
+{
+	// Back(ESC) 입력 시 자동으로 Deactivate되어 닫힌다. (토글 제거 → Back 일원화)
+	InputMode = EKOUIInputMode::Menu;
+	bIsBackHandler = true;
+}
+
 void UKOSkillTreePopup::NativeConstruct()
 {
 	Super::NativeConstruct();

@@ -16,6 +16,9 @@ class KARON_API UKOSkillTreePopup : public UKOActivatableWidget
 {
 	GENERATED_BODY()
 
+public:
+	UKOSkillTreePopup();
+
 protected:
 	virtual void NativeConstruct() override;
 
