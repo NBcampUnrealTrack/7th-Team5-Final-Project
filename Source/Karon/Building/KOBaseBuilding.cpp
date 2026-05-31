@@ -22,13 +22,10 @@ void AKOBaseBuilding::InitializeBuildingData(FName InFactoryId)
 {
 	if (InFactoryId.IsNone())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Building] InitializeBuildingData 실패: FactoryId가 비어 있습니다."));
 		return;
 	}
 
 	FactoryId = InFactoryId;
-
-	UE_LOG(LogTemp, Log, TEXT("[Building] FactoryId 초기화 완료: %s"), *FactoryId.ToString());
 }
 
 const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
@@ -41,12 +38,12 @@ const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
 	return UKOItemLibrary::GetFactoryRow(this, FactoryId);
 }
 
-bool AKOBaseBuilding::CanInteract_Implementation(AActor* /*Interactor*/) const
+bool AKOBaseBuilding::CanInteract(AActor* /*Interactor*/) const
 {
 	return !FactoryId.IsNone();
 }
 
-void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
+void AKOBaseBuilding::OnInteract(AActor* Interactor)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -63,10 +60,6 @@ void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 		World,
 		KOGameplayTags::Data_Message_Building_Interacted,
 		FInstancedStruct::Make(Msg));
-
-	UE_LOG(LogTemp, Log, TEXT("[Building] OnInteract 브로드캐스트: FactoryId=%s, Interactor=%s"),
-		*FactoryId.ToString(),
-		Interactor ? *Interactor->GetName() : TEXT("None"));
 
 	// 컴포넌트 유무로 표시할 UI 결정 (Processor / Producer는 상호 배타).
 	FGameplayTag WidgetTag;
@@ -86,7 +79,7 @@ void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 	}
 }
 
-FText AKOBaseBuilding::GetInteractionPrompt_Implementation() const
+FText AKOBaseBuilding::GetInteractionPrompt() const
 {
 	if (const FKOFactoryRow* Row = GetFactoryRow())
 	{

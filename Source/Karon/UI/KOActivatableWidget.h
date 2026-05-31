@@ -68,9 +68,9 @@ protected:
     virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
 
 protected: // properties
-    UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+    UPROPERTY(EditDefaultsOnly)
     EKOUIInputMode InputMode = EKOUIInputMode();
 
-    UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true, EditConditionHides = "InputMode == EKOUIInputMode::Menu"))
+    UPROPERTY(EditDefaultsOnly, meta = (EditConditionHides = "InputMode == EKOUIInputMode::Menu"))
     EMouseCaptureMode MouseCaptureMode = EMouseCaptureMode::CaptureDuringMouseDown;
 };

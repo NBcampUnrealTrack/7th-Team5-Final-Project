@@ -27,7 +27,7 @@ void UKOInteractionComponent::UpdateCurrentInteractable()
 	if (TraceFromScreenCenter(Hit))
 	{
 		AActor* HitActor = Hit.GetActor();
-		if (HitActor && HitActor->Implements<UKOInteractableInterface>())
+		if (IKOInteractableInterface* Interactable = Cast<IKOInteractableInterface>(HitActor))
 		{
 			AActor* Interactor = nullptr;
 			if (APlayerController* PC = Cast<APlayerController>(GetOwner()))
@@ -35,7 +35,7 @@ void UKOInteractionComponent::UpdateCurrentInteractable()
 				Interactor = PC->GetPawn();
 			}
 
-			if (IKOInteractableInterface::Execute_CanInteract(HitActor, Interactor))
+			if (Interactable->CanInteract(Interactor))
 			{
 				NewTarget = HitActor;
 			}
@@ -47,8 +47,8 @@ void UKOInteractionComponent::UpdateCurrentInteractable()
 
 bool UKOInteractionComponent::TryInteract()
 {
-	AActor* Target = CurrentInteractable.Get();
-	if (!Target || !Target->Implements<UKOInteractableInterface>())
+	IKOInteractableInterface* Target = CurrentInteractable.Get();
+	if (!Target)
 	{
 		return false;
 	}
@@ -56,12 +56,12 @@ bool UKOInteractionComponent::TryInteract()
 	APlayerController* PC = Cast<APlayerController>(GetOwner());
 	AActor* Interactor = PC ? PC->GetPawn() : nullptr;
 
-	if (!IKOInteractableInterface::Execute_CanInteract(Target, Interactor))
+	if (!Target->CanInteract(Interactor))
 	{
 		return false;
 	}
 
-	IKOInteractableInterface::Execute_OnInteract(Target, Interactor);
+	Target->OnInteract(Interactor);
 	return true;
 }
 

@@ -3,6 +3,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "UObject/WeakInterfacePtr.h"
+#include "Interaction/KOInteractableInterface.h"
 #include "KOInteractionComponent.generated.h"
 
 /**
@@ -29,7 +31,7 @@ public:
 	bool TryInteract();
 
 	/** 현재 조준 중인 상호작용 대상 (없으면 nullptr) */
-	AActor* GetCurrentInteractable() const { return CurrentInteractable.Get(); }
+	AActor* GetCurrentInteractable() const { return Cast<AActor>(CurrentInteractable.GetObject()); }
 
 protected:
 	bool TraceFromScreenCenter(FHitResult& OutHit) const;
@@ -47,5 +49,5 @@ protected:
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Visibility;
 
 private:
-	TWeakObjectPtr<AActor> CurrentInteractable;
+	TWeakInterfacePtr<IKOInteractableInterface> CurrentInteractable;
 };
