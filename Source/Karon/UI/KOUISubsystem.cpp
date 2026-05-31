@@ -1,5 +1,5 @@
 // Copyright Karon Team 5. All Rights Reserved.
-#include "KOUISubsystem.h"
+#include "UI/KOUISubsystem.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Messaging/KOMessageTypes.h"
@@ -7,67 +7,188 @@
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "CommonActivatableWidget.h"
 
+#include "Blueprint/UserWidget.h"
+#include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 
 DEFINE_LOG_CATEGORY(LogKOUI);
 
-UKOUISubsystem* UKOUISubsystem::Get(const APlayerController* PlayerController)
+UKOUISubsystem* UKOUISubsystem::Get(const UObject* WorldContextObject)
 {
-    if (!PlayerController)
+    const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr;
+    if (!World)
     {
         return nullptr;
     }
-    return GetForLocalPlayer(PlayerController->GetLocalPlayer());
+
+    const UGameInstance* GI = World->GetGameInstance();
+    ULocalPlayer* LocalPlayer = GI ? GI->GetFirstGamePlayer() : nullptr;
+    return LocalPlayer ? LocalPlayer->GetSubsystem<UKOUISubsystem>() : nullptr;
 }
 
-UKOUISubsystem* UKOUISubsystem::GetForLocalPlayer(const ULocalPlayer* LocalPlayer)
+UGMRouterSubsystem* UKOUISubsystem::GetRouter() const
 {
-    return LocalPlayer ? LocalPlayer->GetSubsystem<UKOUISubsystem>() : nullptr;
+    const ULocalPlayer* LP = GetLocalPlayer();
+    UGameInstance* GI = LP ? LP->GetGameInstance() : nullptr;
+    return GI ? GI->GetSubsystem<UGMRouterSubsystem>() : nullptr;
+}
+
+// ─── 정적 요청 헬퍼 (GMS 일원화 진입점) ───────────────────────────────────────
+void UKOUISubsystem::RequestOpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
+{
+    if (!WidgetTag.IsValid())
+    {
+        return;
+    }
+
+    const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr;
+    if (!World)
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("RequestOpenWidget: World 컨텍스트를 확인할 수 없습니다."));
+        return;
+    }
+
+    FKOUIWidgetRequest Request;
+    Request.WidgetTag = WidgetTag;
+    UGMRouterSubsystem::BroadcastMessage(World, KOGameplayTags::Data_Message_UI_OpenWidget, FInstancedStruct::Make(Request));
+}
+
+void UKOUISubsystem::RequestCloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
+{
+    if (!WidgetTag.IsValid())
+    {
+        return;
+    }
+
+    const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr;
+    if (!World)
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("RequestCloseWidget: World 컨텍스트를 확인할 수 없습니다."));
+        return;
+    }
+
+    FKOUIWidgetRequest Request;
+    Request.WidgetTag = WidgetTag;
+    UGMRouterSubsystem::BroadcastMessage(World, KOGameplayTags::Data_Message_UI_CloseWidget, FInstancedStruct::Make(Request));
 }
 
 void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
 
-    UGameInstance* GI = GetLocalPlayer()->GetGameInstance();
-    if (!GI)
+    if (UGMRouterSubsystem* GMS = GetRouter())
     {
-        return;
-    }
-    
-    if (UGMRouterSubsystem* GMS = GI->GetSubsystem<UGMRouterSubsystem>())
-    {
-        PushLayerCallback.BindDynamic(this, &UKOUISubsystem::OnPushLayerRequestReceived);
-        PushLayerHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_PushLayerRequest, PushLayerCallback);
+        OpenWidgetCallback.BindDynamic(this, &UKOUISubsystem::OnOpenWidgetRequest);
+        OpenWidgetHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_OpenWidget, OpenWidgetCallback);
+
+        CloseWidgetCallback.BindDynamic(this, &UKOUISubsystem::OnCloseWidgetRequest);
+        CloseWidgetHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_CloseWidget, CloseWidgetCallback);
     }
     else
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UGMRouterSubsystem를 찾을 수 없어 PushLayerRequest 구독을 건너뜁니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UGMRouterSubsystem를 찾을 수 없어 Open/Close 구독을 건너뜁니다."));
     }
 }
 
 void UKOUISubsystem::Deinitialize()
 {
-    if (PushLayerHandle.IsValid())
+    if (UGMRouterSubsystem* GMS = GetRouter())
     {
-        if (ULocalPlayer* LP = GetLocalPlayer())
+        if (OpenWidgetHandle.IsValid())
         {
-            if (UGMRouterSubsystem* GMS = LP->GetGameInstance()->GetSubsystem<UGMRouterSubsystem>())
-            {
-                GMS->Unsubscribe(PushLayerHandle);
-            }
+            GMS->Unsubscribe(OpenWidgetHandle);
         }
-        PushLayerHandle = FGameplayMessageHandle();
+        if (CloseWidgetHandle.IsValid())
+        {
+            GMS->Unsubscribe(CloseWidgetHandle);
+        }
     }
 
-    PushLayerCallback.Clear();
-    Layers.Empty();
+    OpenWidgetHandle = FGameplayMessageHandle();
+    CloseWidgetHandle = FGameplayMessageHandle();
+    OpenWidgetCallback.Clear();
+    CloseWidgetCallback.Clear();
+
+    ClearRootLayout();
     ResolvedClassCache.Empty();
-    ActiveWidgetsByTag.Empty();
 
     Super::Deinitialize();
+}
+
+// ─── Root Layout ──────────────────────────────────────────────────────────────
+void UKOUISubsystem::SetRootLayout(FGameplayTag LayoutTag)
+{
+    if (!LayoutTag.IsValid())
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::SetRootLayout: 유효하지 않은 LayoutTag입니다."));
+        return;
+    }
+
+    const UKOUISettings* Settings = UKOUISettings::Get();
+    if (!Settings)
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::SetRootLayout: KOUISettings 접근 실패."));
+        return;
+    }
+
+    const TSoftClassPtr<UCommonActivatableWidget>* SoftClassPtr = Settings->RootLayoutMap.Find(LayoutTag);
+    if (!SoftClassPtr || SoftClassPtr->IsNull())
+    {
+        UE_LOG(LogKOUI, Warning,
+            TEXT("KOUISubsystem::SetRootLayout: RootLayoutMap에 [%s] 매핑이 없거나 클래스가 비어 있습니다."),
+            *LayoutTag.ToString());
+        return;
+    }
+
+    TSubclassOf<UCommonActivatableWidget> LayoutClass = SoftClassPtr->LoadSynchronous();
+    if (!LayoutClass)
+    {
+        UE_LOG(LogKOUI, Warning,
+            TEXT("KOUISubsystem::SetRootLayout: 루트 레이아웃 클래스 로드 실패. Tag=%s Path=%s"),
+            *LayoutTag.ToString(), *SoftClassPtr->ToString());
+        return;
+    }
+
+    ULocalPlayer* LP = GetLocalPlayer();
+    UGameInstance* GI = LP ? LP->GetGameInstance() : nullptr;
+    UWorld* World = GI ? GI->GetWorld() : nullptr;
+    APlayerController* PC = LP ? LP->GetPlayerController(World) : nullptr;
+    if (!PC)
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::SetRootLayout: PlayerController를 찾을 수 없습니다."));
+        return;
+    }
+
+    // 기존 루트 레이아웃 정리 후 재생성.
+    ClearRootLayout();
+
+    RootLayoutInstance = CreateWidget<UCommonActivatableWidget>(PC, LayoutClass);
+    if (RootLayoutInstance)
+    {
+        RootLayoutInstance->AddToViewport();
+
+        // CommonUI ActionRouter가 자식 위젯 activation을 input config refresh로 전파하려면
+        // 루트가 "receiving input" 상태여야 함. 명시적으로 활성화.
+        RootLayoutInstance->ActivateWidget();
+
+        UE_LOG(LogKOUI, Log, TEXT("KOUISubsystem: 루트 레이아웃 생성 [%s]"), *LayoutTag.ToString());
+    }
+}
+
+void UKOUISubsystem::ClearRootLayout()
+{
+    if (IsValid(RootLayoutInstance))
+    {
+        RootLayoutInstance->RemoveFromParent();
+    }
+    RootLayoutInstance = nullptr;
+
+    // 레이어 컨테이너는 (이제 파괴된) 루트 레이아웃 소유였으므로 함께 비운다.
+    Layers.Empty();
+    ActiveWidgetsByTag.Empty();
 }
 
 // ─── Layout Registration ──────────────────────────────────────────────────────
@@ -91,11 +212,11 @@ void UKOUISubsystem::RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivat
 }
 
 // ─── Widget Stack API ─────────────────────────────────────────────────────────
-UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass)
+UCommonActivatableWidget* UKOUISubsystem::PushToLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass)
 {
     if (!LayerTag.IsValid() || !WidgetClass)
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushLayer: LayerTag 또는 WidgetClass가 유효하지 않습니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushToLayer: LayerTag 또는 WidgetClass가 유효하지 않습니다."));
         return nullptr;
     }
 
@@ -103,13 +224,12 @@ UCommonActivatableWidget* UKOUISubsystem::PushLayer(FGameplayTag LayerTag, TSubc
     if (!ContainerPtr || !IsValid(*ContainerPtr))
     {
         UE_LOG(LogKOUI, Warning,
-            TEXT("KOUISubsystem::PushLayer: 레이어 [%s]가 등록되어 있지 않습니다. RegisterPrimaryLayout()을 먼저 호출하세요."),
+            TEXT("KOUISubsystem::PushToLayer: 레이어 [%s]가 등록되어 있지 않습니다. SetRootLayout()이 선행돼야 합니다."),
             *LayerTag.ToString());
         return nullptr;
     }
 
-    UCommonActivatableWidget* NewWidget = (*ContainerPtr)->AddWidget<UCommonActivatableWidget>(WidgetClass);
-    return NewWidget;
+    return (*ContainerPtr)->AddWidget<UCommonActivatableWidget>(WidgetClass);
 }
 
 UCommonActivatableWidget* UKOUISubsystem::FindActiveWidget(FGameplayTag WidgetTag) const
@@ -121,26 +241,15 @@ UCommonActivatableWidget* UKOUISubsystem::FindActiveWidget(FGameplayTag WidgetTa
     return nullptr;
 }
 
-bool UKOUISubsystem::ToggleWidget(FGameplayTag WidgetTag)
-{
-    if (UCommonActivatableWidget* Existing = FindActiveWidget(WidgetTag))
-    {
-        PopLayer(Existing);
-        return false;
-    }
-
-    return PushWidget(WidgetTag) != nullptr;
-}
-
-UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
+UCommonActivatableWidget* UKOUISubsystem::OpenWidget(FGameplayTag WidgetTag)
 {
     if (!WidgetTag.IsValid())
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushWidget: WidgetTag가 유효하지 않습니다."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::OpenWidget: WidgetTag가 유효하지 않습니다."));
         return nullptr;
     }
-    
-    // 중복 push 방지(에: 건설 모드, 인벤토리 -> 퀵슬롯)
+
+    // 중복 open 방지 (예: 같은 위젯 재요청).
     if (UCommonActivatableWidget* Existing = FindActiveWidget(WidgetTag))
     {
         return Existing;
@@ -149,7 +258,7 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
     const UKOUISettings* Settings = UKOUISettings::Get();
     if (!Settings)
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PushWidget: KOUISettings 접근 실패."));
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::OpenWidget: KOUISettings 접근 실패."));
         return nullptr;
     }
 
@@ -157,7 +266,7 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
     if (!Entry || !Entry->LayerTag.IsValid())
     {
         UE_LOG(LogKOUI, Warning,
-            TEXT("KOUISubsystem::PushWidget: WidgetMap에 매핑이 없거나 LayerTag가 유효하지 않습니다. Tag=%s"),
+            TEXT("KOUISubsystem::OpenWidget: WidgetMap에 매핑이 없거나 LayerTag가 유효하지 않습니다. Tag=%s"),
             *WidgetTag.ToString());
         return nullptr;
     }
@@ -169,7 +278,7 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
         if (Entry->WidgetClass.IsNull())
         {
             UE_LOG(LogKOUI, Warning,
-                TEXT("KOUISubsystem::PushWidget: WidgetClass 가 비어 있습니다. Tag=%s"),
+                TEXT("KOUISubsystem::OpenWidget: WidgetClass 가 비어 있습니다. Tag=%s"),
                 *WidgetTag.ToString());
             return nullptr;
         }
@@ -178,7 +287,7 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
         if (!Class)
         {
             UE_LOG(LogKOUI, Warning,
-                TEXT("KOUISubsystem::PushWidget: WidgetClass 로드 실패. Tag=%s Path=%s"),
+                TEXT("KOUISubsystem::OpenWidget: WidgetClass 로드 실패. Tag=%s Path=%s"),
                 *WidgetTag.ToString(), *Entry->WidgetClass.ToString());
             return nullptr;
         }
@@ -186,7 +295,7 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
         ResolvedClassCache.Add(WidgetTag, Class);
     }
 
-    UCommonActivatableWidget* NewWidget = PushLayer(Entry->LayerTag, Class);
+    UCommonActivatableWidget* NewWidget = PushToLayer(Entry->LayerTag, Class);
     if (NewWidget)
     {
         ActiveWidgetsByTag.Add(WidgetTag, NewWidget);
@@ -211,27 +320,36 @@ UCommonActivatableWidget* UKOUISubsystem::PushWidget(FGameplayTag WidgetTag)
     return NewWidget;
 }
 
-void UKOUISubsystem::PopLayer(UCommonActivatableWidget* Widget)
+void UKOUISubsystem::CloseWidget(FGameplayTag WidgetTag)
 {
-    if (!IsValid(Widget))
+    if (UCommonActivatableWidget* Widget = FindActiveWidget(WidgetTag))
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem::PopLayer: Widget이 유효하지 않습니다."));
-        return;
+        // CommonActivatableWidget을 비활성화하면 소속 Stack/Queue 컨테이너가 자동으로 제거 처리한다.
+        Widget->DeactivateWidget();
     }
-
-    // CommonActivatableWidget을 비활성화하면 소속 Stack/Queue 컨테이너가 자동으로 제거 처리한다.
-    Widget->DeactivateWidget();
 }
 
 // ─── GMS 콜백 ─────────────────────────────────────────────────────────────────
-void UKOUISubsystem::OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload)
+void UKOUISubsystem::OnOpenWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload)
 {
-    const FKOUIPushLayerRequest* Request = Payload.GetPtr<FKOUIPushLayerRequest>();
-    if (!Request)
+    if (const FKOUIWidgetRequest* Request = Payload.GetPtr<FKOUIWidgetRequest>())
     {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: PushLayerRequest 페이로드 파싱 실패."));
-        return;
+        OpenWidget(Request->WidgetTag);
     }
+    else
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: OpenWidget 페이로드 파싱 실패."));
+    }
+}
 
-    PushWidget(Request->WidgetTag);
+void UKOUISubsystem::OnCloseWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+    if (const FKOUIWidgetRequest* Request = Payload.GetPtr<FKOUIWidgetRequest>())
+    {
+        CloseWidget(Request->WidgetTag);
+    }
+    else
+    {
+        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: CloseWidget 페이로드 파싱 실패."));
+    }
 }

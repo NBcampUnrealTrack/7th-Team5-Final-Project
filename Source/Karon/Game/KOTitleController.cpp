@@ -1,38 +1,22 @@
-﻿#include "KOTitleController.h"
+#include "KOTitleController.h"
 
-#include "CommonUserWidget.h"
 #include "UI/KOUISubsystem.h"
-#include "UI/KOActivatableWidget.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-
-#include "Widgets/CommonActivatablewidgetContainer.h"
 
 void AKOTitleController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
-	
-	CreateRootLayout();
-	PushInitialWidgets();
-}
 
-void AKOTitleController::CreateRootLayout()
-{
-	if (!RootLayoutClass) return;
-	
-	RootLayOutInstance = CreateWidget<UKOActivatableWidget>(this, RootLayoutClass);
-	
-	if (RootLayOutInstance)
+	// 루트 레이아웃은 UISubsystem이 UKOUISettings::RootLayoutMap을 참조해 생성·소유한다.
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 	{
-		RootLayOutInstance->AddToViewport();
+		UISubsystem->SetRootLayout(KOGameplayTags::UI_Layout_Title);
 	}
-}
 
-void AKOTitleController::PushInitialWidgets() const
-{
-	auto* KOUISubsystem = GetLocalPlayer()->GetSubsystem<UKOUISubsystem>();
-	KOUISubsystem->PushLayer(KOGameplayTags::UI_Layer_Menu, TitleWidgetClass);
+	// 타이틀 메뉴 위젯 열기 (GMS 일원화 경로).
+	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_TitleMenu);
 }

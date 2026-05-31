@@ -3,9 +3,9 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Building/KOBaseBuilding.h"
-#include "Component/KOEnergyProducerComponent.h"
-#include "Component/KOInteractionComponent.h"
-#include "Component/KOInventoryComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Interaction/KOInteractionComponent.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
@@ -18,13 +18,16 @@
 #include "Subsystem/KOEnergySubsystem.h"
 #include "TimerManager.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
-#include "UI/KOInventoryWidget.h"
+#include "UI/Inventory/KOInventoryWidget.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProducerWidget"
 
 UKOFactoryProducerWidget::UKOFactoryProducerWidget()
 {
     InputMode = EKOUIInputMode::All;
+
+    // Back(ESC) 입력 시 자동으로 Deactivate되어 닫힌다. (토글/재상호작용 제거 → Back 일원화)
+    bIsBackHandler = true;
 }
 
 void UKOFactoryProducerWidget::NativeOnActivated()

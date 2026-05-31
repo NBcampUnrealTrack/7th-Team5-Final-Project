@@ -16,17 +16,27 @@ class ULocalPlayer;
 
 /**
  * KOUISubsystem
- * LocalPlayer 수명 UI 레이어 관리 서브시스템.
- * HUD(또는 기타 GameFramework 클래스)에서 RegisterPrimaryLayout()을 통해
- * 레이어 컨테이너 위젯을 등록하면, 이후 모든 위젯 Push/Pop은 이 서브시스템을 통한다.
+ * LocalPlayer 수명 UI 레이어 관리 서브시스템. 프로젝트의 모든 UI 위젯은 이 서브시스템을 통해서만
+ * 생성/제거된다.
  *
- * 메시지 채널:
- *   - Message.UI.PushLayerRequest (FKOUIPushLayerRequest) 를 구독.
- *     외부 시스템이 메시지로 레이어 Push를 요청할 수 있다.
+ * ─── 호출 일원화 (GMS) ─────────────────────────────────────────────────────
+ *   게임플레이/UI 코드는 서브시스템을 직접 잡지 않고 정적 헬퍼만 호출한다.
+ *     UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
+ *     UKOUISubsystem::RequestCloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
+ *   내부적으로 GMS 채널(Data.Message.UI.OpenWidget / CloseWidget)로 브로드캐스트되며,
+ *   이 서브시스템이 유일한 구독자로서 실제 Open/Close 를 수행한다.
+ *
+ * ─── 루트 레이아웃 (전역 관리) ─────────────────────────────────────────────
+ *   컨트롤러는 위젯을 직접 들지 않는다. SetRootLayout(UI.Layout.*) 한 줄만 호출하면,
+ *   UKOUISettings::RootLayoutMap 에서 클래스를 해석해 서브시스템이 생성·소유한다.
+ *
+ * ─── 닫기 (Back) ───────────────────────────────────────────────────────────
+ *   토글 개념은 없다. 열기는 RequestOpenWidget, 닫기는 CommonUI Back 액션(스택 최상위
+ *   위젯의 bIsBackHandler) 또는 RequestCloseWidget(특정 위젯 지정)으로만 처리한다.
  *
  * 레이어 태그 (KOGameplayTags):
  *   UI.Layer.Game       - HUD / 게임 플레이 UI
- *   UI.Layer.GameMenu   - 게임 중 메뉴 (일시정지 등)
+ *   UI.Layer.GameMenu   - 게임 중 메뉴
  *   UI.Layer.Menu       - 메인 메뉴
  *   UI.Layer.Modal      - 모달 다이얼로그 (최상위)
  */
@@ -39,42 +49,39 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
     
-    UFUNCTION(BlueprintPure, Category = "KO|UI")
-    static UKOUISubsystem* Get(const APlayerController* PlayerController);
-
-    static UKOUISubsystem* GetForLocalPlayer(const ULocalPlayer* LocalPlayer);
+    static UKOUISubsystem* Get(const UObject* WorldContextObject);
     
-    // Layout Registration : PrimaryLayout(HUD)안에 있는 각 레이어를 등록한다
-    UFUNCTION(BlueprintCallable, Category = "KO|UI")
+    static void RequestOpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
+    static void RequestCloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
+
+    // ─── Root Layout ──────────────────────────────────────────────────────────
+    /** UKOUISettings::RootLayoutMap[LayoutTag] */
+    void SetRootLayout(FGameplayTag LayoutTag);
+    void ClearRootLayout();
+    
     void RegisterPrimaryLayout(FGameplayTag LayerTag, UCommonActivatableWidgetContainerBase* LayerContainer);
 
     // ─── Widget Stack API ─────────────────────────────────────────────────────
-    UFUNCTION(BlueprintCallable, Category = "KO|UI", meta = (DeterminesOutputType = "WidgetClass"))
-    UCommonActivatableWidget* PushLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass);
-
-    /**
-     * 위젯 식별 태그(UI.Widget.*) 하나로 Push.
-     * Layer / 위젯 클래스는 UKOUISettings::WidgetMap 에서 자동 해석된다.
-     */
-    UCommonActivatableWidget* PushWidget(FGameplayTag WidgetTag);
-
-    UFUNCTION(BlueprintCallable, Category = "KO|UI")
-    void PopLayer(UCommonActivatableWidget* Widget);
-
-    /** 현재 열려있는(활성/스택에 존재) 위젯 인스턴스를 태그로 조회. 없으면 nullptr. */
-    UFUNCTION(BlueprintPure, Category = "KO|UI")
+    /** UKOUISettings::WidgetMap */
+    UCommonActivatableWidget* OpenWidget(FGameplayTag WidgetTag);
+    void CloseWidget(FGameplayTag WidgetTag);
     UCommonActivatableWidget* FindActiveWidget(FGameplayTag WidgetTag) const;
 
-    /**
-     * 위젯 토글. 열려있으면 닫고, 없으면 PushWidget.
-     * @return 호출 후 위젯이 열린 상태면 true, 닫힌 상태면 false.
-     */
-    UFUNCTION(BlueprintCallable, Category = "KO|UI")
-    bool ToggleWidget(FGameplayTag WidgetTag);
+private:
+    UCommonActivatableWidget* PushToLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass);
+
+    UFUNCTION()
+    void OnOpenWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload);
+
+    UFUNCTION()
+    void OnCloseWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload);
+
+    UGMRouterSubsystem* GetRouter() const;
 
 private:
-    UFUNCTION()
-    void OnPushLayerRequestReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
+    /** 서브시스템이 소유하는 루트 레이아웃 인스턴스 (SetRootLayout 으로 생성). */
+    UPROPERTY(Transient)
+    TObjectPtr<UCommonActivatableWidget> RootLayoutInstance;
 
     /** 등록된 Layer 컨테이너 (RegisterPrimaryLayout 으로 채움). */
     UPROPERTY(Transient)
@@ -87,6 +94,9 @@ private:
     /** 위젯 태그 → 현재 활성 인스턴스. Deactivate 시 자동 제거. */
     TMap<FGameplayTag, TWeakObjectPtr<UCommonActivatableWidget>> ActiveWidgetsByTag;
 
-    FGameplayMessageCallback PushLayerCallback;
-    FGameplayMessageHandle PushLayerHandle;
+    FGameplayMessageCallback OpenWidgetCallback;
+    FGameplayMessageHandle   OpenWidgetHandle;
+
+    FGameplayMessageCallback CloseWidgetCallback;
+    FGameplayMessageHandle   CloseWidgetHandle;
 };

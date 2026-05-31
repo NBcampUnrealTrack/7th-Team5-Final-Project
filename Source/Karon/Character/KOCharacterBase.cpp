@@ -1,6 +1,6 @@
 ﻿#include "KOCharacterBase.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
-#include "Component/KOCharacterMovementComponent.h"
+#include "Component/Movement/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 #include "Utility/Log/KOLogManager.h"

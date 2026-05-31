@@ -39,6 +39,16 @@ public:
 
     static const UKOUISettings* Get() { return GetDefault<UKOUISettings>(); }
 
+    /**
+     * 루트 레이아웃 매핑.
+     * Key: 컨텍스트 태그 (UI.Layout.*, 예: UI.Layout.InGame / UI.Layout.Title).
+     * Value: 해당 컨텍스트에서 생성할 루트 레이아웃 위젯 클래스 (Soft 참조, 지연 로드).
+     * UKOUISubsystem::SetRootLayout(Tag) 가 이 맵을 참조해 루트 레이아웃을 생성·소유한다.
+     */
+    UPROPERTY(EditAnywhere, Config, Category = "Root Layout",
+        meta = (Categories = "UI.Layout", ForceInlineRow))
+    TMap<FGameplayTag, TSoftClassPtr<UCommonActivatableWidget>> RootLayoutMap;
+
     /** Key: 위젯 식별 태그 (UI.Widget.*). */
     UPROPERTY(EditAnywhere, Config, Category = "Widgets",
         meta = (Categories = "UI.Widget", ForceInlineRow))

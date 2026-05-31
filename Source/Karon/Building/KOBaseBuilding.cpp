@@ -1,8 +1,8 @@
 #include "KOBaseBuilding.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Component/KOEnergyProducerComponent.h"
-#include "Component/KOFactoryProcessorComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Data/KODataTableTypes.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
@@ -81,31 +81,8 @@ void AKOBaseBuilding::OnInteract_Implementation(AActor* Interactor)
 
 	if (WidgetTag.IsValid())
 	{
-		// Interactor(Pawn) → PC → UISubsystem 경로로 토글. 인벤토리(Tab)와 같은 패턴.
-		APlayerController* PC = nullptr;
-		if (APawn* Pawn = Cast<APawn>(Interactor))
-		{
-			PC = Cast<APlayerController>(Pawn->GetController());
-		}
-		else
-		{
-			PC = Cast<APlayerController>(Interactor);
-		}
-
-		if (UKOUISubsystem* UISub = UKOUISubsystem::Get(PC))
-		{
-			UISub->ToggleWidget(WidgetTag);
-		}
-		else
-		{
-			// 폴백: UISubsystem 직접 접근 실패 시 기존 메시지 경로 사용.
-			FKOUIPushLayerRequest UIReq;
-			UIReq.WidgetTag = WidgetTag;
-			UGMRouterSubsystem::BroadcastMessage(
-				World,
-				KOGameplayTags::Data_Message_UI_PushLayerRequest,
-				FInstancedStruct::Make(UIReq));
-		}
+		// 호출 일원화: GMS 경로로 위젯 열기 요청. 닫기는 Back(팩토리 위젯의 bIsBackHandler).
+		UKOUISubsystem::RequestOpenWidget(this, WidgetTag);
 	}
 }
 

@@ -57,6 +57,10 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_LockOn, "State.Character.LockOn");
 	
+	// ─── UI Layout (Root) ─────────────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(UI_Layout_InGame, "UI.Layout.InGame");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Layout_Title,  "UI.Layout.Title");
+
 	// ─── UI Layer ─────────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_Game,     "UI.Layer.Game");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Layer_GameMenu, "UI.Layer.GameMenu");
@@ -69,11 +73,14 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Inventory,         "UI.Widget.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_QuickSlotBar,      "UI.Widget.QuickSlotBar");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Boss_HealthBar, "UI.Widget.Boss.HealthBar");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_SkillTree,      "UI.Widget.SkillTree");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_TitleMenu,      "UI.Widget.TitleMenu");
 
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Factory_StateChanged, "Data.Message.Factory.StateChanged");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_PushLayerRequest,  "Data.Message.UI.PushLayerRequest");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_OpenWidget,        "Data.Message.UI.OpenWidget");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_CloseWidget,       "Data.Message.UI.CloseWidget");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotChanged, "Data.Message.Build.QuickSlotChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Producer_FuelChanged,   "Data.Message.Producer.FuelChanged");
