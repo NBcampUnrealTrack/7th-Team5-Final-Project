@@ -21,9 +21,7 @@ public:
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
-	
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	
+
 public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MoveSpeed);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxMoveSpeed); 
@@ -31,13 +29,13 @@ public:
 	
 protected:
 	// ─── Attributes ────────────────────────────────────────────────────
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", ReplicatedUsing=OnRep_MoveSpeed, meta = (Units = "cm/s"))
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (Units = "cm/s"))
 	FGameplayAttributeData MoveSpeed;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", ReplicatedUsing=OnRep_MaxMoveSpeed, meta = (Units = "cm/s"))
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (Units = "cm/s"))
 	FGameplayAttributeData MaxMoveSpeed;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", ReplicatedUsing=OnRep_JumpStrength)
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FGameplayAttributeData JumpStrength;
 	
 public:
@@ -50,15 +48,4 @@ public:
 
 	FOnAttributeChanged OnJumpStrengthBaseChanged;
 	FOnAttributeChanged OnJumpStrengthChanged;
-	
-private:
-	// ─── OnReps ────────────────────────────────────────────────────
-	UFUNCTION() 
-	void OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed);
-	
-	UFUNCTION()
-	void OnRep_MaxMoveSpeed(const FGameplayAttributeData& OldMaxMoveSpeed);
-	
-	UFUNCTION()
-	void OnRep_JumpStrength(const FGameplayAttributeData& OldJumpStrength);
 };

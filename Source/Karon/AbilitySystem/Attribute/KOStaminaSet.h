@@ -22,8 +22,6 @@ public:
 	
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	
 public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOStaminaSet, Stamina); 
 	ATTRIBUTE_ACCESSORS_BASIC(UKOStaminaSet, MaxStamina); 
@@ -33,10 +31,10 @@ public:
 	
 protected:
 	// ─── Attributes ────────────────────────────────────────────────────
-	UPROPERTY(BlueprintReadOnly ,ReplicatedUsing = OnRep_Stamina, Category = "Stamina")
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
 	FGameplayAttributeData Stamina; 
 	
-	UPROPERTY(BlueprintReadOnly ,ReplicatedUsing = OnRep_MaxStamina, Category = "Stamina")
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
 	FGameplayAttributeData MaxStamina; 
 	
 	UPROPERTY(BlueprintReadOnly, Category= "Stamina")
@@ -52,12 +50,4 @@ public:
 	
 	FOnAttributeChanged OnMaxStaminaBaseChanged;
 	FOnAttributeChanged OnMaxStaminaChanged;
-
-private:
-	// ─── OnReps ────────────────────────────────────────────────────
-	UFUNCTION()
-	void OnRep_Stamina(const FGameplayAttributeData& OldStamina); 
-	
-	UFUNCTION()
-	void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina); 
 };

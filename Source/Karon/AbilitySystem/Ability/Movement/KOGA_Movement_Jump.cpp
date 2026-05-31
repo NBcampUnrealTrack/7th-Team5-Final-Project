@@ -19,7 +19,7 @@ bool UKOGA_Movement_Jump::CanActivateAbility(
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false; 
 	
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	ACharacter* Character =GetAvatarCharacter();
 	return Character && Character->ACharacter::CanJump(); 
 }
 

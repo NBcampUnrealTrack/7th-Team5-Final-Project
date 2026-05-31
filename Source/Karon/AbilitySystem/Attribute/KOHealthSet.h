@@ -22,10 +22,12 @@ public:
 	
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	
 private:
-	void HandleDeathEvent(); 
+	void HandleDamage(const FGameplayEffectModCallbackData& Data);
+	
+	void HandleDeath(const FGameplayEffectModCallbackData& Data);
+	
+	void HandleHealing(const FGameplayEffectModCallbackData& Data);
 	
 public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Health); 
@@ -33,14 +35,13 @@ public:
 	
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Damage)
 	ATTRIBUTE_ACCESSORS_BASIC(UKOHealthSet, Healing)
-	
-	//현석: DEFINE_ATTRIBUTE_CAPTUREDEF 매크로를 사용하기 위해 public 선언
+
 public:
 	// ─── Attributes ────────────────────────────────────────────────────
-	UPROPERTY(BlueprintReadOnly ,ReplicatedUsing = OnRep_Health,  Category = "Health")
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData Health; 
 	
-	UPROPERTY(BlueprintReadOnly ,ReplicatedUsing= OnRep_MaxHealth, Category = "Health")
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData MaxHealth; 
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
@@ -56,12 +57,5 @@ public:
 	
 	FOnAttributeChanged OnMaxHealthBaseChanged;
 	FOnAttributeChanged OnMaxHealthChanged;
-
-private:
-	// ─── OnReps ────────────────────────────────────────────────────
-	UFUNCTION()
-	void OnRep_Health(const FGameplayAttributeData& OldHealth); 
 	
-	UFUNCTION()
-	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth); 
 };

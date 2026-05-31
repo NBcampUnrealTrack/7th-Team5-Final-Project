@@ -13,7 +13,13 @@ class KARON_API UKOGA_Movement_Jump : public UKOGameplayAbilityBase
 public:
 	UKOGA_Movement_Jump();
 	
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual bool CanActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayTagContainer* SourceTags = nullptr,
+		const FGameplayTagContainer* TargetTags = nullptr,
+		FGameplayTagContainer* OptionalRelevantTags = nullptr
+	) const override;
 	
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

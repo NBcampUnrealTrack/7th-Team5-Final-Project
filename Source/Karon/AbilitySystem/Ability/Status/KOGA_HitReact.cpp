@@ -47,7 +47,12 @@ void UKOGA_HitReact::ActivateAbility(
 	
 	// 4. Hit Stop Task  
 	UAbilityTask_HitStop* HitStopTask = 
-	UAbilityTask_HitStop::HitStop(this, HitStopDuration, HitStopTimeDilation, bAffectInstigator);
+		UAbilityTask_HitStop::HitStop(
+			this, 
+			HitStopDuration,
+			 HitStopTimeDilation,
+			 bAffectInstigator
+		);
 	
 	if (HitStopTask)
 	{

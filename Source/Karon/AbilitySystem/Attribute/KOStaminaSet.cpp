@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KOStaminaSet.h"
+﻿#include "KOStaminaSet.h"
 
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -78,11 +75,9 @@ void UKOStaminaSet::PostAttributeChange(const FGameplayAttribute& Attribute, flo
 		
 		OnStaminaChanged.Broadcast(OldValue, NewValue);
 	}
-		
-
+	
 	if (Attribute == GetMaxStaminaAttribute())
 		OnMaxStaminaChanged.Broadcast(OldValue, NewValue);
-	
 	
 }
 
@@ -115,23 +110,5 @@ void UKOStaminaSet::PostGameplayEffectExecute(const struct FGameplayEffectModCal
 		SetStamina(NewStamina);
 		SetStaminaRegen(0.f);
 	}
-	
 }
 
-void UKOStaminaSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOStaminaSet, Stamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UKOStaminaSet, MaxStamina, COND_None, REPNOTIFY_Always);
-}
-
-void UKOStaminaSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOStaminaSet, Stamina, OldStamina);
-}
-
-void UKOStaminaSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UKOStaminaSet, MaxStamina, OldMaxStamina);
-}

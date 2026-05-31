@@ -23,8 +23,6 @@ public:
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-
 public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, AttackPower);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, Defense);
@@ -33,13 +31,13 @@ public:
 	//현석: DEFINE_ATTRIBUTE_CAPTUREDEF 매크로를 사용하기 위해 public 선언
 public:
 	// ─── Attributes ────────────────────────────────────────────────────
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackPower, Category = "Attack")
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	FGameplayAttributeData AttackPower;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Defense, Category = "Defense")
+	UPROPERTY(BlueprintReadOnly, Category = "Defense")
 	FGameplayAttributeData Defense;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackSpeed, Category = "Attack")
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	FGameplayAttributeData AttackSpeed;
 
 public:
@@ -52,15 +50,4 @@ public:
 
 	FOnAttributeChanged OnAttackSpeedChanged;
 	FOnAttributeChanged OnAttackSpeedBaseChanged;
-
-private:
-	// ─── OnReps ────────────────────────────────────────────────────
-	UFUNCTION()
-	void OnRep_AttackPower(const FGameplayAttributeData& OldAttackPower);
-
-	UFUNCTION()
-	void OnRep_Defense(const FGameplayAttributeData& OldDefense);
-
-	UFUNCTION()
-	void OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed);
 };
