@@ -1,7 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/Enemy/Boss/KOGA_BossAttackBase.h"
+#include "KOGA_BossAttackBase.h"
+
 #include "KOGA_BossAOEAttackBase.generated.h"
 
 class UAbilityTask_WaitGameplayEvent;

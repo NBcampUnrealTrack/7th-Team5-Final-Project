@@ -1,10 +1,11 @@
-#include "Character/Enemy/Boss/Anim/KOBossAttackNotifyState.h"
+#include "KOBossAttackNotifyState.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossMeleeAttackBase.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Character/Enemy/Boss/GA/KOGA_BossMeleeAttackBase.h"
+
 #include "Kismet/KismetSystemLibrary.h"
  
 void UKOBossAttackNotifyState::NotifyBegin(

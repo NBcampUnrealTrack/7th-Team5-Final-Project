@@ -1,6 +1,4 @@
-#include "Character/Enemy/Boss/GA/KOGA_BossAOEAttackBase.h"
-
-#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossAOEAttackBase.h"
 #include "AIController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "GameFramework/Character.h"

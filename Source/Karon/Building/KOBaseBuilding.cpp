@@ -8,10 +8,11 @@
 #include "GameFramework/PlayerController.h"
 #include "GMRouterSubsystem.h"
 #include "Items/KOItemLibrary.h"
-#include "Messaging/KOMessageTypes.h"
+
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOUISubsystem.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 AKOBaseBuilding::AKOBaseBuilding()
 {

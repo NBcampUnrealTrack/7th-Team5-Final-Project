@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/GA/KOGA_BossMeleeAttackBase.h"
+#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossMeleeAttackBase.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"

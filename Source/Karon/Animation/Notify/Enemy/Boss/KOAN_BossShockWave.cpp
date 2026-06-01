@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/Anim/KOAN_BossShockWave.h"
+#include "KOAN_BossShockWave.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"

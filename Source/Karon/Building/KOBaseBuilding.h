@@ -2,7 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interaction/KOInteractableInterface.h"
+#include "Utility/Interface/KOInteractableInterface.h"
+
 #include "KOBaseBuilding.generated.h"
 
 struct FKOFactoryRow;

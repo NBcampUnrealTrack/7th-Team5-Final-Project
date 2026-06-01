@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "UObject/WeakInterfacePtr.h"
-#include "Interaction/KOInteractableInterface.h"
+
 #include "KOInteractionComponent.generated.h"
 
 /**
@@ -12,6 +12,8 @@
  * PlayerController에 부착되어 화면 중앙 라인트레이스로 IKOInteractableInterface를 구현한
  * 액터를 매 프레임 갱신하고, 입력 액션이 들어오면 OnInteract를 호출한다.
  */
+class IKOInteractableInterface;
+
 UCLASS(ClassGroup=(KO), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOInteractionComponent : public UActorComponent
 {

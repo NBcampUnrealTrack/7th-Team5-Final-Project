@@ -7,10 +7,10 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOUISubsystem.h"
 
-#include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
 

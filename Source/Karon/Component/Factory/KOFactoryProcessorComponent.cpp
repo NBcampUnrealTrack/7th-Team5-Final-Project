@@ -6,12 +6,12 @@
 #include "Building/KOBaseBuilding.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
-#include "Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 UKOFactoryProcessorComponent::UKOFactoryProcessorComponent()
 {

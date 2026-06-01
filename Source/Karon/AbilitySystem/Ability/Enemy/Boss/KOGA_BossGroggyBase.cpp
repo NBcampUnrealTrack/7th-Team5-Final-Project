@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/GA/KOGA_BossGroggyBase.h"
+#include "KOGA_BossGroggyBase.h"
 
 #include "AIController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"

@@ -3,7 +3,8 @@
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
-#include "Interaction/KOInteractableInterface.h"
+#include "Utility/Interface/KOInteractableInterface.h"
+
 
 UKOInteractionComponent::UKOInteractionComponent()
 {
@@ -42,7 +43,7 @@ void UKOInteractionComponent::UpdateCurrentInteractable()
 		}
 	}
 
-	CurrentInteractable = NewTarget;
+	CurrentInteractable = TWeakInterfacePtr<IKOInteractableInterface>(NewTarget);
 }
 
 bool UKOInteractionComponent::TryInteract()

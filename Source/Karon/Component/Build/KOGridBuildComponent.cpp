@@ -15,9 +15,10 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
 
-#include "Messaging/KOMessageTypes.h"
+
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 

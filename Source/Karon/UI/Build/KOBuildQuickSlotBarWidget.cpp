@@ -6,9 +6,10 @@
 #include "UI/Build/KOBuildQuickSlotWidget.h"
 #include "UI/Build/KOBuildUIComponent.h"
 
-#include "Messaging/KOMessageTypes.h"
+
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildSlot, Log, All);
 

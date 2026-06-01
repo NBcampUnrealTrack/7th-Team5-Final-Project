@@ -4,7 +4,6 @@
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
 #include "Component/Inventory/KOInventoryComponent.h"
-#include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
 #include "GameFramework/PlayerController.h"

@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/GA/KOGA_BossDeath.h"
+#include "AbilitySystem/Ability/Enemy/Boss/KOGA_BossDeath.h"
 
 #include "AIController.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -44,6 +44,7 @@ void UKOGA_BossDeath::ActivateAbility(
 			}
 		}
 	}
+	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
  

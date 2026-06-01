@@ -4,8 +4,9 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Items/KOItemSlot.h"
-#include "Messaging/KOGMSInterface.h"
+
 #include "GMRouterSubsystem.h"
+#include "Utility/Messaging/KOGMSInterface.h"
 #include "KOInventoryWidget.generated.h"
 
 class UKOInventoryComponent;

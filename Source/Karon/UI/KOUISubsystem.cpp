@@ -2,7 +2,7 @@
 #include "UI/KOUISubsystem.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Messaging/KOMessageTypes.h"
+
 #include "UI/KOUISettings.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "CommonActivatableWidget.h"
@@ -13,6 +13,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY(LogKOUI);
 
