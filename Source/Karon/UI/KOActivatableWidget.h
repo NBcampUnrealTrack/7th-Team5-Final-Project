@@ -47,6 +47,7 @@ enum class EKOUIInputMode : uint8
     Game    UMETA(DisplayName = "Game"),
     Menu    UMETA(DisplayName = "Menu (UI only)"),
     All     UMETA(DisplayName = "All (Game + UI)"),
+    AllNoCursor UMETA(DisplayName = "All (Game + UI, No Cursor)"),
 };
 
 /**
