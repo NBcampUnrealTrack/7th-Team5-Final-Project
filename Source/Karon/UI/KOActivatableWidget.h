@@ -35,8 +35,8 @@
 
 #include "CoreMinimal.h"
 #include "CommonActivatableWidget.h"
-#include "Messaging/KOGMSInterface.h"
 #include "Input/CommonUIInputTypes.h"
+#include "Utility/Messaging/KOGMSInterface.h"
 #include "KOActivatableWidget.generated.h"
 
 /** KO 위젯이 활성화될 때 적용할 입력 모드 */

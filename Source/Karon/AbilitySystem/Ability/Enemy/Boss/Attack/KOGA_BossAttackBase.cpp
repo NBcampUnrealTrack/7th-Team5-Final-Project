@@ -1,13 +1,13 @@
-#include "Character/Enemy/Boss/KOGA_BossAttackBase.h"
+#include "KOGA_BossAttackBase.h"
 
 #include "AbilitySystemInterface.h"
 #include "AIController.h"
 
-#include "KOAIC_BossChapter01.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {

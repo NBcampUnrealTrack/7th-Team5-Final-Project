@@ -10,10 +10,13 @@
 #include "UI/Build/KOBuildUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
-#include "Messaging/KOMessageTypes.h"
+
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/GameInstance.h"
 #include "Items/KOItemSlot.h"
+#include "Utility/Messaging/KOMessageTypes.h"
+
+struct FKOBuildModeChangedMessage;
 
 AKOPlayerController::AKOPlayerController()
 {

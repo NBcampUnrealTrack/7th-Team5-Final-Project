@@ -2,13 +2,13 @@
 
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Messaging/KOMessageTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Items/KOItemLibrary.h"
 #include "GMRouterSubsystem.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 UKOInventoryComponent::UKOInventoryComponent()
 {

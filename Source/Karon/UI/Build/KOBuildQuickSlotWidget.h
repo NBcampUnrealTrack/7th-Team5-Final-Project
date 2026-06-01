@@ -2,8 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Messaging/KOGMSInterface.h"
+
 #include "GMRouterSubsystem.h"
+#include "Utility/Messaging/KOGMSInterface.h"
 #include "KOBuildQuickSlotWidget.generated.h"
 
 class UImage;

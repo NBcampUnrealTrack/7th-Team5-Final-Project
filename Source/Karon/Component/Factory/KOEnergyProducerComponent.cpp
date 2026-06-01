@@ -5,12 +5,13 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
-#include "Messaging/KOMessageTypes.h"
+
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
     : FuelCategoryTag(KOGameplayTags::Item_Category_EnergyResource)

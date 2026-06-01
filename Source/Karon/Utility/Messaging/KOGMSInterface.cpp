@@ -1,5 +1,5 @@
 // Copyright Karon Team 5. All Rights Reserved.
-#include "Messaging/KOGMSInterface.h"
+#include "KOGMSInterface.h"
 
 #include "Engine/World.h"
 #include "StructUtils/InstancedStruct.h"

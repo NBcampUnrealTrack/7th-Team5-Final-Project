@@ -15,7 +15,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
-#include "Messaging/KOMessageTypes.h"
+
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
@@ -23,6 +23,7 @@
 #include "UI/Interaction/KOFactorySlotWidget.h"
 #include "UI/Interaction/KOFactoryRecipeEntryWidget.h"
 #include "UI/Inventory/KOInventoryWidget.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 #define LOCTEXT_NAMESPACE "KOFactoryProcessorWidget"
 

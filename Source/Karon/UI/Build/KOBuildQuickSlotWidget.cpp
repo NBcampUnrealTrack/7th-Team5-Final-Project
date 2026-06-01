@@ -10,13 +10,13 @@
 #include "UI/Build/KOBuildUIComponent.h"
 #include "UI/Inventory/KOItemDragSource.h"
 
-#include "Messaging/KOMessageTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 void UKOBuildQuickSlotWidget::NativePreConstruct()
 {

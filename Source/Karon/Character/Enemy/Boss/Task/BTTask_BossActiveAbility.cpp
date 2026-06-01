@@ -1,7 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Character/Enemy/Boss/BTTask_BossActiveAbility.h"
+#include "BTTask_BossActiveAbility.h"
 
 #include "AIController.h"
 #include "AbilitySystemComponent.h"

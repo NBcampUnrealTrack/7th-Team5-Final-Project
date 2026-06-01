@@ -1,9 +1,10 @@
-#include "Character/Enemy/Boss/BTService_BossDetectPlayer.h"
+#include "BTService_BossDetectPlayer.h"
 
 #include "AIController.h"
-#include "KOAIC_BossChapter01.h"
-#include "KOBossBase.h"
+
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 

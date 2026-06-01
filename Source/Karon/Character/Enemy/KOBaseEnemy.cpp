@@ -6,7 +6,7 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
-#include "Component/KOAnimNotifyComponent.h"
+#include "Component/Animation/KOAnimNotifyComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"

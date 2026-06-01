@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
-#include "Messaging/KOGMSInterface.h"
+
 #include "GMRouterSubsystem.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "KOBuildQuickSlotBarWidget.generated.h"

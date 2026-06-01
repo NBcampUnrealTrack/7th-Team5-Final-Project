@@ -1,14 +1,12 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KOEnemyAttackNotifyState.h"
+﻿#include "KOEnemyAttackNotifyState.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
-#include "Character/Enemy/Component/KOAnimNotifyComponent.h"
+
 #include "Character/Hero/KOHeroCharacter.h"
+#include "Component/Animation/KOAnimNotifyComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 void UKOEnemyAttackNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
