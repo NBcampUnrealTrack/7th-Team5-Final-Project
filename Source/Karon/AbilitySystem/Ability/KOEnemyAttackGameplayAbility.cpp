@@ -154,7 +154,7 @@ void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGamep
 		//TODO: 스킬데미지 공격력에 비례해 적용
 		float SkillFinalDamage = CombatSet->GetAttackPower();
 
-		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage, SkillFinalDamage);
+		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, SkillFinalDamage);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	

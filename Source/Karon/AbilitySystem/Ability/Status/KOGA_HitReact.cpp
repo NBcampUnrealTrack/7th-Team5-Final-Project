@@ -143,7 +143,7 @@ void UKOGA_HitReact::OnMontageCompleted()
 	{
 		ApplyEffectSetByCallerToSelf(
 			GE_Invincible,
-			KOGameplayTags::Data_State_Invincible,
+			KOGameplayTags::Data_DebuffTime,
 			InvincibleDuration
 		);
 	}

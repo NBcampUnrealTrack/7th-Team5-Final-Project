@@ -57,7 +57,7 @@ void UKOExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecu
 
 
 	float RawDamage = Spec.GetSetByCallerMagnitude(
-		KOGameplayTags::Data_Damage,
+		KOGameplayTags::Data_Attribute_Health_Damage,
 		false,
 		30.0f
 	);
