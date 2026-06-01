@@ -22,12 +22,9 @@ void UKOTitleWidget::OnStartGameClicked() const
 {
 	//TODO_CSH 메인 레벨 추가시 이름 등록
 	FName TargetLevelName = FName("L_TestMap");
-	// 1. 입력된 레벨 이름을 기반으로 엔진이 인식하는 표준 패키지 경로로 변환합니다.
-	// 예: "Lvl_ProductionHub" -> "/Game/Maps/Lvl_ProductionHub" (폴더 구조에 따름)
+	//아래 경로를 확인해 레벨오픈
 	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
-	// 만약 폴더 구조가 명확하다면 직접 경로를 조립해도 됩니다.
-	// FString PackagePath = FString::Printf(TEXT("/Game/Maps/%s"), *TargetLevelName.ToString());
-	// 2. 해당 경로에 실제 맵 패키지(.umap)가 존재하는지 검사
+
 	if (FPackageName::DoesPackageExist(PackagePath))
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), TargetLevelName);
