@@ -106,9 +106,6 @@ void UKOBuildUIComponent::OpenBuildMenu()
 	GridBuildComponent->EnterBuildMenuMode();
 	
 	OpenQuickSlotBar();
-
-	// 퀵슬롯 BP가 InputMode = All이어도 건설 모드에서는 마우스를 숨긴다.
-	PC->bShowMouseCursor = false;
 }
 
 void UKOBuildUIComponent::CloseBuildMenu()
