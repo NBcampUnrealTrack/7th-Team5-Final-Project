@@ -265,42 +265,29 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 	{
 		return;
 	}
-
-	const FName FactoryId = BuildQuickSlots[SlotIndex];
-
-	if (FactoryId.IsNone())
-	{
-		UE_LOG(LogKOBuildUI, Warning,
-			TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다. (This=%p, Owner=%s, SlotCount=%d)"),
-			SlotIndex + 1,
-			this,
-			*GetNameSafe(GetOwner()),
-			BuildQuickSlots.Num()
-		);
-
-		for (int32 Idx = 0; Idx < BuildQuickSlots.Num(); ++Idx)
-		{
-			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI]   슬롯[%d] = %s"),
-				Idx,
-				*BuildQuickSlots[Idx].ToString()
-			);
-		}
-		return;
-	}
 	
-	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
-	if (!InventoryComponent || !InventoryComponent->HasEnoughItems(FactoryId, 1))
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d 설비 수량이 없습니다: %s"),
-			SlotIndex + 1,
-			*FactoryId.ToString()
-		);
-		return;
-	}
-
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	if (!GridBuildComponent)
 	{
+		return;
+	}
+
+	const FName FactoryId = BuildQuickSlots[SlotIndex];
+
+	// 빈 슬롯도 선택 가능. 배치 중이던 고스트 프리뷰, 파괴 타겟 프리뷰 제거	
+	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	if (FactoryId.IsNone() || !InventoryComponent || !InventoryComponent->HasEnoughItems(FactoryId, 1))
+	{
+		if (GridBuildComponent->IsBuildMode())
+		{
+			GridBuildComponent->CancelBuildMode();
+		}
+		else if (GridBuildComponent->IsDestroyMode())
+		{
+			GridBuildComponent->CancelDestroyMode();
+		}
+
+		SetSelectedBuildQuickSlot(SlotIndex);
 		return;
 	}
 
