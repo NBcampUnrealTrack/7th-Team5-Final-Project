@@ -22,15 +22,6 @@ class ULocalPlayer;
  *   게임플레이/UI 코드는 정적 헬퍼로 서브시스템을 해석해 곧바로 Open/Close 한다.
  *     UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
  *     UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
- *   (Open/Close 는 GMS 를 경유하지 않는다. World 컨텍스트로 서브시스템을 직접 잡아 호출한다.)
- *
- * ─── 루트 레이아웃 (전역 관리) ─────────────────────────────────────────────
- *   컨트롤러는 위젯을 직접 들지 않는다. SetRootLayout(UI.Layout.*) 한 줄만 호출하면,
- *   UKOUISettings::RootLayoutMap 에서 클래스를 해석해 서브시스템이 생성·소유한다.
- *
- * ─── 닫기 (Back) ───────────────────────────────────────────────────────────
- *   토글 개념은 없다. 열기는 OpenWidget, 닫기는 CommonUI Back 액션(스택 최상위
- *   위젯의 bIsBackHandler) 또는 CloseWidget(특정 위젯 지정)으로만 처리한다.
  *
  * 레이어 태그 (KOGameplayTags):
  *   UI.Layer.Game       - HUD / 게임 플레이 UI
