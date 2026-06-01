@@ -1,7 +1,5 @@
 ﻿#include "UI/Build/KOBuildUIComponent.h"
 
-#include "Blueprint/UserWidget.h"
-#include "CommonActivatableWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
