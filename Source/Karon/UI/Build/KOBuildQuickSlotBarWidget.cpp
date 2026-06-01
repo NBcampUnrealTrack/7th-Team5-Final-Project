@@ -9,12 +9,15 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
+#include "UI/KOUISubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildSlot, Log, All);
 
 UKOBuildQuickSlotBarWidget::UKOBuildQuickSlotBarWidget()
 {
+	InputMode = EKOUIInputMode::AllNoCursor;
+	
 	// Back(ESC) 입력을 이 위젯이 받아 건설 모드 종료로 라우팅한다. (토글 제거 → Back 일원화)
 	bIsBackHandler = true;
 }
@@ -31,7 +34,7 @@ bool UKOBuildQuickSlotBarWidget::NativeOnHandleBackAction()
 		}
 	}
 
-	return Super::NativeOnHandleBackAction();
+	return false;
 }
 
 void UKOBuildQuickSlotBarWidget::NativeConstruct()

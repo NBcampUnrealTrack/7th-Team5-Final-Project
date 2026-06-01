@@ -590,19 +590,60 @@ void UKOGridBuildComponent::RequestDestroy()
 		return;
 	}
 
-	AActor* TargetBuilding = CurrentDestroyTargetActor.Get();
+	AActor* TargetActor = CurrentDestroyTargetActor.Get();
 
-	if (!IsValid(TargetBuilding))
+	if (!IsValid(TargetActor))
 	{
 		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 파괴할 대상이 없습니다."));
 		return;
 	}
-
-	if (!GridSub->FreeAreaByActor(TargetBuilding))
+	
+	AKOBaseBuilding* TargetBuilding = Cast<AKOBaseBuilding>(TargetActor);
+	if (!TargetBuilding)
 	{
-		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 점유 해제 실패: %s"),
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 대상이 AKOBaseBuilding이 아닙니다: %s"),
+			*TargetActor->GetName()
+		);
+		return;
+	}
+
+	const FName FactoryId = TargetBuilding->GetFactoryId();
+	if (FactoryId.IsNone())
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 파괴 대상의 FactoryId가 비어 있습니다: %s"),
 			*TargetBuilding->GetName()
 		);
+		return;
+	}
+
+	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	if (!InventoryComponent)
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] InventoryComponent를 찾을 수 없습니다."));
+		return;
+	}
+	
+	const int32 Remaining = InventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		FactoryId,
+		1
+	);
+
+	if (Remaining > 0)
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 인벤토리에 공간이 없어 파괴를 취소합니다. FactoryId=%s"),
+			*FactoryId.ToString()
+		);
+		return;
+	}
+	
+	if (!GridSub->FreeAreaByActor(TargetActor))
+	{
+		UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 점유 해제 실패: %s"),
+			*TargetActor->GetName()
+		);
+
+		InventoryComponent->TryRemoveItem(FactoryId, 1);
 		return;
 	}
 

@@ -1,7 +1,5 @@
 ﻿#include "UI/Build/KOBuildUIComponent.h"
 
-#include "Blueprint/UserWidget.h"
-#include "CommonActivatableWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
@@ -82,14 +80,6 @@ void UKOBuildUIComponent::SetSelectedBuildQuickSlot(int32 NewSlotIndex)
 		KOGameplayTags::Data_Message_Build_QuickSlotSelectionChanged,
 		FInstancedStruct::Make(Message)
 	);
-
-	UE_LOG(
-		LogKOBuildUI,
-		Log,
-		TEXT("[BuildUI] 선택 퀵슬롯 변경: %d -> %d"),
-		PreviousSlotIndex + 1,
-		SelectedQuickSlotIndex + 1
-	);
 }
 
 void UKOBuildUIComponent::ClearSelectedBuildQuickSlot()
@@ -116,9 +106,6 @@ void UKOBuildUIComponent::OpenBuildMenu()
 	GridBuildComponent->EnterBuildMenuMode();
 	
 	OpenQuickSlotBar();
-
-	// 퀵슬롯 BP가 InputMode = All이어도 건설 모드에서는 마우스를 숨긴다.
-	PC->bShowMouseCursor = false;
 }
 
 void UKOBuildUIComponent::CloseBuildMenu()
@@ -175,13 +162,54 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 		return false;
 	}
 
+	auto BroadcastSlot = [this](int32 ChangedSlotIndex)
+	{
+		FKOBuildQuickSlotChangedMessage Message;
+		Message.SlotIndex = ChangedSlotIndex;
+		Message.FactoryId = BuildQuickSlots[ChangedSlotIndex];
+
+		Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+	};
+
+	bool bMovedSelectedSlot = false;
+
+	// 같은 FactoryId가 이미 다른 퀵슬롯에 있으면 기존 슬롯을 비운다.
+	for (int32 Index = 0; Index < BuildQuickSlots.Num(); ++Index)
+	{
+		if (Index == SlotIndex)
+		{
+			continue;
+		}
+
+		if (BuildQuickSlots[Index] != FactoryId)
+		{
+			continue;
+		}
+
+		BuildQuickSlots[Index] = NAME_None;
+		BroadcastSlot(Index);
+
+		// 기존 선택 중이돈 슬롯이 비워진 경우
+		if (SelectedQuickSlotIndex == Index)
+		{
+			bMovedSelectedSlot = true;
+		}
+
+		UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 중복 퀵슬롯 해제: 슬롯 %d / %s"),
+			Index + 1,
+			*FactoryId.ToString()
+		);
+	}
+
+	// 새 슬롯에 할당
 	BuildQuickSlots[SlotIndex] = FactoryId;
-	
-	FKOBuildQuickSlotChangedMessage Message;
-	Message.SlotIndex = SlotIndex;
-	Message.FactoryId = FactoryId;
-	
-	Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+	BroadcastSlot(SlotIndex);
+
+	// 기존에 선택된 슬롯이 해제된 경우, 선택 상태를 새 슬롯으로 옮긴다.
+	if (bMovedSelectedSlot)
+	{
+		SetSelectedBuildQuickSlot(SlotIndex);
+	}
 
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 퀵슬롯 %d 등록: %s"),
 		SlotIndex + 1,
@@ -232,42 +260,29 @@ void UKOBuildUIComponent::SelectBuildQuickSlot(int32 SlotIndex)
 	{
 		return;
 	}
-
-	const FName FactoryId = BuildQuickSlots[SlotIndex];
-
-	if (FactoryId.IsNone())
-	{
-		UE_LOG(LogKOBuildUI, Warning,
-			TEXT("[BuildUI] 퀵슬롯 %d가 비어 있습니다. (This=%p, Owner=%s, SlotCount=%d)"),
-			SlotIndex + 1,
-			this,
-			*GetNameSafe(GetOwner()),
-			BuildQuickSlots.Num()
-		);
-
-		for (int32 Idx = 0; Idx < BuildQuickSlots.Num(); ++Idx)
-		{
-			UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI]   슬롯[%d] = %s"),
-				Idx,
-				*BuildQuickSlots[Idx].ToString()
-			);
-		}
-		return;
-	}
 	
-	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
-	if (!InventoryComponent || !InventoryComponent->HasEnoughItems(FactoryId, 1))
-	{
-		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] 퀵슬롯 %d 설비 수량이 없습니다: %s"),
-			SlotIndex + 1,
-			*FactoryId.ToString()
-		);
-		return;
-	}
-
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
 	if (!GridBuildComponent)
 	{
+		return;
+	}
+
+	const FName FactoryId = BuildQuickSlots[SlotIndex];
+
+	// 빈 슬롯도 선택 가능. 배치 중이던 고스트 프리뷰, 파괴 타겟 프리뷰 제거	
+	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	if (FactoryId.IsNone() || !InventoryComponent || !InventoryComponent->HasEnoughItems(FactoryId, 1))
+	{
+		if (GridBuildComponent->IsBuildMode())
+		{
+			GridBuildComponent->CancelBuildMode();
+		}
+		else if (GridBuildComponent->IsDestroyMode())
+		{
+			GridBuildComponent->CancelDestroyMode();
+		}
+
+		SetSelectedBuildQuickSlot(SlotIndex);
 		return;
 	}
 

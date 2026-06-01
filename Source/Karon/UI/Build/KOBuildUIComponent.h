@@ -6,7 +6,6 @@
 
 #include "KOBuildUIComponent.generated.h"
 
-class UCommonActivatableWidget;
 class UKOGridBuildComponent;
 class UKOInventoryComponent;
 
@@ -84,12 +83,6 @@ private:
 	void ClearSelectedBuildQuickSlot();
 	
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Build|UI")
-	TSubclassOf<UCommonActivatableWidget> QuickSlotBarWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UCommonActivatableWidget> QuickSlotBarWidget;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Build|QuickSlot")
 	int32 QuickSlotCount = 5;
 

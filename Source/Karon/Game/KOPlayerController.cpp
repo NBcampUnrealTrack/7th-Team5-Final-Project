@@ -315,6 +315,11 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 
 void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 {
+	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
+	{
+		BuildUIComponent->CloseBuildMenu();
+	}
+	
 	if (InteractionComponent)
 	{
 		InteractionComponent->TryInteract();
@@ -414,12 +419,6 @@ void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/
 	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
 	{
 		return;
-	}
-
-	// 열기 전용. 닫기는 Back(인벤토리 패널의 bIsBackHandler). 드래그 대상인 퀵슬롯 바를 함께 연다.
-	if (BuildUIComponent)
-	{
-		BuildUIComponent->OpenQuickSlotBar();
 	}
 
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Inventory);

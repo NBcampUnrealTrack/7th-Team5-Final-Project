@@ -27,6 +27,10 @@ TOptional<FUIInputConfig> UKOActivatableWidget::GetDesiredInputConfig() const
         // 게임+UI: 커서 보임 (UI 클릭 가능).
         return FUIInputConfig(ECommonInputMode::All, MouseCaptureMode, EMouseLockMode::DoNotLock, /*bHideCursorDuringViewportCapture=*/false);
 
+    case EKOUIInputMode::AllNoCursor:
+        // 게임+UI: 커서 숨김
+        return FUIInputConfig(ECommonInputMode::All, EMouseCaptureMode::CapturePermanently, EMouseLockMode::DoNotLock, /*bHideCursorDuringViewportCapture=*/true);
+        
     case EKOUIInputMode::Default:
     default:
         return TOptional<FUIInputConfig>();
