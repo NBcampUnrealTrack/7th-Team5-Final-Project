@@ -298,13 +298,12 @@ int32 UKOBuildUIComponent::GetSelectedBuildQuickSlotIndex() const
 
 void UKOBuildUIComponent::OpenQuickSlotBar()
 {
-	// 호출 일원화: 서브시스템을 직접 잡지 않고 GMS 경로로 열기 요청.
-	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 
 void UKOBuildUIComponent::CloseQuickSlotBar()
 {
-	UKOUISubsystem::RequestCloseWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 
 void UKOBuildUIComponent::StartDestroyBuildMode()

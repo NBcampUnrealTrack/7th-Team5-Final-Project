@@ -17,6 +17,6 @@ void AKOTitleController::BeginPlay()
 		UISubsystem->SetRootLayout(KOGameplayTags::UI_Layout_Title);
 	}
 
-	// 타이틀 메뉴 위젯 열기 (GMS 일원화 경로).
-	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_TitleMenu);
+	// 타이틀 메뉴 위젯 열기.
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_TitleMenu);
 }

@@ -75,8 +75,8 @@ void AKOBaseBuilding::OnInteract(AActor* Interactor)
 
 	if (WidgetTag.IsValid())
 	{
-		// 호출 일원화: GMS 경로로 위젯 열기 요청. 닫기는 Back(팩토리 위젯의 bIsBackHandler).
-		UKOUISubsystem::RequestOpenWidget(this, WidgetTag);
+		// 위젯 열기. 닫기는 Back(팩토리 위젯의 bIsBackHandler).
+		UKOUISubsystem::OpenWidget(this, WidgetTag);
 	}
 }
 
