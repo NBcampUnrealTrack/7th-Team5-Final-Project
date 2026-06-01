@@ -1,0 +1,33 @@
+﻿#pragma once
+#include "NativeGameplayTags.h"
+
+
+namespace KOGameplayTags
+{
+	// ───────────────────────── Event ──────────────────────────────
+	// ── Event | Stamina ──────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Stamina_Exhausted);
+	
+	// ── Event | HitReact ──────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Forward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Backward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Left);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_Right);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
+	// ── Event | Death ─────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
+
+	// ── Event | Combo ─────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Open);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Close);
+	
+	// ─── Enemy Event ──────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
+	
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Boss01_Shockwave);
+}

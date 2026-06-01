@@ -194,7 +194,7 @@ void UKOGA_BossAttackBase::ApplyDamageToTarget(AActor* TargetActor)
  
 	if (Spec.IsValid())
 	{
-		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage,AttackPower);
+		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage,AttackPower);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
 }
