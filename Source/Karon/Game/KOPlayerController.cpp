@@ -335,7 +335,7 @@ void AKOPlayerController::Input_OpenBuildMode(const FInputActionValue& /*Value*/
 	}
 
 	// 건설 진입 시 인벤토리는 닫는다.
-	UKOUISubsystem::RequestCloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
 
 	BuildUIComponent->OpenBuildMenu();
 }
@@ -422,7 +422,7 @@ void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/
 		BuildUIComponent->OpenQuickSlotBar();
 	}
 
-	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
 }
 
 void AKOPlayerController::EnterBuildIMC()
@@ -464,5 +464,5 @@ void AKOPlayerController::ExitBuildIMC()
 void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/)
 {
 	// 열기 전용. 닫기는 Back(스킬트리 팝업의 bIsBackHandler).
-	UKOUISubsystem::RequestOpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
 }

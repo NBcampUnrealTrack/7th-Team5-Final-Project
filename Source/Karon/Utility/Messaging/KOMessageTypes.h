@@ -46,23 +46,6 @@ struct FKOFactoryStateChangedMessage
 };
 
 /**
- * UI 위젯 열기/닫기 요청 메시지 (Open/Close 공용)
- * 채널:
- *   - KOGameplayTags::Data_Message_UI_OpenWidget  ("Data.Message.UI.OpenWidget")
- *   - KOGameplayTags::Data_Message_UI_CloseWidget ("Data.Message.UI.CloseWidget")
- * Layer / WidgetClass 매핑은 UKOUISettings::WidgetMap 에서 해석되므로 태그만 전달한다.
- */
-USTRUCT()
-struct FKOUIWidgetRequest
-{
-    GENERATED_BODY()
-
-    /** 위젯 식별 태그 (UI.Widget.*). UKOUISettings 매핑 키로 사용. */
-    UPROPERTY()
-    FGameplayTag WidgetTag;
-};
-
-/**
  * 건물 상호작용 메시지
  * 채널: KOGameplayTags::Data_Message_Building_Interacted ("Data.Message.Building.Interacted")
  */

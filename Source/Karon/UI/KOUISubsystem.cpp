@@ -1,8 +1,6 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/KOUISubsystem.h"
 
-#include "AbilitySystem/Tag/KOGameplayTags.h"
-
 #include "UI/KOUISettings.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "CommonActivatableWidget.h"
@@ -13,7 +11,6 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY(LogKOUI);
 
@@ -30,89 +27,31 @@ UKOUISubsystem* UKOUISubsystem::Get(const UObject* WorldContextObject)
     return LocalPlayer ? LocalPlayer->GetSubsystem<UKOUISubsystem>() : nullptr;
 }
 
-UGMRouterSubsystem* UKOUISubsystem::GetRouter() const
+// ─── 정적 진입 헬퍼 (서브시스템 직접 호출) ────────────────────────────────────
+UCommonActivatableWidget* UKOUISubsystem::OpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
 {
-    const ULocalPlayer* LP = GetLocalPlayer();
-    UGameInstance* GI = LP ? LP->GetGameInstance() : nullptr;
-    return GI ? GI->GetSubsystem<UGMRouterSubsystem>() : nullptr;
+    if (UKOUISubsystem* Subsystem = Get(WorldContextObject))
+    {
+        return Subsystem->OpenWidget(WidgetTag);
+    }
+
+    UE_LOG(LogKOUI, Warning, TEXT("OpenWidget: KOUISubsystem을 찾을 수 없습니다."));
+    return nullptr;
 }
 
-// ─── 정적 요청 헬퍼 (GMS 일원화 진입점) ───────────────────────────────────────
-void UKOUISubsystem::RequestOpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
+void UKOUISubsystem::CloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
 {
-    if (!WidgetTag.IsValid())
+    if (UKOUISubsystem* Subsystem = Get(WorldContextObject))
     {
+        Subsystem->CloseWidget(WidgetTag);
         return;
     }
 
-    const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr;
-    if (!World)
-    {
-        UE_LOG(LogKOUI, Warning, TEXT("RequestOpenWidget: World 컨텍스트를 확인할 수 없습니다."));
-        return;
-    }
-
-    FKOUIWidgetRequest Request;
-    Request.WidgetTag = WidgetTag;
-    UGMRouterSubsystem::BroadcastMessage(World, KOGameplayTags::Data_Message_UI_OpenWidget, FInstancedStruct::Make(Request));
-}
-
-void UKOUISubsystem::RequestCloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag)
-{
-    if (!WidgetTag.IsValid())
-    {
-        return;
-    }
-
-    const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr;
-    if (!World)
-    {
-        UE_LOG(LogKOUI, Warning, TEXT("RequestCloseWidget: World 컨텍스트를 확인할 수 없습니다."));
-        return;
-    }
-
-    FKOUIWidgetRequest Request;
-    Request.WidgetTag = WidgetTag;
-    UGMRouterSubsystem::BroadcastMessage(World, KOGameplayTags::Data_Message_UI_CloseWidget, FInstancedStruct::Make(Request));
-}
-
-void UKOUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-    Super::Initialize(Collection);
-
-    if (UGMRouterSubsystem* GMS = GetRouter())
-    {
-        OpenWidgetCallback.BindDynamic(this, &UKOUISubsystem::OnOpenWidgetRequest);
-        OpenWidgetHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_OpenWidget, OpenWidgetCallback);
-
-        CloseWidgetCallback.BindDynamic(this, &UKOUISubsystem::OnCloseWidgetRequest);
-        CloseWidgetHandle = GMS->Subscribe(KOGameplayTags::Data_Message_UI_CloseWidget, CloseWidgetCallback);
-    }
-    else
-    {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: UGMRouterSubsystem를 찾을 수 없어 Open/Close 구독을 건너뜁니다."));
-    }
+    UE_LOG(LogKOUI, Warning, TEXT("CloseWidget: KOUISubsystem을 찾을 수 없습니다."));
 }
 
 void UKOUISubsystem::Deinitialize()
 {
-    if (UGMRouterSubsystem* GMS = GetRouter())
-    {
-        if (OpenWidgetHandle.IsValid())
-        {
-            GMS->Unsubscribe(OpenWidgetHandle);
-        }
-        if (CloseWidgetHandle.IsValid())
-        {
-            GMS->Unsubscribe(CloseWidgetHandle);
-        }
-    }
-
-    OpenWidgetHandle = FGameplayMessageHandle();
-    CloseWidgetHandle = FGameplayMessageHandle();
-    OpenWidgetCallback.Clear();
-    CloseWidgetCallback.Clear();
-
     ClearRootLayout();
     ResolvedClassCache.Empty();
 
@@ -327,30 +266,5 @@ void UKOUISubsystem::CloseWidget(FGameplayTag WidgetTag)
     {
         // CommonActivatableWidget을 비활성화하면 소속 Stack/Queue 컨테이너가 자동으로 제거 처리한다.
         Widget->DeactivateWidget();
-    }
-}
-
-// ─── GMS 콜백 ─────────────────────────────────────────────────────────────────
-void UKOUISubsystem::OnOpenWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload)
-{
-    if (const FKOUIWidgetRequest* Request = Payload.GetPtr<FKOUIWidgetRequest>())
-    {
-        OpenWidget(Request->WidgetTag);
-    }
-    else
-    {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: OpenWidget 페이로드 파싱 실패."));
-    }
-}
-
-void UKOUISubsystem::OnCloseWidgetRequest(FGameplayTag Channel, const FInstancedStruct& Payload)
-{
-    if (const FKOUIWidgetRequest* Request = Payload.GetPtr<FKOUIWidgetRequest>())
-    {
-        CloseWidget(Request->WidgetTag);
-    }
-    else
-    {
-        UE_LOG(LogKOUI, Warning, TEXT("KOUISubsystem: CloseWidget 페이로드 파싱 실패."));
     }
 }

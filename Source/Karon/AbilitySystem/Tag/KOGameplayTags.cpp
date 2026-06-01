@@ -79,8 +79,6 @@ namespace KOGameplayTags
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Factory_StateChanged, "Data.Message.Factory.StateChanged");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_OpenWidget,        "Data.Message.UI.OpenWidget");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Message_UI_CloseWidget,       "Data.Message.UI.CloseWidget");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Building_Interacted,  "Data.Message.Building.Interacted");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotChanged, "Data.Message.Build.QuickSlotChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Producer_FuelChanged,   "Data.Message.Producer.FuelChanged");
