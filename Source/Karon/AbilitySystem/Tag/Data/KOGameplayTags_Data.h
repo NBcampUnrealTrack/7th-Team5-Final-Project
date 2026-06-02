@@ -18,6 +18,7 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
