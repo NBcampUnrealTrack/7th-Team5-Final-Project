@@ -1,6 +1,6 @@
 ﻿#include "AbilityTask_HitStop.h"
-
 #include "AbilitySystemComponent.h"
+#include "GameFramework/Character.h"
 
 UAbilityTask_HitStop* UAbilityTask_HitStop::HitStop(
 	UGameplayAbility* OwningAbility, 
@@ -19,9 +19,8 @@ UAbilityTask_HitStop* UAbilityTask_HitStop::HitStop(
 void UAbilityTask_HitStop::Activate()
 {
 	CachedAvatar = GetAvatarActor();
-	CachedInstigator = bAffectInstigatorToo
-	  ? AbilitySystemComponent->GetOwnerActor()
-	  : nullptr;
+	CachedInstigator = bAffectInstigatorToo ?
+		AbilitySystemComponent->GetOwnerActor() : nullptr;
 	
 	// 피격자 없으면 즉시 종료 
 	if (!CachedAvatar.IsValid())
@@ -31,36 +30,34 @@ void UAbilityTask_HitStop::Activate()
 		
 		return;
 	}
-
-	// 피격자 시간 정지 
-	CachedAvatar->CustomTimeDilation = StopDilation;
 	
-	// 공격자도 시간 정지 
-	if (CachedInstigator.IsValid() && CachedInstigator != CachedAvatar)
-		CachedInstigator->CustomTimeDilation = StopDilation;
+	if (ACharacter* Character = Cast<ACharacter>(CachedAvatar.Get()))
+		CachedAvatarMesh = Character->GetMesh();
+	
+	if (bAffectInstigatorToo && CachedInstigator.IsValid() && CachedInstigator != CachedAvatar)
+	{
+		if (ACharacter* Character = Cast<ACharacter>(CachedInstigator.Get()))
+			CachedInstigatorMesh = Character->GetMesh();
+	}
+		
+	SetMeshAnimRate(CachedAvatarMesh.Get(), StopDilation);
+	SetMeshAnimRate(CachedInstigatorMesh.Get(), StopDilation);
 
 	// 복구 타이머 
 	GetWorld()->GetTimerManager().SetTimer(
 		RecoveryTimer, this, &UAbilityTask_HitStop::RecoverTime, StopDuration, false);
 }
 
+void UAbilityTask_HitStop::SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate)
+{
+	if (Mesh) Mesh->GlobalAnimRateScale = Rate;
+}
+
 void UAbilityTask_HitStop::RecoverTime()
 {
-	if (CachedAvatar.IsValid())
-		CachedAvatar->CustomTimeDilation = 1.0f;
-	
-	if (CachedInstigator.IsValid() && CachedInstigator != CachedAvatar)
-		CachedInstigator->CustomTimeDilation = 1.0f;
+	SetMeshAnimRate(CachedAvatarMesh.Get(), 1.f);
+	SetMeshAnimRate(CachedInstigatorMesh.Get(), 1.f);
 	
 	OnFinished.Broadcast();
 	EndTask();
 }
-
-// FHitStopFinishedDelegate::FHitStopFinishedDelegate()
-// {
-// }
-//
-// FHitStopFinishedDelegate::FHitStopFinishedDelegate(const TMulticastScriptDelegate<>& InMulticastScriptDelegate)
-// {
-// }
-
