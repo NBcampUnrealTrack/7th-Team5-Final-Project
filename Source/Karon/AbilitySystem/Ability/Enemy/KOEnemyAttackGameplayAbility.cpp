@@ -1,10 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KOEnemyAttackGameplayAbility.h"
-
-#include <Animation/KOAnimInstance.h>
-
+﻿#include "KOEnemyAttackGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
@@ -17,9 +11,12 @@ UKOEnemyAttackGameplayAbility::UKOEnemyAttackGameplayAbility()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-bool UKOEnemyAttackGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-                                                         const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+bool UKOEnemyAttackGameplayAbility::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, 
+	FGameplayTagContainer* OptionalRelevantTags) const
 {
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
@@ -74,6 +71,7 @@ void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	{
 		return;
 	}
+	
 	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CoolTimeEffectClass, GetAbilityLevel());
 	if (SpecHandle.IsValid())
 	{

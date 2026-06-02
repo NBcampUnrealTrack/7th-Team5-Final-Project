@@ -1,9 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "KOGameplayAbilityBase.h"
+#include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
+
 #include "KOEnemyAttackGameplayAbility.generated.h"
 
 /**
