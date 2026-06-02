@@ -29,6 +29,7 @@ public:
 	void SetupEnemy(UKOEnemyDataAsset);
 	FORCEINLINE UKOAnimNotifyComponent* GetAnimNotifyComponent(){return AnimNotifyComponent;}
 	FVector GetSocketLocation();
+	float GetAttackPoint();
 	
 protected:
 	// Called when the game starts or when spawned

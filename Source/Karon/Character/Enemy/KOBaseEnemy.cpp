@@ -117,5 +117,14 @@ FVector AKOBaseEnemy::GetSocketLocation()
 	return FVector::ZeroVector;
 }
 
+float AKOBaseEnemy::GetAttackPoint()
+{
+	if (CombatSet)
+	{
+		return CombatSet->GetAttackPower();
+	}
+	return 0.f;
+}
+
 
 

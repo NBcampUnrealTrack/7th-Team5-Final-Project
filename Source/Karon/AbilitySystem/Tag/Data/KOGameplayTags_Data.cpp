@@ -14,6 +14,7 @@ namespace KOGameplayTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
