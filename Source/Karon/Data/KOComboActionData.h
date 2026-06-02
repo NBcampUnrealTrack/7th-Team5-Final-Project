@@ -23,9 +23,6 @@ struct FKOComboActionData : public FTableRowBase
 	TObjectPtr<UAnimMontage> ComboMontage;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combo|Action")
-	FName MontageSection = NAME_None;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combo|Action")
 	TSubclassOf<UGameplayEffect> DamageEffect;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combo|Branch")

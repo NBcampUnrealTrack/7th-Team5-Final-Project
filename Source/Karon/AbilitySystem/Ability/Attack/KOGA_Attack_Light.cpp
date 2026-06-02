@@ -187,7 +187,7 @@ void UKOGA_Attack_Light::PlayComboMontage(FName RowName)
 		NAME_None,
 		ComboData->ComboMontage,
 		1.0f, // 나중에 공속으로 변경
-		ComboData->MontageSection
+		NAME_None
 	);
 	
 	CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Light::OnComboMontageCompleted);
