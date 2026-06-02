@@ -101,6 +101,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void CancelDestroyMode();	
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|Placement")
+	void RotatePlacementPreview(int32 Direction);
 
 protected:
 	bool TraceFromScreenCenter(
@@ -129,6 +132,8 @@ protected:
 	
 private:
 	void SetCurrentMode(EKOGridBuildMode NewMode);
+	FRotator GetPlacementRotation() const;
+	FIntPoint GetRotatedBuildingSize() const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
@@ -175,7 +180,14 @@ private:
 
 	FIntPoint CurrentAnchor = FIntPoint::ZeroValue;
 
-	FIntPoint CurrentBuildingSize = FIntPoint(1, 1);
+	FIntPoint BaseBuildingSize = FIntPoint(1, 1); // 원본 점유 크기
+	FIntPoint CurrentBuildingSize = FIntPoint(1, 1); // 회전 점유 크기
+	
+	int32 CurrentRotationStep = 0; 
+	// 0 = 0도
+	// 1 = 90도
+	// 2 = 180도
+	// 3 = 270도
 
 	bool bCurrentPlacementValid = false; // 설치 가능 여부
 	

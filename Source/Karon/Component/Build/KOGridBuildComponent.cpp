@@ -167,7 +167,9 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 	CurrentFactoryId = FactoryId;
 	CurrentFactoryRow = Row;
 	CurrentBuildingClass = BuildingClass;
-	CurrentBuildingSize = Row->GridSize;
+	BaseBuildingSize = Row->GridSize;
+	CurrentRotationStep = 0;
+	CurrentBuildingSize = GetRotatedBuildingSize();
 
 	SetCurrentMode(EKOGridBuildMode::Placing);
 	SetComponentTickEnabled(true);
@@ -246,7 +248,10 @@ void UKOGridBuildComponent::ClearPlacementState()
 	CurrentFactoryRow = nullptr;
 	CurrentBuildingClass.Reset();
 	CurrentAnchor = FIntPoint::ZeroValue;
+	
 	CurrentBuildingSize = FIntPoint(1, 1);
+	BaseBuildingSize = FIntPoint(1, 1);
+	CurrentRotationStep = 0;
 }
 
 void UKOGridBuildComponent::UpdateGhostPreview()
@@ -308,7 +313,10 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 		CurrentBuildingSize
 	);
 	PreviewLocation.Z += CurrentFactoryRow->PlacementZOffset;
-	CurrentPreviewActor->SetActorLocation(PreviewLocation);
+	CurrentPreviewActor->SetActorLocationAndRotation(
+		PreviewLocation,
+		GetPlacementRotation()
+	);
 
 	// 설치할 수 있는지 검사
 	const bool bCanBuild = GridSub->CanBuildArea(
@@ -441,7 +449,7 @@ void UKOGridBuildComponent::RequestBuild()
 	AKOBaseBuilding* NewBuilding = World->SpawnActor<AKOBaseBuilding>(
 		BuildingClass,
 		SpawnLocation,
-		FRotator::ZeroRotator,
+		GetPlacementRotation(),
 		SpawnParams
 	);
 
@@ -567,6 +575,33 @@ void UKOGridBuildComponent::CancelDestroyMode()
 	SetComponentTickEnabled(false);
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료 - 건설 메뉴로 복귀"));
+}
+
+void UKOGridBuildComponent::RotatePlacementPreview(int32 Direction)
+{
+	if (CurrentMode != EKOGridBuildMode::Placing)
+	{
+		return;
+	}
+
+	if (Direction == 0)
+	{
+		return;
+	}
+
+	const int32 Step = Direction > 0 ? 1 : -1;
+
+	CurrentRotationStep = (CurrentRotationStep + Step + 4) % 4;
+
+	// 2x1 같은 건물은 90도 회전하면 1x2가 되어야 함
+	CurrentBuildingSize = GetRotatedBuildingSize();
+
+	if (CurrentPreviewActor)
+	{
+		CurrentPreviewActor->SetActorRotation(GetPlacementRotation());
+	}
+
+	UpdateGhostPreview();
 }
 
 void UKOGridBuildComponent::RequestDestroy()
@@ -885,6 +920,23 @@ void UKOGridBuildComponent::SetCurrentMode(EKOGridBuildMode NewMode)
 		static_cast<uint8>(PreviousMode),
 		static_cast<uint8>(NewMode)
 	);
+}
+
+FRotator UKOGridBuildComponent::GetPlacementRotation() const
+{
+	return FRotator(0.0f, CurrentRotationStep * 90.0f, 0.0f);
+}
+
+FIntPoint UKOGridBuildComponent::GetRotatedBuildingSize() const
+{
+	// 0도, 180도는 원래 크기
+	if (CurrentRotationStep % 2 == 0)
+	{
+		return BaseBuildingSize;
+	}
+
+	// 90도, 270도는 X/Y 교환
+	return FIntPoint(BaseBuildingSize.Y, BaseBuildingSize.X);
 }
 
 bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollisionChannel TraceChannel) const

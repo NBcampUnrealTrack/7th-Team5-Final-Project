@@ -23,6 +23,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot3);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot4);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot5);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Rotate);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);

@@ -51,7 +51,6 @@ protected:
 
 	// 건설 입력 (열기 전용 — 닫기는 Back)
 	void Input_OpenBuildMode(const FInputActionValue& Value);
-	void Input_ToggleBuildAssignMenu(const FInputActionValue& Value);
 
 	void Input_BuildConfirm(const FInputActionValue& Value);
 	void Input_BuildCancel(const FInputActionValue& Value);
@@ -69,6 +68,8 @@ protected:
 
 	// 스킬창 입력 (열기 전용 — 닫기는 Back)
 	void Input_OpenSkillTree(const FInputActionValue& Value);
+	
+	void Input_BuildRotate(const FInputActionValue& Value);
 
 
 private:

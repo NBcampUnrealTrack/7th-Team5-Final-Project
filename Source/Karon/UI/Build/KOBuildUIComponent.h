@@ -73,6 +73,9 @@ public:
 	// 우클릭
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void CancelBuildAction();
+	// 회전
+	UFUNCTION(BlueprintCallable, Category = "Build|Action")
+	void RotateBuildPreview(int32 Direction);
 
 private:
 	APlayerController* GetOwningPlayerController() const;
