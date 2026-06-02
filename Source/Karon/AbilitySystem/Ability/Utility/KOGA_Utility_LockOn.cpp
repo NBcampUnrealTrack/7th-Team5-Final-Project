@@ -21,7 +21,7 @@ UKOGA_Utility_LockOn::UKOGA_Utility_LockOn()
  
 	// 이 어빌리티를 발동시킬 입력 태그 등록
 	//AbilityTags.AddTag(KOGameplayTags::Input_Ability_LockOn);
-	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_LockOn));
+	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_LockOn));
 	// ★ ActivationOwnedTags 는 여기서 추가하지 않음 ★
 	// ApplyLockOnGameplayTag()에서 직접 AddLooseGameplayTag / RemoveLooseGameplayTag 로 관리
 	// → 두 곳에서 동시에 태그를 추가하면 참조 카운트가 꼬이는 문제 방지

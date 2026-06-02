@@ -40,8 +40,11 @@ namespace KOGameplayTags
     // ── Input | Ability | Interaction ─────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Interaction);
 	
-	// ── Input | Ability | LockOn ─────────────────────────────
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_LockOn);
+	// ── Input | Ability | Utility ─────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_LockOn);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_DrawWeapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_SheatheWeapon);
+	
     // ── Input | Ability | CoreSkill ───────────────────────────────
     // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_CoreSkill_);
 
