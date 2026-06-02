@@ -1,11 +1,14 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 #include "KOGrantSet.generated.h"
 
 class UGameplayAbility; 
 class UAbilitySystemComponent;
+class UGameplayEffect; 
 
 USTRUCT(BlueprintType)
 struct FKOAbilityEntry
@@ -28,7 +31,7 @@ struct FKOEffectEntry
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<class UGameplayEffect> Effect = nullptr;
+	TSubclassOf<UGameplayEffect> Effect = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float EffectLevel = 1.f;
@@ -39,8 +42,8 @@ struct FKOAbilitySetHandles
 {
 	GENERATED_BODY()
 public:
-	TArray<struct FGameplayAbilitySpecHandle>  AbilityHandles;
-	TArray<struct FActiveGameplayEffectHandle> EffectHandles;
+	TArray<FGameplayAbilitySpecHandle> AbilityHandles;
+	TArray<FActiveGameplayEffectHandle> EffectHandles;
 
 	void RemoveFromASC(UAbilitySystemComponent* ASC);
 };
