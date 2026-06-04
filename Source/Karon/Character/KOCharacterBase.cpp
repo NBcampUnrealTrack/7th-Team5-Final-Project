@@ -1,5 +1,6 @@
 ﻿#include "KOCharacterBase.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 #include "Component/Movement/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
@@ -11,6 +12,8 @@ AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
 		ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	EquipmentComponent = CreateDefaultSubobject<UKOEquipmentComponent>(TEXT("EquivalentComponent"));
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const

@@ -7,6 +7,7 @@
 
 #include "KOCharacterBase.generated.h"
 
+class UKOEquipmentComponent;
 struct FInstancedStruct;
 class FGameplayMessageCallback;
 class UKOHealthSet;
@@ -22,6 +23,8 @@ public:
 	AKOCharacterBase(const FObjectInitializer& ObjectInitializer);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
+	UKOEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,5 +51,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Movement")
 	TObjectPtr<UKOMovementSet> MovementSet;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;
  
 };
