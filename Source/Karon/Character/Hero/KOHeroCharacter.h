@@ -28,14 +28,8 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	
+
 public:
-	UFUNCTION(BlueprintCallable)
-	UKOLockOnComponent* GetLockOnComponent() const { return LockOnComponent; }
-	
 	UFUNCTION(BlueprintCallable)
 	UCharacterTrajectoryComponent* GetTrajectoryComponent() const { return Trajectory; }
 	
@@ -60,10 +54,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UCharacterTrajectoryComponent> Trajectory;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<UKOLockOnComponent> LockOnComponent;
-	
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOStaminaSet> StaminaSet;

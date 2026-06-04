@@ -2,7 +2,6 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
-#include "Component/Combat/KOLockOnComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Component/Movement/KOPreCMCTickComponent.h"
 #include "Game/KOPlayerState.h"
@@ -18,6 +17,7 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
+	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->bUsePawnControlRotation = true;
@@ -29,18 +29,15 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	SpringArm->CameraLagSpeed = 20.f; 
 	SpringArm->CameraRotationLagSpeed = 50.f; 
 	
-	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 	
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
 	Trajectory->PrimaryComponentTick.AddPrerequisite(
-		PreCMCTick,
-		PreCMCTick->PrimaryComponentTick
+		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
 	
-	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
 	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 	
@@ -85,11 +82,6 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
-}
-
-void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 
