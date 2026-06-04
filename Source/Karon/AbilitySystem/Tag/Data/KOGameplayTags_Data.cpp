@@ -16,6 +16,10 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	
+	// ───────────────────────── Boss Cool Time Data ────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_NormalAttack01, "Data.CoolTime.BossCH01.NormalAttack01");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_NormalAttack02, "Data.CoolTime.BossCH01.NormalAttack02");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_ShockWave, "Data.CoolTime.BossCH01.ShockWave");
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
