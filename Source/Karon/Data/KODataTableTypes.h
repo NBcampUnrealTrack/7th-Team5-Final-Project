@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
+#include "Data/Type/KOSkillTypes.h"
 #include "KODataTableTypes.generated.h"
 
 class UTexture2D;
@@ -138,4 +139,33 @@ struct KARON_API FKORecipeRow : public FTableRowBase
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     float PowerPerSecond = 0.f;
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FKOSkillRow : public FTableRowBase
+{
+    GENERATED_BODY()
+    
+    /** UI에 표시되는 이름*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FText DisplayName;
+    
+    /** 스킬 식별용 태그*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FGameplayTag SkillTag;
+    
+    /** 해금에 필요한 아이템 비용 목록*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    TArray<FSkillCost> UnlockCosts;
+    
+    /** 해금을 위해 먼저 습득해야 하는 선행 스킬 태그*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FGameplayTagContainer PrerequisiteSkillTags;
+    
+    /** 코어 별 분리를 위한 카테고리*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FGameplayTagContainer Categories;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    TSoftObjectPtr<UTexture2D> Icon;
 };
