@@ -37,10 +37,12 @@ void UKOLoadSubsystem::Deinitialize()
     ItemCache.Empty();
     FactoryCache.Empty();
     RecipeCache.Empty();
+    SkillCache.Empty();
     ItemTagToId.Empty();
     ResolvedIcons.Empty();
     ResolvedBuildingClasses.Empty();
     ResolvedFactoryIcons.Empty();
+    ResolvedSkillIcons.Empty();
     LoadedTables.Empty();
 
     Super::Deinitialize();
@@ -122,7 +124,8 @@ void UKOLoadSubsystem::LoadAll()
     IndexTableRowsByName<FKOItemRow>   (Settings->ItemTables,    ItemCache,    TEXT("Item"));
     IndexTableRowsByName<FKOFactoryRow>(Settings->FactoryTables, FactoryCache, TEXT("Factory"));
     IndexTableRowsByName<FKORecipeRow> (Settings->RecipeTables,  RecipeCache,  TEXT("Recipe"));
-
+    IndexTableRowsByName<FKOSkillRow>  (Settings->SkillTables,   SkillCache,   TEXT("Skill"));
+    
     // ItemTag → ItemId 역인덱스 빌드
     ItemTagToId.Reset();
     for (const TPair<FName, const FKOItemRow*>& Pair : ItemCache)
@@ -348,5 +351,52 @@ UTexture2D* UKOLoadSubsystem::ResolveFactoryIcon(FName FactoryId) const
     }
 
     ResolvedFactoryIcons.Add(FactoryId, Texture);
+    return Texture;
+}
+
+const FKOSkillRow* UKOLoadSubsystem::FindSkillRow(FName SkillId) const
+{
+    const FKOSkillRow* const* Found = SkillCache.Find(SkillId);
+    return Found ? *Found : nullptr;
+}
+
+void UKOLoadSubsystem::GetAllSkillIds(TArray<FName>& Out) const
+{
+    SkillCache.GetKeys(Out);
+}
+
+UTexture2D* UKOLoadSubsystem::ResolveSkillIcon(FName SkillId) const
+{
+    if (const TWeakObjectPtr<UTexture2D>* Cached = ResolvedSkillIcons.Find(SkillId))
+    {
+        if (Cached->IsValid())
+        {
+            return Cached->Get();
+        }
+    }
+    const FKOSkillRow* Row = FindSkillRow(SkillId);
+    if (!Row)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("UKOLoadSubsystem::ResolveSkillIcon: 알 수 없는 SkillId '%s'."),
+            *SkillId.ToString());
+        return nullptr;
+    }
+
+    if (Row->Icon.IsNull())
+    {
+        return nullptr;
+    }
+
+    UTexture2D* Texture = Row->Icon.LoadSynchronous();
+    if (!Texture)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("UKOLoadSubsystem::ResolveSkillIcon: '%s' 로드 실패 (SkillId='%s')."),
+            *Row->Icon.ToSoftObjectPath().ToString(), *SkillId.ToString());
+        return nullptr;
+    }
+
+    ResolvedSkillIcons.Add(SkillId, Texture);
     return Texture;
 }

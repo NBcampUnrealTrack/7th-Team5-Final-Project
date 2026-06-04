@@ -54,6 +54,10 @@ public:
     /** Factory Row의 Icon 소프트 레퍼런스를 동기 로드 (캐싱). */
     UTexture2D* ResolveFactoryIcon(FName FactoryId) const;
 
+    const FKOSkillRow* FindSkillRow(FName SkillId) const;
+    void              GetAllSkillIds(TArray<FName>& Out) const;
+    UTexture2D*       ResolveSkillIcon(FName SkillId) const;
+    
 private:
     void LoadAll();
 
@@ -70,12 +74,14 @@ private:
     TMap<FName, const FKOItemRow*>    ItemCache;
     TMap<FName, const FKOFactoryRow*> FactoryCache;
     TMap<FName, const FKORecipeRow*>  RecipeCache;
+    TMap<FName, const FKOSkillRow*>   SkillCache;
 
     /** ItemTag → ItemId 역인덱스. LoadAll에서 ItemCache 채운 직후 빌드. */
     TMap<FGameplayTag, FName>         ItemTagToId;
-
+    
     // 약한 참조 관련 Mutable 처리
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedIcons;
     mutable TMap<FName, TWeakObjectPtr<UClass>>      ResolvedBuildingClasses;
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedFactoryIcons;
+    mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedSkillIcons;
 };
