@@ -4,15 +4,18 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "KOEnemyAttackNotifyState.generated.h"
 
+class UKOEnemyAttackGameplayAbility;
+
 UCLASS()
 class KARON_API UKOEnemyAttackNotifyState : public UAnimNotifyState
 {
 	GENERATED_BODY()
+	UKOEnemyAttackNotifyState();
 	
 public:
-	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
+	virtual void BranchingPointNotifyBegin(FBranchingPointNotifyPayload& BranchingPointPayload) override;
+	virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& BranchingPointPayload) override;
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
-	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 	
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
@@ -24,4 +27,6 @@ protected:
 private:
 	//소켓이름
 	FName SocketName=FName("Socket");
+	UPROPERTY()
+	TMap<USkeletalMeshComponent*,UKOEnemyAttackGameplayAbility*> CachedAbilities;
 };
