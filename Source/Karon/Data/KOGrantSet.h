@@ -11,7 +11,7 @@ class UAbilitySystemComponent;
 class UGameplayEffect; 
 
 USTRUCT(BlueprintType)
-struct FKOAbilityEntry
+struct FKOActiveAbilityEntry
 {
 	GENERATED_BODY()
 public:
@@ -20,6 +20,18 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 AbilityLevel = 1;
+};
+
+USTRUCT(BlueprintType)
+struct FKOPassiveAbilityEntry
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> Ability = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 AbilityLevel = 1;
@@ -61,7 +73,10 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Ability"))
-	TArray<FKOAbilityEntry> GrantedAbilities;
+	TArray<FKOActiveAbilityEntry> ActiveAbilities;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Ability"))
+	TArray<FKOPassiveAbilityEntry> PassiveAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Effect"))
 	TArray<FKOEffectEntry> GrantedEffects;
