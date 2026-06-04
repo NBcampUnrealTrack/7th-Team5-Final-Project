@@ -6,7 +6,6 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
-#include "Component/Animation/KOAnimNotifyComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
@@ -25,9 +24,6 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	CombatSet=CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
 	//TODO: 공격력 DDD로 전환. 현재는 테스트용 공격력 10
 	CombatSet->InitAttackPower(10.f);
-	
-	//AnimNotifyComponent 생성
-	AnimNotifyComponent=CreateDefaultSubobject<UKOAnimNotifyComponent>(TEXT("KOAnimNotifyComponent"));
 	
 	//WeaponSkeletalMeshComponent 생성 및 부착
 	WeaponMeshComponent=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));

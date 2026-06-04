@@ -50,6 +50,18 @@ private:
 	UFUNCTION()
 	void OnNotifyHitEvent(FGameplayEventData HitGameplayEventData);
 
+	//몽타주의 AnimNotify에서 변경되는 변수
+public:
+	//이전 Notify틱의 소켓의 위치
+	UPROPERTY()
+	FVector PresentAttackSocketLocation=FVector::ZeroVector;
+	//현재 Notify틱의 소켓의 위치
+	UPROPERTY()
+	FVector CurrentAttackSocketLocation=FVector::ZeroVector;
+	//현재 Notify에서 플레이어를 타격하였는지 여부(중복 타격 방지, 싱글플레이)
+	UPROPERTY()
+	bool bIsAttacked=false;
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> AnimMontage=nullptr;

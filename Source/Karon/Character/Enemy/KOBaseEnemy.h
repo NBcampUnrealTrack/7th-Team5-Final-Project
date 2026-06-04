@@ -27,7 +27,6 @@ public:
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
 	void SetupEnemy(UKOEnemyDataAsset);
-	FORCEINLINE UKOAnimNotifyComponent* GetAnimNotifyComponent(){return AnimNotifyComponent;}
 	FVector GetSocketLocation();
 	float GetAttackPoint();
 	
@@ -49,9 +48,6 @@ public:
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOCombatSet> CombatSet;
-	
-	UPROPERTY()
-	TObjectPtr<UKOAnimNotifyComponent> AnimNotifyComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;

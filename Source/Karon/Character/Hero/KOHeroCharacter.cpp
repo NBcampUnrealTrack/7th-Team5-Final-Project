@@ -8,7 +8,9 @@
 #include "Game/KOPlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterTrajectoryComponent.h"
+#include "Karon.h"
 #include "Animation/KOAnimInstance.h"
+#include "Components/CapsuleComponent.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -41,6 +43,9 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
 	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
+	
+	//현석 : Enemy에서 SphereTrace를 위해 PlayerChannel 콜리전 Block 설정
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Player, ECollisionResponse::ECR_Block);
 }
 
 
