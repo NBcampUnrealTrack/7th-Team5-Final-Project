@@ -19,7 +19,6 @@
 AKOBaseEnemyAIController::AKOBaseEnemyAIController()
 {
 	AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
-	
 }
 
 void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
@@ -78,7 +77,6 @@ void AKOBaseEnemyAIController::HitEvent()
 	if (BBComp!=nullptr)
 	{
 		BBComp->SetValueAsBool(bIsHitKey, true);
-
 	}
 }
 
@@ -162,14 +160,14 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 		{
 			if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(Actor))
 			{
-				BBComp->SetValueAsObject(TEXT("TargetActor"), Player);
+				SetTargetActor(Player);
 			}
 		}
 		else
 		{
 			//Prediction 자극을 0.5초 뒤 예상 위치에 남김.
 			UAISense_Prediction::RequestPawnPredictionEvent(GetPawn(),Actor,0.25f);
-			BBComp->ClearValue(TEXT("TargetActor"));
+			SetTargetActor(nullptr);
 		}
 		
 		return;
@@ -198,7 +196,7 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			BBComp->SetValueAsObject(TEXT("TargetActor"), Actor);
+			SetTargetActor(Actor);
 		}
 		
 		return;
@@ -226,6 +224,26 @@ void AKOBaseEnemyAIController::StopBT()
 	if (BTComp)
 	{
 		BTComp->StopTree(EBTStopMode::Safe);
+	}
+}
+
+void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
+{
+	if (TargetActor!=nullptr)
+	{
+		BBComp->SetValueAsObject(TEXT("TargetActor"), TargetActor);
+		if (IsValid(Enemy))
+		{
+			Enemy->OnBattleChanged(true);
+		}
+	}
+	else
+	{
+		BBComp->ClearValue(TEXT("TargetActor"));
+		if (IsValid(Enemy))
+		{
+			Enemy->OnBattleChanged(false);
+		}
 	}
 }
 
