@@ -55,6 +55,12 @@ public:
     /** 이 벨트의 입구 이웃 셀이 Cell 인가(= 이 벨트가 Cell 에서 아이템을 받는가). */
     bool InputsFromCell(const FIntPoint& Cell) const { return (MyCell - InDir) == Cell; }
 
+    /** 현재 아이템이 올라가 있는 슬롯 수(진단용). */
+    int32 GetOccupiedSlotCount() const;
+
+    /** 한 줄 디버그 상태 문자열(형태/flip/셀/입출구/적재). 콘솔 덤프용. */
+    FString DescribeForDebug() const;
+
     // IKOItemSource (tail 기준 — 다운스트림 벨트가 pull)
     virtual bool PeekOutputItem(FKOConveyorItem& OutItem) const override;
     virtual bool PopOutputItem(FKOConveyorItem& OutItem) override;

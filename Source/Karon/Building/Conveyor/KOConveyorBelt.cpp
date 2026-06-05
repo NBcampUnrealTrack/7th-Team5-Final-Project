@@ -7,6 +7,16 @@
 #include "Components/ActorComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "HAL/IConsoleManager.h"
+
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
+    TEXT("ko.Conveyor.DrawSlots"),
+    -1,
+    TEXT("벨트 슬롯 디버그 스피어. -1: 인스턴스 설정 사용, 0: 강제 off, 1: 강제 on"),
+    ECVF_Cheat
+);
+#endif
 
 namespace
 {
@@ -186,7 +196,16 @@ void AKOConveyorBelt::AdvanceBelt(float DeltaTime)
         }
     }
 
-    if (bDrawSlotsDebug)
+    bool bShouldDraw = bDrawSlotsDebug;
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+    // 콘솔 CVar 로 전역 강제 on/off 가능(-1 이면 인스턴스 설정 유지).
+    const int32 DrawMode = CVarKOConveyorDrawSlots.GetValueOnGameThread();
+    if (DrawMode >= 0)
+    {
+        bShouldDraw = (DrawMode > 0);
+    }
+#endif
+    if (bShouldDraw)
     {
         DrawSlotsDebug();
     }
@@ -356,4 +375,28 @@ void AKOConveyorBelt::DrawSlotsDebug() const
         const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
         DrawDebugSphere(World, PathPoint(T), SlotRadius, 8, FColor::Yellow, false, -1.f, 0, 1.f);
     }
+}
+
+int32 AKOConveyorBelt::GetOccupiedSlotCount() const
+{
+    int32 Count = 0;
+    for (const FKOConveyorItem& Slot : Slots)
+    {
+        if (Slot.IsValid())
+        {
+            ++Count;
+        }
+    }
+    return Count;
+}
+
+FString AKOConveyorBelt::DescribeForDebug() const
+{
+    const TCHAR* ShapeStr = (Shape == EKOBeltShape::Corner) ? TEXT("Corner") : TEXT("Straight");
+    return FString::Printf(
+        TEXT("%s flip=%d cell=(%d,%d) in=(%d,%d) out=(%d,%d) items=%d/%d"),
+        ShapeStr, bCornerFlip ? 1 : 0,
+        MyCell.X, MyCell.Y, InDir.X, InDir.Y, OutDir.X, OutDir.Y,
+        GetOccupiedSlotCount(), SlotCount
+    );
 }

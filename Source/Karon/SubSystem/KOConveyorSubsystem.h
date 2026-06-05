@@ -33,6 +33,9 @@ public:
     /** 게임스레드 안전시점(다음 Tick 시작)에 실행할 작업을 큐잉. */
     void EnqueueAction(TFunction<void()> Action);
 
+    /** 등록된 모든 벨트 상태를 로그로 덤프(콘솔 ko.Conveyor.Dump 에서 호출). */
+    void DumpToLog() const;
+
     // FTickableGameObject
     virtual void Tick(float DeltaTime) override;
     virtual TStatId GetStatId() const override;
