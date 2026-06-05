@@ -414,3 +414,19 @@ void UKOBuildUIComponent::CancelBuildAction()
 		return;
 	}
 }
+
+void UKOBuildUIComponent::RotateBuildPreview(int32 Direction)
+{
+	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
+	if (!GridBuildComponent)
+	{
+		return;
+	}
+
+	if (!GridBuildComponent->IsBuildMode())
+	{
+		return;
+	}
+
+	GridBuildComponent->RotatePlacementPreview(Direction);
+}

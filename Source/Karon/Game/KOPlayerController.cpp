@@ -262,7 +262,16 @@ void AKOPlayerController::SetupInputComponent()
 			this,
 			&ThisClass::Input_OpenSkillTree,
 			true
-			);
+		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_Build_Rotate,
+			ETriggerEvent::Triggered,
+			this,
+			&ThisClass::Input_BuildRotate,
+			true
+		);
 	}
 }
 
@@ -464,4 +473,23 @@ void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/
 {
 	// 열기 전용. 닫기는 Back(스킬트리 팝업의 bIsBackHandler).
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
+}
+
+void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
+{
+	if (!BuildUIComponent)
+	{
+		return;
+	}
+
+	const float AxisValue = Value.Get<float>();
+
+	if (FMath::IsNearlyZero(AxisValue))
+	{
+		return;
+	}
+
+	const int32 Direction = AxisValue > 0.0f ? -1 : 1;
+
+	BuildUIComponent->RotateBuildPreview(Direction);
 }
