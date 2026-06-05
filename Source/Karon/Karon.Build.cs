@@ -13,7 +13,7 @@ public class Karon : ModuleRules
 			"Core", "CoreUObject", "Engine",
 			"InputCore", "EnhancedInput",
 			"GameplayAbilities", "GameplayTags", "GameplayTasks",
-			"AnimGraphRuntime","MotionTrajectory", "PoseSearch",
+			"AnimGraphRuntime","MotionTrajectory", "PoseSearch", "MotionWarping",
 			// CommonUI
 			"CommonUI", "CommonInput",
 			// StructUtils (FInstancedStruct)
