@@ -19,6 +19,12 @@ namespace
         }
         return FIntPoint(0, Dir.Y >= 0.f ? 1 : -1);
     }
+
+    // 그리드 스텝을 월드 단위 방향으로(그리드 X/Y = 월드 X/Y 직접 매핑).
+    FVector GridStepToWorldDir(const FIntPoint& Step)
+    {
+        return FVector(static_cast<float>(Step.X), static_cast<float>(Step.Y), 0.f).GetSafeNormal();
+    }
 }
 
 AKOConveyorBelt::AKOConveyorBelt()
@@ -53,22 +59,116 @@ void AKOConveyorBelt::EndPlay(const EEndPlayReason::Type Reason)
 
 void AKOConveyorBelt::RecomputePortDirections()
 {
-    ForwardWorld = GetActorForwardVector().GetSafeNormal2D();
-    if (ForwardWorld.IsNearlyZero())
+    FVector FwdWorld   = GetActorForwardVector().GetSafeNormal2D();
+    FVector RightWorld = GetActorRightVector().GetSafeNormal2D();
+    if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
+    if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
+
+    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // 로컬 +X 다리
+    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // 로컬 +Y 다리
+
+    if (Shape == EKOBeltShape::Corner)
     {
-        ForwardWorld = FVector::ForwardVector;
+        // ㄱ자: 두 열린 다리 = +Forward(로컬 +X), +Side(로컬 +Y).
+        // 흐름은 이 두 다리를 잇고, bCornerFlip 은 입/출구만 교환한다 → 같은 L 메시로 좌/우 코너 모두 표현(거울 메시 불필요).
+        if (!bCornerFlip)
+        {
+            InDir  = -Side;     // 입구 이웃 = MyCell - InDir = MyCell + Side
+            OutDir =  Forward;  // 출구 이웃 = MyCell + Forward
+        }
+        else
+        {
+            InDir  = -Forward;  // 입구 이웃 = MyCell + Forward
+            OutDir =  Side;     // 출구 이웃 = MyCell + Side
+        }
+    }
+    else
+    {
+        // 직선: 입구=-Forward 셀, 출구=+Forward 셀.
+        InDir  = Forward;
+        OutDir = Forward;
     }
 
-    const FIntPoint Forward = WorldDirToGridStep(ForwardWorld);
-    // M1 직선 벨트: 입구/출구 모두 forward 축.
-    InDir  = Forward;
-    OutDir = Forward;
+    // 디버그/비주얼용: 중심에서 입구/출구 이웃을 향하는 월드 방향.
+    EntryDirWorld = GridStepToWorldDir(-InDir);
+    ExitDirWorld  = GridStepToWorldDir(OutDir);
 
     if (const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr)
     {
         MyCell   = Grid->WorldToGridPosition(GetActorLocation());
         CellSize = Grid->GetCellSize();
     }
+}
+
+void AKOConveyorBelt::SetCornerFlip(bool bInFlip)
+{
+    if (bCornerFlip != bInFlip)
+    {
+        bCornerFlip = bInFlip;
+        RecomputePortDirections();
+    }
+}
+
+void AKOConveyorBelt::ApplyPlacementFlow(bool bManualFlipFallback)
+{
+    if (Shape == EKOBeltShape::Corner)
+    {
+        bool bAutoFlip = false;
+        bCornerFlip = TryResolveCornerFlipFromNeighbors(bAutoFlip) ? bAutoFlip : bManualFlipFallback;
+    }
+    RecomputePortDirections();
+}
+
+bool AKOConveyorBelt::TryResolveCornerFlipFromNeighbors(bool& OutFlip) const
+{
+    const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr;
+    if (!Grid)
+    {
+        return false;
+    }
+    const FIntPoint Cell = Grid->WorldToGridPosition(GetActorLocation());
+
+    FVector FwdWorld   = GetActorForwardVector().GetSafeNormal2D();
+    FVector RightWorld = GetActorRightVector().GetSafeNormal2D();
+    if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
+    if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
+
+    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // LegA = +Forward
+    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // LegB = +Side
+
+    // 이웃 1칸을 분류: +1 = 나에게 공급(업스트림), -1 = 내가 공급(다운스트림), 0 = 모호/없음.
+    auto Classify = [&](const FIntPoint& NeighborCell) -> int32
+    {
+        AActor* Actor = GetActorAtCell(NeighborCell);
+        if (!Actor)
+        {
+            return 0;
+        }
+        if (const AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(Actor))
+        {
+            if (Belt->OutputsToCell(Cell))  { return +1; } // 이웃 벨트가 나를 향해 출력 → 업스트림
+            if (Belt->InputsFromCell(Cell)) { return -1; } // 이웃 벨트가 나에게서 입력 → 다운스트림
+            return 0;
+        }
+        // 머신: 단방향 포트만 있으면 방향 확정, 양쪽(Processor) 또는 없음이면 모호.
+        const bool bHasSource = ResolveSource(Actor) != nullptr;
+        const bool bHasSink   = ResolveSink(Actor)   != nullptr;
+        if (bHasSource && !bHasSink) { return +1; } // 출력만 → 나에게 공급
+        if (bHasSink && !bHasSource) { return -1; } // 입력만 → 내가 공급
+        return 0;
+    };
+
+    const int32 RoleA = Classify(Cell + Forward); // LegA(+Forward)
+    const int32 RoleB = Classify(Cell + Side);    // LegB(+Side)
+
+    // flip=false: 입구=+Side(LegB), 출구=+Forward(LegA).
+    // flip=true : 입구=+Forward(LegA), 출구=+Side(LegB).
+    const bool bWantFalse = (RoleB > 0) || (RoleA < 0); // Side 가 업스트림 또는 Forward 가 다운스트림
+    const bool bWantTrue  = (RoleA > 0) || (RoleB < 0); // Forward 가 업스트림 또는 Side 가 다운스트림
+
+    if (bWantFalse && !bWantTrue) { OutFlip = false; return true; }
+    if (bWantTrue && !bWantFalse) { OutFlip = true;  return true; }
+    return false; // 양쪽 충돌 또는 단서 없음 → 수동 폴백.
 }
 
 void AKOConveyorBelt::AdvanceBelt(float DeltaTime)
@@ -233,9 +333,18 @@ void AKOConveyorBelt::DrawSlotsDebug() const
         return;
     }
 
-    const FVector CellCenter = GetActorLocation();
-    const FVector EntryEdge  = CellCenter - ForwardWorld * (CellSize * 0.5f) + FVector(0, 0, 30.f);
-    const float   SlotSpacing = CellSize / static_cast<float>(SlotCount);
+    const FVector CellCenter = GetActorLocation() + FVector(0, 0, 30.f);
+    const FVector EntryEdge   = CellCenter + EntryDirWorld * (CellSize * 0.5f);
+    const FVector ExitEdge    = CellCenter + ExitDirWorld  * (CellSize * 0.5f);
+    const float   SlotRadius  = (CellSize / static_cast<float>(SlotCount)) * 0.35f;
+
+    // T(0~1)을 입구 모서리→중심→출구 모서리 경로 위 점으로. 코너면 중심에서 꺾이고, 직선이면 일직선.
+    auto PathPoint = [&](float T) -> FVector
+    {
+        return (T <= 0.5f)
+            ? FMath::Lerp(EntryEdge, CellCenter, T * 2.f)
+            : FMath::Lerp(CellCenter, ExitEdge, (T - 0.5f) * 2.f);
+    };
 
     for (int32 i = 0; i < SlotCount; ++i)
     {
@@ -243,8 +352,8 @@ void AKOConveyorBelt::DrawSlotsDebug() const
         {
             continue;
         }
-        const float Along = (static_cast<float>(i) + 0.5f + MoveAccumulator) * SlotSpacing;
-        const FVector Pos = EntryEdge + ForwardWorld * Along;
-        DrawDebugSphere(World, Pos, SlotSpacing * 0.35f, 8, FColor::Yellow, false, -1.f, 0, 1.f);
+        // 시뮬은 이산 슬롯이지만 비주얼은 MoveAccumulator 로 슬롯 간 보간.
+        const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
+        DrawDebugSphere(World, PathPoint(T), SlotRadius, 8, FColor::Yellow, false, -1.f, 0, 1.f);
     }
 }

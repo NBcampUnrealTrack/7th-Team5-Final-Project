@@ -4,6 +4,7 @@
 #include "SubSystem/KOGridSubSystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/KOGhostPreview.h"
+#include "Building/Conveyor/KOConveyorBelt.h"
 #include "DrawDebugHelpers.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "HAL/IConsoleManager.h"
@@ -169,6 +170,7 @@ void UKOGridBuildComponent::StartBuildModeWithId(FName FactoryId)
 	CurrentBuildingClass = BuildingClass;
 	BaseBuildingSize = Row->GridSize;
 	CurrentRotationStep = 0;
+	bCornerFlipPlacement = false;
 	CurrentBuildingSize = GetRotatedBuildingSize();
 
 	SetCurrentMode(EKOGridBuildMode::Placing);
@@ -252,6 +254,7 @@ void UKOGridBuildComponent::ClearPlacementState()
 	CurrentBuildingSize = FIntPoint(1, 1);
 	BaseBuildingSize = FIntPoint(1, 1);
 	CurrentRotationStep = 0;
+	bCornerFlipPlacement = false;
 }
 
 void UKOGridBuildComponent::UpdateGhostPreview()
@@ -459,6 +462,13 @@ void UKOGridBuildComponent::RequestBuild()
 		return;
 	}
 
+	// 코너 벨트면 이웃에서 흐름 방향 자동 추론, 모호/이웃없음이면 수동(스크롤) flip 값으로 폴백.
+	// (yaw 는 스폰 회전으로 이미 반영됨)
+	if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(NewBuilding))
+	{
+		Belt->ApplyPlacementFlow(bCornerFlipPlacement);
+	}
+
 	// 스폰된 건물에 FactoryId 전달
 	NewBuilding->InitializeBuildingData(CurrentFactoryId);
 
@@ -591,7 +601,19 @@ void UKOGridBuildComponent::RotatePlacementPreview(int32 Direction)
 
 	const int32 Step = Direction > 0 ? 1 : -1;
 
+	const int32 OldRotationStep = CurrentRotationStep;
 	CurrentRotationStep = (CurrentRotationStep + Step + 4) % 4;
+
+	// 코너 벨트: yaw 가 4단계 경계(3↔0)를 넘을 때마다 흐름 반전 토글 → 4 yaw × 2 flip = 8방향 순환.
+	if (IsCurrentBuildingCornerBelt())
+	{
+		const bool bCrossedForward  = (Step > 0 && OldRotationStep == 3);
+		const bool bCrossedBackward = (Step < 0 && OldRotationStep == 0);
+		if (bCrossedForward || bCrossedBackward)
+		{
+			bCornerFlipPlacement = !bCornerFlipPlacement;
+		}
+	}
 
 	// 2x1 같은 건물은 90도 회전하면 1x2가 되어야 함
 	CurrentBuildingSize = GetRotatedBuildingSize();
@@ -937,6 +959,18 @@ FIntPoint UKOGridBuildComponent::GetRotatedBuildingSize() const
 
 	// 90도, 270도는 X/Y 교환
 	return FIntPoint(BaseBuildingSize.Y, BaseBuildingSize.X);
+}
+
+bool UKOGridBuildComponent::IsCurrentBuildingCornerBelt() const
+{
+	UClass* BuildingClass = CurrentBuildingClass.Get();
+	if (!BuildingClass || !BuildingClass->IsChildOf(AKOConveyorBelt::StaticClass()))
+	{
+		return false;
+	}
+
+	const AKOConveyorBelt* BeltCDO = Cast<AKOConveyorBelt>(BuildingClass->GetDefaultObject());
+	return BeltCDO && BeltCDO->GetShape() == EKOBeltShape::Corner;
 }
 
 bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollisionChannel TraceChannel) const

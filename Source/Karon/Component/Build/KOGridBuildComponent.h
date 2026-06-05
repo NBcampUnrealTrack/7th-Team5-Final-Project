@@ -135,6 +135,9 @@ private:
 	FRotator GetPlacementRotation() const;
 	FIntPoint GetRotatedBuildingSize() const;
 
+	/** 현재 배치 중인 건물 클래스가 코너 형태 컨베이어 벨트인지 CDO로 판정. */
+	bool IsCurrentBuildingCornerBelt() const;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;
@@ -183,11 +186,14 @@ private:
 	FIntPoint BaseBuildingSize = FIntPoint(1, 1); // 원본 점유 크기
 	FIntPoint CurrentBuildingSize = FIntPoint(1, 1); // 회전 점유 크기
 	
-	int32 CurrentRotationStep = 0; 
+	int32 CurrentRotationStep = 0;
 	// 0 = 0도
 	// 1 = 90도
 	// 2 = 180도
 	// 3 = 270도
+
+	// 코너 벨트 흐름 반전 상태. yaw 가 4단계 경계(3↔0)를 넘을 때마다 토글 → 4 yaw × 2 flip = 8방향.
+	bool bCornerFlipPlacement = false;
 
 	bool bCurrentPlacementValid = false; // 설치 가능 여부
 	
