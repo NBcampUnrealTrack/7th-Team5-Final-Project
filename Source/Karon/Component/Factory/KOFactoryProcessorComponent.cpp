@@ -204,6 +204,56 @@ void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float R
         : 1.f;
 }
 
+// IKOItemSource — 출력 버퍼의 첫 아이템을 벨트가 가져감.
+bool UKOFactoryProcessorComponent::PeekOutputItem(FKOConveyorItem& OutItem) const
+{
+    for (const TPair<FName, int32>& Pair : OutputBuffer)
+    {
+        if (Pair.Value > 0)
+        {
+            OutItem = FKOConveyorItem(Pair.Key);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool UKOFactoryProcessorComponent::PopOutputItem(FKOConveyorItem& OutItem)
+{
+    FKOConveyorItem Peeked;
+    if (!PeekOutputItem(Peeked))
+    {
+        return false;
+    }
+    if (TryExtractItem(Peeked.ItemId, 1) == 1)
+    {
+        OutItem = Peeked;
+        return true;
+    }
+    return false;
+}
+
+// IKOItemSink — 벨트가 입력 버퍼로 아이템을 밀어넣음. M1은 캡만 검사.
+bool UKOFactoryProcessorComponent::CanAcceptItem(const FKOConveyorItem& Item) const
+{
+    if (!Item.IsValid())
+    {
+        return false;
+    }
+    const int32* Current = InputBuffer.Find(Item.ItemId);
+    return (Current ? *Current : 0) < MaxBufferPerItem;
+}
+
+bool UKOFactoryProcessorComponent::PushItem(const FKOConveyorItem& Item)
+{
+    if (!Item.IsValid())
+    {
+        return false;
+    }
+    // TryInsertItem 은 받지 못한 잔여를 반환. 1개 전부 받았으면 잔여 0.
+    return TryInsertItem(Item.ItemId, 1) == 0;
+}
+
 // Internal Function
 FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
 {
