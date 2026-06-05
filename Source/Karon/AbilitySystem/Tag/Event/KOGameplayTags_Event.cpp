@@ -21,6 +21,11 @@ namespace KOGameplayTags
 	// ── Event | Death ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Death, "Event.Death");
 	
+	// ── Event | Attack ────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_Excute, "Event.Attack.Excute");
+	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Open, "Event.Combo.Window.Open");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Close, "Event.Combo.Window.Close");
