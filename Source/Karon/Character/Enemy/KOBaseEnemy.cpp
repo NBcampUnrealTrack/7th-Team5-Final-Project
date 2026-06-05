@@ -62,7 +62,8 @@ void AKOBaseEnemy::BeginPlay()
 	{
 		if (UKOEnemyHPBar* HPBar = Cast<UKOEnemyHPBar>(EnemyHPBarWidgetComponent->GetWidget()))
 		{
-			OnHPChanged.BindUObject(HPBar, &UKOEnemyHPBar::OnHPChanged);
+			OnHPChangedEvent.BindUObject(HPBar, &UKOEnemyHPBar::OnHPChanged);
+			OnBattleEvent.BindUObject(HPBar,&UKOEnemyHPBar::OnBattleChanged);
 		}
 	}
 	
@@ -87,16 +88,21 @@ void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 	//체력이 0이라면 사망 콟백을 HPBar, AIController로 전달
 	if (Data.NewValue==0.f)
 	{
-		OnHPChanged.ExecuteIfBound(0.f);
+		OnHPChangedEvent.ExecuteIfBound(0.f,Data.OldValue-Data.NewValue);
 		OnCharacterDead.ExecuteIfBound();
 	}
 	
 	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달
 	else if (Data.NewValue<Data.OldValue)
 	{
-		OnHPChanged.ExecuteIfBound(Data.NewValue/HealthSet->GetMaxHealth());
+		OnHPChangedEvent.ExecuteIfBound(Data.NewValue/HealthSet->GetMaxHealth(),Data.OldValue-Data.NewValue);
 		OnCharacterHit.ExecuteIfBound();
 	}
+}
+
+void AKOBaseEnemy::OnBattleChanged(bool bIsBattle)
+{
+	OnBattleEvent.ExecuteIfBound(bIsBattle);
 }
 
 FVector AKOBaseEnemy::GetSocketLocation()
@@ -105,8 +111,6 @@ FVector AKOBaseEnemy::GetSocketLocation()
 	{
 		return WeaponMeshComponent->GetSocketTransform(WeaponSocketName,RTS_World).GetLocation();
 	}
-	
-	
 	
 	//TODO: 무기없을때 소켓 정보 받아오기
 	

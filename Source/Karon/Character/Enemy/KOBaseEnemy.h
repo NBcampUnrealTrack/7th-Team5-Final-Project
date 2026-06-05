@@ -15,7 +15,8 @@ struct FOnAttributeChangeData;
 
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
-DECLARE_DELEGATE_OneParam(FOnHUDChangeEvent, float ProgressPercent)
+DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
+DECLARE_DELEGATE_OneParam(FOnUIBattleEvent,bool bIsBattle)
 
 UCLASS()
 class KARON_API AKOBaseEnemy : public AKOCharacterBase
@@ -29,6 +30,7 @@ public:
 	void SetupEnemy(UKOEnemyDataAsset);
 	FVector GetSocketLocation();
 	float GetAttackPoint();
+	void OnBattleChanged(bool bIsBattle);
 	
 protected:
 	// Called when the game starts or when spawned
@@ -44,7 +46,7 @@ public:
 	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
-	
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOCombatSet> CombatSet;
@@ -73,5 +75,6 @@ public:
 	FOnCharacterEvent OnCharacterDead;
 	FOnCharacterEvent OnCharacterReset;
 	
-	FOnHUDChangeEvent OnHPChanged;
+	FOnUIChangeEvent OnHPChangedEvent;
+	FOnUIBattleEvent OnBattleEvent;
 };

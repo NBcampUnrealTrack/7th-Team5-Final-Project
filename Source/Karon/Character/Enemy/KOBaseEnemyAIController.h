@@ -8,6 +8,7 @@
 
 class AKOBaseEnemy;
 
+
 UCLASS()
 class KARON_API AKOBaseEnemyAIController : public ADetourCrowdAIController
 {
@@ -49,6 +50,7 @@ private:
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 	void MakeAIPerceptionTeamEvent(AActor* TargetActor);
 	void StopBT();
+	void SetTargetActor(AActor* TargetActor);
 	
 protected:
 	UPROPERTY(EditAnywhere)
