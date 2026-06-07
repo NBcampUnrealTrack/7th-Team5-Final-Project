@@ -89,7 +89,7 @@ void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 	if (Data.NewValue==0.f)
 	{
 		OnHPChangedEvent.ExecuteIfBound(0.f,Data.OldValue-Data.NewValue);
-		OnCharacterDead.ExecuteIfBound();
+		OnEnemyDead.Broadcast();
 	}
 	
 	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달

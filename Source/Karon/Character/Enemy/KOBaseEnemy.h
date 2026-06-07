@@ -17,6 +17,7 @@ DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
 DECLARE_DELEGATE_OneParam(FOnUIBattleEvent,bool bIsBattle)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 
 UCLASS()
 class KARON_API AKOBaseEnemy : public AKOCharacterBase
@@ -72,9 +73,12 @@ public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
 	
 	FOnCharacterEvent OnCharacterHit;
-	FOnCharacterEvent OnCharacterDead;
+
 	FOnCharacterEvent OnCharacterReset;
 	
 	FOnUIChangeEvent OnHPChangedEvent;
 	FOnUIBattleEvent OnBattleEvent;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeadEvent OnEnemyDead;
 };
