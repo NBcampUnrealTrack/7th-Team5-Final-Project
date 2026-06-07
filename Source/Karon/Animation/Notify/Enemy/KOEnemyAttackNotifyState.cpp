@@ -3,7 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Karon.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "AbilitySystem/Ability/KOEnemyAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 
