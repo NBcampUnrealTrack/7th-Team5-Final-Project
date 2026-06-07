@@ -1,9 +1,12 @@
 #include "Character/Enemy/Boss/Projectile/KOBossShockwaveField.h"
- 
+
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Karon/AbilitySystem/Tag/KOGameplayTags.h"
  
 AKOBossShockwaveField::AKOBossShockwaveField()
 {
@@ -52,7 +55,17 @@ void AKOBossShockwaveField::BeginPlay()
 		{
 			continue;
 		}
-		
+ 
+		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(HitActor);
+		if (ASI)
+		{
+			UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
+			if (ASC && ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OnPlatform))
+			{
+				continue;
+			}
+		}
+ 
 		if (bCanDodgeByJump)
 		{
 			ACharacter* HitCharacter = Cast<ACharacter>(HitActor);
@@ -65,6 +78,6 @@ void AKOBossShockwaveField::BeginPlay()
  
 		ApplyDamageToTarget(HitActor);
 	}
-	
+
 	Destroy();
 }
