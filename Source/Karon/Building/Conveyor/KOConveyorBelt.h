@@ -6,6 +6,9 @@
 #include "Subsystem/KOItemPortTypes.h"
 #include "KOConveyorBelt.generated.h"
 
+class UInstancedStaticMeshComponent;
+class UStaticMesh;
+
 /**
  * 벨트 기하 형태. BP/DT 가 지정.
  * 슬롯 큐 시뮬레이션은 형태와 무관하며, 형태는 입구/출구 이웃 셀(InDir/OutDir)만 결정한다.
@@ -85,14 +88,40 @@ protected:
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor", meta = (ClampMin = "0"))
     float SlotsPerSecond = 4.f;
 
-    /** 점유 슬롯에 디버그 스피어 표시(M1 비주얼) */
+    /** 점유 슬롯에 디버그 스피어 표시. 기본 비주얼은 ItemISM 이므로 기본 off(콘솔 ko.Conveyor.DrawSlots 로 강제 가능). */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Debug")
-    bool bDrawSlotsDebug = true;
+    bool bDrawSlotsDebug = false;
+
+    // ─── 비주얼(아이템 ISM) ──────────────────────────────────────────────────
+    /** 벨트 위 아이템을 그릴 인스턴스 메시 컴포넌트. 슬롯 수만큼 인스턴스를 풀링해 transform 만 갱신. */
+    UPROPERTY(VisibleAnywhere, Category = "KO|Conveyor|Visual")
+    TObjectPtr<UInstancedStaticMeshComponent> ItemISM;
+
+    /** 아이템 비주얼 메시. 미지정 시 엔진 기본 큐브로 폴백. 디자이너가 BP/DT 에서 지정. */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual")
+    TObjectPtr<UStaticMesh> ItemMesh;
+
+    /** 슬롯 간격 대비 아이템 비주얼 크기 비율. */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual", meta = (ClampMin = "0.05", ClampMax = "1.5"))
+    float ItemVisualScale = 0.7f;
+
+    /** 벨트 표면에서 아이템을 띄울 높이(uu). */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual")
+    float ItemZOffset = 10.f;
 
 private:
     void StepOnce();
     void RecomputePortDirections();
     void DrawSlotsDebug() const;
+
+    /** 입구 모서리→중심→출구 모서리 경로 위 점(T=0~1). 코너면 중심에서 꺾임. 디버그/ISM 공용. */
+    FVector ComputeSlotWorldPos(float T) const;
+
+    /** BeginPlay: ItemISM 메시 지정 + 슬롯 수만큼 인스턴스 풀 생성 + 목표 스케일 캐시. */
+    void SetupItemVisual();
+
+    /** 매 틱: 점유 슬롯은 경로 위치에 인스턴스 배치, 빈 슬롯은 스케일 0 으로 숨김. */
+    void UpdateItemVisual();
 
     /**
      * 코너 두 다리(+Forward/+Side)의 이웃을 분류해 흐름 방향(flip)을 추론.
@@ -123,4 +152,7 @@ private:
     FVector   EntryDirWorld = -FVector::ForwardVector; // 중심 → 입구 이웃 월드 방향(디버그/비주얼)
     FVector   ExitDirWorld  =  FVector::ForwardVector; // 중심 → 출구 이웃 월드 방향(디버그/비주얼)
     float     CellSize = 100.f;
+
+    /** SetupItemVisual 에서 메시 바운드로 산출한 인스턴스 균일 스케일. */
+    float     ItemUniformScale = 1.f;
 };

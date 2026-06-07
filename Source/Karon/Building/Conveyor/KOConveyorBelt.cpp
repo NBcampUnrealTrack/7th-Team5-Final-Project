@@ -5,6 +5,8 @@
 #include "Subsystem/KOConveyorSubsystem.h"
 #include "Subsystem/KOGridSubsystem.h"
 #include "Components/ActorComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "HAL/IConsoleManager.h"
@@ -35,11 +37,25 @@ namespace
     {
         return FVector(static_cast<float>(Step.X), static_cast<float>(Step.Y), 0.f).GetSafeNormal();
     }
+
+    // FIntPoint 는 단항 - 연산자가 없어 수동 음수화.
+    FIntPoint NegateStep(const FIntPoint& Step)
+    {
+        return FIntPoint(-Step.X, -Step.Y);
+    }
 }
 
 AKOConveyorBelt::AKOConveyorBelt()
 {
     PrimaryActorTick.bCanEverTick = false; // 서브시스템이 구동.
+
+    // 아이템 비주얼용 ISM. 인스턴스 transform 은 월드 공간으로 갱신하므로 부착 부모와 무관.
+    ItemISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ItemISM"));
+    ItemISM->SetupAttachment(RootComponent);
+    ItemISM->SetMobility(EComponentMobility::Movable);
+    ItemISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ItemISM->SetCastShadow(false);
+    ItemISM->SetCanEverAffectNavigation(false);
 }
 
 void AKOConveyorBelt::BeginPlay()
@@ -51,6 +67,7 @@ void AKOConveyorBelt::BeginPlay()
     MoveAccumulator = 0.f;
 
     RecomputePortDirections();
+    SetupItemVisual();
 
     if (UKOConveyorSubsystem* Subsystem = UKOConveyorSubsystem::Get(this))
     {
@@ -83,13 +100,13 @@ void AKOConveyorBelt::RecomputePortDirections()
         // 흐름은 이 두 다리를 잇고, bCornerFlip 은 입/출구만 교환한다 → 같은 L 메시로 좌/우 코너 모두 표현(거울 메시 불필요).
         if (!bCornerFlip)
         {
-            InDir  = -Side;     // 입구 이웃 = MyCell - InDir = MyCell + Side
-            OutDir =  Forward;  // 출구 이웃 = MyCell + Forward
+            InDir  = NegateStep(Side); // 입구 이웃 = MyCell - InDir = MyCell + Side
+            OutDir = Forward;          // 출구 이웃 = MyCell + Forward
         }
         else
         {
-            InDir  = -Forward;  // 입구 이웃 = MyCell + Forward
-            OutDir =  Side;     // 출구 이웃 = MyCell + Side
+            InDir  = NegateStep(Forward); // 입구 이웃 = MyCell + Forward
+            OutDir = Side;                // 출구 이웃 = MyCell + Side
         }
     }
     else
@@ -100,7 +117,7 @@ void AKOConveyorBelt::RecomputePortDirections()
     }
 
     // 디버그/비주얼용: 중심에서 입구/출구 이웃을 향하는 월드 방향.
-    EntryDirWorld = GridStepToWorldDir(-InDir);
+    EntryDirWorld = GridStepToWorldDir(NegateStep(InDir));
     ExitDirWorld  = GridStepToWorldDir(OutDir);
 
     if (const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr)
@@ -196,9 +213,12 @@ void AKOConveyorBelt::AdvanceBelt(float DeltaTime)
         }
     }
 
+    // 기본 비주얼: ISM 인스턴스 갱신.
+    UpdateItemVisual();
+
     bool bShouldDraw = bDrawSlotsDebug;
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-    // 콘솔 CVar 로 전역 강제 on/off 가능(-1 이면 인스턴스 설정 유지).
+    // 콘솔 CVar 로 디버그 스피어 전역 강제 on/off 가능(-1 이면 인스턴스 설정 유지).
     const int32 DrawMode = CVarKOConveyorDrawSlots.GetValueOnGameThread();
     if (DrawMode >= 0)
     {
@@ -344,6 +364,17 @@ bool AKOConveyorBelt::PushItem(const FKOConveyorItem& Item)
     return false;
 }
 
+FVector AKOConveyorBelt::ComputeSlotWorldPos(float T) const
+{
+    // 입구 모서리→중심→출구 모서리 경로. 코너면 중심에서 꺾이고, 직선이면 일직선.
+    const FVector Center    = GetActorLocation();
+    const FVector EntryEdge = Center + EntryDirWorld * (CellSize * 0.5f);
+    const FVector ExitEdge  = Center + ExitDirWorld  * (CellSize * 0.5f);
+    return (T <= 0.5f)
+        ? FMath::Lerp(EntryEdge, Center, T * 2.f)
+        : FMath::Lerp(Center, ExitEdge, (T - 0.5f) * 2.f);
+}
+
 void AKOConveyorBelt::DrawSlotsDebug() const
 {
     const UWorld* World = GetWorld();
@@ -352,18 +383,8 @@ void AKOConveyorBelt::DrawSlotsDebug() const
         return;
     }
 
-    const FVector CellCenter = GetActorLocation() + FVector(0, 0, 30.f);
-    const FVector EntryEdge   = CellCenter + EntryDirWorld * (CellSize * 0.5f);
-    const FVector ExitEdge    = CellCenter + ExitDirWorld  * (CellSize * 0.5f);
-    const float   SlotRadius  = (CellSize / static_cast<float>(SlotCount)) * 0.35f;
-
-    // T(0~1)을 입구 모서리→중심→출구 모서리 경로 위 점으로. 코너면 중심에서 꺾이고, 직선이면 일직선.
-    auto PathPoint = [&](float T) -> FVector
-    {
-        return (T <= 0.5f)
-            ? FMath::Lerp(EntryEdge, CellCenter, T * 2.f)
-            : FMath::Lerp(CellCenter, ExitEdge, (T - 0.5f) * 2.f);
-    };
+    const FVector ZBump(0, 0, 30.f);
+    const float   SlotRadius = (CellSize / static_cast<float>(SlotCount)) * 0.35f;
 
     for (int32 i = 0; i < SlotCount; ++i)
     {
@@ -373,8 +394,78 @@ void AKOConveyorBelt::DrawSlotsDebug() const
         }
         // 시뮬은 이산 슬롯이지만 비주얼은 MoveAccumulator 로 슬롯 간 보간.
         const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
-        DrawDebugSphere(World, PathPoint(T), SlotRadius, 8, FColor::Yellow, false, -1.f, 0, 1.f);
+        DrawDebugSphere(World, ComputeSlotWorldPos(T) + ZBump, SlotRadius, 8, FColor::Yellow, false, -1.f, 0, 1.f);
     }
+}
+
+void AKOConveyorBelt::SetupItemVisual()
+{
+    if (!ItemISM)
+    {
+        return;
+    }
+
+    // 생성자 시점엔 BP 루트가 아직 없어 미부착일 수 있으니 런타임에 루트로 부착.
+    if (ItemISM->GetAttachParent() == nullptr && GetRootComponent())
+    {
+        ItemISM->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+    }
+
+    UStaticMesh* Mesh = ItemMesh;
+    if (!Mesh)
+    {
+        // 미지정 시 엔진 기본 큐브 폴백(에셋 없어도 동작).
+        Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+    }
+    ItemISM->SetStaticMesh(Mesh);
+
+    // 메시 바운드로 목표 균일 스케일 산출(슬롯 간격 비례).
+    float MeshExtent = 50.f; // 100uu 큐브 기준 반경.
+    if (Mesh)
+    {
+        MeshExtent = FMath::Max(Mesh->GetBounds().BoxExtent.GetMax(), 1.f);
+    }
+    const float SlotSpacing = CellSize / static_cast<float>(FMath::Max(SlotCount, 1));
+    ItemUniformScale = (SlotSpacing * ItemVisualScale) / MeshExtent;
+
+    // 슬롯 수만큼 인스턴스 풀 미리 생성(매 틱 add/remove 회피). 초기엔 스케일 0 으로 숨김.
+    ItemISM->ClearInstances();
+    const FTransform Hidden(FQuat::Identity, FVector::ZeroVector, FVector::ZeroVector);
+    for (int32 i = 0; i < SlotCount; ++i)
+    {
+        ItemISM->AddInstance(Hidden);
+    }
+}
+
+void AKOConveyorBelt::UpdateItemVisual()
+{
+    if (!ItemISM || ItemISM->GetInstanceCount() < SlotCount)
+    {
+        return;
+    }
+
+    const FVector ZBump(0, 0, ItemZOffset);
+    const FVector ItemScale(ItemUniformScale);
+
+    for (int32 i = 0; i < SlotCount; ++i)
+    {
+        FTransform Xf;
+        if (Slots[i].IsValid())
+        {
+            // 시뮬은 이산이지만 비주얼은 MoveAccumulator 로 슬롯 간 연속 보간.
+            const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
+            Xf.SetLocation(ComputeSlotWorldPos(T) + ZBump);
+            Xf.SetScale3D(ItemScale);
+        }
+        else
+        {
+            Xf.SetScale3D(FVector::ZeroVector); // 빈 슬롯은 숨김.
+        }
+        // transform-only 갱신, 마지막에 한 번만 렌더상태 갱신.
+        ItemISM->UpdateInstanceTransform(i, Xf, /*bWorldSpace*/ true, /*bMarkRenderStateDirty*/ false, /*bTeleport*/ true);
+    }
+
+    ItemISM->MarkRenderStateDirty();
 }
 
 int32 AKOConveyorBelt::GetOccupiedSlotCount() const

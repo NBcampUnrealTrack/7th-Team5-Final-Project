@@ -161,10 +161,15 @@ void AKOPlayerController::BeginPlay()
 			50
 		);
 
-		// 컨베이어 벨트 테스트 지급. FactoryId 는 DT_Factory 의 벨트 행 이름과 일치해야 함.
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
-			TEXT("ConveyorBelt"),
+			TEXT("StraightBelt"),
+			20
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("CornerBelt"),
 			20
 		);
 		
