@@ -40,4 +40,8 @@ protected:
 	);
 	
 	FKOEffectContext CacheEffectContext(const FGameplayEffectModCallbackData& Data);
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
+	float MinLogThreshold = 1.f;
 };
