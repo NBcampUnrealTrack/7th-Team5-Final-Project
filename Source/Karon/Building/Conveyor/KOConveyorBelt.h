@@ -88,16 +88,15 @@ protected:
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor", meta = (ClampMin = "0"))
     float SlotsPerSecond = 4.f;
 
-    /** 점유 슬롯에 디버그 스피어 표시. 기본 비주얼은 ItemISM 이므로 기본 off(콘솔 ko.Conveyor.DrawSlots 로 강제 가능). */
+    /** 점유 슬롯에 디버그 스피어 표시. 기본 비주얼은 아이템 ISM 이므로 기본 off(콘솔 ko.Conveyor.DrawSlots 로 강제 가능). */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Debug")
     bool bDrawSlotsDebug = false;
 
     // ─── 비주얼(아이템 ISM) ──────────────────────────────────────────────────
-    /** 벨트 위 아이템을 그릴 인스턴스 메시 컴포넌트. 슬롯 수만큼 인스턴스를 풀링해 transform 만 갱신. */
-    UPROPERTY(VisibleAnywhere, Category = "KO|Conveyor|Visual")
-    TObjectPtr<UInstancedStaticMeshComponent> ItemISM;
+    // 아이템 비주얼은 메시별 ISM 으로 그린다(ISM 1개 = 메시 1종). 각 아이템의 메시는
+    // ItemId → DT(FKOItemRow::WorldMesh) 로 해석하며, 미지정 시 ItemMesh(폴백)→엔진 큐브 순.
 
-    /** 아이템 비주얼 메시. 미지정 시 엔진 기본 큐브로 폴백. 디자이너가 BP/DT 에서 지정. */
+    /** DT 에 WorldMesh 가 없는 아이템에 쓰는 폴백 메시. 미지정 시 엔진 기본 큐브. 디자이너가 BP 에서 지정. */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual")
     TObjectPtr<UStaticMesh> ItemMesh;
 
@@ -117,11 +116,20 @@ private:
     /** 입구 모서리→중심→출구 모서리 경로 위 점(T=0~1). 코너면 중심에서 꺾임. 디버그/ISM 공용. */
     FVector ComputeSlotWorldPos(float T) const;
 
-    /** BeginPlay: ItemISM 메시 지정 + 슬롯 수만큼 인스턴스 풀 생성 + 목표 스케일 캐시. */
+    /** BeginPlay: 폴백 메시용 ISM 을 미리 만들어 풀을 준비. 메시별 ISM 은 아이템 등장 시 지연 생성. */
     void SetupItemVisual();
 
-    /** 매 틱: 점유 슬롯은 경로 위치에 인스턴스 배치, 빈 슬롯은 스케일 0 으로 숨김. */
+    /** 매 틱: 점유 슬롯은 해당 메시 ISM 에 경로 위치로 배치, 그 외 모든 ISM 의 같은 슬롯은 스케일 0 으로 숨김. */
     void UpdateItemVisual();
+
+    /** ItemId 의 월드 메시 해석(DT → 폴백). 결과를 캐싱. 항상 유효한 메시 반환(엔진 큐브 최종 폴백). */
+    UStaticMesh* ResolveItemMesh(FName ItemId);
+
+    /** WorldMesh/ItemMesh 가 모두 없을 때 쓰는 폴백 메시(ItemMesh 우선, 없으면 엔진 큐브). */
+    UStaticMesh* GetFallbackMesh();
+
+    /** 주어진 메시용 ISM 을 반환(없으면 런타임 생성·등록 후 슬롯 수만큼 숨김 인스턴스 풀 구성). */
+    UInstancedStaticMeshComponent* GetOrCreateISMForMesh(UStaticMesh* Mesh);
 
     /**
      * 코너 두 다리(+Forward/+Side)의 이웃을 분류해 흐름 방향(flip)을 추론.
@@ -153,6 +161,20 @@ private:
     FVector   ExitDirWorld  =  FVector::ForwardVector; // 중심 → 출구 이웃 월드 방향(디버그/비주얼)
     float     CellSize = 100.f;
 
-    /** SetupItemVisual 에서 메시 바운드로 산출한 인스턴스 균일 스케일. */
-    float     ItemUniformScale = 1.f;
+    /** 메시별 아이템 ISM. 같은 메시를 쓰는 아이템들은 ISM 하나를 공유(슬롯 인덱스로 인스턴스 식별). */
+    UPROPERTY(Transient)
+    TMap<TObjectPtr<UStaticMesh>, TObjectPtr<UInstancedStaticMeshComponent>> MeshToISM;
+
+    /** 메시별 인스턴스 균일 스케일(메시 바운드로 산출, 슬롯 간격 비례). */
+    TMap<TObjectPtr<UStaticMesh>, float> MeshToScale;
+
+    /** ItemId → 해석된 월드 메시 캐시(DT 조회 1회). */
+    TMap<FName, TObjectPtr<UStaticMesh>> ItemMeshCache;
+
+    /** 폴백 큐브 캐시(엔진 BasicShapes 큐브). */
+    UPROPERTY(Transient)
+    TObjectPtr<UStaticMesh> CachedFallbackCube;
+
+    /** 디버그: 직전 프레임에 표시한 아이템 인스턴스 수(변할 때만 로그, 매 틱 스팸 방지). */
+    int32 DebugLastShownCount = -1;
 };

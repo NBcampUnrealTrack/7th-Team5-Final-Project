@@ -8,6 +8,7 @@
 #include "KODataTableTypes.generated.h"
 
 class UTexture2D;
+class UStaticMesh;
 class AKOBaseBuilding;
 
 USTRUCT(BlueprintType)
@@ -52,6 +53,13 @@ struct KARON_API FKOItemRow : public FTableRowBase
     /** UI 아이콘 텍스처 — 소프트 레퍼런스, UKOLoadSubsystem::ResolveItemIcon()으로 로드 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     TSoftObjectPtr<UTexture2D> Icon;
+
+    /**
+     * 월드에 표시되는 3D 메시 (컨베이어 위 아이템 등) — 소프트 레퍼런스,
+     * UKOLoadSubsystem::ResolveItemMesh()으로 지연 로드. 미지정 시 벨트 기본 메시로 폴백.
+     */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+    TSoftObjectPtr<UStaticMesh> WorldMesh;
 };
 
 USTRUCT(BlueprintType)

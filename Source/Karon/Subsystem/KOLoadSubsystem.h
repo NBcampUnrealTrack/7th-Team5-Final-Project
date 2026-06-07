@@ -7,6 +7,7 @@
 #include "KOLoadSubsystem.generated.h"
 
 class UTexture2D;
+class UStaticMesh;
 class AKOBaseBuilding;
 
 /**
@@ -36,6 +37,9 @@ public:
     FName FindItemIdByTag(FGameplayTag ItemTag) const;
 
     UTexture2D*   ResolveItemIcon(FName ItemId) const;
+
+    /** Item Row의 WorldMesh 소프트 레퍼런스를 동기 로드 (캐싱). 미지정/실패 시 nullptr. */
+    UStaticMesh*  ResolveItemMesh(FName ItemId) const;
 
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
@@ -81,6 +85,7 @@ private:
     
     // 약한 참조 관련 Mutable 처리
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedIcons;
+    mutable TMap<FName, TWeakObjectPtr<UStaticMesh>>  ResolvedItemMeshes;
     mutable TMap<FName, TWeakObjectPtr<UClass>>      ResolvedBuildingClasses;
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedFactoryIcons;
     mutable TMap<FName, TWeakObjectPtr<UTexture2D>>  ResolvedSkillIcons;

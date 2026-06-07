@@ -4,8 +4,11 @@
 
 #include "Subsystem/KOConveyorSubsystem.h"
 #include "Subsystem/KOGridSubsystem.h"
+#include "Subsystem/KOLoadSubsystem.h"
+#include "Utility/Log/KOLogManager.h"
 #include "Components/ActorComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Engine/StaticMesh.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
@@ -49,13 +52,12 @@ AKOConveyorBelt::AKOConveyorBelt()
 {
     PrimaryActorTick.bCanEverTick = false; // 서브시스템이 구동.
 
-    // 아이템 비주얼용 ISM. 인스턴스 transform 은 월드 공간으로 갱신하므로 부착 부모와 무관.
-    ItemISM = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ItemISM"));
-    ItemISM->SetupAttachment(RootComponent);
-    ItemISM->SetMobility(EComponentMobility::Movable);
-    ItemISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    ItemISM->SetCastShadow(false);
-    ItemISM->SetCanEverAffectNavigation(false);
+    // AKOBaseBuilding 은 루트를 만들지 않는다. 전용 씬 루트를 둬서 런타임에 생성하는
+    // 아이템 ISM 들의 부착 부모를 보장한다(루트가 없으면 첫 씬 컴포넌트가 루트로 승격됨).
+    USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+    SetRootComponent(SceneRoot);
+
+    // 아이템 비주얼은 메시별 ISM 으로 BeginPlay 시 지연 생성(GetOrCreateISMForMesh).
 }
 
 void AKOConveyorBelt::BeginPlay()
@@ -359,6 +361,8 @@ bool AKOConveyorBelt::PushItem(const FKOConveyorItem& Item)
     if (CanAcceptItem(Item))
     {
         Slots[0] = Item;
+        KO_LOGS(Factory, Conveyor, Log,
+            TEXT("PushItem 수락: '%s' → head (벨트 '%s')"), *Item.ItemId.ToString(), *GetName());
         return true;
     }
     return false;
@@ -398,74 +402,185 @@ void AKOConveyorBelt::DrawSlotsDebug() const
     }
 }
 
-void AKOConveyorBelt::SetupItemVisual()
+UStaticMesh* AKOConveyorBelt::GetFallbackMesh()
 {
-    if (!ItemISM)
+    if (ItemMesh)
     {
-        return;
+        return ItemMesh;
+    }
+    if (!CachedFallbackCube)
+    {
+        // 폴백조차 없으면 엔진 기본 큐브(에셋 없어도 동작).
+        CachedFallbackCube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+        KO_LOG_IF(CachedFallbackCube == nullptr, Factory, Conveyor, Error,
+            TEXT("폴백 큐브 로드 실패(/Engine/BasicShapes/Cube.Cube) — ItemMesh 도 비어 아이템이 안 보임."));
+    }
+    return CachedFallbackCube;
+}
+
+UStaticMesh* AKOConveyorBelt::ResolveItemMesh(FName ItemId)
+{
+    if (const TObjectPtr<UStaticMesh>* Cached = ItemMeshCache.Find(ItemId))
+    {
+        return *Cached;
     }
 
-    // 생성자 시점엔 BP 루트가 아직 없어 미부착일 수 있으니 런타임에 루트로 부착.
-    if (ItemISM->GetAttachParent() == nullptr && GetRootComponent())
+    UStaticMesh* Mesh = nullptr;
+    UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this);
+    if (Load)
     {
-        ItemISM->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+        Mesh = Load->ResolveItemMesh(ItemId); // DT 의 WorldMesh (미지정/실패 시 nullptr).
+    }
+    else
+    {
+        KO_LOGS(Factory, Conveyor, Warning,
+            TEXT("ResolveItemMesh('%s'): LoadSubsystem 없음 → 폴백 사용."), *ItemId.ToString());
     }
 
-    UStaticMesh* Mesh = ItemMesh;
+    const bool bFromDT = (Mesh != nullptr);
     if (!Mesh)
     {
-        // 미지정 시 엔진 기본 큐브 폴백(에셋 없어도 동작).
-        Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+        Mesh = GetFallbackMesh();
     }
-    ItemISM->SetStaticMesh(Mesh);
 
-    // 메시 바운드로 목표 균일 스케일 산출(슬롯 간격 비례).
-    float MeshExtent = 50.f; // 100uu 큐브 기준 반경.
-    if (Mesh)
+    // ItemId 당 1회만 로그(캐시 채워지면 재호출 안 됨).
+    KO_LOGS(Factory, Conveyor, Log,
+        TEXT("ResolveItemMesh('%s') → %s (출처: %s)"),
+        *ItemId.ToString(),
+        Mesh ? *Mesh->GetName() : TEXT("NULL"),
+        bFromDT ? TEXT("DT.WorldMesh") : TEXT("폴백(ItemMesh/큐브)"));
+
+    ItemMeshCache.Add(ItemId, Mesh);
+    return Mesh;
+}
+
+UInstancedStaticMeshComponent* AKOConveyorBelt::GetOrCreateISMForMesh(UStaticMesh* Mesh)
+{
+    if (!Mesh)
     {
-        MeshExtent = FMath::Max(Mesh->GetBounds().BoxExtent.GetMax(), 1.f);
+        return nullptr;
     }
+    if (const TObjectPtr<UInstancedStaticMeshComponent>* Found = MeshToISM.Find(Mesh))
+    {
+        return *Found;
+    }
+
+    // 런타임 ISM 생성·등록. 인스턴스 transform 은 월드 공간으로 갱신하므로 부착 부모는 정렬 용도.
+    UInstancedStaticMeshComponent* ISM = NewObject<UInstancedStaticMeshComponent>(this);
+    ISM->SetMobility(EComponentMobility::Movable);
+    ISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ISM->SetCastShadow(false);
+    ISM->SetCanEverAffectNavigation(false);
+    ISM->RegisterComponent();
+    if (USceneComponent* Root = GetRootComponent())
+    {
+        ISM->AttachToComponent(Root, FAttachmentTransformRules::KeepWorldTransform);
+    }
+    ISM->SetStaticMesh(Mesh);
+
+    // 메시 바운드로 균일 스케일 산출(슬롯 간격 비례).
+    const float MeshExtent  = FMath::Max(Mesh->GetBounds().BoxExtent.GetMax(), 1.f);
     const float SlotSpacing = CellSize / static_cast<float>(FMath::Max(SlotCount, 1));
-    ItemUniformScale = (SlotSpacing * ItemVisualScale) / MeshExtent;
+    const float Scale = (SlotSpacing * ItemVisualScale) / MeshExtent;
 
     // 슬롯 수만큼 인스턴스 풀 미리 생성(매 틱 add/remove 회피). 초기엔 스케일 0 으로 숨김.
-    ItemISM->ClearInstances();
     const FTransform Hidden(FQuat::Identity, FVector::ZeroVector, FVector::ZeroVector);
     for (int32 i = 0; i < SlotCount; ++i)
     {
-        ItemISM->AddInstance(Hidden);
+        ISM->AddInstance(Hidden);
     }
+
+    MeshToISM.Add(Mesh, ISM);
+    MeshToScale.Add(Mesh, Scale);
+
+    KO_LOGS(Factory, Conveyor, Log,
+        TEXT("ISM 생성: mesh='%s' extent=%.1f scale=%.3f 인스턴스풀=%d (벨트 '%s')"),
+        *Mesh->GetName(), MeshExtent, Scale, ISM->GetInstanceCount(), *GetName());
+    return ISM;
+}
+
+void AKOConveyorBelt::SetupItemVisual()
+{
+    const USceneComponent* Root = GetRootComponent();
+    UStaticMesh* Fallback = GetFallbackMesh();
+    KO_LOGS(Factory, Conveyor, Log,
+        TEXT("SetupItemVisual: 벨트='%s' Root=%s SlotCount=%d ItemMesh=%s Fallback=%s VisualScale=%.2f ZOffset=%.1f"),
+        *GetName(),
+        Root ? *Root->GetName() : TEXT("NULL(!)"),
+        SlotCount,
+        ItemMesh ? *ItemMesh->GetName() : TEXT("미지정"),
+        Fallback ? *Fallback->GetName() : TEXT("NULL(!)"),
+        ItemVisualScale, ItemZOffset);
+
+    // 폴백 메시용 ISM 을 미리 만들어 풀을 준비(미등록/메시 미지정 아이템도 즉시 표시).
+    // 개별 아이템 메시용 ISM 은 해당 아이템이 처음 등장할 때 UpdateItemVisual 에서 지연 생성.
+    GetOrCreateISMForMesh(Fallback);
 }
 
 void AKOConveyorBelt::UpdateItemVisual()
 {
-    if (!ItemISM || ItemISM->GetInstanceCount() < SlotCount)
-    {
-        return;
-    }
-
     const FVector ZBump(0, 0, ItemZOffset);
-    const FVector ItemScale(ItemUniformScale);
 
+    // 1) 점유 슬롯의 메시를 먼저 해석해 필요한 ISM 을 보장(신규 메시면 지연 생성).
     for (int32 i = 0; i < SlotCount; ++i)
     {
-        FTransform Xf;
         if (Slots[i].IsValid())
         {
-            // 시뮬은 이산이지만 비주얼은 MoveAccumulator 로 슬롯 간 연속 보간.
-            const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
-            Xf.SetLocation(ComputeSlotWorldPos(T) + ZBump);
-            Xf.SetScale3D(ItemScale);
+            GetOrCreateISMForMesh(ResolveItemMesh(Slots[i].ItemId));
         }
-        else
-        {
-            Xf.SetScale3D(FVector::ZeroVector); // 빈 슬롯은 숨김.
-        }
-        // transform-only 갱신, 마지막에 한 번만 렌더상태 갱신.
-        ItemISM->UpdateInstanceTransform(i, Xf, /*bWorldSpace*/ true, /*bMarkRenderStateDirty*/ false, /*bTeleport*/ true);
     }
 
-    ItemISM->MarkRenderStateDirty();
+    // 2) 모든 메시 ISM 을 순회하며 각 슬롯 인스턴스를 갱신.
+    //    슬롯 i 의 아이템 메시 == 이 ISM 의 메시면 경로 위치에 표시, 아니면 스케일 0 으로 숨김.
+    int32 ShownCount = 0;                       // 디버그: 이번 프레임 실제로 표시한 인스턴스 수.
+    FVector FirstShownPos = FVector::ZeroVector; // 디버그: 첫 표시 인스턴스 월드 위치.
+    for (const TPair<TObjectPtr<UStaticMesh>, TObjectPtr<UInstancedStaticMeshComponent>>& Pair : MeshToISM)
+    {
+        UInstancedStaticMeshComponent* ISM = Pair.Value;
+        if (!ISM || ISM->GetInstanceCount() < SlotCount)
+        {
+            continue;
+        }
+        const float Scale = MeshToScale.FindRef(Pair.Key);
+
+        for (int32 i = 0; i < SlotCount; ++i)
+        {
+            FTransform Xf;
+            const bool bShow = Slots[i].IsValid() && (ResolveItemMesh(Slots[i].ItemId) == Pair.Key);
+            if (bShow)
+            {
+                // 시뮬은 이산이지만 비주얼은 MoveAccumulator 로 슬롯 간 연속 보간.
+                const float T = FMath::Clamp((static_cast<float>(i) + 0.5f + MoveAccumulator) / static_cast<float>(SlotCount), 0.f, 1.f);
+                const FVector SlotPos = ComputeSlotWorldPos(T) + ZBump;
+                Xf.SetLocation(SlotPos);
+                Xf.SetScale3D(FVector(Scale));
+                if (ShownCount == 0) { FirstShownPos = SlotPos; }
+                ++ShownCount;
+            }
+            else
+            {
+                Xf.SetScale3D(FVector::ZeroVector); // 빈 슬롯 / 다른 메시 슬롯은 숨김.
+            }
+            // transform-only 갱신, 마지막에 ISM 당 한 번만 렌더상태 갱신.
+            ISM->UpdateInstanceTransform(i, Xf, /*bWorldSpace*/ true, /*bMarkRenderStateDirty*/ false, /*bTeleport*/ true);
+        }
+
+        ISM->MarkRenderStateDirty();
+    }
+
+    // 표시 개수가 바뀔 때만 로그(매 틱 스팸 방지). 점유는 있는데 Shown=0 이면 비주얼 경로 문제.
+    if (ShownCount != DebugLastShownCount)
+    {
+        const int32 Occupied = GetOccupiedSlotCount();
+        const FVector ActorPos = GetActorLocation();
+        KO_LOGS(Factory, Conveyor, Log,
+            TEXT("UpdateItemVisual: 벨트='%s' 점유=%d/%d 표시=%d ISM종류=%d CellSize=%.0f | 액터Z=%.1f 첫표시pos=(%.0f,%.0f,%.1f) ΔZ=%.1f%s"),
+            *GetName(), Occupied, SlotCount, ShownCount, MeshToISM.Num(), CellSize,
+            ActorPos.Z, FirstShownPos.X, FirstShownPos.Y, FirstShownPos.Z,
+            (ShownCount > 0 ? FirstShownPos.Z - ActorPos.Z : 0.f),
+            (Occupied > 0 && ShownCount == 0) ? TEXT("  ← 점유는 있는데 표시 0! 비주얼 경로 점검") : TEXT(""));
+        DebugLastShownCount = ShownCount;
+    }
 }
 
 int32 AKOConveyorBelt::GetOccupiedSlotCount() const
