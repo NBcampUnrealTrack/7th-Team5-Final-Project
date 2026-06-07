@@ -46,8 +46,6 @@ void AKOBossBase::BeginPlay()
  
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
-	BindMovementSet();
-
 	// 테스트용 데이터에셋 로드
 	if (DefaultDataAsset)
 	{
@@ -174,6 +172,7 @@ void AKOBossBase::ApplyMeshAndAnim()
 
 void AKOBossBase::ApplyStats()
 {
+	// TODO: 이거 GrantSet에 GE 적용해서 하면 한번에 처리 가능해요
 	if (!AbilitySystemComponent)
 	{
 		return;
@@ -194,16 +193,17 @@ void AKOBossBase::ApplyStats()
 		DataAsset->MaxHealth
 	);
  
-	AbilitySystemComponent->ApplyModToAttributeUnsafe(
-		UKOMovementSet::GetMaxMoveSpeedAttribute(),
-		EGameplayModOp::Override,
-		DataAsset->MoveSpeed
-	);
-	AbilitySystemComponent->ApplyModToAttributeUnsafe(
-		UKOMovementSet::GetMoveSpeedAttribute(),
-		EGameplayModOp::Override,
-		DataAsset->MoveSpeed
-	);
+	// AbilitySystemComponent->ApplyModToAttributeUnsafe(
+	// 	UKOMovementSet::GetMaxMoveSpeedAttribute(),
+	// 	EGameplayModOp::Override,
+	// 	DataAsset->MoveSpeed
+	// );
+	
+	// AbilitySystemComponent->ApplyModToAttributeUnsafe(
+	// 	UKOMovementSet::GetMoveSpeedAttribute(),
+	// 	EGameplayModOp::Override,
+	// 	DataAsset->MoveSpeed
+	// );
  
 	AbilitySystemComponent->ApplyModToAttributeUnsafe(
 		UKOCombatSet::GetAttackPowerAttribute(),

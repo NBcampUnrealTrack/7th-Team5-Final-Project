@@ -26,28 +26,6 @@ void AKOCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AKOCharacterBase::BindMovementSet()
-{
-	// 이거 자식 클래스에서 호출 해서 바인드 해줘야함. 
-	MovementSet->OnMoveSpeedChanged.AddDynamic(this, &ThisClass::OnMoveSpeedChanged);
-	OnMoveSpeedChanged(0.f, MovementSet->GetMoveSpeed());
-	
-	MovementSet->OnJumpStrengthChanged.AddDynamic(this, &ThisClass::OnJumpStrengthChanged);
-	OnJumpStrengthChanged(0, MovementSet->GetJumpStrength());
-}
-
-void AKOCharacterBase::OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed)
-{
-	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
-	
-	KO_LOGS(GAS, Attribute, Log, TEXT("MoveSpeed Changed: %.2f -> %.2f"), OldWalkSpeed ,NewWalkSpeed);
-}
-
-void AKOCharacterBase::OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength)
-{
-	GetCharacterMovement()->JumpZVelocity = NewJumpStrength;
-}
-
 void AKOCharacterBase::OnCharacterDead()
 {
 	// TODO: GMS로 연결 (BeginPlay) 

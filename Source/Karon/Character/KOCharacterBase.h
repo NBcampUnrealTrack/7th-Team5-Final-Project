@@ -25,19 +25,13 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 	UKOEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }
+
+	UKOMovementSet* GetMovementSet() const { return MovementSet; }
 	
 protected:
 	virtual void BeginPlay() override;
-	
-	
+
 protected:
-	virtual void BindMovementSet();
-	
-	UFUNCTION()
-	virtual void OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed);
-	
-	UFUNCTION()
-	virtual void OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength);
 	
 	UFUNCTION()
 	virtual void OnCharacterDead();

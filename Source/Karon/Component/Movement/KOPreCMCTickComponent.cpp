@@ -1,5 +1,7 @@
 ﻿#include "Component/Movement/KOPreCMCTickComponent.h"
 
+#include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "Character/KOCharacterBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -16,13 +18,47 @@ void UKOPreCMCTickComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACharacter* Owner = Cast<ACharacter>(GetOwner());
-	if (!Owner) return;
+	CachedOwner = Cast<AKOCharacterBase>(GetOwner());
+	if (!CachedOwner) return;
 	
-	UCharacterMovementComponent* MovementComponent = Owner->GetCharacterMovement();
-	if (!MovementComponent) return;
+	CachedAbilitySystemComponent = CachedOwner->GetAbilitySystemComponent();
 	
-	MovementComponent->PrimaryComponentTick.AddPrerequisite(this, PrimaryComponentTick); 
+	CachedMovementComponent = CachedOwner->GetCharacterMovement();
+	if (!CachedMovementComponent) return;
+	
+	CachedMovementComponent->PrimaryComponentTick.AddPrerequisite(this, PrimaryComponentTick); 
+	
+	CachedMovementSet = CachedOwner->GetMovementSet();
+}
+
+void UKOPreCMCTickComponent::TickComponent(
+	float DeltaTime, 
+	ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	UpdateRotation();
+	
+	UpdateMovement();
+}
+
+void UKOPreCMCTickComponent::UpdateRotation()
+{
+	if (!CachedMovementComponent) return;
+	
+	CachedMovementComponent->RotationRate = CachedMovementComponent->IsFalling() ? 
+		FRotator(0.0f, 0.0f, 200.0f) :
+		FRotator(0.0f, 0.0f, -1.0f);
+}
+
+void UKOPreCMCTickComponent::UpdateMovement()
+{
+	CachedMovementComponent->MaxWalkSpeed = CachedMovementSet->GetMaxWalkSpeed();
+	CachedMovementComponent->MaxAcceleration = CachedMovementSet->GetMaxAcceleration();
+	CachedMovementComponent->BrakingDecelerationWalking = CachedMovementSet->GetBrakingDecelerationWalking();
+	CachedMovementComponent->GroundFriction = CachedMovementSet->GetGroundFriction();
+	CachedMovementComponent->MaxWalkSpeedCrouched = CachedMovementSet->GetMaxWalkSpeedCrouched();
 }
 
 
