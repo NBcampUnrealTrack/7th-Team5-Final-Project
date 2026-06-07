@@ -17,6 +17,7 @@ UKOGA_Utility_DrawWeapon::UKOGA_Utility_DrawWeapon()
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_DrawWeapon));
 
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
+	
 }
 
 void UKOGA_Utility_DrawWeapon::ActivateAbility(

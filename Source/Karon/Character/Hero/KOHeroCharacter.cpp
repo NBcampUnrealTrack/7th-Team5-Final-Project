@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
+#include "MotionWarpingComponent.h"
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 
@@ -32,6 +33,7 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 	
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
 	Trajectory->PrimaryComponentTick.AddPrerequisite(
@@ -51,8 +53,6 @@ void AKOHeroCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	MainAnimInstance = GetMesh()->GetAnimInstance();
-	
-	
 }
 
 void AKOHeroCharacter::PossessedBy(AController* NewController)
@@ -70,8 +70,6 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	
 	MovementSet = PS->GetMovementSet();
 	HealthSet = PS->GetHealthSet();
-	
-	BindMovementSet(); 
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)
@@ -82,6 +80,35 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
+}
+
+void AKOHeroCharacter::SetMotionWarpTarget(const FName& WarpTargetName)
+{
+	if (!MotionWarpingComponent) return;
+
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(
+		WarpTargetName,
+		GetActorLocation(),
+		GetControlRotation()
+	);
+}
+
+void AKOHeroCharacter::SetMotionWarpTargetWithLocation(const FName& WarpTargetName, const FVector& Location)
+{
+	if (!MotionWarpingComponent) return;
+	
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(
+		WarpTargetName,
+		Location,
+		GetControlRotation()
+	);
+}
+
+void AKOHeroCharacter::ClearMotionWarpTarget(const FName& WarpTargetName)
+{
+	if (!MotionWarpingComponent) return;
+	
+	MotionWarpingComponent->RemoveWarpTarget(WarpTargetName);
 }
 
 
