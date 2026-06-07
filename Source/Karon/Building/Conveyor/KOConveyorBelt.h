@@ -137,6 +137,15 @@ private:
      */
     bool TryResolveCornerFlipFromNeighbors(bool& OutFlip) const;
 
+    /**
+     * 직선 두 축 이웃(+Forward/-Forward)을 분류해 흐름 방향(정/역)을 추론.
+     * 한쪽이 명확한 업스트림/다운스트림이면 OutReverse 채우고 true, 모호하면 false.
+     */
+    bool TryResolveStraightFlowFromNeighbors(bool& OutReverse) const;
+
+    /** 이웃 셀 1칸을 분류: +1=나에게 공급(업스트림), -1=내가 공급(다운스트림), 0=모호/없음. 코너·직선 공용. */
+    int32 ClassifyNeighbor(const FIntPoint& MyCellAbs, const FIntPoint& NeighborCell) const;
+
     /** 그리드 절대 셀의 점유 액터 조회. */
     AActor* GetActorAtCell(const FIntPoint& Cell) const;
 
@@ -152,6 +161,9 @@ private:
 
     /** 코너 흐름 반전 플래그(배치 시 결정). Straight 형태에선 무시. */
     bool bCornerFlip = false;
+
+    /** 직선 흐름 반전 플래그(배치 시 이웃 추론으로 결정). Corner 형태에선 무시. false=배치 방향 그대로. */
+    bool bStraightReverse = false;
 
     // BeginPlay / SetCornerFlip 시점 캐시 (벨트는 이동하지 않음).
     FIntPoint MyCell  = FIntPoint::ZeroValue;
@@ -174,7 +186,4 @@ private:
     /** 폴백 큐브 캐시(엔진 BasicShapes 큐브). */
     UPROPERTY(Transient)
     TObjectPtr<UStaticMesh> CachedFallbackCube;
-
-    /** 디버그: 직전 프레임에 표시한 아이템 인스턴스 수(변할 때만 로그, 매 틱 스팸 방지). */
-    int32 DebugLastShownCount = -1;
 };
