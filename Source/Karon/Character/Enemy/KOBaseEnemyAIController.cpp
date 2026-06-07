@@ -32,7 +32,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	}
 	//Bindings
 	Enemy->OnCharacterHit.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
-	Enemy->OnCharacterDead.BindUObject(this, &AKOBaseEnemyAIController::DeadEvent);
+	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
 	//TODO: SetAI 구현
 	//Enemy->OnCharacterSetAI.AddDynamic(this,&AKOBaseEnemyAIController::SetAI);
