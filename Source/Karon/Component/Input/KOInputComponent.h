@@ -13,7 +13,7 @@ class KARON_API UKOInputComponent : public UEnhancedInputComponent
 {
 	GENERATED_BODY()
 	
-	public:
+public:
 	UKOInputComponent(const FObjectInitializer& ObjectInitializer);
 	
 	void AddInputMapping(const UKOInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubSystem);
