@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "Data/KOGrantSet.h"
+#include "Data/Character/KOGrantSet.h"
 #include "KOAbilitySystemComponent.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

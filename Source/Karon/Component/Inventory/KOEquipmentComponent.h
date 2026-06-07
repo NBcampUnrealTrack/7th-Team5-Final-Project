@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Data/KOGrantSet.h"
+#include "Data/Character/KOGrantSet.h"
 #include "KOEquipmentComponent.generated.h"
 
 class UKOWeaponDefinition;

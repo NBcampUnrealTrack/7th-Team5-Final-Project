@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
-#include "Karon/Data/KOInputConfig.h"
+#include "Karon/Data/Input/KOInputConfig.h"
 #include "KOInputComponent.generated.h"
 
 class UEnhancedInputLocalPlayerSubsystem;
