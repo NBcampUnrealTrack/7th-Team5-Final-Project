@@ -7,6 +7,7 @@
 #include "KOConveyorBelt.generated.h"
 
 class UInstancedStaticMeshComponent;
+class UMaterialInstanceDynamic;
 class UStaticMesh;
 
 /**
@@ -111,6 +112,7 @@ protected:
 private:
     void StepOnce();
     void RecomputePortDirections();
+    void ApplyFlowToMaterial();
     void DrawSlotsDebug() const;
 
     /** 입구 모서리→중심→출구 모서리 경로 위 점(T=0~1). 코너면 중심에서 꺾임. 디버그/ISM 공용. */
@@ -186,4 +188,8 @@ private:
     /** 폴백 큐브 캐시(엔진 BasicShapes 큐브). */
     UPROPERTY(Transient)
     TObjectPtr<UStaticMesh> CachedFallbackCube;
+
+    /** 벨트 표면 메시의 DMI 캐시. 흐름 방향 파라미터 설정용. */
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UMaterialInstanceDynamic>> BeltDMIs;
 };

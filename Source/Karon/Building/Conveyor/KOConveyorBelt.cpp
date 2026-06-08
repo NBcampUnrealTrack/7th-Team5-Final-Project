@@ -8,7 +8,9 @@
 #include "Utility/Log/KOLogManager.h"
 #include "Components/ActorComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
@@ -69,6 +71,7 @@ void AKOConveyorBelt::BeginPlay()
     MoveAccumulator = 0.f;
 
     RecomputePortDirections();
+    ApplyFlowToMaterial();
     SetupItemVisual();
 
     if (UKOConveyorSubsystem* Subsystem = UKOConveyorSubsystem::Get(this))
@@ -130,12 +133,57 @@ void AKOConveyorBelt::RecomputePortDirections()
     }
 }
 
+void AKOConveyorBelt::ApplyFlowToMaterial()
+{
+    static const FName MoverDirectionName(TEXT("MoverDirection"));
+
+    const float Direction = (Shape == EKOBeltShape::Corner) ? (bCornerFlip ? -1.f : 1.f)
+                                                            : (bStraightReverse ? -1.f : 1.f);
+
+    if (BeltDMIs.Num() > 0)
+    {
+        for (UMaterialInstanceDynamic* DMI : BeltDMIs)
+        {
+            if (DMI)
+            {
+                DMI->SetScalarParameterValue(MoverDirectionName, Direction);
+            }
+        }
+        return;
+    }
+
+    TInlineComponentArray<UStaticMeshComponent*> MeshComps(this);
+    for (UStaticMeshComponent* Comp : MeshComps)
+    {
+        if (Comp->IsA<UInstancedStaticMeshComponent>())
+        {
+            continue;
+        }
+        const int32 NumMats = Comp->GetNumMaterials();
+        for (int32 i = 0; i < NumMats; ++i)
+        {
+            UMaterialInterface* Mat = Comp->GetMaterial(i);
+            if (!Mat)
+            {
+                continue;
+            }
+            UMaterialInstanceDynamic* DMI = Comp->CreateAndSetMaterialInstanceDynamic(i);
+            if (DMI)
+            {
+                DMI->SetScalarParameterValue(MoverDirectionName, Direction);
+                BeltDMIs.Add(DMI);
+            }
+        }
+    }
+}
+
 void AKOConveyorBelt::SetCornerFlip(bool bInFlip)
 {
     if (bCornerFlip != bInFlip)
     {
         bCornerFlip = bInFlip;
         RecomputePortDirections();
+        ApplyFlowToMaterial();
     }
 }
 
@@ -165,6 +213,7 @@ void AKOConveyorBelt::ApplyPlacementFlow(bool bManualFlipFallback)
     }
 
     RecomputePortDirections();
+    ApplyFlowToMaterial();
 
     KO_LOGS(Factory, Conveyor, Log,
         TEXT("  → 확정: cell=(%d,%d) InDir=(%d,%d) OutDir=(%d,%d) | 입구이웃셀=(%d,%d) 출구이웃셀=(%d,%d)"),
