@@ -17,9 +17,9 @@ class KARON_API UKOSkillComponent : public UActorComponent
 public:
 	UKOSkillComponent();
 	
-	bool TryUnlockSkill(FName SkillId);
-	ESkillState GetSkillState(FName SkillId) const;
-	bool IsUnlocked(FName SkillId) const;
+	bool TryUnlockSkill(FName SkillName);
+	ESkillState GetSkillState(FName SkillName) const;
+	bool IsUnlocked(FName SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
 	void GetAllSkillIds(TArray<FName>& Out) const;
 	

@@ -15,14 +15,14 @@ void UKOSkillComponent::BeginPlay()
 	InitializeSkillStates();
 }
 
-bool UKOSkillComponent::TryUnlockSkill(FName SkillId)
+bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 {
-	if (SkillId.IsNone())
+	if (SkillName.IsNone())
 	{
 		return false;
 	}
 
-	ESkillState* State = SkillStates.Find(SkillId);
+	ESkillState* State = SkillStates.Find(SkillName);
 	if (!State || *State != ESkillState::CanUnlock)
 	{
 		return false;
@@ -33,15 +33,15 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillId)
 	return true;
 }
 
-ESkillState UKOSkillComponent::GetSkillState(FName SkillId) const
+ESkillState UKOSkillComponent::GetSkillState(FName SkillName) const
 {
-	const ESkillState* State = SkillStates.Find(SkillId);
+	const ESkillState* State = SkillStates.Find(SkillName);
 	return State ? *State : ESkillState::Locked;
 }
 
-bool UKOSkillComponent::IsUnlocked(FName SkillId) const
+bool UKOSkillComponent::IsUnlocked(FName SkillName) const
 {
-	return GetSkillState(SkillId) == ESkillState::Unlocked;
+	return GetSkillState(SkillName) == ESkillState::Unlocked;
 }
 
 FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
@@ -130,7 +130,7 @@ bool UKOSkillComponent::ArePrerequisitesMet(const FKOSkillRow& Row) const
 	return GetUnlockedSkillTags().HasAll(Row.PrerequisiteSkillTags);
 }
 
-const ESkillState* UKOSkillComponent::GetSkillInfo(FName SkillId) const
+const ESkillState* UKOSkillComponent::GetSkillInfo(FName SkillName) const
 {
-	return SkillStates.Find(SkillId);
+	return SkillStates.Find(SkillName);
 }

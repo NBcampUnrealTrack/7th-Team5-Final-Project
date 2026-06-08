@@ -13,7 +13,7 @@ const UKOLoadSubsystem* UKOSkillLibrary::GetLoadSubsystem(const UObject* WorldCo
 const FKOSkillRow* UKOSkillLibrary::GetSkillRow(const UObject* WorldContext, FName SkillId)
 {
 	const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return nullptr;
 	}
@@ -23,7 +23,7 @@ const FKOSkillRow* UKOSkillLibrary::GetSkillRow(const UObject* WorldContext, FNa
 FText UKOSkillLibrary::GetDisplayName(const UObject* WorldContext, FName SkillId)
 {
 	const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return FText::GetEmpty();
 	}
@@ -39,7 +39,7 @@ FText UKOSkillLibrary::GetDisplayName(const UObject* WorldContext, FName SkillId
 UTexture2D* UKOSkillLibrary::GetIcon(const UObject* WorldContext, FName SkillId)
 {
 	const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return nullptr;
 	}
@@ -50,7 +50,7 @@ UTexture2D* UKOSkillLibrary::GetIcon(const UObject* WorldContext, FName SkillId)
 bool UKOSkillLibrary::HasRow(const UObject* WorldContext, FName SkillId)
 {
 	const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return false;
 	}
