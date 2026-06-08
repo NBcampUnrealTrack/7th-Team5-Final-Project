@@ -57,8 +57,58 @@ void AKOPlayerController::BeginPlay()
 	{
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
+			TEXT("ModuleDismantler"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
 			TEXT("Boiler"),
-			2
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("PressurePipe"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("AlloyMaker"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("GearPress"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("PipeWorkshop"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("UndergroundMiningModule"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("WeaponWorkbench"),
+			1
+		);
+		
+		// 아이템 -----------------------------------------
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("BasicModule"),
+			50
 		);
 
 		FoundInventoryComponent ->TryAddItem(
@@ -66,17 +116,59 @@ void AKOPlayerController::BeginPlay()
 			TEXT("Coal"),
 			50
 		);
-
+		
 		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("UndergroundMiningModule"),
-			2
+			EKOSlotKind::Item,
+			TEXT("CoalDust"),
+			50
 		);
-
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Copper"),
+			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Tin"),
+			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Bronze"),
+			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("BronzePlate"),
+			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("DamagedMiningPipe"),
+			50
+		);
+		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Item,
 			TEXT("MiningPipe"),
 			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Gear"),
+			50
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("BronzeSword"),
+			1
 		);
 	}
 #endif
