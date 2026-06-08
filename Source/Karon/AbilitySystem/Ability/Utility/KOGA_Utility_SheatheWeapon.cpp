@@ -71,6 +71,15 @@ void UKOGA_Utility_SheatheWeapon::ActivateAbility(
 	MontageTask->ReadyForActivation();
 }
 
+void UKOGA_Utility_SheatheWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	GetASC()->RemoveLooseGameplayTag(KOGameplayTags::State_Character_WeaponDrawn);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
 void UKOGA_Utility_SheatheWeapon::OnMontageCompleted()
 {
 	// 넣기 완료 → WeaponDrawn 상태 태그 제거
