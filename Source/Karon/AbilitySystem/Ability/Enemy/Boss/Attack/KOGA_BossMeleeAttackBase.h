@@ -30,14 +30,6 @@ public:
 		bool bWasCancelled
 	) override;
 	
-	 
-	// NotifyState에서 소켓 위치 가져올 때 사용
-	FVector GetAttackSocketLocation() const;
-	
-	// 공격에 사용할 소켓 이름 (BP에서 공격마다 설정)
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Socket")
-	FName AttackSocketName = FName("hand_r");
-	
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitHitEventTask;

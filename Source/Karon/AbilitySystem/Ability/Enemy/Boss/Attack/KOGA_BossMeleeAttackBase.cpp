@@ -2,7 +2,6 @@
 
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "GameFramework/Character.h"
 
 UKOGA_BossMeleeAttackBase::UKOGA_BossMeleeAttackBase()
 {
@@ -32,9 +31,7 @@ void UKOGA_BossMeleeAttackBase::ActivateAbility(
  
 	if (WaitHitEventTask)
 	{
-		WaitHitEventTask->EventReceived.AddDynamic(
-			this, &UKOGA_BossMeleeAttackBase::OnHitEventReceived
-		);
+		WaitHitEventTask->EventReceived.AddDynamic(this, &UKOGA_BossMeleeAttackBase::OnHitEventReceived);
 		WaitHitEventTask->ReadyForActivation();
 	}
 }
@@ -54,29 +51,6 @@ void UKOGA_BossMeleeAttackBase::EndAbility(
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo,
 		bReplicateEndAbility, bWasCancelled);
-}
-
-FVector UKOGA_BossMeleeAttackBase::GetAttackSocketLocation() const
-{
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar)
-	{
-		return FVector::ZeroVector;
-	}
- 
-	ACharacter* Character = Cast<ACharacter>(Avatar);
-	if (!Character)
-	{
-		return Avatar->GetActorLocation();
-	}
- 
-	USkeletalMeshComponent* Mesh = Character->GetMesh();
-	if (!Mesh)
-	{
-		return Avatar->GetActorLocation();
-	}
- 
-	return Mesh->GetSocketLocation(AttackSocketName);
 }
 
 void UKOGA_BossMeleeAttackBase::OnHitEventReceived(FGameplayEventData EventData)

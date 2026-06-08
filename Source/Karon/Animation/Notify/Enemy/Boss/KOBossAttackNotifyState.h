@@ -31,6 +31,10 @@ public:
 	) override;
  
 protected:
+	// 공격 판정용 소캣 설정
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss|Attack")
+	FName AttackSocketName = FName("hand_r");
+	
 	// 트레이스 반경
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss|Attack")
 	float TraceRadius = 50.f;
@@ -40,12 +44,7 @@ protected:
 	bool bShowDebug = true;
  
 private:
-	// 이전 프레임 소켓 위치
 	FVector PrevSocketLocation = FVector::ZeroVector;
- 
-	// 현재 프레임 소켓 위치
-	FVector CurrSocketLocation = FVector::ZeroVector;
- 
-	// 이미 피격된 액터 목록 (중복 타격 방지)
-	TArray<AActor*> HittedActors;
+	
+	TArray<TWeakObjectPtr<AActor>> HittedActors;
 };
