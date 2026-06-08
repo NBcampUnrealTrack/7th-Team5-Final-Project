@@ -25,6 +25,13 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Open);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Close);
 	
+	// ── Event | Weapon ─────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Draw);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Sheathe);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Equip);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Unequip);
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
 	

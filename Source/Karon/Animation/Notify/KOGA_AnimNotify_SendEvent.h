@@ -12,7 +12,6 @@ class KARON_API UKOGA_AnimNotify_SendEvent : public UAnimNotify
 	GENERATED_BODY()
 	
 public:
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GAS")
 	FGameplayTag EventTag;
 	

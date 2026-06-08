@@ -7,6 +7,7 @@
 
 #include "KOCharacterBase.generated.h"
 
+class UKOEquipmentComponent;
 struct FInstancedStruct;
 class FGameplayMessageCallback;
 class UKOHealthSet;
@@ -23,18 +24,14 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
+	UKOEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }
+
+	UKOMovementSet* GetMovementSet() const { return MovementSet; }
+	
 protected:
 	virtual void BeginPlay() override;
-	
-	
+
 protected:
-	virtual void BindMovementSet();
-	
-	UFUNCTION()
-	virtual void OnMoveSpeedChanged(float OldWalkSpeed, float NewWalkSpeed);
-	
-	UFUNCTION()
-	virtual void OnJumpStrengthChanged(float OldJumpStrength, float NewJumpStrength);
 	
 	UFUNCTION()
 	virtual void OnCharacterDead();
@@ -48,5 +45,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Movement")
 	TObjectPtr<UKOMovementSet> MovementSet;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;
  
 };

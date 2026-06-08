@@ -8,7 +8,7 @@ void UKOAttributeSetBase::PostAttributeChange(const FGameplayAttribute& Attribut
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 	
-	if (FMath::Abs(NewValue - OldValue) < 1.0f) return; 
+	if (FMath::Abs(NewValue - OldValue) < MinLogThreshold) return; 
 	
 	KO_LOGS(GAS, Attribute, Log, TEXT("[%s] %s : %.1f → %.1f"),
 		*GetClass()->GetName(),

@@ -16,6 +16,10 @@
  *  이러면 
  */
 
+class UKOMovementSet;
+class AKOCharacterBase;
+class UCharacterMovementComponent; 
+class UAbilitySystemComponent; 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOPreCMCTickComponent : public UActorComponent
@@ -28,4 +32,24 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	
+private:
+	void UpdateRotation();
+		
+	void UpdateMovement();
+	
+private:
+	UPROPERTY()
+	TObjectPtr<AKOCharacterBase> CachedOwner;
+	
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> CachedMovementComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> CachedAbilitySystemComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UKOMovementSet> CachedMovementSet;
 };

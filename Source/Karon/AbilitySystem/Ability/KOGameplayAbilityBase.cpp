@@ -1,6 +1,7 @@
 ﻿#include "KOGameplayAbilityBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerState.h"
 #include "Utility/Log/KOLogManager.h"
@@ -144,4 +145,41 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarg
 	Spec.Data->SetSetByCallerMagnitude(DataTag, Amount);
 
 	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
+}
+
+UGameplayEffect* UKOGameplayAbilityBase::GetCooldownGameplayEffect() const
+{
+	if (CooldownGEClass)
+		return CooldownGEClass->GetDefaultObject<UGameplayEffect>();
+	
+	return nullptr;
+}
+
+const FGameplayTagContainer* UKOGameplayAbilityBase::GetCooldownTags() const
+{ 
+	CachedCooldownTags.Reset();
+	
+	if (CooldownTag.IsValid())
+		CachedCooldownTags.AddTag(CooldownTag);
+	
+	return &CachedCooldownTags;
+}
+
+void UKOGameplayAbilityBase::ApplyCooldown(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!CooldownGEClass || !CooldownTag.IsValid() || CooldownDuration <= 0.f) return;
+
+	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGEClass, GetAbilityLevel());
+	if (!SpecHandle.IsValid()) return;
+
+	SpecHandle.Data->SetSetByCallerMagnitude(
+		KOGameplayTags::Data_CoolTime,
+		CooldownDuration
+	);
+	SpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
+
+	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 }

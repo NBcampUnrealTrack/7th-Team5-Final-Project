@@ -1,4 +1,4 @@
-#include "AbilitySystem/Ability/KOGA_LockOn.h"
+#include "KOGA_Utility_LockOn.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystemComponent.h"
@@ -13,7 +13,7 @@
 
 
 
-UKOGA_LockOn::UKOGA_LockOn()
+UKOGA_Utility_LockOn::UKOGA_Utility_LockOn()
 {
 	// 어빌리티 인스턴스를 액터당 1개 유지
 	// → bIsLockedOn, LockedTarget 등 멤버 변수를 안전하게 보관 가능
@@ -21,7 +21,7 @@ UKOGA_LockOn::UKOGA_LockOn()
  
 	// 이 어빌리티를 발동시킬 입력 태그 등록
 	//AbilityTags.AddTag(KOGameplayTags::Input_Ability_LockOn);
-	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_LockOn));
+	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_LockOn));
 	// ★ ActivationOwnedTags 는 여기서 추가하지 않음 ★
 	// ApplyLockOnGameplayTag()에서 직접 AddLooseGameplayTag / RemoveLooseGameplayTag 로 관리
 	// → 두 곳에서 동시에 태그를 추가하면 참조 카운트가 꼬이는 문제 방지
@@ -30,7 +30,7 @@ UKOGA_LockOn::UKOGA_LockOn()
 // ─────────────────────────────────────────────────────────────────────
 // ActivateAbility  ―  버튼 첫 누름 시 호출
 // ───────────────────────────────────────────────────────────────────── 
-void UKOGA_LockOn::ActivateAbility(
+void UKOGA_Utility_LockOn::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -69,7 +69,7 @@ void UKOGA_LockOn::ActivateAbility(
 // ─────────────────────────────────────────────────────────────────────
 // InputPressed  ―  어빌리티 Active 상태에서 버튼 재누름 시 호출
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::InputPressed(
+void UKOGA_Utility_LockOn::InputPressed(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo)
@@ -89,7 +89,7 @@ void UKOGA_LockOn::InputPressed(
 // ─────────────────────────────────────────────────────────────────────
 // EndAbility  ―  어빌리티 종료 시 항상 호출 (클린업)
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::EndAbility(
+void UKOGA_Utility_LockOn::EndAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo,
@@ -113,7 +113,7 @@ void UKOGA_LockOn::EndAbility(
 // ─────────────────────────────────────────────────────────────────────
 // ActivateLockOn  ―  락온 켜기
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::ActivateLockOn()
+void UKOGA_Utility_LockOn::ActivateLockOn()
 {
     // 가장 적합한 타겟 탐색
     AActor* BestTarget = FindBestTarget();
@@ -148,7 +148,7 @@ void UKOGA_LockOn::ActivateLockOn()
 // ─────────────────────────────────────────────────────────────────────
 // DeactivateLockOn  ―  락온 끄기
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::DeactivateLockOn()
+void UKOGA_Utility_LockOn::DeactivateLockOn()
 {
     bIsLockedOn  = false;
     LockedTarget = nullptr;
@@ -173,7 +173,7 @@ void UKOGA_LockOn::DeactivateLockOn()
 // ─────────────────────────────────────────────────────────────────────
 // FindBestTarget  ―  카메라 정면에서 가장 가까운 적 탐색
 // ─────────────────────────────────────────────────────────────────────
-AActor* UKOGA_LockOn::FindBestTarget() const
+AActor* UKOGA_Utility_LockOn::FindBestTarget() const
 {
     ACharacter* OwnerChar = Cast<ACharacter>(GetAvatarCharacter());
     if (!OwnerChar) return nullptr;
@@ -221,7 +221,7 @@ AActor* UKOGA_LockOn::FindBestTarget() const
 // ─────────────────────────────────────────────────────────────────────
 // IsTargetValid  ―  타겟이 아직 유효한지 확인
 // ─────────────────────────────────────────────────────────────────────
-bool UKOGA_LockOn::IsTargetValid() const
+bool UKOGA_Utility_LockOn::IsTargetValid() const
 {
     // IsValid: 가비지 컬렉션 되었거나 Pending Kill 상태면 false
     if (!IsValid(LockedTarget)) return false;
@@ -239,7 +239,7 @@ bool UKOGA_LockOn::IsTargetValid() const
 // ─────────────────────────────────────────────────────────────────────
 // GetTargetSocketLocation  ―  타겟의 LockOnSocket 위치 반환
 // ─────────────────────────────────────────────────────────────────────
-FVector UKOGA_LockOn::GetTargetSocketLocation() const
+FVector UKOGA_Utility_LockOn::GetTargetSocketLocation() const
 {
     if (!LockedTarget) return FVector::ZeroVector;
  
@@ -260,7 +260,7 @@ FVector UKOGA_LockOn::GetTargetSocketLocation() const
 // ─────────────────────────────────────────────────────────────────────
 // UpdateCameraRotation  ―  카메라를 타겟 쪽으로 보간 회전 (타이머 콜백)
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::UpdateCameraRotation()
+void UKOGA_Utility_LockOn::UpdateCameraRotation()
 {
     // 타겟이 사라졌으면 락온 해제
     if (!IsTargetValid())
@@ -317,7 +317,7 @@ void UKOGA_LockOn::UpdateCameraRotation()
     PC->SetControlRotation(NewRot);
 }
  
-void UKOGA_LockOn::StartCameraUpdate()
+void UKOGA_Utility_LockOn::StartCameraUpdate()
 {
     UWorld* World = GetWorld();
     if (!World) return;
@@ -326,13 +326,13 @@ void UKOGA_LockOn::StartCameraUpdate()
     World->GetTimerManager().SetTimer(
         CameraUpdateTimerHandle,
         this,
-        &UKOGA_LockOn::UpdateCameraRotation,
+        &UKOGA_Utility_LockOn::UpdateCameraRotation,
         0.016f,
         true   // 반복
     );
 }
  
-void UKOGA_LockOn::StopCameraUpdate()
+void UKOGA_Utility_LockOn::StopCameraUpdate()
 {
     UWorld* World = GetWorld();
     if (World)
@@ -345,7 +345,7 @@ void UKOGA_LockOn::StopCameraUpdate()
 // ─────────────────────────────────────────────────────────────────────
 // CheckLockOnDistance  ―  0.2초마다 거리 확인 (타이머 콜백)
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::CheckLockOnDistance()
+void UKOGA_Utility_LockOn::CheckLockOnDistance()
 {
     if (!LockedTarget) return;
  
@@ -367,7 +367,7 @@ void UKOGA_LockOn::CheckLockOnDistance()
     }
 }
  
-void UKOGA_LockOn::StartLockOnDistanceCheck()
+void UKOGA_Utility_LockOn::StartLockOnDistanceCheck()
 {
     UWorld* World = GetWorld();
     if (!World) return;
@@ -375,13 +375,13 @@ void UKOGA_LockOn::StartLockOnDistanceCheck()
     World->GetTimerManager().SetTimer(
         LockOnDistanceTimerHandle,
         this,
-        &UKOGA_LockOn::CheckLockOnDistance,
+        &UKOGA_Utility_LockOn::CheckLockOnDistance,
         0.2f,
         true   // 반복
     );
 }
  
-void UKOGA_LockOn::StopLockOnDistanceCheck()
+void UKOGA_Utility_LockOn::StopLockOnDistanceCheck()
 {
     UWorld* World = GetWorld();
     if (World)
@@ -394,7 +394,7 @@ void UKOGA_LockOn::StopLockOnDistanceCheck()
 // ─────────────────────────────────────────────────────────────────────
 // ApplyLockOnGameplayTag  ―  State.Character.LockOn 태그 추가/제거
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_LockOn::ApplyLockOnGameplayTag(bool bApply) const
+void UKOGA_Utility_LockOn::ApplyLockOnGameplayTag(bool bApply) const
 {
     IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetAvatarCharacter());
     if (!ASCInterface) return;

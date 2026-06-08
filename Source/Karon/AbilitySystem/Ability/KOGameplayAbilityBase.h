@@ -79,4 +79,27 @@ public:
 		float Amount,
 		float Level = 1.f
 	);
+protected:
+	// ─── Cooldown ─────────────────────────────────────────────────────
+	virtual UGameplayEffect* GetCooldownGameplayEffect() const override;
+	
+	virtual const FGameplayTagContainer* GetCooldownTags() const override;
+	
+	virtual void ApplyCooldown(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo) const override;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
+	TSubclassOf<UGameplayEffect> CooldownGEClass;
+
+	// 어빌리티별 쿨타임 식별 태그 (예: Cooldown.Attack.Combo)
+	UPROPERTY(EditDefaultsOnly, Category = "Cooldown", Meta = (Categories = "Cooldown"))
+	FGameplayTag CooldownTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
+	float CooldownDuration = 0.f;
+	
+private:
+	mutable FGameplayTagContainer CachedCooldownTags;
 };

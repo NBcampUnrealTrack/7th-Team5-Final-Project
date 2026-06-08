@@ -2,13 +2,13 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
-#include "Component/Combat/KOLockOnComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Component/Movement/KOPreCMCTickComponent.h"
 #include "Game/KOPlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
+#include "MotionWarpingComponent.h"
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 
@@ -17,6 +17,7 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -29,18 +30,16 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	SpringArm->CameraLagSpeed = 20.f; 
 	SpringArm->CameraRotationLagSpeed = 50.f; 
 	
-	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 	
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
 	Trajectory->PrimaryComponentTick.AddPrerequisite(
-		PreCMCTick,
-		PreCMCTick->PrimaryComponentTick
+		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
 	
-	LockOnComponent = CreateDefaultSubobject<UKOLockOnComponent>(FName("LockOnComponent"));
 	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 	
@@ -54,8 +53,6 @@ void AKOHeroCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	MainAnimInstance = GetMesh()->GetAnimInstance();
-	
-	
 }
 
 void AKOHeroCharacter::PossessedBy(AController* NewController)
@@ -73,8 +70,6 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	
 	MovementSet = PS->GetMovementSet();
 	HealthSet = PS->GetHealthSet();
-	
-	BindMovementSet(); 
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)
@@ -87,9 +82,33 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	}
 }
 
-void AKOHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AKOHeroCharacter::SetMotionWarpTarget(const FName& WarpTargetName)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	if (!MotionWarpingComponent) return;
+
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(
+		WarpTargetName,
+		GetActorLocation(),
+		GetControlRotation()
+	);
+}
+
+void AKOHeroCharacter::SetMotionWarpTargetWithLocation(const FName& WarpTargetName, const FVector& Location)
+{
+	if (!MotionWarpingComponent) return;
+	
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(
+		WarpTargetName,
+		Location,
+		GetControlRotation()
+	);
+}
+
+void AKOHeroCharacter::ClearMotionWarpTarget(const FName& WarpTargetName)
+{
+	if (!MotionWarpingComponent) return;
+	
+	MotionWarpingComponent->RemoveWarpTarget(WarpTargetName);
 }
 
 

@@ -5,6 +5,7 @@
 #include "Character/KOCharacterBase.h"
 #include "KOHeroCharacter.generated.h"
 
+class UMotionWarpingComponent;
 class UKOLockOnComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -28,18 +29,23 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	
+
 public:
-	UFUNCTION(BlueprintCallable)
-	UKOLockOnComponent* GetLockOnComponent() const { return LockOnComponent; }
-	
 	UFUNCTION(BlueprintCallable)
 	UCharacterTrajectoryComponent* GetTrajectoryComponent() const { return Trajectory; }
 	
+	UFUNCTION(BlueprintCallable)
+	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 	
+public:
+	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
+	void SetMotionWarpTarget(const FName& WarpTargetName);
+	
+	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
+	void SetMotionWarpTargetWithLocation(const FName& WarpTargetName, const FVector& Location);
+	
+	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
+	void ClearMotionWarpTarget(const FName& WarpTargetName);
 public:
 	UFUNCTION(BlueprintCallable, Category= "Anim | Gait")
 	EGait GetGait() const { return CurrentGait; }
@@ -61,9 +67,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UCharacterTrajectoryComponent> Trajectory;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<UKOLockOnComponent> LockOnComponent;
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOStaminaSet> StaminaSet;

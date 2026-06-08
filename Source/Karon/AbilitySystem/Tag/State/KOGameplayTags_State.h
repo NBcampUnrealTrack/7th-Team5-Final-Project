@@ -29,6 +29,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OnPlatform); // 보스 기믹용 태그 
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_WeaponDrawn)
+	
 	// ─── Enemy Attack ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);

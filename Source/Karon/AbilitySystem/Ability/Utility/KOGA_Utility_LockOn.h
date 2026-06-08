@@ -1,19 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KOGameplayAbilityBase.h"
-#include "KOGA_LockOn.generated.h"
+#include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
+#include "KOGA_Utility_LockOn.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class KARON_API UKOGA_LockOn : public UKOGameplayAbilityBase
+class KARON_API UKOGA_Utility_LockOn : public UKOGameplayAbilityBase
 {
 	GENERATED_BODY()
 	
 public:
-	UKOGA_LockOn();
+	UKOGA_Utility_LockOn();
 
 	// ── GAS 오버라이드 ──────────────────────────────────────────────
  

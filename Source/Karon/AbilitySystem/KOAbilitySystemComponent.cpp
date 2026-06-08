@@ -1,5 +1,5 @@
 ﻿#include "KOAbilitySystemComponent.h"
-#include "Karon/Data/KOGrantSet.h"
+#include "Karon/Data/Character/KOGrantSet.h"
 #include "Utility/Log/KOLogManager.h"
 
 void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)

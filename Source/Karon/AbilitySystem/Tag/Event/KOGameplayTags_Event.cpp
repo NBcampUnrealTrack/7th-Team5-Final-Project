@@ -25,6 +25,14 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Open, "Event.Combo.Window.Open");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Close, "Event.Combo.Window.Close");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Draw, "Event.Weapon.Draw");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Sheathe, "Event.Weapon.Sheathe");
+	
+	// ── Event | Weapon ─────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Equip,   "Event.Weapon.Equip");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Unequip, "Event.Weapon.Unequip");
+	
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
 	

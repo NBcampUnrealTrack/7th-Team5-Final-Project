@@ -26,8 +26,22 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 {
 	if (!ASC) return;
 	
-	// 어빌리티 부여 
-	for (const FKOAbilityEntry& Entry : GrantedAbilities)
+	// Passive 어빌리티 부여 
+	for (const FKOPassiveAbilityEntry& Entry : PassiveAbilities)
+	{
+		if (!IsValid(Entry.Ability)) continue;
+
+		FGameplayAbilitySpec Spec(Entry.Ability, Entry.AbilityLevel);
+
+		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
+
+		KO_LOG(GAS, Log, TEXT("[Passive] Ability  | %-30s | Lv.%d "),
+			*Spec.Ability->GetName(), Entry.AbilityLevel
+		);
+	}
+	
+	// Active 어빌리티 부여 
+	for (const FKOActiveAbilityEntry& Entry : ActiveAbilities)
 	{
 		if (!IsValid(Entry.Ability)) continue;
 
@@ -37,7 +51,7 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 
 		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
 
-		KO_LOG(GAS, Log, TEXT("[AbilitySet] Ability  | %-30s | Lv.%d | Tag: %s"),
+		KO_LOG(GAS, Log, TEXT("[Active] Ability  | %-30s | Lv.%d | Tag: %s"),
 			*Spec.Ability->GetName(), Entry.AbilityLevel,
 			Entry.InputTag.IsValid() ? *Entry.InputTag.ToString() : TEXT("None"));
 	}

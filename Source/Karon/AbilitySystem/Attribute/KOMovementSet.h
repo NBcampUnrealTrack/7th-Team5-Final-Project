@@ -23,29 +23,42 @@ public:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 public:
-	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MoveSpeed);
-	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxMoveSpeed); 
-	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, JumpStrength)
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxWalkSpeed);
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxAcceleration); 
 	
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, BrakingDecelerationWalking);
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, GroundFriction); 
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxWalkSpeedCrouched)
+	
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, JumpStrength)
 protected:
 	// ─── Attributes ────────────────────────────────────────────────────
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (Units = "cm/s"))
-	FGameplayAttributeData MoveSpeed;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData MaxWalkSpeed;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (Units = "cm/s"))
-	FGameplayAttributeData MaxMoveSpeed;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData MaxAcceleration;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData BrakingDecelerationWalking;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData GroundFriction;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData MaxWalkSpeedCrouched;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FGameplayAttributeData JumpStrength;
 	
 public:
 	// ─── Delegates ────────────────────────────────────────────────────
-	FOnAttributeChanged OnMoveSpeedBaseChanged;
-	FOnAttributeChanged OnMoveSpeedChanged;
+	FOnAttributeChanged OnMaxWalkSpeedBaseChanged;
+	FOnAttributeChanged OnMaxAccelerationChanged;
 	
-	FOnAttributeChanged OnMaxMoveSpeedBaseChanged;
-	FOnAttributeChanged OnMaxMoveSpeedChanged;
+	FOnAttributeChanged OnBrakingDecelerationWalkingChanged;
+	FOnAttributeChanged OnGroundFrictionChanged;
 
-	FOnAttributeChanged OnJumpStrengthBaseChanged;
+	FOnAttributeChanged OnMaxWalkSpeedCrouchedChanged;
 	FOnAttributeChanged OnJumpStrengthChanged;
 };

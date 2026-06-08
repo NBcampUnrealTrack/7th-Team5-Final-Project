@@ -23,6 +23,8 @@ public:
 	virtual void Activate() override;
 	
 private:
+	void SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate);
+	
 	void RecoverTime();
 	
 public:
@@ -33,10 +35,12 @@ private:
 	float StopDuration;
 	float StopDilation;
 	bool  bAffectInstigatorToo;
-	FTimerHandle RecoveryTimer;
 	
+	FTimerHandle RecoveryTimer;
 	
 	TWeakObjectPtr<AActor> CachedAvatar;
 	TWeakObjectPtr<AActor> CachedInstigator;
-
+	
+	TWeakObjectPtr<USkeletalMeshComponent> CachedAvatarMesh;
+	TWeakObjectPtr<USkeletalMeshComponent> CachedInstigatorMesh;
 };
