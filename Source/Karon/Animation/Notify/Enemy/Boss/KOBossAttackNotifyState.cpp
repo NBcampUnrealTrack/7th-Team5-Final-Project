@@ -21,46 +21,14 @@ void UKOBossAttackNotifyState::NotifyBegin(
 		return;
 	}
  
-	// 현재 활성화된 GA에서 소켓 위치 가져오기
-	AActor* Owner = MeshComp->GetOwner();
-	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Owner);
-	if (!ASCInterface)
+	// 소켓 존재 여부 확인
+	if (!MeshComp->DoesSocketExist(AttackSocketName))
 	{
+		UE_LOG(LogTemp, Warning,TEXT("[BossMeleeNotify] 소켓 없음 : %s"), *AttackSocketName.ToString());
 		return;
 	}
  
-	UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
-	if (!ASC)
-	{
-		return;
-	}
-	
-	UKOGA_BossMeleeAttackBase* CurrentGA = nullptr;
-	
-	const TArray<FGameplayAbilitySpec>& AbilitySpecs = ASC->GetActivatableAbilities();
-	
-	for (const FGameplayAbilitySpec& Spec : AbilitySpecs)
-	{
-		if (!Spec.IsActive())
-		{
-			continue;
-		}
-
-		CurrentGA = Cast<UKOGA_BossMeleeAttackBase>(Spec.Ability);
-		if (CurrentGA)
-		{
-			break;
-		}
-	}
- 
-	if (!CurrentGA)
-	{
-		return;
-	}
- 
-	// 소켓 위치로 초기화
-	PrevSocketLocation = MeshComp->GetSocketLocation(CurrentGA->AttackSocketName);
-	CurrSocketLocation = PrevSocketLocation;
+	PrevSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
 	HittedActors.Empty();
 }
  
@@ -76,6 +44,11 @@ void UKOBossAttackNotifyState::NotifyTick(
 	{
 		return;
 	}
+	
+	if (!MeshComp->DoesSocketExist(AttackSocketName))
+	{
+		return;
+	}
  
 	AActor* Owner = MeshComp->GetOwner();
 	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Owner);
@@ -90,38 +63,13 @@ void UKOBossAttackNotifyState::NotifyTick(
 		return;
 	}
  
-	// 현재 GA 찾기
-	UKOGA_BossMeleeAttackBase* CurrentGA = nullptr;
-
-	const TArray<FGameplayAbilitySpec>& AbilitySpecs = ASC->GetActivatableAbilities();
-	for (const FGameplayAbilitySpec& Spec : AbilitySpecs)
-	{
-		if (!Spec.IsActive())
-		{
-			continue;
-		}
-
-		CurrentGA = Cast<UKOGA_BossMeleeAttackBase>(Spec.Ability);
-		if (CurrentGA)
-		{
-			break;
-		}
-	}
- 
-	if (!CurrentGA)
-	{
-		return;
-	}
- 
-	// 현재 소켓 위치 갱신
-	PrevSocketLocation = MeshComp->GetSocketLocation(CurrentGA->AttackSocketName);
+	const FVector CurrSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
 	
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
  
-	EDrawDebugTrace::Type DebugType = bShowDebug ?
-		EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
  
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
 		Owner->GetWorld(),
@@ -139,7 +87,6 @@ void UKOBossAttackNotifyState::NotifyTick(
 		2.0f
 	);
  
-	// 이전 위치 갱신
 	PrevSocketLocation = CurrSocketLocation;
  
 	if (!bHit)
@@ -147,22 +94,37 @@ void UKOBossAttackNotifyState::NotifyTick(
 		return;
 	}
  
+	TArray<AActor*> ActorsToHit;
 	for (const FHitResult& HitResult : HitResults)
 	{
 		AActor* HittedActor = HitResult.GetActor();
-		if (!HittedActor || HittedActors.Contains(HittedActor))
+		if (!HittedActor)
 		{
 			continue;
 		}
  
-		HittedActors.Add(HittedActor);
+		bool bAlreadyHit = false;
+		for (const TWeakObjectPtr<AActor>& WeakActor : HittedActors)
+		{
+			if (WeakActor.IsValid() && WeakActor.Get() == HittedActor)
+			{
+				bAlreadyHit = true;
+				break;
+			}
+		}
  
+		if (!bAlreadyHit)
+		{
+			HittedActors.Add(HittedActor);
+			ActorsToHit.Add(HittedActor);
+		}
+	}
+ 
+	for (AActor* TargetActor : ActorsToHit)
+	{
 		FGameplayEventData HitGameplayEventData;
-		HitGameplayEventData.Target = HittedActor;
-		ASC->HandleGameplayEvent(
-			KOGameplayTags::Event_SkillHit,
-			&HitGameplayEventData
-		);
+		HitGameplayEventData.Target = TargetActor;
+		ASC->HandleGameplayEvent(KOGameplayTags::Event_SkillHit,&HitGameplayEventData);
 	}
 }
  
@@ -172,6 +134,5 @@ void UKOBossAttackNotifyState::NotifyEnd(
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
- 
 	HittedActors.Empty();
 }
