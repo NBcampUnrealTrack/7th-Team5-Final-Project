@@ -20,6 +20,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_QuickSlot5,  "Input.Native.Build.QuickSlot5");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleSKillTree,  "Input.Native.ToggleSkillTree");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Rotate,  "Input.Native.Build.Rotate");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleMap,  "Input.Native.ToggleMap");
 	
 	
 	// ── Input | Ability | Movement ────────────────────────────────
