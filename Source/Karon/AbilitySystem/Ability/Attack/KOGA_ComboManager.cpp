@@ -27,7 +27,6 @@ void UKOGA_ComboManager::ActivateAbility(
 	
 	CurrentComboRowName = InitialComboRowName;
 	bIsComboWindowOpen = false;
-	bTargetWindowClosed = false;
 	BufferedInput = EAttackInputType::None;
 	
 	
