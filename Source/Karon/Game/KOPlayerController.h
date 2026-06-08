@@ -15,6 +15,7 @@ class UKOInteractionComponent;
 class UKOGridBuildComponent;
 class UKOInventoryComponent;
 class UKOBuildUIComponent;
+class UKOMapUIComponent;
 
 // TODO: 
 // 공장 <-> 전투 맵이 분리되면 컨트롤러를 두개로 관리하는것도 나쁘지않을듯? 
@@ -62,14 +63,16 @@ protected:
 	void Input_SelectBuildQuickSlot3(const FInputActionValue& Value);
 	void Input_SelectBuildQuickSlot4(const FInputActionValue& Value);
 	void Input_SelectBuildQuickSlot5(const FInputActionValue& Value);
+	
+	void Input_BuildRotate(const FInputActionValue& Value);
 
 	// 인벤토리 입력 (열기 전용 — 닫기는 Back)
 	void Input_OpenInventory(const FInputActionValue& Value);
 
 	// 스킬창 입력 (열기 전용 — 닫기는 Back)
 	void Input_OpenSkillTree(const FInputActionValue& Value);
-	
-	void Input_BuildRotate(const FInputActionValue& Value);
+
+	void Input_ToggleMap(const FInputActionValue& Value);
 
 
 private:
@@ -102,6 +105,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TObjectPtr<UKOInventoryComponent> InventoryComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="KO|Map")
+	TObjectPtr<UKOMapUIComponent> MapUIComponent;
 
 private:
 	bool bBuildIMCActive = false;

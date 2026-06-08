@@ -36,4 +36,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
 	/** 타이틀 메뉴 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TitleMenu);
+	
+	/** 맵 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
 }

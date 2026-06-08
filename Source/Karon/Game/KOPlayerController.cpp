@@ -8,6 +8,7 @@
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "UI/Build/KOBuildUIComponent.h"
+#include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
 
@@ -16,6 +17,7 @@
 #include "Items/KOItemSlot.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
+class AKOMapUIComponent;
 struct FKOBuildModeChangedMessage;
 
 AKOPlayerController::AKOPlayerController()
@@ -24,6 +26,7 @@ AKOPlayerController::AKOPlayerController()
 	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
 	BuildUIComponent     = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
 	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
+	MapUIComponent		 = CreateDefaultSubobject<UKOMapUIComponent>(TEXT("MapUIComponent"));
 }
 
 void AKOPlayerController::BeginPlay()
@@ -272,6 +275,15 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_BuildRotate,
 			true
 		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleMap,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_ToggleMap,
+			true
+		);
 	}
 }
 
@@ -422,6 +434,25 @@ void AKOPlayerController::Input_SelectBuildQuickSlot5(const FInputActionValue& /
 	}
 }
 
+void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
+{
+	if (!BuildUIComponent)
+	{
+		return;
+	}
+
+	const float AxisValue = Value.Get<float>();
+
+	if (FMath::IsNearlyZero(AxisValue))
+	{
+		return;
+	}
+
+	const int32 Direction = AxisValue > 0.0f ? -1 : 1;
+
+	BuildUIComponent->RotateBuildPreview(Direction);
+}
+
 void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/)
 {
 	// 건설 중에는 인벤토리를 열지 않는다.
@@ -475,21 +506,10 @@ void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
 }
 
-void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
+void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
 {
-	if (!BuildUIComponent)
+	if (MapUIComponent)
 	{
-		return;
+		MapUIComponent->ToggleMainMap();
 	}
-
-	const float AxisValue = Value.Get<float>();
-
-	if (FMath::IsNearlyZero(AxisValue))
-	{
-		return;
-	}
-
-	const int32 Direction = AxisValue > 0.0f ? -1 : 1;
-
-	BuildUIComponent->RotateBuildPreview(Direction);
 }
