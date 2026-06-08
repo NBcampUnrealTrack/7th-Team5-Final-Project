@@ -20,4 +20,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Boss_HealthBar, "UI.Widget.Boss.HealthBar");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_SkillTree,      "UI.Widget.SkillTree");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_TitleMenu,      "UI.Widget.TitleMenu");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Map_MainMap,      "UI.Widget.Map.MainMap");
 }
