@@ -2,6 +2,9 @@
 
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
+#include "Component/Skill/KOSkillComponent.h"
+#include "Data/Type/KOSkillTypes.h"
+#include "Skills/KOSkillLibrary.h"
 
 UKOSkillTreePopup::UKOSkillTreePopup()
 {
@@ -14,14 +17,21 @@ void UKOSkillTreePopup::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
+	if (AController* OwningController = GetOwningPlayer())
+	{
+		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
+		{
+			SkillComponent = SkillComp;
+		}
+	}
 	RefreshAllSkillNodes();
 }
 
-void UKOSkillTreePopup::NativeOnDeactivated()
+void UKOSkillTreePopup::NativeDestruct()
 {
+	SkillDataTable.Reset();
 	
-	
-	Super::NativeOnDeactivated();
+	Super::NativeDestruct();
 }
 
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
@@ -32,23 +42,40 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		return;
 	}
 	
+	const UObject* WorldContext = GetWorld();
+	if (WorldContext == nullptr)
+	{
+		return;
+	}
+	
+	if (SkillDataTable == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Data Table이 지정되지 않았습니다."));
+		return;
+	}
+	
+	if (SkillComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent가 없습니다."));
+		return;
+	}
+	//BP를 통해 가져오므로 슬롯 추가 시 BP에 등록 필요함
 	TArray<UKOSkillNodeWidget*> SkillNodes = BP_GetAllSkillNodes();
 	
 	for (UKOSkillNodeWidget* Node : SkillNodes)
 	{
-		if (Node == nullptr) return;
-		//임시 강제 해금 가능 등록
-		ESkillState TargetState = ESkillState::CanUnlock;
-		/* 저장위치에서 값을 받아와 노드 활성화(State가 아닌 SkillComponent가 될수도 있음)
-		if (PlayerState->IsSkillUnlocked(Node->SkillTag))
+		if (Node == nullptr || Node->SkillName.IsNone()) continue;
+		
+		const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(WorldContext, Node->SkillName);
+		
+		if (SkillRow)
 		{
-			TargetState = ESkillState::Unlocked;
+			ESkillState CurrentState = SkillComponent->GetSkillState(Node->SkillName);
+			Node->InitializeNode(SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
 		}
-		else if (!PlayerState->IsSkillUnlocked(Node->SkillTag))
+		else
 		{
-			TargetState = ESkillState::Locked;
+			UE_LOG(LogTemp, Warning, TEXT("SkillId [%s] 에 해당하는 Row를 찾을 수 없습니다."), *Node->SkillName.ToString());
 		}
-		*/
-		Node->InitializeNode(Node->SkillTag, Node->SkillCost, TargetState);
 	}
 }

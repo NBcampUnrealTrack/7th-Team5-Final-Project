@@ -2,10 +2,10 @@
 
 #include "UI/Skill/KOSkillNodeWidget.h"
 
-void UKOSkillNodeWidget::InitializeNode(FGameplayTag InSkillTag, FSkillCost InCost, ESkillState InState)
+void UKOSkillNodeWidget::InitializeNode(FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState)
 {
 	SkillTag = InSkillTag;
-	SkillCost = InCost;
+	SkillCosts = InCost;
 	CurrentState = InState;
 
 	BP_OnSkillStateChanged(CurrentState);
