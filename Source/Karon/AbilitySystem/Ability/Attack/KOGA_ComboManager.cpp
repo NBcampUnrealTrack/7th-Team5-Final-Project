@@ -64,6 +64,25 @@ void UKOGA_ComboManager::EndAbility(
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+void UKOGA_ComboManager::InputPressed(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
+	
+	if (bIsComboWindowOpen)
+	{
+		BufferedInput = EAttackInputType::Light;
+		
+		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 선입력 버퍼 : Light"))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 클릭 감지됨. 콤보 창닫힘"));
+	}
+}
+
 void UKOGA_ComboManager::SendExecutionEvent(FName RowName)
 {
 	FString Context = TEXT("Combo Manager Excution");
@@ -71,10 +90,11 @@ void UKOGA_ComboManager::SendExecutionEvent(FName RowName)
 	
 	if (ComboData)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 데이터 테이블에서 '%s' 공격을 찾았습니다! 이벤트 발송 시도."), *RowName.ToString());
 		FGameplayEventData Payload;
 		Payload.Instigator = GetAvatarActorFromActorInfo();
 		Payload.OptionalObject = ComboData->ComboMontage;
-		Payload.OptionalObject2 = ComboData->DamageEffect;
+		Payload.OptionalObject2 = ComboData->DamageEffect.Get();
 		
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 			GetAvatarActorFromActorInfo(),

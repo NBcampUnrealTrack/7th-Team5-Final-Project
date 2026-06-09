@@ -9,7 +9,6 @@
 
 UKOGA_Attack_Light::UKOGA_Attack_Light()
 {
-	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Light));
 }
 
 void UKOGA_Attack_Light::ActivateAbility(
@@ -27,7 +26,7 @@ void UKOGA_Attack_Light::ActivateAbility(
 		return;
 	}
 	
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo) || TriggerEventData)
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo) || !TriggerEventData)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -58,7 +57,8 @@ void UKOGA_Attack_Light::ActivateAbility(
 		NAME_None,
 		MontageToPlay,
 		1.0f,
-		NAME_None
+		NAME_None,
+		false
 	);
 	
 	MontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Light::OnMontageEnded);
