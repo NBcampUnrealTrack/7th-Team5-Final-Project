@@ -24,14 +24,24 @@ void UKOSkillTreePopup::NativeConstruct()
 			SkillComponent = SkillComp;
 		}
 	}
+	BP_GetAllSkillNodes();
 	RefreshAllSkillNodes();
 }
 
 void UKOSkillTreePopup::NativeDestruct()
 {
+	SkillComponent = nullptr;
 	SkillDataTable.Reset();
+	BP_GetAllSkillNodes().Reset();
 	
 	Super::NativeDestruct();
+}
+
+void UKOSkillTreePopup::NativeOnActivated()
+{
+	Super::NativeOnActivated();
+	
+	RefreshAllSkillNodes();
 }
 
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
@@ -39,24 +49,26 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 	APawn* OwningPawn = GetOwningPlayerPawn();
 	if (OwningPawn == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: 플레이어 폰을 가져오는데 실패했습니다."));
 		return;
 	}
 	
 	const UObject* WorldContext = GetWorld();
 	if (WorldContext == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: 월드를 가져오는데 실패했습니다."));
 		return;
 	}
 	
 	if (SkillDataTable == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Data Table이 지정되지 않았습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: Skill Data Table이 지정되지 않았습니다."));
 		return;
 	}
 	
 	if (SkillComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SkillComponent가 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillComponent가 없습니다."));
 		return;
 	}
 	//BP를 통해 가져오므로 슬롯 추가 시 BP에 등록 필요함
@@ -75,7 +87,8 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("SkillId [%s] 에 해당하는 Row를 찾을 수 없습니다."), *Node->SkillName.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row를 찾을 수 없습니다."),
+				*Node->SkillName.ToString());
 		}
 	}
 }

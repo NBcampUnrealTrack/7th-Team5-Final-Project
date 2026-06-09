@@ -1,6 +1,8 @@
 ﻿// Copyright Karon Team 5. All Rights Reserved.
 
 #include "UI/Skill/KOSkillNodeWidget.h"
+#include "Component/Skill/KOSkillComponent.h"
+#include "Components/Image.h"
 
 void UKOSkillNodeWidget::InitializeNode(FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState)
 {
@@ -8,30 +10,68 @@ void UKOSkillNodeWidget::InitializeNode(FGameplayTag InSkillTag, TArray<FSkillCo
 	SkillCosts = InCost;
 	CurrentState = InState;
 
-	BP_OnSkillStateChanged(CurrentState);
+	RefreshNode();
 }
 
 void UKOSkillNodeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (AController* OwningController = GetOwningPlayer())
+	{
+		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
+		{
+			CachedSkillComponent = SkillComp;
+		}
+	}
+	
+	RefreshNode();
+}
+
+void UKOSkillNodeWidget::NativeDestruct()
+{
+	CachedSkillComponent = nullptr;
+
+	Super::NativeDestruct();
 }
 
 void UKOSkillNodeWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
 	
-	if (CurrentState != ESkillState::CanUnlock)
+	if (CachedSkillComponent == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillComponent가 없습니다."));
+		return;
+	}
+
+	if (CachedSkillComponent->TryUnlockSkill(SkillName))
+	{
+		CurrentState = ESkillState::Unlocked;
+		RefreshNode();
+	}
+}
+
+void UKOSkillNodeWidget::RefreshNode()
+{
+	if (OverlayImage == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Node: OverlayImage를 찾을 수 없습니다."));
 		return;
 	}
 	
-	APlayerController* PC = GetOwningPlayer();
-	if (PC == nullptr)
+	switch (CurrentState)
 	{
-		return;
+	case ESkillState::Locked:
+		OverlayImage->SetColorAndOpacity(LockedColor);
+		break;
+
+	case ESkillState::CanUnlock:
+		OverlayImage->SetColorAndOpacity(CanUnlockColor);
+		break;
+
+	case ESkillState::Unlocked:
+		OverlayImage->SetColorAndOpacity(UnlockedColor);
+		break;
 	}
-
-	BP_OnSkillStateChanged(CurrentState);
 }
-
-

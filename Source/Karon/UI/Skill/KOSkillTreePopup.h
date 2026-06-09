@@ -23,8 +23,8 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-
 	virtual void NativeDestruct() override;
+	virtual void NativeOnActivated() override;
 	
 	void RefreshAllSkillNodes() const;
 	
