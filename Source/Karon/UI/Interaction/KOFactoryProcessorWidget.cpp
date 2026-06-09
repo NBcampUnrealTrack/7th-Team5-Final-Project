@@ -180,6 +180,9 @@ void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
         Proc->SetSelectedRecipe(InRecipeId);
         // SetSelectedRecipe 내부에서 BroadcastProcessorChanged → HandleProcessorChangedMessage가 UI 갱신.
     }
+    
+    // 선택한 레시피에 맞춰 Input/Output 슬롯을 다시 구성
+    BuildIOSlots();
 
     // 레시피 선택 후 Inventory 패널로 복귀.
     bShowingRecipePanel = false;
@@ -262,9 +265,8 @@ void UKOFactoryProcessorWidget::PopulateRecipeSelect()
 
 void UKOFactoryProcessorWidget::BuildIOSlots()
 {
-    AKOBaseBuilding* Building = TargetBuilding.Get();
     UKOFactoryProcessorComponent* Proc = Processor.Get();
-    if (!Building || !Proc)
+    if (!Proc)
     {
         return;
     }
@@ -275,71 +277,51 @@ void UKOFactoryProcessorWidget::BuildIOSlots()
         return;
     }
 
-    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
-    if (!FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid())
+    const FName SelectedRecipeId = Proc->GetSelectedRecipe();
+
+    // 아직 레시피를 선택하지 않았으면 슬롯을 만들지 않음
+    //if (SelectedRecipeId.IsNone()) return;
+
+    const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(SelectedRecipeId);
+    if (!Recipe)
     {
         return;
     }
 
-    // 이 공장 카테고리에 매칭되는 모든 레시피의 입력/출력 ItemId 유니온 수집.
-    TArray<FName> AllRecipes;
-    LoadSub->GetAllRecipeIds(AllRecipes);
-
-    TArray<FName> InputItemIds;
-    TArray<FName> OutputItemIds;
-
-    for (const FName& RecipeId : AllRecipes)
-    {
-        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
-        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid())
-        {
-            continue;
-        }
-        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag))
-        {
-            continue;
-        }
-
-        for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
-        {
-            const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
-            if (!ItemId.IsNone())
-            {
-                InputItemIds.AddUnique(ItemId);
-            }
-        }
-        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
-        {
-            const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
-            if (!ItemId.IsNone())
-            {
-                OutputItemIds.AddUnique(ItemId);
-            }
-        }
-    }
-
+    // 선택된 레시피의 Input 슬롯만 생성
     if (InputSlotsPanel && InputSlotClass)
     {
         InputSlotsPanel->ClearChildren();
         InputSlotWidgets.Reset();
-        for (const FName& ItemId : InputItemIds)
+        
+        for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
         {
+            const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
+            if (ItemId.IsNone()) continue;
+            
             UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, InputSlotClass);
             if (!SlotWidget) continue;
+            
             SlotWidget->SetupInputSlot(Proc, ItemId);
             InputSlotsPanel->AddChild(SlotWidget);
             InputSlotWidgets.Add(SlotWidget);
         }
     }
 
+    // 선택된 레시피의 Output 슬롯만 생성
     if (OutputSlotsPanel && OutputSlotClass)
     {
         OutputSlotsPanel->ClearChildren();
         OutputSlotWidgets.Reset();
-        for (const FName& ItemId : OutputItemIds)
+        
+        for (const TPair<FGameplayTag, int32>& Out : Recipe->Outputs)
         {
+            const FName ItemId = LoadSub->FindItemIdByTag(Out.Key);
+            if (ItemId.IsNone()) continue;
+            
             UKOFactorySlotWidget* SlotWidget = CreateWidget<UKOFactorySlotWidget>(this, OutputSlotClass);
             if (!SlotWidget) continue;
+            
             SlotWidget->SetupOutputSlot(Proc, ItemId);
             OutputSlotsPanel->AddChild(SlotWidget);
             OutputSlotWidgets.Add(SlotWidget);
@@ -394,7 +376,7 @@ void UKOFactoryProcessorWidget::RefreshEventDriven()
 
     if (RecipeText)
     {
-        FText RecipeName = FText::GetEmpty();
+        FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
         const FName ActiveId   = Proc->GetActiveRecipeId();
         const FName SelectedId = Proc->GetSelectedRecipe();
         const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
