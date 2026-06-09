@@ -18,8 +18,8 @@ public:
 	UKOSkillComponent();
 	
 	bool TryUnlockSkill(FName SkillName);
-	ESkillState GetSkillState(FName SkillName) const;
 	bool IsUnlocked(FName SkillName) const;
+	ESkillState GetSkillState(FName SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
 	void GetAllSkillIds(TArray<FName>& Out) const;
 	

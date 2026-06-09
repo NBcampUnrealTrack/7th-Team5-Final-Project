@@ -19,12 +19,14 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 {
 	if (SkillName.IsNone())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 스킬명이 없습니다."));
 		return false;
 	}
 
 	ESkillState* State = SkillStates.Find(SkillName);
-	if (!State || *State != ESkillState::CanUnlock)
+	if (State == nullptr || *State != ESkillState::CanUnlock)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: SkillState가 없거나 CanUnlock이 아닙니다."));
 		return false;
 	}
 
@@ -48,7 +50,7 @@ FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
 {
 	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
 	FGameplayTagContainer Tags;
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return Tags;
 	}
@@ -98,7 +100,7 @@ void UKOSkillComponent::InitializeSkillStates()
 void UKOSkillComponent::ReevaluateAllSkillStates()
 {
 	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
-	if (!LS)
+	if (LS == nullptr)
 	{
 		return;
 	}
@@ -111,7 +113,7 @@ void UKOSkillComponent::ReevaluateAllSkillStates()
 		}
 
 		const FKOSkillRow* Row = LS->FindSkillRow(Pair.Key);
-		if (!Row)
+		if (Row == nullptr)
 		{
 			continue;
 		}
