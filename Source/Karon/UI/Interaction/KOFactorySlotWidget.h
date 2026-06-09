@@ -11,6 +11,7 @@ class UTexture2D;
 class UDragDropOperation;
 class UKOEnergyProducerComponent;
 class UKOFactoryProcessorComponent;
+class UKOItemTooltipWidget;
 
 UENUM(BlueprintType)
 enum class EKOFactorySlotMode : uint8
@@ -59,6 +60,9 @@ protected:
     /** IconImage에 강제할 Desired Size (정사각). SetBrushFromTexture가 텍스처 원본 해상도로 ImageSize를 덮어쓰는 문제 방지용. */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Factory")
     float SlotIconSize = 64.f;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
+    TSubclassOf<UKOItemTooltipWidget> TooltipClass;
 
 private:
     void ApplyVisual(FName ItemId, int32 Count);

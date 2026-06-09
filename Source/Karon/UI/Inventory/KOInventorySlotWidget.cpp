@@ -10,6 +10,7 @@
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
 #include "UI/Inventory/KOInventoryWidget.h"
+#include "UI/ItemTooltip/KOItemTooltipWidget.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 
 void UKOInventorySlotWidget::SetupSlot(UKOInventoryWidget* InOwningInventory, int32 InSlotIndex)
@@ -72,6 +73,22 @@ void UKOInventorySlotWidget::ApplyVisuals()
     {
         DisplayNameText->SetText(CachedDisplayName);
         DisplayNameText->SetVisibility(bHasItem ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+    }
+    
+    // Tooltip 갱신
+    if (!bHasItem || !TooltipClass)
+    {
+        SetToolTip(nullptr);
+        return;
+    }
+
+    UKOItemTooltipWidget* Tooltip =
+        CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+
+    if (Tooltip)
+    {
+        Tooltip->SetSlot(SlotData.Kind, SlotData.ItemId);
+        SetToolTip(Tooltip);
     }
 }
 

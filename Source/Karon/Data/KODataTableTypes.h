@@ -28,6 +28,10 @@ struct KARON_API FKOItemRow : public FTableRowBase
     /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FText DisplayName;
+    
+    /** 아이템 설명 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+    FText Description;
 
     /**
      * 이 아이템의 고유 식별 태그 (예: "Item.Coal", "Item.BronzePlate").
@@ -58,6 +62,10 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     /** UI에 표시되는 로컬라이즈드 이름 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     FText DisplayName;
+    
+    /** 설비 설명 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
+    FText Description;
 
     /** 기본 생산 사이클 시간(초). 레시피에서 재정의될 수 있다. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")

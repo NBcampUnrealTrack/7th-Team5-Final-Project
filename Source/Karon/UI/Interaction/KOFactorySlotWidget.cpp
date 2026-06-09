@@ -15,6 +15,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
+#include "UI/ItemTooltip/KOItemTooltipWidget.h"
 
 void UKOFactorySlotWidget::SetupFuelSlot(UKOEnergyProducerComponent* InProducer)
 {
@@ -158,6 +159,24 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
             CountText->SetText(FText::GetEmpty());
             CountText->SetVisibility(ESlateVisibility::Collapsed);
         }
+    }
+        
+    // Tooltip 갱신
+    const FName TooltipItemId = ItemId.IsNone() ? SlotItemId : ItemId;
+
+    if (TooltipItemId.IsNone() || !TooltipClass)
+    {
+        SetToolTip(nullptr);
+        return;
+    }
+
+    UKOItemTooltipWidget* Tooltip =
+        CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+
+    if (Tooltip)
+    {
+        Tooltip->SetSlot(EKOSlotKind::Item, TooltipItemId);
+        SetToolTip(Tooltip);
     }
 }
 
