@@ -6,8 +6,8 @@
 #include "Data/Type/KOSkillTypes.h"
 #include "KOSkillComponent.generated.h"
 
-
 struct FKOSkillRow;
+DECLARE_MULTICAST_DELEGATE(FOnSkillStateChanged);
 
 UCLASS(ClassGroup= "KO|Skill", meta=(BlueprintSpawnableComponent))
 class KARON_API UKOSkillComponent : public UActorComponent
@@ -17,15 +17,14 @@ class KARON_API UKOSkillComponent : public UActorComponent
 public:
 	UKOSkillComponent();
 	
+	virtual void BeginPlay() override;
+	
 	bool TryUnlockSkill(FName SkillName);
 	bool IsUnlocked(FName SkillName) const;
 	ESkillState GetSkillState(FName SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
 	void GetAllSkillIds(TArray<FName>& Out) const;
-	
-
-protected:
-	virtual void BeginPlay() override;
+	FOnSkillStateChanged OnSkillStateChanged;
 
 private:
 	UPROPERTY()

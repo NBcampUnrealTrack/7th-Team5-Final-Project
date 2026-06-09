@@ -19,7 +19,7 @@ class KARON_API UKOSkillNodeWidget : public UCommonButtonBase
 public:
 	// 외부(팝업)에서 노드를 초기화할 때 호출할 함수
 	UFUNCTION(BlueprintCallable, Category = "Skill")
-	void InitializeNode(FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState);
+	void InitializeNode(FName InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState);
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

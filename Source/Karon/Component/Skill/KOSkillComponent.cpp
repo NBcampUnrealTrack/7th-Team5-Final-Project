@@ -32,6 +32,7 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 
 	*State = ESkillState::Unlocked;
 	ReevaluateAllSkillStates();
+	OnSkillStateChanged.Broadcast();
 	return true;
 }
 

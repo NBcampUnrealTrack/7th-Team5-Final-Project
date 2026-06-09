@@ -4,8 +4,9 @@
 #include "Component/Skill/KOSkillComponent.h"
 #include "Components/Image.h"
 
-void UKOSkillNodeWidget::InitializeNode(FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState)
+void UKOSkillNodeWidget::InitializeNode(FName InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState)
 {
+	SkillName = InSkillName;
 	SkillTag = InSkillTag;
 	SkillCosts = InCost;
 	CurrentState = InState;
@@ -45,10 +46,9 @@ void UKOSkillNodeWidget::NativeOnClicked()
 		return;
 	}
 
-	if (CachedSkillComponent->TryUnlockSkill(SkillName))
+	if (CachedSkillComponent.IsValid())
 	{
-		CurrentState = ESkillState::Unlocked;
-		RefreshNode();
+		CachedSkillComponent->TryUnlockSkill(SkillName);
 	}
 }
 

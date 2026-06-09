@@ -22,17 +22,15 @@ void UKOSkillTreePopup::NativeConstruct()
 		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
 		{
 			SkillComponent = SkillComp;
+			SkillComponent->OnSkillStateChanged.AddUObject(this, &UKOSkillTreePopup::RefreshAllSkillNodes);
 		}
 	}
-	BP_GetAllSkillNodes();
-	RefreshAllSkillNodes();
 }
 
 void UKOSkillTreePopup::NativeDestruct()
 {
 	SkillComponent = nullptr;
 	SkillDataTable.Reset();
-	BP_GetAllSkillNodes().Reset();
 	
 	Super::NativeDestruct();
 }
@@ -83,7 +81,7 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		if (SkillRow)
 		{
 			ESkillState CurrentState = SkillComponent->GetSkillState(Node->SkillName);
-			Node->InitializeNode(SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
+			Node->InitializeNode(Node->SkillName, SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
 		}
 		else
 		{
