@@ -7,6 +7,7 @@
 
 class UButton;
 class UTextBlock;
+class UKORecipeTooltipWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOOnRecipeEntryClicked, FName, RecipeId);
 
@@ -33,6 +34,9 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> NameText;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
+    TSubclassOf<UKORecipeTooltipWidget> TooltipClass;
 
 private:
     UFUNCTION()
