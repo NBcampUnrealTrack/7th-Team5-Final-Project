@@ -34,6 +34,10 @@ public:
     static int32        GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static UTexture2D*  GetIcon(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static bool         HasRow(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
+    
+    // Equipment 전용
+    static bool IsEquipmentItem(const UObject* WorldContextObject, FName ItemId);
+    static bool IsWeaponEquipmentItem(const UObject* WorldContextObject, FName ItemId);
 
     /**
      * Building(공장)의 카테고리 태그에 매칭되는 모든 레시피의 입력/출력 ItemId 유니온을

@@ -2,6 +2,7 @@
 
 #include "Items/KOItemLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "AbilitySystem/Tag/Item/KOGameplayTags_Item.h"
 #include "Building/KOBaseBuilding.h"
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Engine/World.h"
@@ -203,4 +204,43 @@ void UKOItemLibrary::GatherFactoryPortSlots(const UObject* WorldContext, const A
     {
         OutSlots.Emplace(EKOPortKind::Output, Index, OutputItemIds[Index]);
     }
+}
+
+bool UKOItemLibrary::IsEquipmentItem(const UObject* WorldContextObject, FName ItemId)
+{
+    const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(WorldContextObject);
+    if (!LoadSubsystem)
+    {
+        return false;
+    }
+
+    const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        return false;
+    }
+
+    return LoadSubsystem->IsEquipmentItem(ItemRow->ItemTag);
+}
+
+bool UKOItemLibrary::IsWeaponEquipmentItem(const UObject* WorldContextObject, FName ItemId)
+{
+    const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(WorldContextObject);
+    if (!LoadSubsystem)
+    {
+        return false;
+    }
+
+    const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        return false;
+    }
+
+    if (!LoadSubsystem->IsEquipmentItem(ItemRow->ItemTag))
+    {
+        return false;
+    }
+
+    return ItemRow->Categories.HasTag(KOGameplayTags::Item_Category_Weapon);
 }
