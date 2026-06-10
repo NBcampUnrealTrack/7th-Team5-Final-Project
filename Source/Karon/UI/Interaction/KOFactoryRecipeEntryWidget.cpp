@@ -3,6 +3,7 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include  "UI/ItemTooltip/KORecipeTooltipWidget.h"
 
 void UKOFactoryRecipeEntryWidget::SetRecipe(FName InRecipeId, const FText& InDisplayName)
 {
@@ -10,6 +11,21 @@ void UKOFactoryRecipeEntryWidget::SetRecipe(FName InRecipeId, const FText& InDis
     if (NameText)
     {
         NameText->SetText(InDisplayName);
+    }
+    
+    if (!TooltipClass || RecipeId.IsNone())
+    {
+        SetToolTip(nullptr);
+        return;
+    }
+
+    UKORecipeTooltipWidget* Tooltip =
+        CreateWidget<UKORecipeTooltipWidget>(GetOwningPlayer(), TooltipClass);
+
+    if (Tooltip)
+    {
+        Tooltip->SetRecipe(RecipeId);
+        SetToolTip(Tooltip);
     }
 }
 

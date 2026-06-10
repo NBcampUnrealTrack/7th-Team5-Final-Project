@@ -11,6 +11,7 @@ class UTextBlock;
 class UTexture2D;
 class UKOInventoryWidget;
 class UDragDropOperation;
+class UKOItemTooltipWidget;
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOInventorySlotWidget : public UUserWidget
@@ -69,6 +70,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KO|UI|Inventory|Drag")
     float DragVisualOpacity = 0.85f;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
+    TSubclassOf<UKOItemTooltipWidget> TooltipClass;
 
 private:
     void ApplyVisuals();

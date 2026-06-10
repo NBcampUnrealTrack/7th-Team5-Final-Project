@@ -9,6 +9,7 @@
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Build/KOBuildUIComponent.h"
 #include "UI/Inventory/KOItemDragSource.h"
+#include "UI/ItemTooltip/KOItemTooltipWidget.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
@@ -204,6 +205,23 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 		CountText->SetText(FText::AsNumber(CurrentCount));
 		CountText->SetVisibility(ESlateVisibility::HitTestInvisible);
 		CountText->SetRenderOpacity(TargetOpacity); // 다 사용하면 CountText도 투명하게 하는게 좋을까나..?
+	}
+	
+	const bool bHasFactory = !AssignedFactoryId.IsNone();
+	
+	if (!bHasFactory || !TooltipClass)
+	{
+		SetToolTip(nullptr);
+		return;
+	}
+
+	UKOItemTooltipWidget* Tooltip =
+		CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+
+	if (Tooltip)
+	{
+		Tooltip->SetSlot(EKOSlotKind::Factory, AssignedFactoryId);
+		SetToolTip(Tooltip);
 	}
 }
 

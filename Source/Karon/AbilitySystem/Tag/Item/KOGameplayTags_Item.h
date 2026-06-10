@@ -20,6 +20,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_UndergroundMiningModule);
 	/** 무기 작업대 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_WeaponWorkbench);
+	/** 압력 파이프 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PressurePipe);
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
@@ -50,7 +52,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Bronze);
 	/** 청동판 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzePlate);
-	/** 채굴 파이프 */
+	/** 파손된 채광 파이프 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_DamagedMiningPipe);
+	/** 채광 파이프 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_MiningPipe);
 	/** 기어 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);

@@ -14,6 +14,7 @@ class UTextBlock;
 class UDragDropOperation;
 class UKOBuildUIComponent;
 class UKOInventoryComponent;
+class UKOItemTooltipWidget;
 
 UCLASS()
 class KARON_API UKOBuildQuickSlotWidget : public UUserWidget, public IKOGMSInterface
@@ -75,6 +76,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
 	float DepletedOpacity = 0.25f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
+	TSubclassOf<UKOItemTooltipWidget> TooltipClass;
 	
 private:
 	UKOBuildUIComponent* GetBuildUIComponent() const;
