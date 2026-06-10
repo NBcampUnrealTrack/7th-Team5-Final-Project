@@ -5,6 +5,7 @@
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Data/KOComboActionData.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/Tag/Input/KOGameplayTags_Input.h"
 
 UKOGA_ComboManager::UKOGA_ComboManager()
 {
@@ -25,7 +26,22 @@ void UKOGA_ComboManager::ActivateAbility(
 		return;
 	}
 	
-	CurrentComboRowName = InitialComboRowName;
+	if (TriggerEventData)
+	{
+		if (TriggerEventData->EventTag == KOGameplayTags::Input_Ability_Attack_Light)
+		{
+			CurrentComboRowName = FName("Light1");
+		}
+		else if (TriggerEventData->EventTag == KOGameplayTags::Input_Ability_Attack_Heavy)
+		{
+			CurrentComboRowName = FName("Heavy1");
+		}
+	}
+	else
+	{
+		CurrentComboRowName = InitialComboRowName;	
+	}	
+	
 	bIsComboWindowOpen = false;
 	BufferedInput = EAttackInputType::None;
 	
@@ -64,25 +80,6 @@ void UKOGA_ComboManager::EndAbility(
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOGA_ComboManager::InputPressed(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo)
-{
-	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-	
-	if (bIsComboWindowOpen)
-	{
-		BufferedInput = EAttackInputType::Light;
-		
-		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 선입력 버퍼 : Light"))
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 클릭 감지됨. 콤보 창닫힘"));
-	}
-}
-
 void UKOGA_ComboManager::SendExecutionEvent(FName RowName)
 {
 	FString Context = TEXT("Combo Manager Excution");
@@ -90,7 +87,7 @@ void UKOGA_ComboManager::SendExecutionEvent(FName RowName)
 	
 	if (ComboData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] 데이터 테이블에서 '%s' 공격을 찾았습니다! 이벤트 발송 시도."), *RowName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("[ComboManager] '%s'"), *RowName.ToString());
 		FGameplayEventData Payload;
 		Payload.Instigator = GetAvatarActorFromActorInfo();
 		Payload.OptionalObject = ComboData->ComboMontage;
