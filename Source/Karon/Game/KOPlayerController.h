@@ -16,6 +16,7 @@ class UKOGridBuildComponent;
 class UKOInventoryComponent;
 class UKOBuildUIComponent;
 class UKOMapUIComponent;
+class UKOSkillComponent;
 
 // TODO: 
 // 공장 <-> 전투 맵이 분리되면 컨트롤러를 두개로 관리하는것도 나쁘지않을듯? 
@@ -109,6 +110,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="KO|Map")
 	TObjectPtr<UKOMapUIComponent> MapUIComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	TObjectPtr<UKOSkillComponent> SkillComponent;
+	
 private:
 	bool bBuildIMCActive = false;
 

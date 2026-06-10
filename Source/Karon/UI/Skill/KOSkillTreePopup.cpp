@@ -2,6 +2,9 @@
 
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
+#include "Component/Skill/KOSkillComponent.h"
+#include "Data/Type/KOSkillTypes.h"
+#include "Skills/KOSkillLibrary.h"
 
 UKOSkillTreePopup::UKOSkillTreePopup()
 {
@@ -14,12 +17,39 @@ void UKOSkillTreePopup::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	RefreshAllSkillNodes();
+	if (AController* OwningController = GetOwningPlayer())
+	{
+		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
+		{
+			SkillComponent = SkillComp;
+		}
+	}
+}
+
+void UKOSkillTreePopup::NativeDestruct()
+{
+	SkillComponent = nullptr;
+	
+	Super::NativeDestruct();
+}
+
+void UKOSkillTreePopup::NativeOnActivated()
+{
+	Super::NativeOnActivated();
+	
+	SetupAndBindSkillNodes();
 }
 
 void UKOSkillTreePopup::NativeOnDeactivated()
 {
-	
+	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
+	{
+		if (IsValid(Node))
+		{
+			Node->OnSkillNodeClicked.RemoveAll(this);
+		}
+	}
+	CachedSkillNodes.Empty();
 	
 	Super::NativeOnDeactivated();
 }
@@ -27,28 +57,68 @@ void UKOSkillTreePopup::NativeOnDeactivated()
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
 {
 	APawn* OwningPawn = GetOwningPlayerPawn();
-	if (OwningPawn == nullptr)
+	const UObject* WorldContext = GetWorld();
+	if (OwningPawn == nullptr || WorldContext == nullptr)
 	{
 		return;
 	}
 	
+	if (SkillComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillComponent가 없습니다."));
+		return;
+	}
+	//BP를 통해 가져오므로 슬롯 추가 시 BP에 등록 필요함
 	TArray<UKOSkillNodeWidget*> SkillNodes = BP_GetAllSkillNodes();
 	
 	for (UKOSkillNodeWidget* Node : SkillNodes)
 	{
-		if (Node == nullptr) return;
-		//임시 강제 해금 가능 등록
-		ESkillState TargetState = ESkillState::CanUnlock;
-		/* 저장위치에서 값을 받아와 노드 활성화(State가 아닌 SkillComponent가 될수도 있음)
-		if (PlayerState->IsSkillUnlocked(Node->SkillTag))
+		if (Node == nullptr || Node->SkillName.IsNone()) continue;
+		
+		const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(WorldContext, Node->SkillName);
+		
+		if (SkillRow)
 		{
-			TargetState = ESkillState::Unlocked;
+			ESkillState CurrentState = SkillComponent->GetSkillState(Node->SkillName);
+			Node->InitializeNode(Node->SkillName, SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
 		}
-		else if (!PlayerState->IsSkillUnlocked(Node->SkillTag))
+		else
 		{
-			TargetState = ESkillState::Locked;
+			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row를 찾을 수 없습니다."),
+				*Node->SkillName.ToString());
 		}
-		*/
-		Node->InitializeNode(Node->SkillTag, Node->SkillCost, TargetState);
 	}
+}
+
+void UKOSkillTreePopup::SetupAndBindSkillNodes()
+{
+	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
+	{
+		if (IsValid(Node))
+		{
+			Node->OnSkillNodeClicked.RemoveAll(this);
+		}
+	}
+	CachedSkillNodes.Empty();
+	
+	TArray<UKOSkillNodeWidget*> RetrievedNodes = BP_GetAllSkillNodes();
+	for(UKOSkillNodeWidget* Node : RetrievedNodes)
+	{
+		if (IsValid(Node))
+		{
+			CachedSkillNodes.Add(Node);
+			
+			Node->OnSkillNodeClicked.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeClicked);
+		}
+	}
+	RefreshAllSkillNodes();
+}
+
+void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
+{
+	if (ClickedNode == nullptr)
+	{
+		return;
+	}
+	RefreshAllSkillNodes();
 }

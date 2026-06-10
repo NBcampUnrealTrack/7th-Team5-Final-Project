@@ -2,6 +2,8 @@
 
 #include "KOSkillComponent.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "Game/KOPlayerController.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 
 UKOSkillComponent::UKOSkillComponent()
@@ -12,20 +14,91 @@ UKOSkillComponent::UKOSkillComponent()
 void UKOSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CachedLoadSubsystem = UKOLoadSubsystem::Get(GetOwner());
+
+	if (AKOPlayerController* PC = Cast<AKOPlayerController>(GetOwner()))
+	{
+		CachedInventoryComponent = PC->FindComponentByClass<UKOInventoryComponent>();
+	}
+
 	InitializeSkillStates();
 }
 
-bool UKOSkillComponent::TryUnlockSkill(FName SkillId)
+void UKOSkillComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (SkillId.IsNone())
+	CachedLoadSubsystem = nullptr;
+	CachedInventoryComponent = nullptr;
+
+	Super::EndPlay(EndPlayReason);
+}
+
+bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
+{
+	if (SkillName.IsNone())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 스킬명이 없습니다."));
+		return false;
+	}
+	if (IsUnlocked(SkillName))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 스킬이 이미 해금된 상태입니다."));
 		return false;
 	}
 
-	ESkillState* State = SkillStates.Find(SkillId);
-	if (!State || *State != ESkillState::CanUnlock)
+	if (CachedLoadSubsystem == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 캐싱된 LoadSubsystem이 없습니다."));
 		return false;
+	}
+	const FKOSkillRow* Row = CachedLoadSubsystem->FindSkillRow(SkillName);
+
+	if (Row == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 스킬 데이터를 찾을 수 없습니다."), *SkillName.ToString());
+		return false;
+	}
+
+	if (ArePrerequisitesMet(*Row) == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 선행 조건을 미충족 했습니다."));
+		return false;
+	}
+
+	ESkillState* State = SkillStates.Find(SkillName);
+	if (State == nullptr || *State != ESkillState::CanUnlock)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: SkillState가 없거나 CanUnlock이 아닙니다."));
+		return false;
+	}
+
+	if (!Row->UnlockCosts.IsEmpty())
+	{
+		if (CachedInventoryComponent == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 비용이 있는 스킬인데 InventoryComponent가 없습니다."));
+			return false;
+		}
+
+		for (const FSkillCost& Cost : Row->UnlockCosts)
+		{
+			const FName ItemId = CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag);
+			if (ItemId.IsNone())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 비용 태그 [%s]에 해당하는 아이템이 없습니다."), *Cost.ItemTag.ToString());
+				return false;
+			}
+			if (!CachedInventoryComponent->HasEnoughItems(ItemId, Cost.Amount))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 수량 부족 (필요: %d)"), *ItemId.ToString(), Cost.Amount);
+				return false;
+			}
+		}
+
+		for (const FSkillCost& Cost : Row->UnlockCosts)
+		{
+			CachedInventoryComponent->TryRemoveItem(CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag), Cost.Amount);
+		}
 	}
 
 	*State = ESkillState::Unlocked;
@@ -33,22 +106,21 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillId)
 	return true;
 }
 
-ESkillState UKOSkillComponent::GetSkillState(FName SkillId) const
+ESkillState UKOSkillComponent::GetSkillState(FName SkillName) const
 {
-	const ESkillState* State = SkillStates.Find(SkillId);
+	const ESkillState* State = GetSkillInfo(SkillName);
 	return State ? *State : ESkillState::Locked;
 }
 
-bool UKOSkillComponent::IsUnlocked(FName SkillId) const
+bool UKOSkillComponent::IsUnlocked(FName SkillName) const
 {
-	return GetSkillState(SkillId) == ESkillState::Unlocked;
+	return GetSkillState(SkillName) == ESkillState::Unlocked;
 }
 
 FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
 {
-	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
 	FGameplayTagContainer Tags;
-	if (!LS)
+	if (CachedLoadSubsystem == nullptr)
 	{
 		return Tags;
 	}
@@ -60,7 +132,7 @@ FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
 			continue;
 		}
 
-		const FKOSkillRow* Row = LS->FindSkillRow(Pair.Key);
+		const FKOSkillRow* Row = CachedLoadSubsystem->FindSkillRow(Pair.Key);
 		if (Row && Row->SkillTag.IsValid())
 		{
 			Tags.AddTag(Row->SkillTag);
@@ -69,7 +141,7 @@ FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
 	return Tags;
 }
 
-void UKOSkillComponent::GetAllSkillIds(TArray<FName>& Out) const
+void UKOSkillComponent::GetAllSkillNames(TArray<FName>& Out) const
 {
 	SkillStates.GetKeys(Out);
 }
@@ -78,18 +150,17 @@ void UKOSkillComponent::InitializeSkillStates()
 {
 	SkillStates.Empty();
 
-	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
-	if (!LS)
+	if (CachedLoadSubsystem == nullptr)
 	{
 		return;
 	}
 
 	TArray<FName> AllSkillIds;
-	LS->GetAllSkillIds(AllSkillIds);
+	CachedLoadSubsystem->GetAllSkillIds(AllSkillIds);
 
-	for (const FName& SkillId : AllSkillIds)
+	for (const FName& SkillName : AllSkillIds)
 	{
-		SkillStates.Add(SkillId, ESkillState::Locked);
+		SkillStates.Add(SkillName, ESkillState::Locked);
 	}
 
 	ReevaluateAllSkillStates();
@@ -97,9 +168,9 @@ void UKOSkillComponent::InitializeSkillStates()
 
 void UKOSkillComponent::ReevaluateAllSkillStates()
 {
-	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
-	if (!LS)
+	if (CachedLoadSubsystem == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ReevaluateAllSkillStates: LS가 없습니다."))
 		return;
 	}
 
@@ -110,8 +181,8 @@ void UKOSkillComponent::ReevaluateAllSkillStates()
 			continue; // 이미 해금된 스킬은 건드리지 않음
 		}
 
-		const FKOSkillRow* Row = LS->FindSkillRow(Pair.Key);
-		if (!Row)
+		const FKOSkillRow* Row = CachedLoadSubsystem->FindSkillRow(Pair.Key);
+		if (Row == nullptr)
 		{
 			continue;
 		}
@@ -130,7 +201,7 @@ bool UKOSkillComponent::ArePrerequisitesMet(const FKOSkillRow& Row) const
 	return GetUnlockedSkillTags().HasAll(Row.PrerequisiteSkillTags);
 }
 
-const ESkillState* UKOSkillComponent::GetSkillInfo(FName SkillId) const
+const ESkillState* UKOSkillComponent::GetSkillInfo(FName SkillName) const
 {
-	return SkillStates.Find(SkillId);
+	return SkillStates.Find(SkillName);
 }

@@ -6,8 +6,9 @@
 #include "Data/Type/KOSkillTypes.h"
 #include "KOSkillComponent.generated.h"
 
-
 struct FKOSkillRow;
+class UKOLoadSubsystem;
+class UKOInventoryComponent;
 
 UCLASS(ClassGroup= "KO|Skill", meta=(BlueprintSpawnableComponent))
 class KARON_API UKOSkillComponent : public UActorComponent
@@ -17,18 +18,21 @@ class KARON_API UKOSkillComponent : public UActorComponent
 public:
 	UKOSkillComponent();
 	
-	bool TryUnlockSkill(FName SkillId);
-	ESkillState GetSkillState(FName SkillId) const;
-	bool IsUnlocked(FName SkillId) const;
-	FGameplayTagContainer GetUnlockedSkillTags() const;
-	void GetAllSkillIds(TArray<FName>& Out) const;
-	
-
-protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+	bool TryUnlockSkill(FName SkillName);
+	bool IsUnlocked(FName SkillName) const;
+	ESkillState GetSkillState(FName SkillName) const;
+	FGameplayTagContainer GetUnlockedSkillTags() const;
+	void GetAllSkillNames(TArray<FName>& Out) const;
 
 private:
 	UPROPERTY()
+	TObjectPtr<UKOLoadSubsystem> CachedLoadSubsystem;
+	UPROPERTY()
+	TObjectPtr<UKOInventoryComponent> CachedInventoryComponent;
+	
 	TMap<FName, ESkillState> SkillStates;
 	
 	void InitializeSkillStates();
