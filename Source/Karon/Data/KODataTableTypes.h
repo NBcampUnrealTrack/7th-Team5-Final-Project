@@ -167,6 +167,16 @@ struct KARON_API FKORecipeRow : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
+struct KARON_API FKOEquipmentRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    /** 장비로 취급할 아이템 태그. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+    FGameplayTag ItemTag;
+};
+
+USTRUCT(BlueprintType)
 struct KARON_API FKOSkillRow : public FTableRowBase
 {
     GENERATED_BODY()
