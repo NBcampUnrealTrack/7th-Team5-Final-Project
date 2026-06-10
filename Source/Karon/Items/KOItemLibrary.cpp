@@ -59,6 +59,34 @@ FText UKOItemLibrary::GetDisplayName(const UObject* WorldContext, EKOSlotKind Ki
     return FText::GetEmpty();
 }
 
+FText UKOItemLibrary::GetDescription(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
+{
+    const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
+    if (!LS)
+    {
+        return FText::GetEmpty();
+    }
+
+    switch (Kind)
+    {
+    case EKOSlotKind::Item:
+        if (const FKOItemRow* Row = LS->FindItemRow(Id))
+        {
+            return Row->Description;
+        }
+        break;
+
+    case EKOSlotKind::Factory:
+        if (const FKOFactoryRow* Row = LS->FindFactoryRow(Id))
+        {
+            return Row->Description;
+        }
+        break;
+    }
+
+    return FText::GetEmpty();
+}
+
 int32 UKOItemLibrary::GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
 {
     const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);

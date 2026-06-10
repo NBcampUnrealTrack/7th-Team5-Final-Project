@@ -3,7 +3,6 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "GameplayTagContainer.h"
 #include "Data/KODataTableTypes.h"
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOItemPortTypes.h"
@@ -31,6 +30,7 @@ public:
 
     // Item - Factory 공용
     static FText        GetDisplayName(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
+    static FText        GetDescription(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static int32        GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static UTexture2D*  GetIcon(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static bool         HasRow(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
