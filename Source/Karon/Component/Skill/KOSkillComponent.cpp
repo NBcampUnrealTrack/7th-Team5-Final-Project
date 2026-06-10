@@ -22,6 +22,21 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 스킬명이 없습니다."));
 		return false;
 	}
+		
+	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
+	if (!LS)
+	{
+		return false;
+	}
+	const FKOSkillRow* Row = LS->FindSkillRow(SkillName);
+	if (Row != nullptr)
+	{	/** 선행 스킬이 해금되었는지 체크 */
+		if (ArePrerequisitesMet(*Row) == false)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 선행 조건을 미충족 했습니다."));
+			return false;
+		}
+	}
 
 	ESkillState* State = SkillStates.Find(SkillName);
 	if (State == nullptr || *State != ESkillState::CanUnlock)
@@ -30,7 +45,7 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 		return false;
 	}
 
-	*State = ESkillState::Unlocked;
+	 *State = ESkillState::Unlocked;
 	ReevaluateAllSkillStates();
 	OnSkillStateChanged.Broadcast();
 	return true;
@@ -38,7 +53,7 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 
 ESkillState UKOSkillComponent::GetSkillState(FName SkillName) const
 {
-	const ESkillState* State = SkillStates.Find(SkillName);
+	const ESkillState* State = GetSkillInfo(SkillName);
 	return State ? *State : ESkillState::Locked;
 }
 
@@ -72,7 +87,7 @@ FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const
 	return Tags;
 }
 
-void UKOSkillComponent::GetAllSkillIds(TArray<FName>& Out) const
+void UKOSkillComponent::GetAllSkillNames(TArray<FName>& Out) const
 {
 	SkillStates.GetKeys(Out);
 }
@@ -90,9 +105,9 @@ void UKOSkillComponent::InitializeSkillStates()
 	TArray<FName> AllSkillIds;
 	LS->GetAllSkillIds(AllSkillIds);
 
-	for (const FName& SkillId : AllSkillIds)
+	for (const FName& SkillName : AllSkillIds)
 	{
-		SkillStates.Add(SkillId, ESkillState::Locked);
+		SkillStates.Add(SkillName, ESkillState::Locked);
 	}
 
 	ReevaluateAllSkillStates();
@@ -103,6 +118,7 @@ void UKOSkillComponent::ReevaluateAllSkillStates()
 	const UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(GetOwner());
 	if (LS == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ReevaluateAllSkillStates: LS가 없습니다."))
 		return;
 	}
 

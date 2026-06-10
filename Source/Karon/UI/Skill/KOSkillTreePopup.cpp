@@ -45,16 +45,9 @@ void UKOSkillTreePopup::NativeOnActivated()
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
 {
 	APawn* OwningPawn = GetOwningPlayerPawn();
-	if (OwningPawn == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: 플레이어 폰을 가져오는데 실패했습니다."));
-		return;
-	}
-	
 	const UObject* WorldContext = GetWorld();
-	if (WorldContext == nullptr)
+	if (OwningPawn == nullptr || WorldContext == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: 월드를 가져오는데 실패했습니다."));
 		return;
 	}
 	

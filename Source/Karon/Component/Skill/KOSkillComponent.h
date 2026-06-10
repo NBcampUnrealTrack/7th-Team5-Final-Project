@@ -23,7 +23,7 @@ public:
 	bool IsUnlocked(FName SkillName) const;
 	ESkillState GetSkillState(FName SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
-	void GetAllSkillIds(TArray<FName>& Out) const;
+	void GetAllSkillNames(TArray<FName>& Out) const;
 	FOnSkillStateChanged OnSkillStateChanged;
 
 private:

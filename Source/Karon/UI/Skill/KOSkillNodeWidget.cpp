@@ -49,6 +49,7 @@ void UKOSkillNodeWidget::NativeOnClicked()
 	if (CachedSkillComponent.IsValid())
 	{
 		CachedSkillComponent->TryUnlockSkill(SkillName);
+		RefreshNode();
 	}
 }
 
