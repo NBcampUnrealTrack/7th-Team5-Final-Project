@@ -22,7 +22,6 @@ void UKOSkillTreePopup::NativeConstruct()
 		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
 		{
 			SkillComponent = SkillComp;
-			SkillComponent->OnSkillStateChanged.AddUObject(this, &UKOSkillTreePopup::RefreshAllSkillNodes);
 		}
 	}
 }
@@ -30,7 +29,6 @@ void UKOSkillTreePopup::NativeConstruct()
 void UKOSkillTreePopup::NativeDestruct()
 {
 	SkillComponent = nullptr;
-	SkillDataTable.Reset();
 	
 	Super::NativeDestruct();
 }
@@ -39,7 +37,21 @@ void UKOSkillTreePopup::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 	
-	RefreshAllSkillNodes();
+	SetupAndBindSkillNodes();
+}
+
+void UKOSkillTreePopup::NativeOnDeactivated()
+{
+	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
+	{
+		if (IsValid(Node))
+		{
+			Node->OnSkillNodeClicked.RemoveAll(this);
+		}
+	}
+	CachedSkillNodes.Empty();
+	
+	Super::NativeOnDeactivated();
 }
 
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
@@ -48,12 +60,6 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 	const UObject* WorldContext = GetWorld();
 	if (OwningPawn == nullptr || WorldContext == nullptr)
 	{
-		return;
-	}
-	
-	if (SkillDataTable == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: Skill Data Table이 지정되지 않았습니다."));
 		return;
 	}
 	
@@ -82,4 +88,37 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 				*Node->SkillName.ToString());
 		}
 	}
+}
+
+void UKOSkillTreePopup::SetupAndBindSkillNodes()
+{
+	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
+	{
+		if (IsValid(Node))
+		{
+			Node->OnSkillNodeClicked.RemoveAll(this);
+		}
+	}
+	CachedSkillNodes.Empty();
+	
+	TArray<UKOSkillNodeWidget*> RetrievedNodes = BP_GetAllSkillNodes();
+	for(UKOSkillNodeWidget* Node : RetrievedNodes)
+	{
+		if (IsValid(Node))
+		{
+			CachedSkillNodes.Add(Node);
+			
+			Node->OnSkillNodeClicked.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeClicked);
+		}
+	}
+	RefreshAllSkillNodes();
+}
+
+void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
+{
+	if (ClickedNode == nullptr)
+	{
+		return;
+	}
+	RefreshAllSkillNodes();
 }

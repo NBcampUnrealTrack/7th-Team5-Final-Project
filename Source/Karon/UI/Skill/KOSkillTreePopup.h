@@ -25,8 +25,11 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 	
 	void RefreshAllSkillNodes() const;
+	void SetupAndBindSkillNodes();
+	void HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode);
 	
 	UFUNCTION(BlueprintPure, Category="Skill Tree")
 	UKOSkillComponent* GetSkillComponent() const {return SkillComponent;}
@@ -34,9 +37,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="Skill Tree")
 	TObjectPtr<UKOSkillComponent> SkillComponent;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Skill Tree")
-	TSoftObjectPtr<UDataTable> SkillDataTable;
-	
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillNodeWidget*> BP_GetAllSkillNodes() const;
+	
+private:
+	UPROPERTY()
+	TArray<UKOSkillNodeWidget*> CachedSkillNodes;
 };
