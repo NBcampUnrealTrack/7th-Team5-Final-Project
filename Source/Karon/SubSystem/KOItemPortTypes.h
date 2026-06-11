@@ -26,6 +26,44 @@ struct FKOConveyorItem
     void Reset()         { ItemId = NAME_None; }
 };
 
+/** 머신 포트 방향(입력/출력). 벨트 연결 UI/바인딩 공용. */
+UENUM(BlueprintType)
+enum class EKOPortKind : uint8
+{
+    Input,
+    Output
+};
+
+/**
+ * 공장 포트 슬롯 한 칸(일반 포트 모델).
+ * 슬롯 = (Kind, PortIndex) — 머신의 입력/출력 포트 위치이며, 이것이 벨트 바인딩의 키다.
+ * ItemId 는 표시용 힌트(선택 레시피의 해당 포트 아이템)일 뿐 바인딩 키가 아니다.
+ * 레시피 미선택/빈 포트면 ItemId=None 이어도 포트 자체는 유효한 바인딩 대상이다.
+ */
+USTRUCT(BlueprintType)
+struct FKOFactoryPortSlot
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly, Category = "KO|Port")
+    EKOPortKind Kind = EKOPortKind::Input;
+
+    /** 그룹(Input/Output) 내 포트 위치. 벨트 바인딩의 키. */
+    UPROPERTY(BlueprintReadOnly, Category = "KO|Port")
+    int32 PortIndex = 0;
+
+    /** 표시용 아이템 힌트(선택 레시피의 해당 포트 아이템). 없으면 빈 포트. 바인딩 키 아님. */
+    UPROPERTY(BlueprintReadOnly, Category = "KO|Port")
+    FName ItemId = NAME_None;
+
+    FKOFactoryPortSlot() = default;
+    FKOFactoryPortSlot(EKOPortKind InKind, int32 InPortIndex, FName InItemId = NAME_None)
+        : Kind(InKind), PortIndex(InPortIndex), ItemId(InItemId) {}
+
+    /** 포트는 빈 칸이어도 유효한 바인딩 대상이므로 PortIndex 기준. */
+    bool IsValid() const { return PortIndex >= 0; }
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 아이템을 "내보내는" 쪽 (머신 출력 버퍼 / 벨트 꼬리).
 // 파괴 가능한 그리드 이웃을 Cast<>/FindComponentByInterface 로 해결해야 하므로

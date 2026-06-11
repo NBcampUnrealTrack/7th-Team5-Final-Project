@@ -21,6 +21,11 @@
 #include "StructUtils/InstancedStruct.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
+#include "UI/KOUISubsystem.h"
+#include "UI/Interaction/KOBeltConnectWidget.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
+#include "CommonActivatableWidget.h"
+
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
 static TAutoConsoleVariable<int32> CVarKODrawBuildTrace(
@@ -500,6 +505,13 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize.Y
 	);
 
+	// 설치된 게 벨트면, 인접한 포트 보유 공장들과의 연결 팝업을 띄운다(없으면 무동작).
+	// (CurrentAnchor/Size 가 아래 분기에서 리셋되기 전에 스냅샷 사용)
+	if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(NewBuilding))
+	{
+		TryQueueBeltConnect(Belt, CurrentAnchor, CurrentBuildingSize);
+	}
+
 	const bool bFactoryDepleted = InventoryComponent->GetCountOf(BuiltFactoryId) <= 0;
 
 	if (!bKeepBuildModeAfterPlacement || bFactoryDepleted)
@@ -510,6 +522,165 @@ void UKOGridBuildComponent::RequestBuild()
 	{
 		UpdateGhostPreview();
 	}
+}
+
+void UKOGridBuildComponent::OpenBeltConnectFor(AKOConveyorBelt* Belt)
+{
+	if (!Belt)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
+	if (!GridSub)
+	{
+		return;
+	}
+
+	// 이미 설치된 벨트라 그리드에서 점유 영역을 역조회해 배치 때와 동일 경로로 재사용.
+	FIntPoint Anchor = FIntPoint::ZeroValue;
+	FIntPoint Size   = FIntPoint(1, 1);
+	if (!GridSub->TryGetOccupiedAreaForActor(Belt, Anchor, Size))
+	{
+		return;
+	}
+
+	TryQueueBeltConnect(Belt, Anchor, Size);
+}
+
+void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size)
+{
+	if (!Belt)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
+	if (!GridSub)
+	{
+		return;
+	}
+
+	// 결정적 스캔 순서(+X, -X, +Y, -Y). 다수 인접 공장은 이 순서대로 팝업 큐에 쌓인다.
+	static const FIntPoint Dirs[4] = { FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1) };
+
+	TArray<AKOBaseBuilding*> Factories;
+	TSet<AActor*> Seen;
+
+	for (int32 X = 0; X < Size.X; ++X)
+	{
+		for (int32 Y = 0; Y < Size.Y; ++Y)
+		{
+			const FIntPoint Cell = Anchor + FIntPoint(X, Y);
+			for (const FIntPoint& Dir : Dirs)
+			{
+				const FIntPoint Neighbor = Cell + Dir;
+
+				// 벨트 자신의 점유 영역 안쪽이면 스킵.
+				const bool bInsideSelf =
+					Neighbor.X >= Anchor.X && Neighbor.X < Anchor.X + Size.X &&
+					Neighbor.Y >= Anchor.Y && Neighbor.Y < Anchor.Y + Size.Y;
+				if (bInsideSelf)
+				{
+					continue;
+				}
+
+				AActor* Actor = GridSub->GetOccupyingActorAt(Neighbor);
+				if (!Actor || Seen.Contains(Actor))
+				{
+					continue;
+				}
+				Seen.Add(Actor);
+
+				// 공장이어야 하고, 벨트는 제외.
+				AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Actor);
+				if (!Building || Cast<AKOConveyorBelt>(Building))
+				{
+					continue;
+				}
+
+				// Processor 머신만 벨트 연결 팝업 대상. 레시피 미선택이어도 팝업은 띄움(빈 포트 표시).
+				// Energy Producer 는 제외: 에너지 출력이라 포트 바인딩이 무의미하고, 연료 입력은
+				// 기하 인접 시 tail-push 로 자동 공급되므로 명시적 바인딩 UI 가 불필요.
+				const bool bIsProcessor =
+					Building->FindComponentByClass<UKOFactoryProcessorComponent>() != nullptr;
+
+				// 벨트 흐름축이 이 머신에 닿는 경우(설치 방향이 머신 입/출력과 맞는 경우)만 후보.
+				// 수직 배치(흐름이 머신을 안 향함)는 연결 의미가 없어 제외.
+				EKOPortKind ConnectKind;
+				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
+				{
+					Factories.Add(Building);
+				}
+			}
+		}
+	}
+
+	if (Factories.Num() == 0)
+	{
+		return;
+	}
+
+	PendingConnectBelt = Belt;
+	PendingConnectFactories.Reset();
+	for (AKOBaseBuilding* Factory : Factories)
+	{
+		PendingConnectFactories.Add(Factory);
+	}
+	PendingConnectIndex = 0;
+
+	OpenNextBeltConnectPopup();
+}
+
+void UKOGridBuildComponent::OpenNextBeltConnectPopup()
+{
+	AKOConveyorBelt* Belt = PendingConnectBelt.Get();
+	if (!Belt)
+	{
+		PendingConnectFactories.Reset();
+		PendingConnectIndex = 0;
+		return;
+	}
+
+	// 큐에서 아직 살아있는 다음 공장을 찾는다.
+	AKOBaseBuilding* Factory = nullptr;
+	while (PendingConnectIndex < PendingConnectFactories.Num())
+	{
+		Factory = PendingConnectFactories[PendingConnectIndex++].Get();
+		if (Factory)
+		{
+			break;
+		}
+		Factory = nullptr;
+	}
+
+	if (!Factory)
+	{
+		// 큐 소진.
+		PendingConnectFactories.Reset();
+		PendingConnectIndex = 0;
+		return;
+	}
+
+	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_BeltConnect);
+	UKOBeltConnectWidget* ConnectWidget = Cast<UKOBeltConnectWidget>(Widget);
+	if (!ConnectWidget)
+	{
+		// 오픈 실패(미등록 등) — 큐 중단.
+		PendingConnectFactories.Reset();
+		PendingConnectIndex = 0;
+		return;
+	}
+
+	ConnectWidget->SetupConnection(Belt, Factory);
+
+	// 닫히면(슬롯 선택 or ESC) 다음 공장 팝업으로 진행.
+	Widget->OnDeactivated().AddWeakLambda(this, [this]()
+	{
+		OpenNextBeltConnectPopup();
+	});
 }
 
 void UKOGridBuildComponent::CancelCurrentMode()

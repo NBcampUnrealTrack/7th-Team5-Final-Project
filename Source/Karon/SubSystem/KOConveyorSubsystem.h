@@ -5,9 +5,11 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "Tickable.h"
 #include "Containers/Queue.h"
+#include "Subsystem/KOItemPortTypes.h"
 #include "KOConveyorSubsystem.generated.h"
 
 class AKOConveyorBelt;
+class AKOBaseBuilding;
 
 /**
  * 등록된 모든 컨베이어 벨트를 매 프레임 일괄 틱하는 중앙 서브시스템.
@@ -35,6 +37,9 @@ public:
 
     /** 등록된 모든 벨트 상태를 로그로 덤프(콘솔 ko.Conveyor.Dump 에서 호출). */
     void DumpToLog() const;
+
+    /** (Machine, Kind, PortIndex) 포트가 등록된 벨트 중 하나라도 바인딩 중인가(점유 표시용). */
+    bool IsSlotBound(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const;
 
     // FTickableGameObject
     virtual void Tick(float DeltaTime) override;

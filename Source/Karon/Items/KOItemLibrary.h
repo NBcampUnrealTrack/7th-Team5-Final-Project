@@ -6,10 +6,12 @@
 #include "GameplayTagContainer.h"
 #include "Data/KODataTableTypes.h"
 #include "Items/KOItemSlot.h"
+#include "Subsystem/KOItemPortTypes.h"
 #include "KOItemLibrary.generated.h"
 
 class UTexture2D;
 class UKOLoadSubsystem;
+class AKOBaseBuilding;
 
 UCLASS()
 class KARON_API UKOItemLibrary : public UBlueprintFunctionLibrary
@@ -32,6 +34,13 @@ public:
     static int32        GetMaxStack(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static UTexture2D*  GetIcon(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
     static bool         HasRow(const UObject* WorldContext, EKOSlotKind Kind, FName Id);
+
+    /**
+     * Building(공장)의 카테고리 태그에 매칭되는 모든 레시피의 입력/출력 ItemId 유니온을
+     * 포트 슬롯(아이템 종류 단위)으로 수집. 벨트 연결 UI/바인딩 공용.
+     * UKOFactoryProcessorWidget::BuildIOSlots 와 동일한 열거 규칙.
+     */
+    static void GatherFactoryPortSlots(const UObject* WorldContext, const AKOBaseBuilding* Building, TArray<FKOFactoryPortSlot>& OutSlots);
 
 private:
     static const UKOLoadSubsystem* GetLoadSubsystem(const UObject* WorldContext);

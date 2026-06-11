@@ -59,6 +59,28 @@ public:
     /** 이 벨트의 입구 이웃 셀이 Cell 인가(= 이 벨트가 Cell 에서 아이템을 받는가). */
     bool InputsFromCell(const FIntPoint& Cell) const { return (MyCell - InDir) == Cell; }
 
+    /**
+     * 이 벨트가 흐름상 머신과 연결되는 방향을 판정(설치 방향 기준).
+     * 벨트 출구가 머신을 향하면 OutKind=Input(머신 입력에 공급),
+     * 벨트 입구가 머신을 향하면 OutKind=Output(머신 출력에서 받음).
+     * 벨트 흐름축이 머신에 닿지 않으면(수직 배치 등) false.
+     */
+    bool GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const;
+
+    // ─── 머신 포트 바인딩 (벨트 연결 팝업에서 설정) ──────────────────────────
+    /** 이 벨트를 머신의 특정 포트 슬롯(Kind+ItemId)에 묶는다. 벨트당 단일 바인딩(재호출 시 덮어씀). */
+    void BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot);
+
+    /** 이 벨트가 정확히 (Machine, Kind, PortIndex) 포트에 바인딩돼 있는가. 점유 질의용. */
+    bool IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const;
+
+    /** 머신 포트 바인딩 보유 여부. */
+    bool HasMachineBinding() const { return BoundMachine.IsValid() && BoundPortIndex != INDEX_NONE; }
+
+    // ─── IKOInteractableInterface (재편집) ───────────────────────────────────
+    /** 설치된 벨트와 상호작용 시 연결 팝업을 다시 연다(플레이어 빌드 컴포넌트 경유). */
+    virtual void OnInteract(AActor* Interactor) override;
+
     /** 현재 아이템이 올라가 있는 슬롯 수(진단용). */
     int32 GetOccupiedSlotCount() const;
 
@@ -174,6 +196,14 @@ private:
     FVector   EntryDirWorld = -FVector::ForwardVector; // 중심 → 입구 이웃 월드 방향(디버그/비주얼)
     FVector   ExitDirWorld  =  FVector::ForwardVector; // 중심 → 출구 이웃 월드 방향(디버그/비주얼)
     float     CellSize = 100.f;
+
+    // ─── 머신 포트 바인딩 상태 ───────────────────────────────────────────────
+    // 약참조라 GC/직렬화 마크업 불필요. 머신 파괴 시 자동 무효 → 점유도 자동 해제.
+    // (저장·로드(Phase3)에서 영속화가 필요하면 UPROPERTY 로 승격)
+    // 일반 포트 모델: 바인딩 키는 (BoundMachine, BoundKind, BoundPortIndex). 아이템 타입 무관.
+    TWeakObjectPtr<AKOBaseBuilding> BoundMachine;
+    int32       BoundPortIndex = INDEX_NONE;
+    EKOPortKind BoundKind       = EKOPortKind::Input;
 
     /** 메시별 아이템 ISM. 같은 메시를 쓰는 아이템들은 ISM 하나를 공유(슬롯 인덱스로 인스턴스 식별). */
     UPROPERTY(Transient)

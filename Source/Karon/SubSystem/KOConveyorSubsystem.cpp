@@ -151,6 +151,26 @@ void UKOConveyorSubsystem::DumpToLog() const
     UE_LOG(LogKOConveyor, Log, TEXT("[Conveyor] ===== 총 아이템 %d개 ====="), TotalItems);
 }
 
+bool UKOConveyorSubsystem::IsSlotBound(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const
+{
+    if (!Machine || PortIndex < 0)
+    {
+        return false;
+    }
+
+    for (const TWeakObjectPtr<AKOConveyorBelt>& WeakBelt : Belts)
+    {
+        if (const AKOConveyorBelt* Belt = WeakBelt.Get())
+        {
+            if (Belt->IsBoundToSlot(Machine, Kind, PortIndex))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 TStatId UKOConveyorSubsystem::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(UKOConveyorSubsystem, STATGROUP_Tickables);

@@ -36,6 +36,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
 	/** 타이틀 메뉴 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TitleMenu);
+	/** 벨트-공장 포트 연결 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BeltConnect);
 	
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);

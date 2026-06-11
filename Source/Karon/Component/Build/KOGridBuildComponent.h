@@ -12,6 +12,7 @@ class UMaterialInterface;
 class AKOGhostPreview;
 class UMeshComponent;
 class AKOBaseBuilding;
+class AKOConveyorBelt;
 class UKOInventoryComponent;
 
 UENUM(BlueprintType)
@@ -57,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void RequestBuild();
+
+	/** 이미 설치된 벨트의 연결 팝업을 다시 연다(벨트 상호작용 재편집 진입점). 인접 공장 재스캔 후 순차 팝업. */
+	void OpenBeltConnectFor(AKOConveyorBelt* Belt);
 	
 	// ─── 건물 파괴(해제) ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build")
@@ -138,6 +142,13 @@ private:
 	/** 현재 배치 중인 건물 클래스가 코너 형태 컨베이어 벨트인지 CDO로 판정. */
 	bool IsCurrentBuildingCornerBelt() const;
 
+	// ─── 벨트-공장 연결 팝업 트리거 ──────────────────────────────────────────
+	/** 방금 설치한 벨트의 인접 4셀에서 포트 슬롯 보유 공장을 수집해 연결 팝업 큐를 시작. */
+	void TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size);
+
+	/** 큐의 다음 공장에 대해 BeltConnect 팝업을 오픈. 팝업 닫힘(OnDeactivated)마다 재귀 호출. */
+	void OpenNextBeltConnectPopup();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;
@@ -177,6 +188,11 @@ private:
 	
 	TWeakObjectPtr<UClass> CurrentBuildingClass;
 	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;
+
+	// 벨트-공장 연결 팝업 순차 큐 상태.
+	TWeakObjectPtr<AKOConveyorBelt> PendingConnectBelt;
+	TArray<TWeakObjectPtr<AKOBaseBuilding>> PendingConnectFactories;
+	int32 PendingConnectIndex = 0;
 
 	UPROPERTY()
 	TArray<FKODestroyTargetOriginalMaterials> DestroyTargetOriginalMaterials;
