@@ -127,6 +127,10 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     /** 노출되기 위해 플레이어가 보유해야 하는 해금 태그. 비어있으면 항상 해금. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     FGameplayTagContainer RequiredUnlockTags;
+    
+    /** 이 설비를 제작할 때 필요한 재료: ItemTag → 필요 수량 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    TMap<FGameplayTag, int32> CraftCosts;
 };
 
 USTRUCT(BlueprintType)
