@@ -14,6 +14,7 @@ class UCharacterTrajectoryComponent;
 class UKOStaminaSet; 
 class UKOCombatSet;
 
+
 UCLASS()
 class KARON_API AKOHeroCharacter : public AKOCharacterBase
 {
@@ -36,6 +37,18 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
+	
+	UFUNCTION(BlueprintCallable)
+	UKOStaminaSet* GetStaminaSet() const { return StaminaSet; }
+	
+	UFUNCTION(BlueprintCallable)
+	UKOCombatSet* GetCombatSet() const { return CombatSet; }
+	
+	UFUNCTION(BlueprintCallable)
+	UKOHealthSet* GetHealthSet() const { return HealthSet; }
+	
+	UFUNCTION(BlueprintCallable)
+	UKOMovementSet* GetMovementSet() const { return MovementSet; }
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
