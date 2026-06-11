@@ -17,6 +17,7 @@ class UKOInventoryComponent;
 class UKOBuildUIComponent;
 class UKOMapUIComponent;
 class UKOSkillComponent;
+class UKOFactoryCraftWidget;
 
 // TODO: 
 // 공장 <-> 전투 맵이 분리되면 컨트롤러를 두개로 관리하는것도 나쁘지않을듯? 
@@ -74,6 +75,9 @@ protected:
 	void Input_OpenSkillTree(const FInputActionValue& Value);
 
 	void Input_ToggleMap(const FInputActionValue& Value);
+	
+	// 설비 제작 UI 입력
+	void Input_OpenFactoryCraft(const FInputActionValue& Value);
 
 
 private:
