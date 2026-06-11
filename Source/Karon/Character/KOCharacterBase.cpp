@@ -24,6 +24,8 @@ UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
 void AKOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	
 }
 
 void AKOCharacterBase::OnCharacterDead()

@@ -4,6 +4,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UKOGA_Movement_Jump::UKOGA_Movement_Jump()
 {
@@ -40,9 +41,21 @@ void UKOGA_Movement_Jump::ActivateAbility(
 		return; 
 	}
 	
+	UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
+	if (!CMC)
+	{
+		Character->Jump(); 
+	}
+	
+	// TODO: 
+	// 1. 점프 분기 (타겟팅 하면서 점프) 
+	// 2. 파쿠르 
+	// 3. 그냥 점프 
+	
 	UKOMovementSet* MovementSet = Character->GetMovementSet();
 	float JumpStrength = MovementSet ? MovementSet->GetJumpStrength() : 600; 
-	FVector DirectionalJump = FVector(0.f, 0.f, JumpStrength);
+	
+	FVector DirectionalJump =CMC->Velocity* 0.6f + FVector(0.f, 0.f, JumpStrength);
 	
 	Character->LaunchCharacter(DirectionalJump,true, true); 
 	
