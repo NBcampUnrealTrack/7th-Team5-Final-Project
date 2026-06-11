@@ -3,9 +3,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Data/KOComboActionData.h"
+#include "GameplayTagContainer.h"
 #include "KOComboComponent.generated.h"
-
-enum EAttackInputType;
 
 USTRUCT(BlueprintType)
 struct FInputBufferInfo
@@ -48,6 +47,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo System|Settings")
 	float MaxBufferGraceTime = 0.5f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Combo System|Data")
+	TObjectPtr<UDataTable> ComboDataTable;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combo System|Data")
+	FName CurrentComboRowName = NAME_None;
 	
 private:
 	bool TryExcuteAttack(EAttackInputType InputType);

@@ -1,15 +1,17 @@
 ﻿#include "KOComboComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/Input/KOGameplayTags_Input.h"
+#include "UObject/FastReferenceCollector.h"
 
 
 UKOComboComponent::UKOComboComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 void UKOComboComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -64,36 +66,56 @@ void UKOComboComponent::ResetBuffer()
 {
 	BufferInfo.BufferInput = EAttackInputType::None;
 	BufferInfo.RemainingTime = 0.0f;
+	CurrentComboRowName = NAME_None;
 }
 
 bool UKOComboComponent::TryExcuteAttack(EAttackInputType InputType)
 {
 	AActor* OwnerActor = GetOwner();
-	if (!OwnerActor)
+	if (!OwnerActor || !ComboDataTable)
 	{
 		return false;
 	}
 	
-	UAbilitySystemComponent* ASC = 
-		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerActor);
-	if (!ASC)
+	FName NextRowName = NAME_None;
+	if (CurrentComboRowName.IsNone())
+	{
+		NextRowName = 
+			(InputType == EAttackInputType::Light) ? FName("Light1") : FName("Heavy1");
+	}
+	else
+	{
+		FString Context = TEXT("Combo Component Excution");
+		FKOComboActionData* CurrentData = ComboDataTable->FindRow<FKOComboActionData>(CurrentComboRowName, Context);
+		if (CurrentData)
+		{
+			NextRowName = 
+				(InputType == EAttackInputType::Light) ? CurrentData->NextLightRow : CurrentData->NextHeavyRow;
+		}
+	}
+	
+	if (NextRowName.IsNone())
 	{
 		return false;
 	}
 	
-	bool bActivationSuccess = false;
+	FString Context = TEXT("Extract Target Combo Data");
+	FKOComboActionData* TargetData = ComboDataTable-> FindRow<FKOComboActionData>(NextRowName, Context);
 	
-	if (InputType == EAttackInputType::Light)
+	if (!TargetData || !TargetData->ComboMontage)
 	{
-		bActivationSuccess = 
-			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Light));
+		return false;
 	}
-	else if (InputType == EAttackInputType::Heavy)
-	{
-		bActivationSuccess = 
-			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Heavy));
-	}
-		
-	return bActivationSuccess;
+	
+	FGameplayEventData Payload;
+	Payload.OptionalObject = TargetData->ComboMontage;
+	Payload.OptionalObject2 = TargetData->DamageEffect;
+	
+	FGameplayTag ExcuteTag = KOGameplayTags::Event_Attack_Excute;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, ExcuteTag, Payload);\
+	
+	CurrentComboRowName = NextRowName;
+	return true;
 }
 
