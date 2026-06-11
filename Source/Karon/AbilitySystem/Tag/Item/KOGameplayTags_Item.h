@@ -20,6 +20,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_UndergroundMiningModule);
 	/** 무기 작업대 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_WeaponWorkbench);
+	/** 직선 컨베이어 벨트 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_StraightBelt);
+	/** 코너(ㄱ자) 컨베이어 벨트 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_CornerBelt);
 	/** 압력 파이프 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PressurePipe);
 

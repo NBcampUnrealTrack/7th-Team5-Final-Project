@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Subsystem/KOEnergyTypes.h"
+#include "Subsystem/KOItemPortTypes.h"
 #include "KOFactoryProcessorComponent.generated.h"
 
 class AKOBaseBuilding;
@@ -18,7 +19,7 @@ enum class EKOFactoryState : uint8
 };
 
 UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
-class KARON_API UKOFactoryProcessorComponent : public UActorComponent, public IKOEnergyConsumer
+class KARON_API UKOFactoryProcessorComponent : public UActorComponent, public IKOEnergyConsumer, public IKOItemSource, public IKOItemSink
 {
     GENERATED_BODY()
 
@@ -57,9 +58,17 @@ public:
     const TMap<FName, int32>& GetInputBuffer()  const { return InputBuffer; }
     const TMap<FName, int32>& GetOutputBuffer() const { return OutputBuffer; }
 
-    // IKOEnergyConsumer 
+    // IKOEnergyConsumer
     virtual float GetPowerDemand(float DeltaSeconds) const override;
     virtual void  OnPowerSupplied(float SuppliedAmount, float RequestedAmount) override;
+
+    // IKOItemSource (출력 버퍼를 벨트로 내보냄)
+    virtual bool PeekOutputItem(FKOConveyorItem& OutItem) const override;
+    virtual bool PopOutputItem(FKOConveyorItem& OutItem) override;
+
+    // IKOItemSink (벨트가 입력 버퍼로 넣음)
+    virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
+    virtual bool PushItem(const FKOConveyorItem& Item) override;
 
 protected:
     virtual void BeginPlay() override;

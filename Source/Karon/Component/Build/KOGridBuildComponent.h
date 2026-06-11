@@ -12,6 +12,7 @@ class UMaterialInterface;
 class AKOGhostPreview;
 class UMeshComponent;
 class AKOBaseBuilding;
+class AKOConveyorBelt;
 class UKOInventoryComponent;
 
 UENUM(BlueprintType)
@@ -57,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build")
 	void RequestBuild();
+
+	/** 이미 설치된 벨트의 연결 팝업을 다시 연다(벨트 상호작용 재편집 진입점). 인접 공장 재스캔 후 순차 팝업. */
+	void OpenBeltConnectFor(AKOConveyorBelt* Belt);
 	
 	// ─── 건물 파괴(해제) ────────────────────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "Build")
@@ -135,6 +139,16 @@ private:
 	FRotator GetPlacementRotation() const;
 	FIntPoint GetRotatedBuildingSize() const;
 
+	/** 현재 배치 중인 건물 클래스가 코너 형태 컨베이어 벨트인지 CDO로 판정. */
+	bool IsCurrentBuildingCornerBelt() const;
+
+	// ─── 벨트-공장 연결 팝업 트리거 ──────────────────────────────────────────
+	/** 방금 설치한 벨트의 인접 4셀에서 포트 슬롯 보유 공장을 수집해 연결 팝업 큐를 시작. */
+	void TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size);
+
+	/** 큐의 다음 공장에 대해 BeltConnect 팝업을 오픈. 팝업 닫힘(OnDeactivated)마다 재귀 호출. */
+	void OpenNextBeltConnectPopup();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
 	TObjectPtr<UMaterialInterface> BuildableGhostMaterial;
@@ -175,6 +189,11 @@ private:
 	TWeakObjectPtr<UClass> CurrentBuildingClass;
 	TWeakObjectPtr<AActor> CurrentDestroyTargetActor;
 
+	// 벨트-공장 연결 팝업 순차 큐 상태.
+	TWeakObjectPtr<AKOConveyorBelt> PendingConnectBelt;
+	TArray<TWeakObjectPtr<AKOBaseBuilding>> PendingConnectFactories;
+	int32 PendingConnectIndex = 0;
+
 	UPROPERTY()
 	TArray<FKODestroyTargetOriginalMaterials> DestroyTargetOriginalMaterials;
 
@@ -183,11 +202,14 @@ private:
 	FIntPoint BaseBuildingSize = FIntPoint(1, 1); // 원본 점유 크기
 	FIntPoint CurrentBuildingSize = FIntPoint(1, 1); // 회전 점유 크기
 	
-	int32 CurrentRotationStep = 0; 
+	int32 CurrentRotationStep = 0;
 	// 0 = 0도
 	// 1 = 90도
 	// 2 = 180도
 	// 3 = 270도
+
+	// 코너 벨트 흐름 반전 상태. yaw 가 4단계 경계(3↔0)를 넘을 때마다 토글 → 4 yaw × 2 flip = 8방향.
+	bool bCornerFlipPlacement = false;
 
 	bool bCurrentPlacementValid = false; // 설치 가능 여부
 	

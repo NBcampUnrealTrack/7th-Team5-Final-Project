@@ -12,6 +12,8 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Factory_UndergroundMiningModule, "Factory.UndergroundMiningModule");
 	UE_DEFINE_GAMEPLAY_TAG(Factory_WeaponWorkbench,         "Factory.WeaponWorkbench");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_StraightBelt,            "Factory.StraightBelt");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_CornerBelt,              "Factory.CornerBelt");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Factory_PressurePipe,			"Factory.PressurePipe");
 

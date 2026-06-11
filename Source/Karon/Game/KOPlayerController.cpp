@@ -160,6 +160,18 @@ void AKOPlayerController::BeginPlay()
 			TEXT("MiningPipe"),
 			50
 		);
+
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("StraightBelt"),
+			20
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("CornerBelt"),
+			20
+		);
 		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Item,

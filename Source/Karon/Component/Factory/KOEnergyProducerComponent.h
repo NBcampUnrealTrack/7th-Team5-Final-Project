@@ -5,10 +5,11 @@
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
 #include "Subsystem/KOEnergyTypes.h"
+#include "Subsystem/KOItemPortTypes.h"
 #include "KOEnergyProducerComponent.generated.h"
 
 UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
-class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOEnergyProducer
+class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOEnergyProducer, public IKOItemSink
 {
     GENERATED_BODY()
 
@@ -45,9 +46,13 @@ public:
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
 
-    // IKOEnergyProducer 
+    // IKOEnergyProducer
     virtual float GetPowerOutput(float DeltaSeconds) const override;
     virtual void  OnPowerAccepted(float Amount) override;
+
+    // IKOItemSink (벨트가 연료 입구로 넣음)
+    virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
+    virtual bool PushItem(const FKOConveyorItem& Item) override;
 
 protected:
     virtual void BeginPlay() override;

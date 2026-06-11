@@ -149,6 +149,36 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     }
 }
 
+// IKOItemSink — 연료 카테고리/버퍼/혼합 여부를 TryInsertFuel 과 동일 규칙으로 검사.
+bool UKOEnergyProducerComponent::CanAcceptItem(const FKOConveyorItem& Item) const
+{
+    if (!Item.IsValid() || !FuelCategoryTag.IsValid())
+    {
+        return false;
+    }
+    // 이미 다른 연료가 적재돼 있으면 혼합 불가.
+    if (!FuelItemId.IsNone() && FuelItemId != Item.ItemId)
+    {
+        return false;
+    }
+    if (FuelInBuffer >= MaxFuelBuffer)
+    {
+        return false;
+    }
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(Item.ItemId) : nullptr;
+    return Row && Row->Categories.HasTag(FuelCategoryTag);
+}
+
+bool UKOEnergyProducerComponent::PushItem(const FKOConveyorItem& Item)
+{
+    if (!Item.IsValid())
+    {
+        return false;
+    }
+    return TryInsertFuel(Item.ItemId, 1) == 0;
+}
+
 void UKOEnergyProducerComponent::BroadcastFuelChanged() const
 {
     const UWorld* World = GetWorld();
