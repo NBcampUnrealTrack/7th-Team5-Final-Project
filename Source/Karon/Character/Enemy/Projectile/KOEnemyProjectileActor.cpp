@@ -62,6 +62,7 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	//충돌했는데 플레이어 캐릭터가 아니라면 풀로 되돌린다.
 	if (!HittedCharacter)
 	{
+		UE_LOG(LogTemp,Warning,TEXT("%s"),*OtherActor->GetName());
 		ReturnToPool();
 		return;
 	}
@@ -86,20 +87,24 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 
 	FGameplayEffectContextHandle Context = CharacterASC->MakeEffectContext();
 	Context.AddSourceObject(AttackedCharacter); // 소스 오브젝트는 현재 캐릭터(Avatar)
-
-	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
+	
+	
+	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(Enemy->ProjectileDamageEffectClass, 1.0f, Context);
 	if (SpecHandle.IsValid() )
 	{
 		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage, ProjectileDamage);
 		CharacterASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
-	
+	UE_LOG(LogTemp,Warning,TEXT("%s"),*OtherActor->GetActorLabel());
 	ReturnToPool();
 }
 
 void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPoint,float DamageMultiplier)
 {
 	SetOwner(InEnemy);
+	Enemy=InEnemy;
+	ProjectileStaticMesh->SetStaticMesh(InEnemy->ProjectileMesh);
+	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
 	ProjectileDamage=AttackPoint*DamageMultiplier;
 }
 
@@ -144,8 +149,11 @@ void AKOEnemyProjectileActor::ReturnToPool()
 {
 	if (GetWorld()&&GetWorld()->GetSubsystem<UKOProjectilePoolSubsystem>())
 	{
+		UE_LOG(LogTemp,Warning,TEXT("returntopool"))
 		//Owner를 비워준다.
 		SetOwner(nullptr);
+		ProjectileStaticMesh->SetStaticMesh(nullptr);
+		SphereComponent->IgnoreActorWhenMoving(Enemy,false);
 		GetWorld()->GetSubsystem<UKOProjectilePoolSubsystem>()->ReturnToPool(this);
 	}
 }

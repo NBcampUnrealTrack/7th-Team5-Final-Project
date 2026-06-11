@@ -42,7 +42,12 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	//TeamId 설정
 	TeamId = FGenericTeamId(1);
 	//임시 설정. 풀 관리시 사용
-	SetAI(EnemyBehaviorTree,EnemyAttackRadius,bIsEnemyLongRange,EnemySpeed,EnemyStrafeSpeed,EnemyAttackDelayTime);
+	SetAI(EnemyBehaviorTree,
+		Enemy->EnemyAttackRadius,
+		Enemy->bIsEnemyLongRange,
+		Enemy->EnemySpeed,
+		Enemy->EnemyStrafeSpeed,
+		Enemy->EnemyAttackDelayTime);
 }
 
 ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActor& Other) const

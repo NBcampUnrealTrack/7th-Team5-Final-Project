@@ -112,9 +112,7 @@ FVector AKOBaseEnemy::GetSocketLocation()
 		return WeaponMeshComponent->GetSocketTransform(WeaponSocketName,RTS_World).GetLocation();
 	}
 	
-	//TODO: 무기없을때 소켓 정보 받아오기
-	
-	return FVector::ZeroVector;
+	return GetMesh()->GetSocketTransform(SkeletonSocketName,RTS_World).GetLocation();
 }
 
 float AKOBaseEnemy::GetAttackPoint()

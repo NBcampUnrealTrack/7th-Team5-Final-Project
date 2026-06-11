@@ -6,6 +6,7 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+class UGameplayEffect;
 class UWidgetComponent;
 class UKOAnimNotifyComponent;
 class UKOEnemyDataAsset;
@@ -47,6 +48,31 @@ public:
 	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
+	
+	//TODO: 원거리 몬스터 전용(컴포넌트로 분리)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UStaticMesh> ProjectileMesh;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UGameplayEffect> ProjectileDamageEffectClass;
+	
+	
+	//TODO: 비동기 로드로 세팅
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float EnemyAttackRadius=150.f;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+
+	bool bIsEnemyLongRange=false;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float EnemySpeed=400.f;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float EnemyStrafeSpeed=200.f;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float EnemyAttackDelayTime=0.5f;
 
 protected:
 	UPROPERTY()
@@ -61,9 +87,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS|Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 	
-
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
+	FName SkeletonSocketName=TEXT("Skeleton_Socket");
 		
 private:
 

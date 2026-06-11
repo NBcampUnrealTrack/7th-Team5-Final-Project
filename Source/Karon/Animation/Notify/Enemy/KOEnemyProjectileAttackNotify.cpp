@@ -7,12 +7,19 @@
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
 #include "Game/KOProjectilePoolSubsystem.h"
 
-void UKOEnemyProjectileAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                            const FAnimNotifyEventReference& EventReference)
+UKOEnemyProjectileAttackNotify::UKOEnemyProjectileAttackNotify()
 {
-	Super::Notify(MeshComp, Animation, EventReference);
+	bIsNativeBranchingPoint = true;
+}
+
+void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	UAnimNotify::BranchingPointNotify(BranchingPointPayload);
 	
-	if (MeshComp==nullptr||MeshComp->GetWorld()==nullptr)
+	USkeletalMeshComponent* MeshComp = BranchingPointPayload.SkelMeshComponent;
+	if (!MeshComp ||
+		!MeshComp->GetOwner() ||
+		!MeshComp->GetAnimInstance())
 	{
 		return;
 	}
@@ -30,7 +37,8 @@ void UKOEnemyProjectileAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UA
 	
 	
 	//발사체의 위치와 방향을 세팅합니다.
-	FVector ProjectileLocation = Enemy->GetMesh()->GetSocketTransform(SocketName, RTS_World).GetLocation()+MeshComp->GetOwner()->GetActorForwardVector()*50.f;
+	FVector ProjectileLocation = Enemy->GetSocketLocation()+MeshComp->GetOwner()->GetActorForwardVector()*50.f;
+
 	
 	//기존 바라보는 방향대로 타겟
 	FRotator ProjectileRotation=MeshComp->GetOwner()->GetActorRotation();
@@ -45,11 +53,11 @@ void UKOEnemyProjectileAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UA
 		if (AKOEnemyProjectileActor* EnemyProjectile=Cast<AKOEnemyProjectileActor>(Projectile))
 		{
 			EnemyProjectile->SetActorTransform(ProjectileTransform);
+			UE_LOG(LogTemp,Warning,TEXT("%s"),*ProjectileTransform.GetLocation().ToString());
 			//TODO: 스킬 계수는 DeveloperSetting DT로 설정
 			EnemyProjectile->SetProjectile(Enemy,Enemy->GetAttackPoint(),DamageMultiplier);
 			EnemyProjectile->SetActiveAndCollision(true);
 		}
 	}
-	
-	
 }
+
