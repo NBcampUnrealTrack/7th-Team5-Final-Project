@@ -32,15 +32,15 @@ public:
     const FKOItemRow*    FindItemRow(FName ItemId)         const;
     const FKOFactoryRow* FindFactoryRow(FName FactoryId)   const;
     const FKORecipeRow*  FindRecipeRow(FName RecipeId)     const;
+    const FKOEquipmentRow* FindEquipmentRow(FName EquipmentId) const;
+    const FKOEquipmentRow* FindEquipmentRowByItemTag(FGameplayTag ItemTag) const;
+    const FKOSkillRow* FindSkillRow(FName SkillId) const;
 
     /** ItemTag로 ItemId(RowName) 역조회. 매핑이 없으면 NAME_None. */
     FName FindItemIdByTag(FGameplayTag ItemTag) const;
     
     /** Equipment DT에 등록된 ItemTag인지 확인 */
     bool IsEquipmentItem(FGameplayTag ItemTag) const;
-
-    /** Item Row의 WorldMesh 소프트 레퍼런스를 동기 로드 (캐싱). 미지정/실패 시 nullptr. */
-    UStaticMesh*  ResolveItemMesh(FName ItemId) const;
 
     void GetAllItemIds(TArray<FName>& Out)     const;
     void GetAllFactoryIds(TArray<FName>& Out)  const;
@@ -59,6 +59,9 @@ public:
     UTexture2D* ResolveFactoryIcon(FName FactoryId) const;
     UTexture2D* ResolveItemIcon(FName ItemId) const;
     UTexture2D* ResolveSkillIcon(FName SkillId) const;
+    
+    /** Item Row의 WorldMesh 소프트 레퍼런스를 동기 로드 (캐싱). 미지정/실패 시 nullptr. */
+    UStaticMesh*  ResolveItemMesh(FName ItemId) const;
     
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
