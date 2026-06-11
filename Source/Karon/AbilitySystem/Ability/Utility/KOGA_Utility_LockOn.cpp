@@ -7,7 +7,6 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/OverlapResult.h"
 
@@ -130,8 +129,6 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
         OwnerChar->bUseControllerRotationYaw = true;
         // 락온 중: 이동 방향 자동 회전 OFF
         OwnerChar->GetCharacterMovement()->bOrientRotationToMovement = false;
-    	
-    	
     }
  
     // GAS 태그 부여
@@ -140,8 +137,6 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
     // 타이머 시작
     StartCameraUpdate();           // 카메라 회전 (≈60fps)
     StartLockOnDistanceCheck();    // 거리 체크 (0.2초)
-	
-	
 }
  
  
@@ -161,10 +156,8 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
         OwnerChar->bUseControllerRotationYaw = false;
         // 락온 해제: 이동 방향 자동 회전 ON
         OwnerChar->GetCharacterMovement()->bOrientRotationToMovement = true;
-    	
-    	
     }
- 
+	
     // GAS 태그 제거
     ApplyLockOnGameplayTag(false);
 }
@@ -299,11 +292,8 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
         CameraLoc,
         GetTargetSocketLocation()
     );
- 
-	
 	
 	TargetRot.Pitch = -35.f; // 원하는 하향 각도 (숫자가 작을수록 더 수직으로 내려다봄)
-	
 	
     // 현재 회전에서 목표 회전으로 부드럽게 보간
     // RInterpTo: DeltaTime 없이 고정 간격으로 호출되므로 0.016f 사용
@@ -340,8 +330,7 @@ void UKOGA_Utility_LockOn::StopCameraUpdate()
         World->GetTimerManager().ClearTimer(CameraUpdateTimerHandle);
     }
 }
- 
- 
+
 // ─────────────────────────────────────────────────────────────────────
 // CheckLockOnDistance  ―  0.2초마다 거리 확인 (타이머 콜백)
 // ─────────────────────────────────────────────────────────────────────
@@ -389,8 +378,7 @@ void UKOGA_Utility_LockOn::StopLockOnDistanceCheck()
         World->GetTimerManager().ClearTimer(LockOnDistanceTimerHandle);
     }
 }
- 
- 
+
 // ─────────────────────────────────────────────────────────────────────
 // ApplyLockOnGameplayTag  ―  State.Character.LockOn 태그 추가/제거
 // ─────────────────────────────────────────────────────────────────────
@@ -407,6 +395,5 @@ void UKOGA_Utility_LockOn::ApplyLockOnGameplayTag(bool bApply) const
     else
         ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_LockOn);
 }
-//TODO: 락온 컴포넌트를 락온.cpp에 합치기
 
 

@@ -40,8 +40,8 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
 	
-	StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
-	CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
+	// StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
+	// CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 	
 	//현석 : Enemy에서 SphereTrace를 위해 PlayerChannel 콜리전 Block 설정
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Player, ECollisionResponse::ECR_Block);
@@ -68,6 +68,8 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent->GiveGrantSet(); 
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	
+	StaminaSet = PS->GetStaminaSet();
+	CombatSet = PS->GetCombatSet();
 	MovementSet = PS->GetMovementSet();
 	HealthSet = PS->GetHealthSet();
 }
@@ -117,9 +119,4 @@ void AKOHeroCharacter::UpdateGait(EGait DesiredGait)
 	PreviousGait = CurrentGait;
 	
 	CurrentGait = DesiredGait;
-	
-	UKOAnimInstance* AnimInstance =  Cast<UKOAnimInstance>(GetMesh()->GetAnimInstance());
-	if (!AnimInstance) return;
-	
-	AnimInstance->ReceiveGait(DesiredGait);
 }

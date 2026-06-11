@@ -13,14 +13,6 @@ enum class ELocomotionDirection : uint8
 };
 
 UENUM(BlueprintType)
-enum class EGait : uint8
-{
-	Walk UMETA(DisplayName = "Walk"),
-	Run UMETA(DisplayName = "Run"),
-	Sprint UMETA(DisplayName = "Sprint"),
-};
-
-UENUM(BlueprintType)
 enum class EHipFaceDirection : uint8
 {
 	Forward		UMETA(DisplayName = "Forward"),
@@ -33,6 +25,23 @@ enum class ERootYawOffsetMode : uint8
 	Accumulate UMETA(DisplayName = "Accumulate"),
 	Hold UMETA(DisplayName = "Hold"),
 	BlendOut UMETA(DisplayName = "BlendOut"),
+};
+
+UENUM(BlueprintType)
+enum class EGait : uint8
+{
+	Walk UMETA(DisplayName = "Walk"),
+	Run UMETA(DisplayName = "Run"),
+	Sprint UMETA(DisplayName = "Sprint"),
+};
+
+
+UENUM(BlueprintType)
+enum class EOverlaySates : uint8
+{
+	UnArmed UMETA(DisplayName = "UnArmed"),	
+	Sword UMETA(DisplayName = "Sword"),
+	GreatSword UMETA(DisplayName = "GreatSword"),
 };
 
 USTRUCT(BlueprintType)
@@ -53,7 +62,10 @@ struct FLocomotionDirectionSettings
 	float BackwardMaxAngle;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float DeadZoneAngle;
+	float FBDeadZone; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float LRDeadZone; 
 };
 
 USTRUCT(BlueprintType)
@@ -92,10 +104,16 @@ struct FDirectionalAnims
 	UAnimSequence* B; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* L; 
+	UAnimSequence* LF; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* R; 
+	UAnimSequence* LB; 
+    	
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimSequence* RF; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimSequence* RB; 
 };
 
 USTRUCT(BlueprintType)
