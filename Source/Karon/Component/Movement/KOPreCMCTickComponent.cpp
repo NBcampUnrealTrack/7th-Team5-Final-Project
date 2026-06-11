@@ -18,17 +18,17 @@ void UKOPreCMCTickComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CachedOwner = Cast<AKOCharacterBase>(GetOwner());
-	if (!CachedOwner) return;
-	
-	CachedAbilitySystemComponent = CachedOwner->GetAbilitySystemComponent();
-	
-	CachedMovementComponent = CachedOwner->GetCharacterMovement();
-	if (!CachedMovementComponent) return;
-	
-	CachedMovementComponent->PrimaryComponentTick.AddPrerequisite(this, PrimaryComponentTick); 
-	
-	CachedMovementSet = CachedOwner->GetMovementSet();
+	// CachedOwner = Cast<AKOCharacterBase>(GetOwner());
+	// if (!CachedOwner) return;
+	//
+	// CachedAbilitySystemComponent = CachedOwner->GetAbilitySystemComponent();
+	//
+	// CachedMovementComponent = CachedOwner->GetCharacterMovement();
+	// if (!CachedMovementComponent) return;
+	//
+	// CachedMovementComponent->PrimaryComponentTick.AddPrerequisite(this, PrimaryComponentTick); 
+	//
+	// CachedMovementSet = CachedOwner->GetMovementSet();
 }
 
 void UKOPreCMCTickComponent::TickComponent(
@@ -36,11 +36,11 @@ void UKOPreCMCTickComponent::TickComponent(
 	ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	UpdateRotation();
-	
-	UpdateMovement();
+	// Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//
+	// UpdateRotation();
+	//
+	// UpdateMovement();
 }
 
 void UKOPreCMCTickComponent::UpdateRotation()
