@@ -46,6 +46,10 @@ private:
 	bool bIsHoming=false;
 	
 	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AKOBaseEnemy> Enemy;
+	
+	
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> SphereComponent;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -54,14 +58,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent; 
 	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AKOBaseEnemy> Enemy;
-	
 	UPROPERTY()
 	FTimerHandle TimerHandle;
 	
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	float ProjectileDamage=0.0f;	
 };

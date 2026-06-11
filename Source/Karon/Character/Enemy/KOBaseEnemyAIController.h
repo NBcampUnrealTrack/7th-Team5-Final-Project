@@ -82,13 +82,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float TeamEventDistance=1500.f;
 	
-	//TODO: 비동기 로드로 세팅
-	float EnemyAttackRadius=150.f;
-	bool bIsEnemyLongRange=false;
-	float EnemySpeed=400.f;
-	float EnemyStrafeSpeed=200.f;
-	float EnemyAttackDelayTime=0.5f;
-	
 	//HP가 0이 된 이후 해당 딜레이 이후에 BT를 멈춥니다.
 	float StopBTDelay=1.f;
 	

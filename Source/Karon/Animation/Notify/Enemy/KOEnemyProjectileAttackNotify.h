@@ -14,14 +14,12 @@ UCLASS()
 class KARON_API UKOEnemyProjectileAttackNotify : public UAnimNotify
 {
 	GENERATED_BODY()
+	UKOEnemyProjectileAttackNotify();
 public:
 	
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-							const FAnimNotifyEventReference& EventReference)override;
+	virtual void BranchingPointNotify(FBranchingPointNotifyPayload& BranchingPointPayload) override;
 
 protected:
-	FName SocketName=FName("ProjectileSocket");
-	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AKOEnemyProjectileActor> ProjectileClass;
 	

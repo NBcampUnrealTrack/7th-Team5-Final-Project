@@ -50,6 +50,10 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyEnd(FBranchingPointNotifyPay
 {
 	Super::BranchingPointNotifyEnd(BranchingPointPayload);
 	USkeletalMeshComponent* MeshComp = BranchingPointPayload.SkelMeshComponent;
+	if (!CachedAbilities.Contains(MeshComp))
+	{
+		return;
+	}
 	CachedAbilities[MeshComp]->bIsAttacked=false;
 	//캐싱 맵에서 제거
 	CachedAbilities.Remove(MeshComp);
@@ -60,7 +64,7 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	if (!MeshComp || !MeshComp->GetOwner())
+	if (!MeshComp || !MeshComp->GetOwner()||!CachedAbilities.Contains(MeshComp))
 	{
 		return;
 	}
