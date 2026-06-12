@@ -26,4 +26,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AnimationMontage")
 	FGameplayTag ActivateTagName;
 	
+	//명시적으로 죽음 GA는 어보트되지 않도록 한다.
+	UPROPERTY()
+	FGameplayTag DeathTag;
+	
+	//몽타주가 멈추기까지 블렌드되는 시간
+	float MontageBlendOutTime=0.05f;
+	
 };
