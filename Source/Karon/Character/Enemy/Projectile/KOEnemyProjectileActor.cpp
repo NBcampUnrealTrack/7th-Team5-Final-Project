@@ -38,6 +38,7 @@ AKOEnemyProjectileActor::AKOEnemyProjectileActor()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	
+	
 	//풀링 대기로 멈춰있는다.
 	ProjectileMovementComponent->bAutoActivate= false;	
 
@@ -103,6 +104,7 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 {
 	SetOwner(InEnemy);
 	Enemy=InEnemy;
+	SetActorScale3D(InEnemy->ProjectileScale);
 	ProjectileStaticMesh->SetStaticMesh(InEnemy->ProjectileMesh);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
 	ProjectileDamage=AttackPoint*DamageMultiplier;
