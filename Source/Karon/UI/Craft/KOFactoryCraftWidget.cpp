@@ -107,11 +107,14 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
         }
 
         UTexture2D* Icon = LoadSub->ResolveFactoryIcon(FactoryId);
+        
+        const bool bCanCraft = CanCraftFactory(FactoryId);
 
         EntryWidget->SetupEntry(
             FactoryId,
             Row->DisplayName,
-            Icon
+            Icon,
+            bCanCraft
         );
 
         EntryWidget->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleFactoryEntryClicked);
@@ -308,7 +311,24 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
         return;
     }
 
-    CraftButton->SetIsEnabled(CanCraftFactory(SelectedFactoryId));
+    const bool bCanCraft = CanCraftFactory(SelectedFactoryId);
+    
+    CraftButton->SetIsEnabled(bCanCraft);
+
+    CraftButton->SetBackgroundColor(
+        bCanCraft
+            ? CraftableButtonColor
+            : NotCraftableButtonColor
+    );
+
+    if (CraftButtonText)
+    {
+        CraftButtonText->SetText(
+            bCanCraft
+                ? FText::FromString(TEXT("제작"))
+                : FText::FromString(TEXT("재료 부족"))
+        );
+    }
 }
 
 void UKOFactoryCraftWidget::HandleCraftButtonClicked()

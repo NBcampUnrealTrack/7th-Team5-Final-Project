@@ -56,6 +56,15 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> CraftButton; 
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> CraftButtonText;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+    FLinearColor CraftableButtonColor = FLinearColor::White;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+    FLinearColor NotCraftableButtonColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
 
 private:
     UPROPERTY()

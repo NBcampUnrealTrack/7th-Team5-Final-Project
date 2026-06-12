@@ -28,7 +28,8 @@ void UKOFactoryCraftEntryWidget::NativeDestruct()
 void UKOFactoryCraftEntryWidget::SetupEntry(
 	FName InFactoryId,
 	const FText& InDisplayName,
-	UTexture2D* InIcon)
+	UTexture2D* InIcon,
+	bool bInCanCraft)
 {
 	FactoryId = InFactoryId;
 
@@ -41,6 +42,14 @@ void UKOFactoryCraftEntryWidget::SetupEntry(
 	{
 		FactoryIconImage->SetBrushFromTexture(InIcon);
 		FactoryIconImage->SetVisibility(InIcon ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	}
+	
+	if (EntryButton)
+	{
+		const FLinearColor TargetColor =
+			bInCanCraft ? CraftableColor : NotCraftableColor;
+
+		EntryButton->SetBackgroundColor(TargetColor);
 	}
 }
 

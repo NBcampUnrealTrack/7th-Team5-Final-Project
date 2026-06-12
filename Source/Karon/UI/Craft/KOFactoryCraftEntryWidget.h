@@ -19,7 +19,7 @@ class KARON_API UKOFactoryCraftEntryWidget : public UUserWidget
 public:
 	FKOFactoryCraftEntryClicked OnClicked;
 	
-	void SetupEntry(FName InFactoryId, const FText& InDisplayName, UTexture2D* InIcon);
+	void SetupEntry(FName InFactoryId, const FText& InDisplayName, UTexture2D* InIcon,  bool bInCanCraft);
 
 protected:
 	virtual void NativeConstruct() override;
@@ -33,6 +33,12 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> FactoryNameText;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+	FLinearColor CraftableColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.3f);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+	FLinearColor NotCraftableColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
 
 private:
 	UPROPERTY()
