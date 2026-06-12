@@ -13,6 +13,14 @@ enum class ESkillState : uint8
 	Unlocked     // 습득 완료
 };
 
+UENUM(BlueprintType)
+enum class ESkillExecutionType : uint8
+{
+	Active,			 // 발동 스킬 추가
+	ActiveExtension, // 행동 추가
+	PassiveStat		 // 스탯 증가
+};
+
 USTRUCT(BlueprintType)
 struct FSkillCost
 {

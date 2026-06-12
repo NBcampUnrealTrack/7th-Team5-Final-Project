@@ -59,8 +59,11 @@ public:
     UTexture2D* ResolveFactoryIcon(FName FactoryId) const;
 
     const FKOSkillRow* FindSkillRow(FName SkillId) const;
-    void              GetAllSkillIds(TArray<FName>& Out) const;
-    UTexture2D*       ResolveSkillIcon(FName SkillId) const;
+    void               GetAllSkillIds(TArray<FName>& Out) const;
+    UTexture2D*        ResolveSkillIcon(FName SkillId) const;
+    
+    const FKOSkillExecutionRow* FindSkillExecutionRow(FName SkillExId) const;
+    void                        GetAllSkillExecutionIds(TArray<FName>& Out) const;
     
 private:
     void LoadAll();
@@ -75,10 +78,11 @@ private:
     UPROPERTY()
     TArray<TObjectPtr<UDataTable>> LoadedTables;
 
-    TMap<FName, const FKOItemRow*>    ItemCache;
-    TMap<FName, const FKOFactoryRow*> FactoryCache;
-    TMap<FName, const FKORecipeRow*>  RecipeCache;
-    TMap<FName, const FKOSkillRow*>   SkillCache;
+    TMap<FName, const FKOItemRow*>           ItemCache;
+    TMap<FName, const FKOFactoryRow*>        FactoryCache;
+    TMap<FName, const FKORecipeRow*>         RecipeCache;
+    TMap<FName, const FKOSkillRow*>          SkillCache;
+    TMap<FName, const FKOSkillExecutionRow*> SkillExecutionCache;
 
     /** ItemTag → ItemId 역인덱스. LoadAll에서 ItemCache 채운 직후 빌드. */
     TMap<FGameplayTag, FName>         ItemTagToId;

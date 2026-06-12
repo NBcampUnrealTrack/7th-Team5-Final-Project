@@ -39,6 +39,7 @@ void UKOLoadSubsystem::Deinitialize()
     FactoryCache.Empty();
     RecipeCache.Empty();
     SkillCache.Empty();
+    SkillExecutionCache.Empty();
     ItemTagToId.Empty();
     ResolvedIcons.Empty();
     ResolvedBuildingClasses.Empty();
@@ -126,6 +127,8 @@ void UKOLoadSubsystem::LoadAll()
     IndexTableRowsByName<FKOFactoryRow>(Settings->FactoryTables, FactoryCache, TEXT("Factory"));
     IndexTableRowsByName<FKORecipeRow> (Settings->RecipeTables,  RecipeCache,  TEXT("Recipe"));
     IndexTableRowsByName<FKOSkillRow>  (Settings->SkillTables,   SkillCache,   TEXT("Skill"));
+    IndexTableRowsByName<FKOSkillExecutionRow>  (Settings->SkillTables,
+        SkillExecutionCache,   TEXT("SkillExecution"));
     
     // ItemTag → ItemId 역인덱스 빌드
     ItemTagToId.Reset();
@@ -437,4 +440,15 @@ UTexture2D* UKOLoadSubsystem::ResolveSkillIcon(FName SkillId) const
 
     ResolvedSkillIcons.Add(SkillId, Texture);
     return Texture;
+}
+
+const FKOSkillExecutionRow* UKOLoadSubsystem::FindSkillExecutionRow(FName SkillExId) const
+{
+    const FKOSkillExecutionRow* const* Found = SkillExecutionCache.Find(SkillExId);
+    return Found? *Found: nullptr;
+}
+
+void UKOLoadSubsystem::GetAllSkillExecutionIds(TArray<FName>& Out) const
+{
+    SkillExecutionCache.GetKeys(Out);
 }
