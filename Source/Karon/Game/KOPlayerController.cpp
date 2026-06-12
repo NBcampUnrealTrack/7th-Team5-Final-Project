@@ -45,6 +45,21 @@ void AKOPlayerController::BeginPlay()
 	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 	{
 		UISubsystem->SetRootLayout(KOGameplayTags::UI_Layout_InGame);
+		
+		if (GetPawn())
+		{
+			UISubsystem->OpenWidget(GetWorld(), KOGameplayTags::UI_Widget_InGameHUD);
+		}
+		else
+		{
+			GetWorldTimerManager().SetTimerForNextTick([this, UISubsystem]()
+			{
+				if (UISubsystem && GetPawn())
+				{
+					UISubsystem->OpenWidget(GetWorld(), KOGameplayTags::UI_Widget_InGameHUD);
+				}
+			});
+		}
 	}
 
 	// 건설 모드 진입/종료에 따른 BuildIMC 전환을 토글키가 아닌 모드 변경 메시지로 구동.
