@@ -4,43 +4,55 @@
 #include "Character/KOCharacterBase.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "Items/Equipment/KOWeaponBase.h"
+#include "Utility/Log/KOLogManager.h"
+
 
 UKOEquipmentComponent::UKOEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UKOEquipmentComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character) return;
+	
+	SkeletalMesh = Character->GetMesh();
+	BodyMesh = SkeletalMesh; 
+	
+	DefaultAnimLayerClass = SkeletalMesh->GetAnimClass(); 
+}
+
 void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 {
 	if (!Def) return;
-
-	// 기존 무기가 있으면 선제 해제
+	
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character || !BodyMesh) return;
+	
+	bool WeaponDrawn = IsWeaponDrawn(); 
 	if (CurrentWeaponActor)
 	{
 		UnequipWeapon();
 	}
-
-	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
-	if (!Character) return;
-
-	// 무기 액터 스폰
+	
 	FActorSpawnParameters Params;
 	Params.Owner = Character;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AKOWeaponBase* NewWeapon = GetWorld()->SpawnActor<AKOWeaponBase>(AKOWeaponBase::StaticClass(), Params);
-	if (!NewWeapon) return;
-
+	if (!NewWeapon) return; 
+	
 	NewWeapon->InitializeWeapon(Def);
-
-	// 초기엔 칼집 소켓에 어태치
+	
 	NewWeapon->AttachToComponent(
-		Character->GetMesh(),
+		BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		Def->UnEquipSocket
+		WeaponDrawn ? Def->EquipSocket : Def->UnEquipSocket
 	);
-
-	// GAS 부여
+	
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (ASC && Def->GrantedSet)
 	{
@@ -49,8 +61,12 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 
 	CurrentWeaponActor = NewWeapon;
 	CurrentWeaponConfig = Def;
-	CurrentWeaponSlot = EWeaponSlot::Holster;
+	
+	SetWeaponSlot(WeaponDrawn ? EWeaponSlot::Hand : EWeaponSlot::Holster);
+	
+	KO_LOG(GAS,Warning, TEXT("Equiped Weapon : %s"), *Def->WeaponName.ToString());
 }
+
 
 void UKOEquipmentComponent::UnequipWeapon()
 {
@@ -69,9 +85,7 @@ void UKOEquipmentComponent::UnequipWeapon()
 		CurrentWeaponActor->Destroy();
 		CurrentWeaponActor = nullptr;
 	}
-
-	CurrentWeaponConfig = nullptr;
-	CurrentWeaponSlot = EWeaponSlot::Holster;
+	SetWeaponSlot(CurrentWeaponSlot = EWeaponSlot::Holster); 
 }
 
 void UKOEquipmentComponent::DrawWeapon()
@@ -79,12 +93,11 @@ void UKOEquipmentComponent::DrawWeapon()
 	if (!CurrentWeaponActor || !CurrentWeaponConfig || CurrentWeaponSlot == EWeaponSlot::Hand) return;
 
 	CurrentWeaponActor->AttachToComponent(
-		GetOwner<AKOCharacterBase>()->GetMesh(),
+		BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		CurrentWeaponConfig->EquipSocket
 	);
-
-	CurrentWeaponSlot = EWeaponSlot::Hand;
+	SetWeaponSlot(EWeaponSlot::Hand);
 }
 
 void UKOEquipmentComponent::SheatheWeapon()
@@ -92,10 +105,41 @@ void UKOEquipmentComponent::SheatheWeapon()
 	if (!CurrentWeaponActor || !CurrentWeaponConfig || CurrentWeaponSlot == EWeaponSlot::Holster) return;
 
 	CurrentWeaponActor->AttachToComponent(
-		GetOwner<AKOCharacterBase>()->GetMesh(),
+	BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		CurrentWeaponConfig->UnEquipSocket
 	);
+	
+	SetWeaponSlot(EWeaponSlot::Holster);
+}
 
-	CurrentWeaponSlot = EWeaponSlot::Holster;
+void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
+{
+	CurrentWeaponSlot = NewSlot; 
+	
+	if (!SkeletalMesh) return;
+	
+	TSubclassOf<UAnimInstance> NewAnimLayer; 
+	
+	if (CurrentWeaponConfig)
+	{
+		if (NewSlot == EWeaponSlot::Hand)
+		{
+			NewAnimLayer = CurrentWeaponConfig->WeaponABP_Carrying ? 
+				CurrentWeaponConfig->WeaponABP_Carrying : nullptr; 
+		}
+		else
+		{
+			NewAnimLayer = CurrentWeaponConfig->WeaponABP_Sheathed ? 
+				CurrentWeaponConfig->WeaponABP_Sheathed : nullptr; 
+		}
+	}
+	NewAnimLayer = NewAnimLayer ? NewAnimLayer : DefaultAnimLayerClass; 
+	
+	SkeletalMesh->LinkAnimClassLayers(NewAnimLayer);
+	UE_LOG(LogTemp, Warning, TEXT("NewAnimLayer : %s"),
+	   NewAnimLayer ? 
+	   *NewAnimLayer->GetDisplayNameText().ToString() : 
+	   TEXT("None")
+   );
 }

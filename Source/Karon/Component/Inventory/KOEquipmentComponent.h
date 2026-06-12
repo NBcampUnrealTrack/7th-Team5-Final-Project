@@ -15,6 +15,8 @@ enum class EWeaponSlot : uint8
 	Holster UMETA(DisplayName = "Holster"), // 칼집/등에 꽂힌 상태
 };
 
+
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOEquipmentComponent : public UActorComponent
 {
@@ -22,6 +24,8 @@ class KARON_API UKOEquipmentComponent : public UActorComponent
 
 public:
 	UKOEquipmentComponent();
+	
+	virtual void BeginPlay() override;
 
 	// 무기 정의를 받아서 액터 스폰, 소켓 어태치, GAS 부여
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
@@ -36,7 +40,9 @@ public:
 
 	// 넣기: 손(Hand) → 칼집(Holster)
 	void SheatheWeapon();
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	void SetBodyMesh(USkeletalMeshComponent* NewSkeletalMesh) { BodyMesh = NewSkeletalMesh; }
 	
 	UFUNCTION(BlueprintPure, Category = "Equipment")
 	bool HasWeapon() const { return CurrentWeaponActor != nullptr; }
@@ -46,7 +52,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Equipment")
 	UKOWeaponDefinition* GetCurrentWeaponConfig() const { return CurrentWeaponConfig; }
-
+	
+protected:
+	void SetWeaponSlot(EWeaponSlot NewSlot);
+	
 public:
 	UPROPERTY()
 	TObjectPtr<UKOWeaponDefinition> CurrentWeaponConfig;
@@ -58,4 +67,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EWeaponSlot CurrentWeaponSlot = EWeaponSlot::Holster;
+	
+protected: 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> BodyMesh;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> DefaultAnimLayerClass;
 };
