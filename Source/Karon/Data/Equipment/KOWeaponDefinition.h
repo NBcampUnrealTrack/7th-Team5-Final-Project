@@ -32,6 +32,9 @@ public:
 	// 애니 레이어 전환용 (Weapon.Type.Sword 등)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Type")
 	FGameplayTag WeaponTypeTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Type")
+	FName WeaponName = NAME_None;
 
 	// 무기 스태틱 메시
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Visuals")
@@ -59,4 +62,13 @@ public:
 	// 넣기 몽타주 (손 → 칼집)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
 	TObjectPtr<UAnimMontage> SheatheMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TSubclassOf<UAnimInstance> WeaponABP_Sheathed;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TSubclassOf<UAnimInstance> WeaponABP_Carrying;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	TSubclassOf<UAnimInstance> WeaponABP_Combat;
 };
