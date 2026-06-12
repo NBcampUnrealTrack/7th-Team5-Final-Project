@@ -56,6 +56,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UGameplayEffect> ProjectileDamageEffectClass;
 	
+	UPROPERTY(EditAnywhere)
+	FVector ProjectileScale=FVector(1.f,1.f,1.f);
 	
 	//TODO: 비동기 로드로 세팅
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
