@@ -54,6 +54,10 @@ public:
     EKOFactoryState GetState()         const { return State; }
     FName GetActiveRecipeId()          const { return ActiveRecipeId; }
     float GetLastSupplyRatio()         const { return LastSupplyRatio; }
+    
+    bool HasAnyInputItems() const;
+    bool HasAnyOutputItems() const;
+    bool CanChangeRecipe() const;
 
     /** 가동 중 요구 전력(초당). 비가동/레시피 없음이면 0. */
     float GetRequestedPowerPerSecond() const { return GetActiveRecipePowerPerSecond(); }

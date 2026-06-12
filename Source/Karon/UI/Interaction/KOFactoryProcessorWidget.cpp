@@ -176,16 +176,21 @@ void UKOFactoryProcessorWidget::HandleRecipeButtonClicked()
 
 void UKOFactoryProcessorWidget::HandleRecipeEntryClicked(FName InRecipeId)
 {
-    if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc)
+    {
+        return;
+    }
+    
+    if (Proc->CanChangeRecipe())
     {
         Proc->SetSelectedRecipe(InRecipeId);
         // SetSelectedRecipe 내부에서 BroadcastProcessorChanged → HandleProcessorChangedMessage가 UI 갱신.
-    }
-    
-    // 선택한 레시피에 맞춰 Input/Output 슬롯을 다시 구성
-    BuildIOSlots();
 
-    // 레시피 선택 후 Inventory 패널로 복귀.
+        BuildIOSlots();
+    }
+
+    // 레시피 선택 후 Inventory 패널로 복귀
     bShowingRecipePanel = false;
     ApplyPanelSwitch();
 }

@@ -186,6 +186,57 @@ float UKOFactoryProcessorComponent::GetProgress() const
     return FMath::Clamp(Progress / CurrentCycleSeconds, 0.f, 1.f);
 }
 
+bool UKOFactoryProcessorComponent::HasAnyInputItems() const
+{
+    for (const TPair<FName, int32>& Pair : InputBuffer)
+    {
+        if (!Pair.Key.IsNone() && Pair.Value > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool UKOFactoryProcessorComponent::HasAnyOutputItems() const
+{
+    for (const TPair<FName, int32>& Pair : OutputBuffer)
+    {
+        if (!Pair.Key.IsNone() && Pair.Value > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool UKOFactoryProcessorComponent::CanChangeRecipe() const
+{
+    if (State == EKOFactoryState::Running)
+    {
+        return false;
+    }
+
+    if (State == EKOFactoryState::OutputBlocked)
+    {
+        return false;
+    }
+
+    if (HasAnyInputItems())
+    {
+        return false;
+    }
+
+    if (HasAnyOutputItems())
+    {
+        return false;
+    }
+
+    return true;
+}
+
 // IKOEnergyConsumer
 
 float UKOFactoryProcessorComponent::GetPowerDemand(float DeltaSeconds) const
