@@ -41,4 +41,7 @@ namespace KOGameplayTags
 	
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
+	
+	/** 메인 HUD */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InGameHUD);
 }
