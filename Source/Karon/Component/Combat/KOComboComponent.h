@@ -40,10 +40,18 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Combo System")
 	void ResetBuffer();
-	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Combo System|State")
 	FInputBufferInfo BufferInfo;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combo System|State")
+	bool bIsAttacking = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combo System|State")
+	float ComboResetTimer = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo System|Settings")
+	float MaxComboResetTime = 1.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo System|Settings")
 	float MaxBufferGraceTime = 0.5f;

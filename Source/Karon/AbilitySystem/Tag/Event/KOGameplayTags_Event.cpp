@@ -24,7 +24,8 @@ namespace KOGameplayTags
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");
-	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_Excute, "Event.Attack.Excute");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_Light_Execute, "Event.Attack.Light.Execute");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_Heavy_Execute, "Event.Attack.Heavy.Execute");
 	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Open, "Event.Combo.Window.Open");

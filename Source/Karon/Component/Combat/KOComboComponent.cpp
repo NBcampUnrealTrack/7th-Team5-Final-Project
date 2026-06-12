@@ -26,7 +26,19 @@ void UKOComboComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		if (BufferInfo.RemainingTime <= 0.0f)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 선입력 버퍼 시간 만료."));
-			ResetBuffer();
+			BufferInfo.BufferInput = EAttackInputType::None;
+			BufferInfo.RemainingTime = 0.0f;
+		}
+	}
+	
+	if (!bIsAttacking && !CurrentComboRowName.IsNone())
+	{
+		ComboResetTimer -= DeltaTime;
+        
+		if (ComboResetTimer <= 0.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 콤보 입력 대기 시간 초과. 타수를 리셋"));
+			ResetBuffer(); 
 		}
 	}
 }
@@ -37,28 +49,35 @@ void UKOComboComponent::RegisterInput(EAttackInputType InputType)
 	
 	if (bSuccess)
 	{
-		ResetBuffer();
+		BufferInfo.BufferInput = EAttackInputType::None;
+		BufferInfo.RemainingTime = 0.0f;
 		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 선입력 공격 실행 -> 버퍼 리셋"));
 	}
 	else
 	{
 		BufferInfo.BufferInput = InputType;
 		BufferInfo.RemainingTime = MaxBufferGraceTime;
-		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 동작 중으로 인한 취소 -> 버퍼 리셋"));
+		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 동작 중임 실행 대기 입력을 버퍼에 저장"));
 	}
 }
 
 void UKOComboComponent::ConsumeBuffer()
 {
+	bIsAttacking = false;
+	
+	ComboResetTimer = MaxComboResetTime;
+	
 	if (BufferInfo.BufferInput != EAttackInputType::None)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 저장되어 있는 버퍼 입력 사용"));
-		
+		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 저장된 버퍼 사용"));
 		EAttackInputType SavedInput = BufferInfo.BufferInput;
-		
-		ResetBuffer();
-		
+		BufferInfo.BufferInput = EAttackInputType::None;
+		BufferInfo.RemainingTime = 0.0f;
 		RegisterInput(SavedInput);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ComboComponent] 노티파이 터졌거나 저장된 버퍼가 없음"));
 	}
 }
 
@@ -67,12 +86,23 @@ void UKOComboComponent::ResetBuffer()
 	BufferInfo.BufferInput = EAttackInputType::None;
 	BufferInfo.RemainingTime = 0.0f;
 	CurrentComboRowName = NAME_None;
+	bIsAttacking = false;
+	ComboResetTimer = 0.0f;
 }
 
 bool UKOComboComponent::TryExcuteAttack(EAttackInputType InputType)
 {
-	AActor* OwnerActor = GetOwner();
-	if (!OwnerActor || !ComboDataTable)
+	if (bIsAttacking)
+	{
+		return false;
+	}
+	
+	AController* OwnerController = Cast<AController>(GetOwner());
+	if (!OwnerController) return false;
+
+	APawn* ControlledPawn = OwnerController->GetPawn();
+    
+	if (!ControlledPawn || !ComboDataTable) 
 	{
 		return false;
 	}
@@ -111,11 +141,21 @@ bool UKOComboComponent::TryExcuteAttack(EAttackInputType InputType)
 	Payload.OptionalObject = TargetData->ComboMontage;
 	Payload.OptionalObject2 = TargetData->DamageEffect;
 	
-	FGameplayTag ExcuteTag = KOGameplayTags::Event_Attack_Excute;
-	
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, ExcuteTag, Payload);\
+	FGameplayTag ExecuteTag;
+	if (InputType == EAttackInputType::Light)
+	{
+		ExecuteTag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.Light.Execute"));
+	}
+	else
+	{
+		ExecuteTag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.Heavy.Execute"));
+	}
 	
 	CurrentComboRowName = NextRowName;
+	bIsAttacking = true;
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(ControlledPawn, ExecuteTag, Payload);
+	
 	return true;
 }
 
