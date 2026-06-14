@@ -15,7 +15,6 @@
 #include "Items/KOItemSlot.h"
 
 #include "StructUtils/InstancedStruct.h"
-#include "Subsystem/KOEnergySubsystem.h"
 #include "TimerManager.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
 #include "UI/Inventory/KOInventoryWidget.h"
@@ -173,18 +172,12 @@ void UKOFactoryProducerWidget::TickRefresh()
 
     if (EnergyText)
     {
-        if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
-        {
-            const FText EnergyStr = FText::Format(
-                LOCTEXT("EnergyFormat", "{0} / {1}"),
-                FText::AsNumber(FMath::FloorToInt(Energy->GetStoredEnergy())),
-                FText::AsNumber(FMath::FloorToInt(Energy->GetCapacity())));
-            EnergyText->SetText(EnergyStr);
-        }
-        else
-        {
-            EnergyText->SetText(FText::GetEmpty());
-        }
+        // 이 발전기의 현재 출력 / 최대 출력(초당). 수요가 없으면 현재 0, 연료 있으면 최대>0.
+        const FText EnergyStr = FText::Format(
+            LOCTEXT("EnergyFormat", "{0} / {1} /s"),
+            FText::AsNumber(FMath::RoundToInt(Prod->GetCurrentOutputPerSecond())),
+            FText::AsNumber(FMath::RoundToInt(Prod->GetMaxOutputPerSecond())));
+        EnergyText->SetText(EnergyStr);
     }
 }
 

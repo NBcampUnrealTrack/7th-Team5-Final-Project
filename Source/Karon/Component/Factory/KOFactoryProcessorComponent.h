@@ -55,12 +55,18 @@ public:
     FName GetActiveRecipeId()          const { return ActiveRecipeId; }
     float GetLastSupplyRatio()         const { return LastSupplyRatio; }
 
+    /** 가동 중 요구 전력(초당). 비가동/레시피 없음이면 0. */
+    float GetRequestedPowerPerSecond() const { return GetActiveRecipePowerPerSecond(); }
+    /** 직전 틱 실제 소비 전력(초당) = 요구 × 공급률. */
+    float GetSuppliedPowerPerSecond()  const { return GetActiveRecipePowerPerSecond() * LastSupplyRatio; }
+
     const TMap<FName, int32>& GetInputBuffer()  const { return InputBuffer; }
     const TMap<FName, int32>& GetOutputBuffer() const { return OutputBuffer; }
 
     // IKOEnergyConsumer
     virtual float GetPowerDemand(float DeltaSeconds) const override;
     virtual void  OnPowerSupplied(float SuppliedAmount, float RequestedAmount) override;
+    virtual void  GetEnergyOccupiedCells(TArray<FIntPoint>& OutCells) const override;
 
     // IKOItemSource (출력 버퍼를 벨트로 내보냄)
     virtual bool PeekOutputItem(FKOConveyorItem& OutItem) const override;

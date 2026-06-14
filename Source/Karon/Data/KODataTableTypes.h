@@ -91,6 +91,13 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Placement")
     float PlacementZOffset = 0.f;
 
+    /**
+     * 에너지 공급 커버리지 반경(셀, 체비셰프 거리). 발전기에서만 의미 있음.
+     * 0 = 커버리지 없음(발전기 아님). 1 = 점유영역 +1셀(1x1이면 3x3), 2 = +2셀(1x1이면 5x5).
+     */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Energy")
+    int32 EnergyCoverageRadius = 0;
+
     /** 빌드 메뉴에 노출할지 여부. false면 디버그/내부 전용. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     bool bShowInBuildMenu = true;

@@ -5,7 +5,16 @@
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/SCS_Node.h"
 #include "Engine/SimpleConstructionScript.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Actor.h"
+#include "Materials/MaterialInterface.h"
+#include "UObject/ConstructorHelpers.h"
+
+namespace
+{
+    // 엔진 기본 Plane 메시는 한 변 100uu. 월드 크기 대비 스케일 환산에 사용.
+    constexpr float GEnginePlaneSize = 100.0f;
+}
 
 AKOGhostPreview::AKOGhostPreview()
 {
@@ -15,6 +24,54 @@ AKOGhostPreview::AKOGhostPreview()
 	SetRootComponent(SceneRoot);
 
     SetActorEnableCollision(false);
+
+	// 커버리지 오버레이 평면. 건물 회전/스케일에 영향받지 않도록 절대 트랜스폼 사용.
+	CoverageMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CoverageOverlay"));
+	CoverageMeshComponent->SetupAttachment(SceneRoot);
+	CoverageMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CoverageMeshComponent->SetGenerateOverlapEvents(false);
+	CoverageMeshComponent->SetCastShadow(false);
+	CoverageMeshComponent->SetUsingAbsoluteLocation(true);
+	CoverageMeshComponent->SetUsingAbsoluteRotation(true);
+	CoverageMeshComponent->SetUsingAbsoluteScale(true);
+	CoverageMeshComponent->SetVisibility(false);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMeshFinder(
+		TEXT("/Engine/BasicShapes/Plane.Plane"));
+	if (PlaneMeshFinder.Succeeded())
+	{
+		CoveragePlaneMesh = PlaneMeshFinder.Object;
+		CoverageMeshComponent->SetStaticMesh(CoveragePlaneMesh);
+	}
+}
+
+void AKOGhostPreview::ShowCoverageOverlay(const FVector& WorldCenter, const FVector2D& WorldSize)
+{
+	if (!CoverageMeshComponent || !CoveragePlaneMesh)
+	{
+		return;
+	}
+
+	CoverageMeshComponent->SetWorldLocationAndRotation(WorldCenter, FRotator::ZeroRotator);
+	CoverageMeshComponent->SetWorldScale3D(FVector(
+		WorldSize.X / GEnginePlaneSize,
+		WorldSize.Y / GEnginePlaneSize,
+		1.0f));
+
+	if (CoverageMaterial)
+	{
+		CoverageMeshComponent->SetMaterial(0, CoverageMaterial);
+	}
+
+	CoverageMeshComponent->SetVisibility(true);
+}
+
+void AKOGhostPreview::HideCoverageOverlay()
+{
+	if (CoverageMeshComponent)
+	{
+		CoverageMeshComponent->SetVisibility(false);
+	}
 }
 
 void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass)

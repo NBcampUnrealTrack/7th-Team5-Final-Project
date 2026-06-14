@@ -3,12 +3,14 @@
 #include "Component/Factory/KOEnergyProducerComponent.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Building/KOBaseBuilding.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
 
 
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
+#include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -120,6 +122,11 @@ float UKOEnergyProducerComponent::GetPowerOutput(float DeltaSeconds) const
 
 void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
 {
+    // 매 틱(공급 0 포함) 호출되도록 서브시스템이 보장 → 여기서 초당 출력 캐싱.
+    const UWorld* World = GetWorld();
+    const float Dt = World ? World->GetDeltaSeconds() : 0.f;
+    LastOutputRate = (Dt > KINDA_SMALL_NUMBER) ? (FMath::Max(0.f, Amount) / Dt) : 0.f;
+
     if (Amount <= 0.f || PowerPerFuelUnit <= 0.f)
     {
         return;
@@ -145,6 +152,54 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
         if (bWasFueled)
         {
             BroadcastFuelChanged();
+        }
+    }
+}
+
+void UKOEnergyProducerComponent::GetEnergyCoverageCells(TArray<FIntPoint>& OutCells) const
+{
+    OutCells.Reset();
+
+    AActor* Owner = GetOwner();
+    const UWorld* World = GetWorld();
+    if (!Owner || !World)
+    {
+        return;
+    }
+
+    UKOGridSubsystem* Grid = World->GetSubsystem<UKOGridSubsystem>();
+    if (!Grid)
+    {
+        return;
+    }
+
+    // 점유 영역을 우선 사용. 그리드 미등록(에디터 선배치 등)이면 월드 위치로 폴백.
+    FIntPoint Anchor;
+    FIntPoint Size;
+    if (!Grid->TryGetOccupiedAreaForActor(Owner, Anchor, Size))
+    {
+        Anchor = Grid->WorldToGridPosition(Owner->GetActorLocation());
+        Size = FIntPoint(1, 1);
+    }
+
+    int32 Radius = 0;
+    if (const AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Owner))
+    {
+        if (const FKOFactoryRow* Row = Building->GetFactoryRow())
+        {
+            Radius = FMath::Max(0, Row->EnergyCoverageRadius);
+        }
+    }
+
+    const FIntPoint Start(Anchor.X - Radius, Anchor.Y - Radius);
+    const FIntPoint Extent(Size.X + 2 * Radius, Size.Y + 2 * Radius);
+
+    OutCells.Reserve(Extent.X * Extent.Y);
+    for (int32 Y = 0; Y < Extent.Y; ++Y)
+    {
+        for (int32 X = 0; X < Extent.X; ++X)
+        {
+            OutCells.Add(FIntPoint(Start.X + X, Start.Y + Y));
         }
     }
 }

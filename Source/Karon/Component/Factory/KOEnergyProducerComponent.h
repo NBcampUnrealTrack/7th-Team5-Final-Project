@@ -46,9 +46,19 @@ public:
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
 
+    /** 직전 틱 이 발전기가 실제로 공급한 에너지의 초당 환산(수요/연료 반영 후). */
+    float GetCurrentOutputPerSecond() const { return LastOutputRate; }
+
+    /** 연료가 있을 때 낼 수 있는 최대 초당 출력(BurnRate × PowerPerFuel). 연료 없으면 0. */
+    float GetMaxOutputPerSecond() const
+    {
+        return (FuelInBuffer > 0) ? (BurnRatePerSecond * PowerPerFuelUnit) : 0.f;
+    }
+
     // IKOEnergyProducer
     virtual float GetPowerOutput(float DeltaSeconds) const override;
     virtual void  OnPowerAccepted(float Amount) override;
+    virtual void  GetEnergyCoverageCells(TArray<FIntPoint>& OutCells) const override;
 
     // IKOItemSink (벨트가 연료 입구로 넣음)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
@@ -66,6 +76,9 @@ private:
 
     /** 소수 단위 연료 보유량 */
     float FuelDebt = 0.f;
+
+    /** 직전 틱 실제 공급 에너지의 초당 환산(UI 표시용). 미공급 시 0. */
+    float LastOutputRate = 0.f;
 
     /** 현재 적재된 연료 아이템 ID (UI 표시용). 비었을 때 NAME_None. */
     FName FuelItemId = NAME_None;

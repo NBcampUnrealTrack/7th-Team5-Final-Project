@@ -336,7 +336,34 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	bCurrentPlacementValid = bCanBuild;
 
 	SetPreviewActorBuildableState(bCanBuild);
-	
+
+	// 에너지 발전기면 공급 커버리지 면적을 초록 오버레이로 표시(프리뷰 중에만).
+	if (CurrentFactoryRow->EnergyCoverageRadius > 0)
+	{
+		const int32 Radius = CurrentFactoryRow->EnergyCoverageRadius;
+		const FIntPoint CoverageAnchor(
+			CurrentAnchor.X - Radius,
+			CurrentAnchor.Y - Radius
+		);
+		const FIntPoint CoverageSize(
+			CurrentBuildingSize.X + 2 * Radius,
+			CurrentBuildingSize.Y + 2 * Radius
+		);
+
+		const float CellSize = GridSub->GetCellSize();
+		FVector CoverageCenter = GridSub->GetAreaCenterWorldPosition(CoverageAnchor, CoverageSize);
+		CoverageCenter.Z = PreviewLocation.Z + 5.0f; // 바닥 z-파이팅 방지용 살짝 띄움
+
+		CurrentPreviewActor->ShowCoverageOverlay(
+			CoverageCenter,
+			FVector2D(CoverageSize.X * CellSize, CoverageSize.Y * CellSize)
+		);
+	}
+	else
+	{
+		CurrentPreviewActor->HideCoverageOverlay();
+	}
+
 	// 건물이 차지할 그리드 셀 디버그 표시
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 	if (
