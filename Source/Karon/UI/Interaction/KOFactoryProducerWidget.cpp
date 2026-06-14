@@ -6,7 +6,6 @@
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "Component/Interaction/KOInteractionComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
-#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
 #include "Engine/World.h"
@@ -77,7 +76,6 @@ void UKOFactoryProducerWidget::NativeOnActivated()
 
     // 1회만 세팅하면 충분한 정적 정보
     RefreshStaticInfo();
-    RefreshFuelNameText();
 
     // 동적 요소(바 + 슬롯)만 주기적 갱신
     TickRefresh();
@@ -121,35 +119,20 @@ void UKOFactoryProducerWidget::RefreshStaticInfo()
         TitleText->SetText(Row ? Row->DisplayName : FText::GetEmpty());
     }
 
-    if (PowerSpecText)
+    if (PowerPerFuelText)
     {
-        const FText Spec = FText::Format(
-            LOCTEXT("PowerSpecFormat", "{0}/연료, {1}/s"),
-            FText::AsNumber(Prod->PowerPerFuelUnit),
-            FText::AsNumber(Prod->BurnRatePerSecond));
-        PowerSpecText->SetText(Spec);
-    }
-}
-
-void UKOFactoryProducerWidget::RefreshFuelNameText()
-{
-    if (!FuelNameText) return;
-
-    UKOEnergyProducerComponent* Prod = Producer.Get();
-    if (!Prod)
-    {
-        FuelNameText->SetText(FText::GetEmpty());
-        return;
+        PowerPerFuelText->SetText(FText::Format(
+            LOCTEXT("PowerPerFuelFormat", "연료당 압력 : {0}"),
+            FText::AsNumber(FMath::RoundToInt(Prod->GetPowerPerFuelUnit()))));
     }
 
-    const FName FuelItemId = Prod->GetFuelItemId();
-    if (FuelItemId.IsNone())
+    if (EnergyPerSecText)
     {
-        FuelNameText->SetText(FText::GetEmpty());
-        return;
+        const float MaxPerSec = Prod->GetBurnRatePerSecond() * Prod->GetPowerPerFuelUnit();
+        EnergyPerSecText->SetText(FText::Format(
+            LOCTEXT("EnergyPerSecFormat", "에너지 생산 : {0}/s"),
+            FText::AsNumber(FMath::RoundToInt(MaxPerSec))));
     }
-
-    FuelNameText->SetText(UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, FuelItemId));
 }
 
 void UKOFactoryProducerWidget::TickRefresh()
@@ -157,27 +140,9 @@ void UKOFactoryProducerWidget::TickRefresh()
     UKOEnergyProducerComponent* Prod = Producer.Get();
     if (!Prod) return;
 
-    if (FuelBar)
-    {
-        const float Ratio = Prod->MaxFuelBuffer > 0
-            ? static_cast<float>(Prod->GetFuelCount()) / static_cast<float>(Prod->MaxFuelBuffer)
-            : 0.f;
-        FuelBar->SetPercent(FMath::Clamp(Ratio, 0.f, 1.f));
-    }
-
     if (FuelSlot)
     {
         FuelSlot->RefreshFromComponent();
-    }
-
-    if (EnergyText)
-    {
-        // 이 발전기의 현재 출력 / 최대 출력(초당). 수요가 없으면 현재 0, 연료 있으면 최대>0.
-        const FText EnergyStr = FText::Format(
-            LOCTEXT("EnergyFormat", "{0} / {1} /s"),
-            FText::AsNumber(FMath::RoundToInt(Prod->GetCurrentOutputPerSecond())),
-            FText::AsNumber(FMath::RoundToInt(Prod->GetMaxOutputPerSecond())));
-        EnergyText->SetText(EnergyStr);
     }
 }
 
@@ -185,9 +150,7 @@ void UKOFactoryProducerWidget::HandleFuelChangedMessage(FGameplayTag Channel, co
 {
     const FKOProducerFuelChangedMessage* Msg = Payload.GetPtr<FKOProducerFuelChangedMessage>();
     if (!Msg) return;
-    if (Msg->Producer.Get() != Producer.Get()) return; // 다른 Producer 메시지면 무시
-
-    RefreshFuelNameText();
+    if (Msg->Producer.Get() != Producer.Get()) return;
 }
 
 #undef LOCTEXT_NAMESPACE

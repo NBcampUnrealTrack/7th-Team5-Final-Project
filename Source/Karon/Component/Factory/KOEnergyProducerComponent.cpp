@@ -17,9 +17,46 @@
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
-    : FuelCategoryTag(KOGameplayTags::Item_Category_EnergyResource)
 {
     PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UKOEnergyProducerComponent::InitializeFromRecipe()
+{
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub) return;
+
+    const AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(GetOwner());
+    if (!Building) return;
+
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid()) return;
+
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    for (const FName& Id : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(Id);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid()) continue;
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag)) continue;
+
+        RecipeId = Id;
+
+        const float CycleSeconds = FMath::Max(Recipe->CycleSeconds, KINDA_SMALL_NUMBER);
+        BurnRatePerSecond = 1.f / CycleSeconds;
+        PowerPerFuelUnit = Recipe->PowerPerSecond * CycleSeconds;
+
+        for (const TPair<FGameplayTag, int32>& Input : Recipe->Inputs)
+        {
+            AcceptedFuelItemId = LoadSub->FindItemIdByTag(Input.Key);
+            break;
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("[Producer] Recipe '%s': BurnRate=%.2f/s, PowerPerFuel=%.1f, Fuel='%s'"),
+            *RecipeId.ToString(), BurnRatePerSecond, PowerPerFuelUnit, *AcceptedFuelItemId.ToString());
+        return;
+    }
 }
 
 void UKOEnergyProducerComponent::BeginPlay()
@@ -47,15 +84,10 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
         return Count;
     }
 
-    if (!FuelCategoryTag.IsValid())
+    if (AcceptedFuelItemId.IsNone() || ItemId != AcceptedFuelItemId)
     {
-        return Count;
-    }
-
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(ItemId) : nullptr;
-    if (!Row || !Row->Categories.HasTag(FuelCategoryTag))
-    {
+        UE_LOG(LogTemp, Warning, TEXT("[Producer] TryInsertFuel REJECTED: ItemId='%s', AcceptedFuelItemId='%s', RecipeId='%s'"),
+            *ItemId.ToString(), *AcceptedFuelItemId.ToString(), *RecipeId.ToString());
         return Count;
     }
 
@@ -207,22 +239,15 @@ void UKOEnergyProducerComponent::GetEnergyCoverageCells(TArray<FIntPoint>& OutCe
 // IKOItemSink — 연료 카테고리/버퍼/혼합 여부를 TryInsertFuel 과 동일 규칙으로 검사.
 bool UKOEnergyProducerComponent::CanAcceptItem(const FKOConveyorItem& Item) const
 {
-    if (!Item.IsValid() || !FuelCategoryTag.IsValid())
+    if (!Item.IsValid() || AcceptedFuelItemId.IsNone())
     {
         return false;
     }
-    // 이미 다른 연료가 적재돼 있으면 혼합 불가.
-    if (!FuelItemId.IsNone() && FuelItemId != Item.ItemId)
+    if (Item.ItemId != AcceptedFuelItemId)
     {
         return false;
     }
-    if (FuelInBuffer >= MaxFuelBuffer)
-    {
-        return false;
-    }
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(Item.ItemId) : nullptr;
-    return Row && Row->Categories.HasTag(FuelCategoryTag);
+    return FuelInBuffer < MaxFuelBuffer;
 }
 
 bool UKOEnergyProducerComponent::PushItem(const FKOConveyorItem& Item)

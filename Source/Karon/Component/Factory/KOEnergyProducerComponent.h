@@ -15,21 +15,6 @@ class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOE
 
 public:
     UKOEnergyProducerComponent();
-    /**
-     * 받아들이는 연료 카테고리 태그. FKOItemRow::Categories 에 이 태그가 포함되면 연료로 인정.
-     * 기본값: "Item.Category.EnergyResource".
-     */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    FGameplayTag FuelCategoryTag;
-
-    /** 연료 1개 소모 시 생산되는 총 에너지량 */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    float PowerPerFuelUnit = 100.f;
-
-    /** 초당 태울 수 있는 최대 연료 개수 */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    float BurnRatePerSecond = 1.f;
-
     /** 연료 버퍼 최대 누적량 */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
     int32 MaxFuelBuffer = 999;
@@ -45,6 +30,10 @@ public:
 
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
+    FName GetRecipeId() const { return RecipeId; }
+    FName GetAcceptedFuelItemId() const { return AcceptedFuelItemId; }
+    float GetPowerPerFuelUnit() const { return PowerPerFuelUnit; }
+    float GetBurnRatePerSecond() const { return BurnRatePerSecond; }
 
     /** 직전 틱 이 발전기가 실제로 공급한 에너지의 초당 환산(수요/연료 반영 후). */
     float GetCurrentOutputPerSecond() const { return LastOutputRate; }
@@ -68,8 +57,16 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
+public:
+    void InitializeFromRecipe();
+
 private:
     void BroadcastFuelChanged() const;
+
+    FName RecipeId = NAME_None;
+    float PowerPerFuelUnit = 0.f;
+    float BurnRatePerSecond = 0.f;
+    FName AcceptedFuelItemId = NAME_None;
 
     /** 정수 단위 연료 보유량. */
     int32 FuelInBuffer = 0;

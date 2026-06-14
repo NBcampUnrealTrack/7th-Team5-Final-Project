@@ -9,7 +9,6 @@
 class AKOBaseBuilding;
 class UKOEnergyProducerComponent;
 class UTextBlock;
-class UProgressBar;
 class UKOFactorySlotWidget;
 class UKOInventoryWidget;
 
@@ -36,7 +35,6 @@ protected:
 
     /** 1회 또는 GMS 시점에만 호출되는 정적 요소(Title/PowerSpec/FuelName). */
     void RefreshStaticInfo();
-    void RefreshFuelNameText();
 
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
     float RefreshInterval = 0.1f;
@@ -44,17 +42,13 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> TitleText;
 
+    /** 연료당 에너지량 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> FuelNameText;
+    TObjectPtr<UTextBlock> PowerPerFuelText;
 
+    /** 초당 에너지 생산량 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UProgressBar> FuelBar;
-
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> PowerSpecText;
-
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> EnergyText;
+    TObjectPtr<UTextBlock> EnergyPerSecText;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UKOFactorySlotWidget> FuelSlot;

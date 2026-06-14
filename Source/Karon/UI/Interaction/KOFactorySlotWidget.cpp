@@ -22,7 +22,7 @@ void UKOFactorySlotWidget::SetupFuelSlot(UKOEnergyProducerComponent* InProducer)
     Mode = EKOFactorySlotMode::Fuel;
     Producer = InProducer;
     Processor.Reset();
-    SlotItemId = NAME_None;
+    SlotItemId = InProducer ? InProducer->GetAcceptedFuelItemId() : NAME_None;
     RefreshFromComponent();
 }
 
@@ -90,29 +90,33 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
 {
     const bool bHasItem = !ItemId.IsNone() && Count > 0;
 
-    // 비어 있는 Input/Output 슬롯에서, 선택된 레시피가 이 SlotItemId를 사용하면 미리보기 아이콘.
     bool bShowPreview = false;
-    if (!bHasItem
-        && (Mode == EKOFactorySlotMode::ProcessorInput || Mode == EKOFactorySlotMode::ProcessorOutput)
-        && !SlotItemId.IsNone())
+    if (!bHasItem && !SlotItemId.IsNone())
     {
-        if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+        if (Mode == EKOFactorySlotMode::Fuel)
         {
-            const FName SelectedId = Proc->GetSelectedRecipe();
-            if (!SelectedId.IsNone())
+            bShowPreview = true;
+        }
+        else if (Mode == EKOFactorySlotMode::ProcessorInput || Mode == EKOFactorySlotMode::ProcessorOutput)
+        {
+            if (UKOFactoryProcessorComponent* Proc = Processor.Get())
             {
-                if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
+                const FName SelectedId = Proc->GetSelectedRecipe();
+                if (!SelectedId.IsNone())
                 {
-                    if (const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(SelectedId))
+                    if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
                     {
-                        const TMap<FGameplayTag, int32>& Map =
-                            (Mode == EKOFactorySlotMode::ProcessorInput) ? Recipe->Inputs : Recipe->Outputs;
-                        for (const TPair<FGameplayTag, int32>& Pair : Map)
+                        if (const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(SelectedId))
                         {
-                            if (LoadSub->FindItemIdByTag(Pair.Key) == SlotItemId)
+                            const TMap<FGameplayTag, int32>& Map =
+                                (Mode == EKOFactorySlotMode::ProcessorInput) ? Recipe->Inputs : Recipe->Outputs;
+                            for (const TPair<FGameplayTag, int32>& Pair : Map)
                             {
-                                bShowPreview = true;
-                                break;
+                                if (LoadSub->FindItemIdByTag(Pair.Key) == SlotItemId)
+                                {
+                                    bShowPreview = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -330,6 +334,8 @@ bool UKOFactorySlotWidget::NativeOnDrop(
     {
         UKOEnergyProducerComponent* Prod = Producer.Get();
         if (!Prod) return false;
+        UE_LOG(LogTemp, Log, TEXT("[FuelSlot] NativeOnDrop: ItemId='%s', Count=%d, AcceptedFuel='%s'"),
+            *ItemId.ToString(), Count, *Prod->GetFuelItemId().ToString());
         Remaining = Prod->TryInsertFuel(ItemId, Count);
     }
     else // ProcessorInput
