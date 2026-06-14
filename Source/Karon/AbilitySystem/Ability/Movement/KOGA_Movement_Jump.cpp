@@ -1,4 +1,6 @@
 ﻿#include "KOGA_Movement_Jump.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_WaitMovementModeChange.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -41,21 +43,41 @@ void UKOGA_Movement_Jump::ActivateAbility(
 		return; 
 	}
 	
-	UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
-	if (!CMC)
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC)
 	{
-		Character->Jump(); 
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+	// 1. 타겟팅 중인 경우 
+	if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn))
+	{
+		FGameplayTag EventTag = KOGameplayTags::Event_Movement_Jump_LockOn;
+		FGameplayEventData EventData;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Character, EventTag, EventData);
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
 	}
 	
 	// TODO: 
-	// 1. 점프 분기 (타겟팅 하면서 점프) 
 	// 2. 파쿠르 
+	
+	
+	
 	// 3. 그냥 점프 
+	UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
+	if (!CMC)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return; 
+	}
 	
 	UKOMovementSet* MovementSet = Character->GetMovementSet();
 	float JumpStrength = MovementSet ? MovementSet->GetJumpStrength() : 600; 
 	
-	FVector DirectionalJump =CMC->Velocity* 0.6f + FVector(0.f, 0.f, JumpStrength);
+	FVector DirectionalJump = CMC->Velocity* 0.6f + FVector(0.f, 0.f, JumpStrength);
 	
 	Character->LaunchCharacter(DirectionalJump,true, true); 
 	

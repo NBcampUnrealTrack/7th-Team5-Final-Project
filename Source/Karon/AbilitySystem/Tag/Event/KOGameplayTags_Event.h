@@ -8,6 +8,9 @@ namespace KOGameplayTags
 	// ── Event | Stamina ──────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Stamina_Exhausted);
 	
+	// ── Event | Movement ──────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Movement_Jump_LockOn); 
+	
 	// ── Event | HitReact ──────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit);
 	
