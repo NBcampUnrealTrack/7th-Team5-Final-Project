@@ -1,6 +1,8 @@
 #include "KOBossBase.h"
  
 #include "AbilitySystemComponent.h"
+#include "AIController.h"
+#include "KOAIC_BossChapter01.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h" 
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
@@ -9,6 +11,8 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -54,13 +58,15 @@ void AKOBossBase::BeginPlay()
 	
 	if (HealthSet)
 	{
-		HealthSet->OnHealthChanged.AddUniqueDynamic(
-			this, &AKOBossBase::OnHealthChangedCallback
-		);
+		HealthSet->OnHealthChanged.AddUniqueDynamic(this, &AKOBossBase::OnHealthChangedCallback);
+	}
+	
+	if (MovementSet)
+	{
+		MovementSet->OnMaxWalkSpeedBaseChanged.AddUniqueDynamic(this, &AKOBossBase::OnMoveSpeedChangedCallback);
 	}
 }
 
-// 델리게이트 콜백
 void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 {
 	if (!DataAsset)
@@ -87,6 +93,28 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 		bPhase2Triggered = true;
 		OnPhaseChanged(2);
 	}
+	
+	if (Ratio <= GimmickReadyRatio)
+	{
+		AAIController* AIC = Cast<AAIController>(GetController());
+		if (!AIC)
+		{
+			return;
+		}
+ 
+		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+		{
+			if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+			{
+				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+			}
+		}
+	}
+}
+
+void AKOBossBase::OnMoveSpeedChangedCallback(float OldVal, float NewVal)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewVal;
 }
 
 // 비동기 로드 시작 
@@ -172,11 +200,11 @@ void AKOBossBase::ApplyMeshAndAnim()
 
 void AKOBossBase::ApplyStats()
 {
-	// TODO: 이거 GrantSet에 GE 적용해서 하면 한번에 처리 가능해요
 	if (!AbilitySystemComponent)
 	{
 		return;
 	}
+	
 	if (!DataAsset)
 	{
 		return;
@@ -193,17 +221,11 @@ void AKOBossBase::ApplyStats()
 		DataAsset->MaxHealth
 	);
  
-	// AbilitySystemComponent->ApplyModToAttributeUnsafe(
-	// 	UKOMovementSet::GetMaxMoveSpeedAttribute(),
-	// 	EGameplayModOp::Override,
-	// 	DataAsset->MoveSpeed
-	// );
-	
-	// AbilitySystemComponent->ApplyModToAttributeUnsafe(
-	// 	UKOMovementSet::GetMoveSpeedAttribute(),
-	// 	EGameplayModOp::Override,
-	// 	DataAsset->MoveSpeed
-	// );
+	AbilitySystemComponent->ApplyModToAttributeUnsafe(
+		UKOMovementSet::GetMaxWalkSpeedAttribute(),
+		EGameplayModOp::Override,
+		DataAsset->MoveSpeed
+	);
  
 	AbilitySystemComponent->ApplyModToAttributeUnsafe(
 		UKOCombatSet::GetAttackPowerAttribute(),

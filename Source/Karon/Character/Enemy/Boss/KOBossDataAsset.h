@@ -1,11 +1,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossAttackBase.h"
 #include "Engine/DataAsset.h"
 #include "KOBossDataAsset.generated.h"
- 
+
 class UGameplayAbility;
 class UGameplayEffect;
+
+USTRUCT(BlueprintType)
+struct FBossAttackRangeData
+{
+	GENERATED_BODY()
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	TSubclassOf<UKOGA_BossAttackBase> AttackAbilityClass;
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	float AttackRange = 300.f;
+};
 
 UCLASS()
 class KARON_API UKOBossDataAsset : public UPrimaryDataAsset
@@ -50,4 +63,23 @@ public:
 	// 스탯 초기값을 GE로 주입할 경우 사용
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TSubclassOf<UGameplayEffect> InitStatEffect;
+	
+	// 공격별 범위 데이터
+	// 공격 추가 시 배열에 항목만 추가하면 됨
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack")
+	TArray<FBossAttackRangeData> AttackRangeData;
+ 
+	// GA 클래스로 AttackRange 검색
+	float GetAttackRange(TSubclassOf<UGameplayAbility> AbilityClass) const
+	{
+		for (const FBossAttackRangeData& Data : AttackRangeData)
+		{
+			if (Data.AttackAbilityClass == AbilityClass)
+			{
+				return Data.AttackRange;
+			}
+		}
+		// 등록되지 않은 공격은 기본값 반환
+		return 300.f;
+	}
 };

@@ -16,7 +16,7 @@ struct FBossAttackInfo
 	FName BBKey;
 
 	UPROPERTY(EditAnywhere)
-	float AttackRange = 0.f;
+	TSubclassOf<class UKOGA_BossAttackBase> AttackAbilityClass;
 };
 
 UCLASS()

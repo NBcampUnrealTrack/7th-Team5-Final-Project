@@ -27,4 +27,10 @@ public:
 	static const FName bIsGroggyKey;
 	static const FName bIsAttackingKey;
 	static const FName bIsDeadKey;
+	static const FName GroundHitDirCheckKey;
+	
+	// 기믹 돌진 준비
+	static const FName bIsGimmickReadyKey;
+	// 기믹 돌진 목표 위치
+	static const FName GimmickLocationKey;
 };

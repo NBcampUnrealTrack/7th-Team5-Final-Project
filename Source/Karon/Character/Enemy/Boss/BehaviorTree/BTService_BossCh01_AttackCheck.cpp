@@ -6,6 +6,8 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
+#include "Character/Enemy/Boss/KOBossDataAsset.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -59,23 +61,31 @@ void UBTService_BossCh01_AttackCheck::TickNode(
 		return;
 	}
 	
-	// 거리 계산
-	const float Distance = FVector::Dist(
-		BossPawn->GetActorLocation(),
-		PlayerCharacter->GetActorLocation()
-	);
+	AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn);
+	UKOBossDataAsset* DA = Boss ? Boss->GetDataAsset() : nullptr;
 	
-	const bool bIsAttacking = ASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Attacking);
-
+	const float Distance = FVector::Dist(BossPawn->GetActorLocation(), PlayerCharacter->GetActorLocation());
+	
+	const bool bIsAttacking = ASC->HasMatchingGameplayTag(
+		KOGameplayTags::State_Boss_Attacking);
+ 
 	for (const FBossAttackInfo& Info : AttackInfos)
 	{
 		const bool bOnCooldown = ASC->HasMatchingGameplayTag(Info.CooldownTag);
- 
-		BB->SetValueAsBool(
-			Info.BBKey,
-			!bIsAttacking && !bOnCooldown && Distance <= Info.AttackRange
-		);
+		
+		const float AttackRange = DA ? DA->GetAttackRange(Info.AttackAbilityClass) : 0.f;
+		
+		const bool bResult = !bIsAttacking && !bOnCooldown && Distance <= AttackRange;
+		
+		BB->SetValueAsBool(Info.BBKey, bResult);
 	}
 
 	BB->SetValueAsBool(AKOAIC_BossChapter01::bIsAttackingKey, bIsAttacking);
+	
+	// 플레이어 방향 판별
+	const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - BossPawn->GetActorLocation()).GetSafeNormal();
+ 
+	const float DotRight = FVector::DotProduct(BossPawn->GetActorRightVector(), ToPlayer);
+	
+	BB->SetValueAsBool(AKOAIC_BossChapter01::GroundHitDirCheckKey, DotRight < 0.f);
 }

@@ -33,10 +33,7 @@ public:
 		const FGameplayTagContainer* TargetTags,
 		FGameplayTagContainer* OptionalRelevantTags
 	) const override;
- 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | State")
-	float AttackRange = 300.f;
- 
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
