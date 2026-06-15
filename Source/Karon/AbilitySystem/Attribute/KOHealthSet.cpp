@@ -1,6 +1,8 @@
 ﻿#include "KOHealthSet.h"
 #include "GameplayEffectExtension.h"
+#include "GMRouterSubsystem.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/KOCharacterBase.h"
 
 UKOHealthSet::UKOHealthSet()
 {
@@ -127,9 +129,10 @@ void UKOHealthSet::HandleDeath(const FGameplayEffectModCallbackData& Data)
 	
 		ASC->HandleGameplayEvent(KOGameplayTags::Event_Death, &EventData);
 		
-		// TODO: GMS 호출 
-		// -> KOCharacterBase : 이동 비활성화
-		// -> + 사망 UI 호출 
+		AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarActor());
+		if (!Character) return;
+	
+		Character->OnCharacterDead(Data.EffectSpec.GetContext().GetInstigator()); 
 	}
 }
 
