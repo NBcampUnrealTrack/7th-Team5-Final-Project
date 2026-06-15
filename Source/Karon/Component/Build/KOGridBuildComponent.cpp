@@ -24,6 +24,7 @@
 #include "UI/KOUISubsystem.h"
 #include "UI/Interaction/KOBeltConnectWidget.h"
 #include "Component/Factory/KOFactoryProcessorComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
 #include "CommonActivatableWidget.h"
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -902,13 +903,77 @@ void UKOGridBuildComponent::RequestDestroy()
 		return;
 	}
 
+	// 설비/벨트 내부에 적재돼 있던 아이템도 인벤토리로 환급(설치 아이템 자체는 위에서 이미 환급).
+	// 인벤토리가 가득 차 일부가 들어가지 못하면 그만큼은 소실되며 경고만 남긴다(파괴는 그대로 진행).
+	RefundStoredItems(TargetBuilding, *InventoryComponent);
+
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
 		*TargetBuilding->GetName()
 	);
-	
+
 	ClearDestroyTargetActor();
 
 	TargetBuilding->Destroy();
+}
+
+void UKOGridBuildComponent::RefundStoredItems(AKOBaseBuilding* TargetBuilding, UKOInventoryComponent& InventoryComponent) const
+{
+	if (!TargetBuilding)
+	{
+		return;
+	}
+
+	// 내부 적재 아이템을 (ItemId → 수량)으로 합산.
+	TMap<FName, int32> StoredItems;
+
+	// 벨트: 벨트 위를 흐르던 화물.
+	if (const AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(TargetBuilding))
+	{
+		Belt->CollectCargoItems(StoredItems);
+	}
+
+	// 가공 설비: 입력/출력 버퍼.
+	if (const UKOFactoryProcessorComponent* Processor = TargetBuilding->FindComponentByClass<UKOFactoryProcessorComponent>())
+	{
+		for (const TPair<FName, int32>& Pair : Processor->GetInputBuffer())
+		{
+			if (!Pair.Key.IsNone() && Pair.Value > 0)
+			{
+				StoredItems.FindOrAdd(Pair.Key) += Pair.Value;
+			}
+		}
+		for (const TPair<FName, int32>& Pair : Processor->GetOutputBuffer())
+		{
+			if (!Pair.Key.IsNone() && Pair.Value > 0)
+			{
+				StoredItems.FindOrAdd(Pair.Key) += Pair.Value;
+			}
+		}
+	}
+
+	// 생산 설비: 연료 버퍼.
+	if (const UKOEnergyProducerComponent* Producer = TargetBuilding->FindComponentByClass<UKOEnergyProducerComponent>())
+	{
+		const FName FuelItemId = Producer->GetFuelItemId();
+		const int32 FuelCount  = Producer->GetFuelCount();
+		if (!FuelItemId.IsNone() && FuelCount > 0)
+		{
+			StoredItems.FindOrAdd(FuelItemId) += FuelCount;
+		}
+	}
+
+	// 합산된 적재 아이템을 인벤토리로 환급(들어가지 못한 잔량은 소실 — 경고).
+	for (const TPair<FName, int32>& Pair : StoredItems)
+	{
+		const int32 Remaining = InventoryComponent.TryAddItem(EKOSlotKind::Item, Pair.Key, Pair.Value);
+		if (Remaining > 0)
+		{
+			UE_LOG(LogKOBuild, Warning, TEXT("[Destroy] 인벤토리 공간 부족으로 적재 아이템 일부 소실: ItemId=%s, 소실=%d"),
+				*Pair.Key.ToString(),
+				Remaining
+			);
+		}
+	}
 }
 
 void UKOGridBuildComponent::SetPreviewActorBuildableState(bool bCanBuild)

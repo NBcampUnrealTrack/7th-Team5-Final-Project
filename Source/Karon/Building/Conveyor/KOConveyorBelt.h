@@ -84,6 +84,9 @@ public:
     /** 현재 아이템이 올라가 있는 슬롯 수(진단용). */
     int32 GetOccupiedSlotCount() const;
 
+    /** 파괴(철거) 시 환급용 — 벨트 위 화물을 (ItemId → 수량)으로 OutItems 에 누적(초기화 없이 더함). */
+    void CollectCargoItems(TMap<FName, int32>& OutItems) const;
+
     /** 한 줄 디버그 상태 문자열(형태/flip/셀/입출구/적재). 콘솔 덤프용. */
     FString DescribeForDebug() const;
 

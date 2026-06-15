@@ -30,10 +30,16 @@ public:
 
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
+
+    /** 현재 연료 1단위의 소모 진행도(0~1). 연료 없으면 0. 전력이 실제 소비될 때만 진행. UI ProgressBar 용. */
+    float GetBurnProgress() const { return (FuelInBuffer > 0) ? FMath::Clamp(FuelDebt, 0.f, 1.f) : 0.f; }
     FName GetRecipeId() const { return RecipeId; }
     FName GetAcceptedFuelItemId() const { return AcceptedFuelItemId; }
     float GetPowerPerFuelUnit() const { return PowerPerFuelUnit; }
     float GetBurnRatePerSecond() const { return BurnRatePerSecond; }
+
+    /** 연료 1단위를 모두 태우는 데 걸리는 시간(초). 레시피 CycleSeconds 와 동일. 연료 정보 없으면 0. UI 표시용. */
+    float GetCycleSeconds() const { return (BurnRatePerSecond > 0.f) ? (1.f / BurnRatePerSecond) : 0.f; }
 
     /** 직전 틱 이 발전기가 실제로 공급한 에너지의 초당 환산(수요/연료 반영 후). */
     float GetCurrentOutputPerSecond() const { return LastOutputRate; }

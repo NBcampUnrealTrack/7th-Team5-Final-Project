@@ -6,6 +6,7 @@
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "Component/Interaction/KOInteractionComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Data/KODataTableTypes.h"
 #include "Engine/World.h"
@@ -130,8 +131,18 @@ void UKOFactoryProducerWidget::RefreshStaticInfo()
     {
         const float MaxPerSec = Prod->GetBurnRatePerSecond() * Prod->GetPowerPerFuelUnit();
         EnergyPerSecText->SetText(FText::Format(
-            LOCTEXT("EnergyPerSecFormat", "에너지 생산 : {0}/s"),
+            LOCTEXT("EnergyPerSecFormat", "압력 생산 : {0}/s"),
             FText::AsNumber(FMath::RoundToInt(MaxPerSec))));
+    }
+
+    if (CycleText)
+    {
+        FNumberFormattingOptions CycleFormat;
+        CycleFormat.MinimumFractionalDigits = 1;
+        CycleFormat.MaximumFractionalDigits = 1;
+        CycleText->SetText(FText::Format(
+            LOCTEXT("CycleFormat", "연소 주기 : {0}s"),
+            FText::AsNumber(Prod->GetCycleSeconds(), &CycleFormat)));
     }
 }
 
@@ -139,6 +150,11 @@ void UKOFactoryProducerWidget::TickRefresh()
 {
     UKOEnergyProducerComponent* Prod = Producer.Get();
     if (!Prod) return;
+
+    if (ProgressBar)
+    {
+        ProgressBar->SetPercent(Prod->GetBurnProgress());
+    }
 
     if (FuelSlot)
     {

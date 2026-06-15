@@ -133,7 +133,10 @@ protected:
 	void RestoreDestroyTargetMaterial();
 	
 	UKOInventoryComponent* GetInventoryComponent() const;
-	
+
+	/** 파괴 대상 설비/벨트의 내부 적재 아이템(벨트 화물·가공 버퍼·연료)을 인벤토리로 환급. 설치 아이템 자체는 제외. */
+	void RefundStoredItems(AKOBaseBuilding* TargetBuilding, UKOInventoryComponent& InventoryComponent) const;
+
 private:
 	void SetCurrentMode(EKOGridBuildMode NewMode);
 	FRotator GetPlacementRotation() const;

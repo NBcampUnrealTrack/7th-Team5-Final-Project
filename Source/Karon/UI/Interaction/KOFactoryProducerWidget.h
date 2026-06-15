@@ -9,6 +9,7 @@
 class AKOBaseBuilding;
 class UKOEnergyProducerComponent;
 class UTextBlock;
+class UProgressBar;
 class UKOFactorySlotWidget;
 class UKOInventoryWidget;
 
@@ -49,6 +50,14 @@ protected:
     /** 초당 에너지 생산량 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> EnergyPerSecText;
+
+    /** 연료 1단위 연소에 걸리는 시간(초) 표시. */
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> CycleText;
+
+    /** 현재 연료 1단위의 소모 진행도(0~1). Processor의 ProgressBar와 동일 패턴. */
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UProgressBar> ProgressBar;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UKOFactorySlotWidget> FuelSlot;
