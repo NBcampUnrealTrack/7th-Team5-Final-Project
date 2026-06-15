@@ -37,14 +37,16 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyBegin(FBranchingPointNotifyP
 	}
 	UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
 		AbilitySystemComponent->GetAnimatingAbility());
-	CachedAbilities.Add(MeshComp, EnemyGA);
+	if (EnemyGA)
+	{
+		CachedAbilities.Add(MeshComp, EnemyGA);
 
-	//소켓 위치로 변수 초기화
-	//각 타입에 따라서 트레이스하는 소켓 위치가 달라진다.
-
-	EnemyGA->CurrentAttackSocketLocation = Enemy->GetSocketLocation();
-	EnemyGA->PresentAttackSocketLocation = Enemy->GetSocketLocation();
-
+		//소켓 위치로 변수 초기화
+		//각 타입에 따라서 트레이스하는 소켓 위치가 달라진다.
+		FVector SocketLocation = Enemy->GetSocketLocation();
+		EnemyGA->CurrentAttackSocketLocation = SocketLocation;
+		EnemyGA->PresentAttackSocketLocation = SocketLocation;
+	}
 }
 void UKOEnemyAttackNotifyState::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& BranchingPointPayload)
 {

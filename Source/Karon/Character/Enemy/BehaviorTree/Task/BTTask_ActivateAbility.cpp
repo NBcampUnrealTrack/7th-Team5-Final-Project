@@ -5,13 +5,15 @@
 
 #include "AbilitySystemComponent.h"
 #include "AIController.h"
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "GameFramework/Character.h"
 
 
 UBTTask_ActivateAbility::UBTTask_ActivateAbility()
 {
-	bNotifyTick = true;
+	bNotifyTick = false;
+	DeathTag=KOGameplayTags::State_Enemy_Dead;
 }
 
 EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -34,11 +36,26 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 	
+	//해당 태그에 매칭되는 GA 중에서 랜덤하게 하나만 실행한다.
 	if (Enemy->GetAbilitySystemComponent())
 	{
 		FGameplayTagContainer AbilityTagContainer;
 		AbilityTagContainer.AddTag(ActivateTagName);
-		Enemy->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AbilityTagContainer);
+		
+		UAbilitySystemComponent* ASC=Enemy->GetAbilitySystemComponent();
+		if (ASC==nullptr)
+		{
+			return EBTNodeResult::Failed;
+		}
+		TArray<FGameplayAbilitySpec*> ActivatableAbilities;
+		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagContainer, ActivatableAbilities);
+		if (ActivatableAbilities.IsEmpty())
+		{
+			return EBTNodeResult::Failed;
+		}
+		
+		int32 RandomIndex = FMath::RandRange(0, ActivatableAbilities.Num() - 1);
+		ASC->TryActivateAbility(ActivatableAbilities[RandomIndex]->Handle);
 	}
 	
 	return EBTNodeResult::InProgress;
@@ -46,6 +63,40 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 
 EBTNodeResult::Type UBTTask_ActivateAbility::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	AAIController* Owner = OwnerComp.GetAIOwner();
+	if (Owner == nullptr)
+	{
+		return EBTNodeResult::Aborted;
+	}
+	ACharacter* AICharacter = Cast<ACharacter>(Owner->GetPawn());
+	//AIChaarcter가 nullptr이거나, 태그가 비었거나, 죽음 GA를 활성화하는 태그라면 Abort하지 않음.
+	if (AICharacter == nullptr || 
+		ActivateTagName == FGameplayTag::EmptyTag||
+		ActivateTagName==DeathTag)
+	{
+		return EBTNodeResult::Failed;
+	}
+	AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(AICharacter);
+	if(Enemy==nullptr)
+	{
+		return EBTNodeResult::Failed;
+	}
+	//Abort시 적용중인 GA 캔슬
+	if (Enemy->GetAbilitySystemComponent())
+	{
+		FGameplayTagContainer AbilityTagContainer;
+		AbilityTagContainer.AddTag(ActivateTagName);
+		Enemy->GetAbilitySystemComponent()->CancelAbilities(&AbilityTagContainer);
+	}
+	//애님 몽타주도 캔슬
+	if (UAnimInstance* AnimInstance = Enemy->GetMesh()->GetAnimInstance())
+	{
+		if (AnimInstance->IsAnyMontagePlaying())
+		{
+			AnimInstance->Montage_Stop(MontageBlendOutTime); 
+		}
+	}
+	UE_LOG(LogTemp,Warning,TEXT("Aborted"));
 	return Super::AbortTask(OwnerComp, NodeMemory);
 }
 
