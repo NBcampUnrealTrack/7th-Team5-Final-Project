@@ -79,6 +79,7 @@ void UKOGA_Attack_Light::ActivateAbility(
 	
 	CurrentComboIndex = 1;
 	bIsComboQueued = false;
+	bIsInputBufferOpen = false;
 	CurrentMontageTask = nullptr;
 	
 	UAbilityTask_WaitGameplayEvent* HitTask = 
@@ -86,13 +87,14 @@ void UKOGA_Attack_Light::ActivateAbility(
 	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
 	HitTask->ReadyForActivation();
 	
-	// UAbilityTask_WaitInputPress* InputTask = 
-	// 	UAbilityTask_WaitInputPress::WaitInputPress(this, false);
-	// if (InputTask)
-	// {
-	// 	InputTask->OnPress.AddDynamic(this, &ThisClass::OnComboInputPressed);
-	// 	InputTask->ReadyForActivation();
-	// }
+	FGameplayTag InputEnableTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.EnableInput"));
+	UAbilityTask_WaitGameplayEvent* InputEventTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, InputEnableTag);
+	if (InputEventTask)
+	{
+		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Light::OnInputBufferOpened);
+		InputEventTask->ReadyForActivation();
+	}
 	
 	FGameplayTag ComboCheckTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.Check"));
 	UAbilityTask_WaitGameplayEvent* ComboEventTask = 
@@ -114,7 +116,7 @@ void UKOGA_Attack_Light::InputPressed(
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	UE_LOG(LogTemp, Warning, TEXT("어빌리티 내부에서 클릭 입력 감지 현재 타수: %d"), CurrentComboIndex);
 
-	if (CurrentComboIndex < MaxComboCount)
+	if (bIsInputBufferOpen && CurrentComboIndex < MaxComboCount)
 	{
 		bIsComboQueued = true;
 		UE_LOG(LogTemp, Warning, TEXT("bIsComboQueued true"));
@@ -133,6 +135,7 @@ void UKOGA_Attack_Light::PlayNextComboSection()
 	}
 	
 	FName SectionName = FName(*FString::Printf(TEXT("Attack_%d"), CurrentComboIndex));
+	bIsInputBufferOpen = false;
 	
 	CurrentMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -189,6 +192,11 @@ void UKOGA_Attack_Light::OnHitEventReceived(FGameplayEventData Payload)
 	{
 		ApplyEffectToTarget(TargetActor, DamageEffectClass, GetAbilityLevel());
 	}
+}
+
+void UKOGA_Attack_Light::OnInputBufferOpened(FGameplayEventData Payload)
+{
+	bIsInputBufferOpen = true;
 }
 
 

@@ -27,6 +27,7 @@ namespace KOGameplayTags
 	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Check);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_EnableInput);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Open);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Window_Close);
 	

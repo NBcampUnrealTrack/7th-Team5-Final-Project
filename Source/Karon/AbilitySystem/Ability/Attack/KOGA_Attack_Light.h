@@ -48,6 +48,7 @@ private:
 	int32 CurrentComboIndex;
 	int32 MaxComboCount;
 	bool bIsComboQueued;
+	bool bIsInputBufferOpen;
 	
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> ComboMontage;
@@ -67,4 +68,6 @@ private:
 	UFUNCTION()
 	void OnHitEventReceived(FGameplayEventData Payload);
 	
+	UFUNCTION()
+	void OnInputBufferOpened(FGameplayEventData Payload);
 };
