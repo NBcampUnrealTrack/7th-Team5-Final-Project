@@ -8,6 +8,8 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
+#include "Character/Enemy/Boss/KOBossDataAsset.h"
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
@@ -121,32 +123,38 @@ bool UKOGA_BossAttackBase::IsTargetInRange() const
 	{
 		return false;
 	}
-
+ 
 	APawn* Pawn = Cast<APawn>(Avatar);
 	if (!Pawn)
 	{
 		return false;
 	}
-
+ 
 	AAIController* AIC = Cast<AAIController>(Pawn->GetController());
 	if (!AIC)
 	{
 		return false;
 	}
-
+ 
 	UBlackboardComponent* BB = AIC->GetBlackboardComponent();
 	if (!BB)
 	{
 		return false;
 	}
-
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+ 
+	AActor* Target = Cast<AActor>(
+		BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
 	if (!Target)
 	{
 		return false;
 	}
-
-	return FVector::Dist(Avatar->GetActorLocation(), Target->GetActorLocation()) <= AttackRange;
+ 
+	// DA에서 GA 클래스 기준으로 AttackRange 조회
+	AKOBossBase* Boss = Cast<AKOBossBase>(Avatar);
+	UKOBossDataAsset* DA = Boss ? Boss->GetDataAsset() : nullptr;
+	const float AttackRange = DA ? DA->GetAttackRange(GetClass()) : 300.f;
+ 
+	return FVector::Dist(Avatar->GetActorLocation(),Target->GetActorLocation()) <= AttackRange;
 }
 
 void UKOGA_BossAttackBase::ApplyDamageToTarget(AActor* TargetActor)
@@ -198,4 +206,3 @@ void UKOGA_BossAttackBase::ApplyDamageToTarget(AActor* TargetActor)
 		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
 }
-
