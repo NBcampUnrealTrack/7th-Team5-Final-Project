@@ -35,6 +35,7 @@ public:
     const FKOEquipmentRow* FindEquipmentRow(FName EquipmentId) const;
     const FKOEquipmentRow* FindEquipmentRowByItemTag(FGameplayTag ItemTag) const;
     const FKOSkillRow* FindSkillRow(FName SkillId) const;
+    const FKOSkillExecutionRow* FindSkillExecutionRow(FName SkillExId) const;
 
     /** ItemTag로 ItemId(RowName) 역조회. 매핑이 없으면 NAME_None. */
     FName FindItemIdByTag(FGameplayTag ItemTag) const;
@@ -47,6 +48,7 @@ public:
     void GetAllRecipeIds(TArray<FName>& Out)   const;
     void GetAllEquipmentIds(TArray<FName>& Out) const;
     void GetAllSkillIds(TArray<FName>& Out) const;
+    void GetAllSkillExecutionIds(TArray<FName>& Out) const;
 
     /**
      * 빌드 메뉴에 노출할 FactoryId 목록을 SortOrder 오름차순으로 반환.
@@ -65,10 +67,6 @@ public:
     
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
-    
-    const FKOSkillRow* FindSkillRow(FName SkillId) const;
-    const FKOSkillExecutionRow* FindSkillExecutionRow(FName SkillExId) const;
-    void                        GetAllSkillExecutionIds(TArray<FName>& Out) const;
     
 private:
     void LoadAll();
