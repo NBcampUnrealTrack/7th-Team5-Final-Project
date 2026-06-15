@@ -29,7 +29,18 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Hit_Normal, "State.Enemy.Hit.Normal");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Dead, "State.Enemy.Dead");
 	
+	
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundSlap, "State.BossCH01.Attack.GroundSlap");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_DoubleGroundHit, "State.BossCH01.Attack.DoubleGroundHit");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundHitL, "State.BossCH01.Attack.GroundHitL");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundHitR, "State.BossCH01.Attack.GroundHitR");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_Shockwave, "State.BossCH01.Attack.Shockwave");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_Dash, "State.BossCH01.Attack.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GimmickDash, "State.BossCH01.Attack.GimmickDash");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_Jump, "State.BossCH01.Attack.Jump");
+	
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Attacking, "State.Boss.Attacking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dashing, "State.Boss.Dashing");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dead, "State.Boss.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Groggy, "State.Boss.Groggy");
 }
