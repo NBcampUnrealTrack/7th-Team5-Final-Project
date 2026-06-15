@@ -50,7 +50,7 @@ void UKOGA_Movement_Jump::ActivateAbility(
 		return;
 	}
 	
-	// 1. 타겟팅 중인 경우 
+	// 1. 락온 중인 경우 
 	if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn))
 	{
 		FGameplayTag EventTag = KOGameplayTags::Event_Movement_Jump_LockOn;

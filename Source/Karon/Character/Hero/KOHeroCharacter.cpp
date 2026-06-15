@@ -9,6 +9,8 @@
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
 #include "MotionWarpingComponent.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 
@@ -39,9 +41,6 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	Trajectory->PrimaryComponentTick.AddPrerequisite(
 		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
-	
-	// StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
-	// CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 	
 	//현석 : Enemy에서 SphereTrace를 위해 PlayerChannel 콜리전 Block 설정
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Player, ECollisionResponse::ECR_Block);
@@ -82,6 +81,12 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
+}
+
+bool AKOHeroCharacter::IsLockOn() const
+{
+	return AbilitySystemComponent &&
+		AbilitySystemComponent->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn);
 }
 
 void AKOHeroCharacter::SetMotionWarpTarget(const FName& WarpTargetName)

@@ -50,6 +50,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UKOMovementSet* GetMovementSet() const { return MovementSet; }
 	
+	UFUNCTION(BlueprintCallable)
+	bool IsLockOn() const;
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
 	void SetMotionWarpTarget(const FName& WarpTargetName);
