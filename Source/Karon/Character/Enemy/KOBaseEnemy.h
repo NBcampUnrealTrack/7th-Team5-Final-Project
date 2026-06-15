@@ -40,7 +40,6 @@ protected:
 	
 
 private:
-	void GiveDefaultAbilities();
 	void OnHitCallback(const FOnAttributeChangeData& Data);
 
 	
@@ -85,9 +84,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> EnemyHPBarWidgetComponent;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS|Abilities")
-	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 	
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");

@@ -50,10 +50,10 @@ void AKOBaseEnemy::BeginPlay()
 	
 	if (IsValid(AbilitySystemComponent))
 	{
-		GiveDefaultAbilities();
+		AbilitySystemComponent->GiveGrantSet();
+		AbilitySystemComponent->InitAbilityActorInfo(this,this);
 		
 		//ASC Duration Callback
-
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthSet->GetHealthAttribute())
 		.AddUObject(this, &AKOBaseEnemy::OnHitCallback);
 	}
@@ -69,19 +69,6 @@ void AKOBaseEnemy::BeginPlay()
 	
 }
 
-void AKOBaseEnemy::GiveDefaultAbilities()
-{
-	for (TSubclassOf<UGameplayAbility>& AbilityClass : DefaultAbilities)
-	{
-		if (AbilityClass)
-		{
-			// Ability Spec 생성
-			FGameplayAbilitySpec AbilitySpec(AbilityClass, 1, INDEX_NONE, this);
-			// ASC에 Ability 부여
-			AbilitySystemComponent->GiveAbility(AbilitySpec);
-		}
-	}
-}
 
 void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 {
