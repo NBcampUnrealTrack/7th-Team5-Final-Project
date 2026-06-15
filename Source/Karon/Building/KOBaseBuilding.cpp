@@ -27,6 +27,11 @@ void AKOBaseBuilding::InitializeBuildingData(FName InFactoryId)
 	}
 
 	FactoryId = InFactoryId;
+
+	if (UKOEnergyProducerComponent* Producer = FindComponentByClass<UKOEnergyProducerComponent>())
+	{
+		Producer->InitializeFromRecipe();
+	}
 }
 
 const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const

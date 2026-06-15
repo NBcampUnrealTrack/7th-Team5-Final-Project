@@ -36,7 +36,6 @@ protected:
 
     /** 1회 또는 GMS 시점에만 호출되는 정적 요소(Title/PowerSpec/FuelName). */
     void RefreshStaticInfo();
-    void RefreshFuelNameText();
 
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
     float RefreshInterval = 0.1f;
@@ -44,17 +43,21 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> TitleText;
 
+    /** 연료당 에너지량 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> FuelNameText;
+    TObjectPtr<UTextBlock> PowerPerFuelText;
 
+    /** 초당 에너지 생산량 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UProgressBar> FuelBar;
+    TObjectPtr<UTextBlock> EnergyPerSecText;
 
+    /** 연료 1단위 연소에 걸리는 시간(초) 표시. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> PowerSpecText;
+    TObjectPtr<UTextBlock> CycleText;
 
+    /** 현재 연료 1단위의 소모 진행도(0~1). Processor의 ProgressBar와 동일 패턴. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> EnergyText;
+    TObjectPtr<UProgressBar> ProgressBar;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UKOFactorySlotWidget> FuelSlot;

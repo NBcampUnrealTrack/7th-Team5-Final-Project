@@ -23,15 +23,10 @@ public:
     void RegisterConsumer(IKOEnergyConsumer* Consumer);
     void UnregisterProducer(IKOEnergyProducer* Producer);
     void UnregisterConsumer(IKOEnergyConsumer* Consumer);
-    
-    float GetStoredEnergy()    const { return StoredEnergy; }
-    float GetCapacity()        const { return Capacity; }
-    float GetLastProduction()  const { return LastProductionRate; }
-    float GetLastDemand()      const { return LastDemandRate; }
-    float GetLastSupplyRatio() const { return LastSupplyRatio; }
 
-    void SetCapacity(float NewCapacity);
-    
+    /** 이 소비자가 속한 전력망의 직전 틱 초당 총 생산량. 비커버/미등록이면 0. */
+    float GetConsumerNetworkProductionRate(const IKOEnergyConsumer* Consumer) const;
+
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
     
@@ -42,13 +37,28 @@ public:
     virtual ETickableTickType GetTickableTickType() const override { return ETickableTickType::Conditional; }
 
 private:
-    float Capacity     = 1000.f;
-    float StoredEnergy = 0.f;
-    
-    float LastProductionRate = 0.f;
-    float LastDemandRate     = 0.f;
-    float LastSupplyRatio    = 1.f;
-    
+    /** 커버리지가 겹쳐 하나로 묶인 독립 전력망. 배터리 없이 매 틱 생산=소비로 즉시 정산. */
+    struct FEnergyNetwork
+    {
+        TArray<IKOEnergyProducer*> Producers;
+        TArray<IKOEnergyConsumer*> Consumers;
+
+        /** 직전 틱 이 망의 초당 총 생산량(UI 조회용). */
+        float ProductionRate = 0.f;
+    };
+
+    /** Producers/Consumers 의 현재 커버리지로 전력망(연결성분)을 다시 계산. */
+    void RebuildNetworks();
+
     TArray<IKOEnergyProducer*> Producers;
     TArray<IKOEnergyConsumer*> Consumers;
+
+    /** RebuildNetworks 결과 캐시. 어떤 발전기에도 커버되지 않은 소비자는 UncoveredConsumers 로 분리. */
+    TArray<FEnergyNetwork>     Networks;
+    TArray<IKOEnergyConsumer*> UncoveredConsumers;
+
+    /** 소비자 → 소속 망 인덱스 역방향 조회. RebuildNetworks 에서 갱신. */
+    TMap<const IKOEnergyConsumer*, int32> ConsumerToNetwork;
+
+    bool bNetworkDirty = true;
 };

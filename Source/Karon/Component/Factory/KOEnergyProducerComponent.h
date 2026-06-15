@@ -15,21 +15,6 @@ class KARON_API UKOEnergyProducerComponent : public UActorComponent, public IKOE
 
 public:
     UKOEnergyProducerComponent();
-    /**
-     * 받아들이는 연료 카테고리 태그. FKOItemRow::Categories 에 이 태그가 포함되면 연료로 인정.
-     * 기본값: "Item.Category.EnergyResource".
-     */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    FGameplayTag FuelCategoryTag;
-
-    /** 연료 1개 소모 시 생산되는 총 에너지량 */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    float PowerPerFuelUnit = 100.f;
-
-    /** 초당 태울 수 있는 최대 연료 개수 */
-    UPROPERTY(EditAnywhere, Category = "KO|Energy")
-    float BurnRatePerSecond = 1.f;
-
     /** 연료 버퍼 최대 누적량 */
     UPROPERTY(EditAnywhere, Category = "KO|Energy")
     int32 MaxFuelBuffer = 999;
@@ -46,9 +31,29 @@ public:
     int32 GetFuelCount() const { return FuelInBuffer; }
     FName GetFuelItemId() const { return FuelItemId; }
 
+    /** 현재 연료 1단위의 소모 진행도(0~1). 연료 없으면 0. 전력이 실제 소비될 때만 진행. UI ProgressBar 용. */
+    float GetBurnProgress() const { return (FuelInBuffer > 0) ? FMath::Clamp(FuelDebt, 0.f, 1.f) : 0.f; }
+    FName GetRecipeId() const { return RecipeId; }
+    FName GetAcceptedFuelItemId() const { return AcceptedFuelItemId; }
+    float GetPowerPerFuelUnit() const { return PowerPerFuelUnit; }
+    float GetBurnRatePerSecond() const { return BurnRatePerSecond; }
+
+    /** 연료 1단위를 모두 태우는 데 걸리는 시간(초). 레시피 CycleSeconds 와 동일. 연료 정보 없으면 0. UI 표시용. */
+    float GetCycleSeconds() const { return (BurnRatePerSecond > 0.f) ? (1.f / BurnRatePerSecond) : 0.f; }
+
+    /** 직전 틱 이 발전기가 실제로 공급한 에너지의 초당 환산(수요/연료 반영 후). */
+    float GetCurrentOutputPerSecond() const { return LastOutputRate; }
+
+    /** 연료가 있을 때 낼 수 있는 최대 초당 출력(BurnRate × PowerPerFuel). 연료 없으면 0. */
+    float GetMaxOutputPerSecond() const
+    {
+        return (FuelInBuffer > 0) ? (BurnRatePerSecond * PowerPerFuelUnit) : 0.f;
+    }
+
     // IKOEnergyProducer
     virtual float GetPowerOutput(float DeltaSeconds) const override;
     virtual void  OnPowerAccepted(float Amount) override;
+    virtual void  GetEnergyCoverageCells(TArray<FIntPoint>& OutCells) const override;
 
     // IKOItemSink (벨트가 연료 입구로 넣음)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
@@ -58,14 +63,25 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
+public:
+    void InitializeFromRecipe();
+
 private:
     void BroadcastFuelChanged() const;
+
+    FName RecipeId = NAME_None;
+    float PowerPerFuelUnit = 0.f;
+    float BurnRatePerSecond = 0.f;
+    FName AcceptedFuelItemId = NAME_None;
 
     /** 정수 단위 연료 보유량. */
     int32 FuelInBuffer = 0;
 
     /** 소수 단위 연료 보유량 */
     float FuelDebt = 0.f;
+
+    /** 직전 틱 실제 공급 에너지의 초당 환산(UI 표시용). 미공급 시 0. */
+    float LastOutputRate = 0.f;
 
     /** 현재 적재된 연료 아이템 ID (UI 표시용). 비었을 때 NAME_None. */
     FName FuelItemId = NAME_None;

@@ -742,6 +742,17 @@ int32 AKOConveyorBelt::GetOccupiedSlotCount() const
     return Count;
 }
 
+void AKOConveyorBelt::CollectCargoItems(TMap<FName, int32>& OutItems) const
+{
+    for (const FKOConveyorItem& Slot : Slots)
+    {
+        if (Slot.IsValid())
+        {
+            OutItems.FindOrAdd(Slot.ItemId) += 1;
+        }
+    }
+}
+
 FString AKOConveyorBelt::DescribeForDebug() const
 {
     const TCHAR* ShapeStr = (Shape == EKOBeltShape::Corner) ? TEXT("Corner") : TEXT("Straight");

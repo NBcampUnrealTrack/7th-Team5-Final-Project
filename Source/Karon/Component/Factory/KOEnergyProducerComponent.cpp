@@ -3,21 +3,60 @@
 #include "Component/Factory/KOEnergyProducerComponent.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Building/KOBaseBuilding.h"
 #include "Data/KODataTableTypes.h"
 #include "GMRouterSubsystem.h"
 
 
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
+#include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
-    : FuelCategoryTag(KOGameplayTags::Item_Category_EnergyResource)
 {
     PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UKOEnergyProducerComponent::InitializeFromRecipe()
+{
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub) return;
+
+    const AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(GetOwner());
+    if (!Building) return;
+
+    const FKOFactoryRow* FactoryRow = Building->GetFactoryRow();
+    if (!FactoryRow || !FactoryRow->FactoryCategoryTag.IsValid()) return;
+
+    TArray<FName> AllRecipes;
+    LoadSub->GetAllRecipeIds(AllRecipes);
+
+    for (const FName& Id : AllRecipes)
+    {
+        const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(Id);
+        if (!Recipe || !Recipe->AllowedFactoryTag.IsValid()) continue;
+        if (!FactoryRow->FactoryCategoryTag.MatchesTag(Recipe->AllowedFactoryTag)) continue;
+
+        RecipeId = Id;
+
+        const float CycleSeconds = FMath::Max(Recipe->CycleSeconds, KINDA_SMALL_NUMBER);
+        BurnRatePerSecond = 1.f / CycleSeconds;
+        PowerPerFuelUnit = Recipe->PowerPerSecond * CycleSeconds;
+
+        for (const TPair<FGameplayTag, int32>& Input : Recipe->Inputs)
+        {
+            AcceptedFuelItemId = LoadSub->FindItemIdByTag(Input.Key);
+            break;
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("[Producer] Recipe '%s': BurnRate=%.2f/s, PowerPerFuel=%.1f, Fuel='%s'"),
+            *RecipeId.ToString(), BurnRatePerSecond, PowerPerFuelUnit, *AcceptedFuelItemId.ToString());
+        return;
+    }
 }
 
 void UKOEnergyProducerComponent::BeginPlay()
@@ -45,15 +84,10 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
         return Count;
     }
 
-    if (!FuelCategoryTag.IsValid())
+    if (AcceptedFuelItemId.IsNone() || ItemId != AcceptedFuelItemId)
     {
-        return Count;
-    }
-
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(ItemId) : nullptr;
-    if (!Row || !Row->Categories.HasTag(FuelCategoryTag))
-    {
+        UE_LOG(LogTemp, Warning, TEXT("[Producer] TryInsertFuel REJECTED: ItemId='%s', AcceptedFuelItemId='%s', RecipeId='%s'"),
+            *ItemId.ToString(), *AcceptedFuelItemId.ToString(), *RecipeId.ToString());
         return Count;
     }
 
@@ -120,6 +154,11 @@ float UKOEnergyProducerComponent::GetPowerOutput(float DeltaSeconds) const
 
 void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
 {
+    // 매 틱(공급 0 포함) 호출되도록 서브시스템이 보장 → 여기서 초당 출력 캐싱.
+    const UWorld* World = GetWorld();
+    const float Dt = World ? World->GetDeltaSeconds() : 0.f;
+    LastOutputRate = (Dt > KINDA_SMALL_NUMBER) ? (FMath::Max(0.f, Amount) / Dt) : 0.f;
+
     if (Amount <= 0.f || PowerPerFuelUnit <= 0.f)
     {
         return;
@@ -149,25 +188,66 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     }
 }
 
+void UKOEnergyProducerComponent::GetEnergyCoverageCells(TArray<FIntPoint>& OutCells) const
+{
+    OutCells.Reset();
+
+    AActor* Owner = GetOwner();
+    const UWorld* World = GetWorld();
+    if (!Owner || !World)
+    {
+        return;
+    }
+
+    UKOGridSubsystem* Grid = World->GetSubsystem<UKOGridSubsystem>();
+    if (!Grid)
+    {
+        return;
+    }
+
+    // 점유 영역을 우선 사용. 그리드 미등록(에디터 선배치 등)이면 월드 위치로 폴백.
+    FIntPoint Anchor;
+    FIntPoint Size;
+    if (!Grid->TryGetOccupiedAreaForActor(Owner, Anchor, Size))
+    {
+        Anchor = Grid->WorldToGridPosition(Owner->GetActorLocation());
+        Size = FIntPoint(1, 1);
+    }
+
+    int32 Radius = 0;
+    if (const AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Owner))
+    {
+        if (const FKOFactoryRow* Row = Building->GetFactoryRow())
+        {
+            Radius = FMath::Max(0, Row->EnergyCoverageRadius);
+        }
+    }
+
+    const FIntPoint Start(Anchor.X - Radius, Anchor.Y - Radius);
+    const FIntPoint Extent(Size.X + 2 * Radius, Size.Y + 2 * Radius);
+
+    OutCells.Reserve(Extent.X * Extent.Y);
+    for (int32 Y = 0; Y < Extent.Y; ++Y)
+    {
+        for (int32 X = 0; X < Extent.X; ++X)
+        {
+            OutCells.Add(FIntPoint(Start.X + X, Start.Y + Y));
+        }
+    }
+}
+
 // IKOItemSink — 연료 카테고리/버퍼/혼합 여부를 TryInsertFuel 과 동일 규칙으로 검사.
 bool UKOEnergyProducerComponent::CanAcceptItem(const FKOConveyorItem& Item) const
 {
-    if (!Item.IsValid() || !FuelCategoryTag.IsValid())
+    if (!Item.IsValid() || AcceptedFuelItemId.IsNone())
     {
         return false;
     }
-    // 이미 다른 연료가 적재돼 있으면 혼합 불가.
-    if (!FuelItemId.IsNone() && FuelItemId != Item.ItemId)
+    if (Item.ItemId != AcceptedFuelItemId)
     {
         return false;
     }
-    if (FuelInBuffer >= MaxFuelBuffer)
-    {
-        return false;
-    }
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    const FKOItemRow* Row = LoadSub ? LoadSub->FindItemRow(Item.ItemId) : nullptr;
-    return Row && Row->Categories.HasTag(FuelCategoryTag);
+    return FuelInBuffer < MaxFuelBuffer;
 }
 
 bool UKOEnergyProducerComponent::PushItem(const FKOConveyorItem& Item)

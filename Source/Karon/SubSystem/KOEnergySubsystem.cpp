@@ -5,6 +5,30 @@
 #include "Subsystem/KOEnergyTypes.h"
 #include "Engine/World.h"
 
+namespace
+{
+    // 경로 압축 union-find. Producers 인덱스 단위로 커버리지 겹침을 묶는다.
+    int32 FindRoot(TArray<int32>& Parent, int32 Index)
+    {
+        while (Parent[Index] != Index)
+        {
+            Parent[Index] = Parent[Parent[Index]];
+            Index = Parent[Index];
+        }
+        return Index;
+    }
+
+    void UnionNodes(TArray<int32>& Parent, int32 A, int32 B)
+    {
+        const int32 RootA = FindRoot(Parent, A);
+        const int32 RootB = FindRoot(Parent, B);
+        if (RootA != RootB)
+        {
+            Parent[RootA] = RootB;
+        }
+    }
+}
+
 UKOEnergySubsystem* UKOEnergySubsystem::Get(const UObject* WorldContext)
 {
     if (!WorldContext)
@@ -18,14 +42,33 @@ UKOEnergySubsystem* UKOEnergySubsystem::Get(const UObject* WorldContext)
 void UKOEnergySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
-    StoredEnergy = 0.f;
+    bNetworkDirty = true;
 }
 
 void UKOEnergySubsystem::Deinitialize()
 {
     Producers.Reset();
     Consumers.Reset();
+    Networks.Reset();
+    UncoveredConsumers.Reset();
+    ConsumerToNetwork.Reset();
     Super::Deinitialize();
+}
+
+float UKOEnergySubsystem::GetConsumerNetworkProductionRate(const IKOEnergyConsumer* Consumer) const
+{
+    if (!Consumer)
+    {
+        return 0.f;
+    }
+    if (const int32* NetworkIndex = ConsumerToNetwork.Find(Consumer))
+    {
+        if (Networks.IsValidIndex(*NetworkIndex))
+        {
+            return Networks[*NetworkIndex].ProductionRate;
+        }
+    }
+    return 0.f;
 }
 
 void UKOEnergySubsystem::RegisterProducer(IKOEnergyProducer* Producer)
@@ -33,6 +76,7 @@ void UKOEnergySubsystem::RegisterProducer(IKOEnergyProducer* Producer)
     if (Producer)
     {
         Producers.AddUnique(Producer);
+        bNetworkDirty = true;
     }
 }
 
@@ -41,6 +85,7 @@ void UKOEnergySubsystem::RegisterConsumer(IKOEnergyConsumer* Consumer)
     if (Consumer)
     {
         Consumers.AddUnique(Consumer);
+        bNetworkDirty = true;
     }
 }
 
@@ -49,6 +94,7 @@ void UKOEnergySubsystem::UnregisterProducer(IKOEnergyProducer* Producer)
     if (Producer)
     {
         Producers.RemoveSingleSwap(Producer);
+        bNetworkDirty = true;
     }
 }
 
@@ -57,18 +103,137 @@ void UKOEnergySubsystem::UnregisterConsumer(IKOEnergyConsumer* Consumer)
     if (Consumer)
     {
         Consumers.RemoveSingleSwap(Consumer);
+        bNetworkDirty = true;
     }
-}
-
-void UKOEnergySubsystem::SetCapacity(float NewCapacity)
-{
-    Capacity = FMath::Max(0.f, NewCapacity);
-    StoredEnergy = FMath::Min(StoredEnergy, Capacity);
 }
 
 TStatId UKOEnergySubsystem::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(UKOEnergySubsystem, STATGROUP_Tickables);
+}
+
+void UKOEnergySubsystem::RebuildNetworks()
+{
+    Networks.Reset();
+    UncoveredConsumers.Reset();
+    ConsumerToNetwork.Reset();
+
+    const int32 ProducerCount = Producers.Num();
+
+    // 발전기가 없으면 모든 소비자는 비커버 상태.
+    if (ProducerCount == 0)
+    {
+        for (IKOEnergyConsumer* Consumer : Consumers)
+        {
+            if (Consumer)
+            {
+                UncoveredConsumers.Add(Consumer);
+            }
+        }
+        return;
+    }
+
+    // 각 발전기의 커버리지 셀을 수집하면서, 같은 셀을 공유하는 발전기끼리 union.
+    TArray<int32> Parent;
+    Parent.SetNum(ProducerCount);
+    for (int32 i = 0; i < ProducerCount; ++i)
+    {
+        Parent[i] = i;
+    }
+
+    TArray<TArray<FIntPoint>> Coverage;
+    Coverage.SetNum(ProducerCount);
+
+    TMap<FIntPoint, int32> CellFirstProducer;
+    for (int32 i = 0; i < ProducerCount; ++i)
+    {
+        if (!Producers[i])
+        {
+            continue;
+        }
+        Producers[i]->GetEnergyCoverageCells(Coverage[i]);
+        for (const FIntPoint& Cell : Coverage[i])
+        {
+            if (const int32* Existing = CellFirstProducer.Find(Cell))
+            {
+                UnionNodes(Parent, i, *Existing);
+            }
+            else
+            {
+                CellFirstProducer.Add(Cell, i);
+            }
+        }
+    }
+
+    // 루트별로 망 인덱스를 부여하고 발전기를 배치.
+    TMap<int32, int32> RootToNetwork;
+    for (int32 i = 0; i < ProducerCount; ++i)
+    {
+        if (!Producers[i])
+        {
+            continue;
+        }
+        const int32 Root = FindRoot(Parent, i);
+
+        int32 NetworkIndex;
+        if (const int32* Found = RootToNetwork.Find(Root))
+        {
+            NetworkIndex = *Found;
+        }
+        else
+        {
+            NetworkIndex = Networks.Add(FEnergyNetwork());
+            RootToNetwork.Add(Root, NetworkIndex);
+        }
+        Networks[NetworkIndex].Producers.Add(Producers[i]);
+    }
+
+    // 셀 → 망 인덱스 (소비자 소속 판정용).
+    TMap<FIntPoint, int32> CellToNetwork;
+    for (int32 i = 0; i < ProducerCount; ++i)
+    {
+        if (!Producers[i])
+        {
+            continue;
+        }
+        const int32 NetworkIndex = RootToNetwork[FindRoot(Parent, i)];
+        for (const FIntPoint& Cell : Coverage[i])
+        {
+            CellToNetwork.Add(Cell, NetworkIndex);
+        }
+    }
+
+    // 소비자를 점유 셀이 속한 망에 배정. 여러 셀이 서로 다른 망이면 먼저 찾은 망에 소속.
+    for (IKOEnergyConsumer* Consumer : Consumers)
+    {
+        if (!Consumer)
+        {
+            continue;
+        }
+
+        TArray<FIntPoint> Cells;
+        Consumer->GetEnergyOccupiedCells(Cells);
+
+        int32 FoundNetwork = INDEX_NONE;
+        for (const FIntPoint& Cell : Cells)
+        {
+            if (const int32* Net = CellToNetwork.Find(Cell))
+            {
+                FoundNetwork = *Net;
+                break;
+            }
+        }
+
+        if (FoundNetwork != INDEX_NONE)
+        {
+            Networks[FoundNetwork].Consumers.Add(Consumer);
+            ConsumerToNetwork.Add(Consumer, FoundNetwork);
+        }
+        else
+        {
+            UncoveredConsumers.Add(Consumer);
+        }
+    }
 }
 
 void UKOEnergySubsystem::Tick(float DeltaTime)
@@ -78,73 +243,67 @@ void UKOEnergySubsystem::Tick(float DeltaTime)
         return;
     }
 
-    // Phase 1 : Producer 충전
-    // Offered :  Heap 할당 대신 Stack에 
-    float TotalRequested = 0.f;
-    TArray<float, TInlineAllocator<32>> Offered;
-    Offered.Reserve(Producers.Num());
-
-    for (IKOEnergyProducer* P : Producers)
+    if (bNetworkDirty)
     {
-        // Interface에서 Producer의 공급 가능 에너지량 조회
-        const float Out = (P ? FMath::Max(0.f, P->GetPowerOutput(DeltaTime)) : 0.f);
-        Offered.Add(Out);
-        TotalRequested += Out;
+        RebuildNetworks();
+        bNetworkDirty = false;
     }
-    
-    const float FreeSpace = FMath::Max(0.f, Capacity - StoredEnergy);
-    const float Accepted  = FMath::Min(TotalRequested, FreeSpace);
-    const float AcceptRatio = (TotalRequested > KINDA_SMALL_NUMBER) ? (Accepted / TotalRequested) : 0.f;
 
-    // 각 Producer에 "실제로 받아간 양" 통지 → Producer 측에서 연료를 그 비율만큼만 차감.
-    for (int32 i = 0; i < Producers.Num(); ++i)
+    // 각 망은 독립 정산: 배터리 없이 그 틱의 생산 가능량과 수요만으로 비율 분배.
+    for (FEnergyNetwork& Network : Networks)
     {
-        if (IKOEnergyProducer* P = Producers[i])
+        float OfferedTotal = 0.f;
+        TArray<float, TInlineAllocator<16>> Offered;
+        Offered.Reserve(Network.Producers.Num());
+        for (IKOEnergyProducer* Producer : Network.Producers)
         {
-            const float Take = Offered[i] * AcceptRatio;
-            if (Take > 0.f)
+            const float Out = Producer ? FMath::Max(0.f, Producer->GetPowerOutput(DeltaTime)) : 0.f;
+            Offered.Add(Out);
+            OfferedTotal += Out;
+        }
+
+        float DemandTotal = 0.f;
+        TArray<float, TInlineAllocator<16>> Demands;
+        Demands.Reserve(Network.Consumers.Num());
+        for (IKOEnergyConsumer* Consumer : Network.Consumers)
+        {
+            const float Demand = Consumer ? FMath::Max(0.f, Consumer->GetPowerDemand(DeltaTime)) : 0.f;
+            Demands.Add(Demand);
+            DemandTotal += Demand;
+        }
+
+        const float Delivered   = FMath::Min(OfferedTotal, DemandTotal);
+        const float SupplyRatio = (DemandTotal > KINDA_SMALL_NUMBER) ? (Delivered / DemandTotal) : 1.f;
+
+        // 소비자 UI가 조회하는 망 초당 생산량 캐시.
+        Network.ProductionRate = OfferedTotal / DeltaTime;
+
+        // 발전기는 수요와 무관하게 항상 최대로 연료를 태운다(잉여 생산은 버려짐). 연료가 곧 계속 소모.
+        for (int32 i = 0; i < Network.Producers.Num(); ++i)
+        {
+            if (Network.Producers[i])
             {
-                P->OnPowerAccepted(Take);
+                Network.Producers[i]->OnPowerAccepted(Offered[i]);
+            }
+        }
+        // 소비자는 생산 가능량 한도에서 수요 비율대로 공급받는다.
+        for (int32 j = 0; j < Network.Consumers.Num(); ++j)
+        {
+            if (Network.Consumers[j])
+            {
+                Network.Consumers[j]->OnPowerSupplied(Demands[j] * SupplyRatio, Demands[j]);
             }
         }
     }
-    StoredEnergy += Accepted;
 
-    // UI 용 초당 환산 
-    LastProductionRate = Accepted / DeltaTime;
-
-
-    // Phase 2 : Consumer 분배
-    // Offered :  Heap 할당 대신 Stack에 
-    float TotalDemand = 0.f;
-    TArray<float, TInlineAllocator<32>> Demands;
-    Demands.Reserve(Consumers.Num());
-
-    for (IKOEnergyConsumer* C : Consumers)
+    // 비커버 소비자는 공급 0으로 통지 → 스스로 멈춤.
+    for (IKOEnergyConsumer* Consumer : UncoveredConsumers)
     {
-        const float D = (C ? FMath::Max(0.f, C->GetPowerDemand(DeltaTime)) : 0.f);
-        Demands.Add(D);
-        TotalDemand += D;
-    }
-
-    // 실제 공급 가능량
-    const float Available = FMath::Min(StoredEnergy, TotalDemand);
-    const float SupplyRatio = (TotalDemand > KINDA_SMALL_NUMBER) ? (Available / TotalDemand) : 1.f;
-
-    for (int32 i = 0; i < Consumers.Num(); ++i)
-    {
-        if (IKOEnergyConsumer* C = Consumers[i])
+        if (!Consumer)
         {
-            const float Req      = Demands[i];
-            const float Supplied = Req * SupplyRatio;
-            C->OnPowerSupplied(Supplied, Req);
+            continue;
         }
+        const float Demand = FMath::Max(0.f, Consumer->GetPowerDemand(DeltaTime));
+        Consumer->OnPowerSupplied(0.f, Demand);
     }
-    
-    StoredEnergy -= Available;
-    StoredEnergy  = FMath::Max(0.f, StoredEnergy);
-
-    // UI용 통계.
-    LastDemandRate  = TotalDemand / DeltaTime;
-    LastSupplyRatio = SupplyRatio;
 }

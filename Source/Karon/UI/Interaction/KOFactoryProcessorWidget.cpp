@@ -17,6 +17,7 @@
 #include "Items/KOItemSlot.h"
 
 #include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOEnergySubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
 #include "Components/Button.h"
@@ -366,6 +367,27 @@ void UKOFactoryProcessorWidget::TickRefresh()
     if (SupplyBar)
     {
         SupplyBar->SetPercent(FMath::Clamp(Proc->GetLastSupplyRatio(), 0.f, 1.f));
+    }
+
+    if (PowerUseText)
+    {
+        // 사용 / 요구 (초당). 전력 부족 시 사용 < 요구.
+        PowerUseText->SetText(FText::Format(
+            LOCTEXT("PowerUseFormat", "{0} / {1} /s"),
+            FText::AsNumber(FMath::RoundToInt(Proc->GetSuppliedPowerPerSecond())),
+            FText::AsNumber(FMath::RoundToInt(Proc->GetRequestedPowerPerSecond()))));
+    }
+
+    if (NetworkProductionText)
+    {
+        float Production = 0.f;
+        if (UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
+        {
+            Production = Energy->GetConsumerNetworkProductionRate(Proc);
+        }
+        NetworkProductionText->SetText(FText::Format(
+            LOCTEXT("NetworkProductionFormat", "{0} /s"),
+            FText::AsNumber(FMath::RoundToInt(Production))));
     }
 }
 

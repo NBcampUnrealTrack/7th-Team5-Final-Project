@@ -62,6 +62,14 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UProgressBar> SupplyBar;
 
+    /** 이 가공기의 초당 전력 사용량(사용/요구). */
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> PowerUseText;
+
+    /** 이 가공기가 속한 전력망(Union)의 초당 총 생산량. */
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> NetworkProductionText;
+
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> InputBufferText;
 

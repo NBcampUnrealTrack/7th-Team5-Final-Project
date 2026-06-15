@@ -8,6 +8,7 @@
 #include "GMRouterSubsystem.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Subsystem/KOEnergySubsystem.h"
+#include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -202,6 +203,41 @@ void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float R
     LastSupplyRatio = (RequestedAmount > KINDA_SMALL_NUMBER)
         ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f)
         : 1.f;
+}
+
+void UKOFactoryProcessorComponent::GetEnergyOccupiedCells(TArray<FIntPoint>& OutCells) const
+{
+    OutCells.Reset();
+
+    AActor* Owner = GetOwner();
+    const UWorld* World = GetWorld();
+    if (!Owner || !World)
+    {
+        return;
+    }
+
+    UKOGridSubsystem* Grid = World->GetSubsystem<UKOGridSubsystem>();
+    if (!Grid)
+    {
+        return;
+    }
+
+    FIntPoint Anchor;
+    FIntPoint Size;
+    if (!Grid->TryGetOccupiedAreaForActor(Owner, Anchor, Size))
+    {
+        Anchor = Grid->WorldToGridPosition(Owner->GetActorLocation());
+        Size = FIntPoint(1, 1);
+    }
+
+    OutCells.Reserve(Size.X * Size.Y);
+    for (int32 Y = 0; Y < Size.Y; ++Y)
+    {
+        for (int32 X = 0; X < Size.X; ++X)
+        {
+            OutCells.Add(FIntPoint(Anchor.X + X, Anchor.Y + Y));
+        }
+    }
 }
 
 // IKOItemSource — 출력 버퍼의 첫 아이템을 벨트가 가져감.
