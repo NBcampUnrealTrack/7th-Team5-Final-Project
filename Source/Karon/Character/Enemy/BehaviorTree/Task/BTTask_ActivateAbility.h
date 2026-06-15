@@ -5,7 +5,7 @@
 #include "BTTask_ActivateAbility.generated.h"
 
 /**
- * 애니메이션을 재생하고 재생 종료 성공시 Succeeded를 반환합니다.
+ * 해당 태그를 가진 어빌리티 중에서 랜덤으로 실행합니다.
  */
 UCLASS()
 class KARON_API UBTTask_ActivateAbility : public UBTTaskNode

@@ -36,11 +36,26 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 	
+	//해당 태그에 매칭되는 GA 중에서 랜덤하게 하나만 실행한다.
 	if (Enemy->GetAbilitySystemComponent())
 	{
 		FGameplayTagContainer AbilityTagContainer;
 		AbilityTagContainer.AddTag(ActivateTagName);
-		Enemy->GetAbilitySystemComponent()->TryActivateAbilitiesByTag(AbilityTagContainer);
+		
+		UAbilitySystemComponent* ASC=Enemy->GetAbilitySystemComponent();
+		if (ASC==nullptr)
+		{
+			return EBTNodeResult::Failed;
+		}
+		TArray<FGameplayAbilitySpec*> ActivatableAbilities;
+		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagContainer, ActivatableAbilities);
+		if (ActivatableAbilities.IsEmpty())
+		{
+			return EBTNodeResult::Failed;
+		}
+		
+		int32 RandomIndex = FMath::RandRange(0, ActivatableAbilities.Num() - 1);
+		ASC->TryActivateAbility(ActivatableAbilities[RandomIndex]->Handle);
 	}
 	
 	return EBTNodeResult::InProgress;
