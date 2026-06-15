@@ -4,6 +4,7 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
 
+struct FOnAttributeChangeData;
 struct FStreamableHandle;
 class UKOCombatSet;
 class UKOBossDataAsset;
@@ -58,6 +59,10 @@ protected:
 	// 비동기 로드 테스트
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTest")
 	TObjectPtr<UKOBossDataAsset> DefaultDataAsset;
+	
+	// 기믹 준비 체력 비율 (여러 구간에서 사용할 수 있도록 수정예정)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss | Gimmick")
+	float GimmickReadyRatio = 0.9f;
  
 private:
 	TSharedPtr<FStreamableHandle> StreamableHandle;
@@ -80,4 +85,7 @@ private:
 	// 델리게이트 콜백 함수
 	UFUNCTION()
 	void OnHealthChangedCallback(float OldVal, float NewVal);
+	
+	UFUNCTION()
+	void OnMoveSpeedChangedCallback(float OldVal, float NewVal);
 };

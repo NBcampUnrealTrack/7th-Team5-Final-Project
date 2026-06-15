@@ -4,6 +4,7 @@
 #include "KOAIC_BossChapter01.h"
 #include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
  
 AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
@@ -14,6 +15,10 @@ AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
 void AKOBossChapter01::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 180.f, 0.f);
 }
 
 void AKOBossChapter01::OnBossInitialized()
