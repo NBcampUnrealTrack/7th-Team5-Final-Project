@@ -28,6 +28,30 @@ void UKOFactoryCraftWidget::NativeConstruct()
     {
         CraftButton->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleCraftButtonClicked);
     }
+    
+    if (DecreaseCraftCountButton)
+    {
+        DecreaseCraftCountButton->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleDecreaseCraftCountClicked);
+    }
+
+    if (IncreaseCraftCountButton)
+    {
+        IncreaseCraftCountButton->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleIncreaseCraftCountClicked);
+    }
+    
+    if (DecreaseCraftCount10Button)
+    {
+        DecreaseCraftCount10Button->OnClicked.AddDynamic(
+            this, &UKOFactoryCraftWidget::HandleDecreaseCraftCount10Clicked
+        );
+    }
+
+    if (IncreaseCraftCount10Button)
+    {
+        IncreaseCraftCount10Button->OnClicked.AddDynamic(
+            this, &UKOFactoryCraftWidget::HandleIncreaseCraftCount10Clicked
+        );
+    }
 
     if (!CachedInventory.IsValid())
     {
@@ -37,6 +61,8 @@ void UKOFactoryCraftWidget::NativeConstruct()
         }
     }
 
+    CraftCount = 1;
+    RefreshCraftCountText();
     Refresh();
 }
 
@@ -45,6 +71,34 @@ void UKOFactoryCraftWidget::NativeDestruct()
     if (CraftButton)
     {
         CraftButton->OnClicked.RemoveDynamic(this, &UKOFactoryCraftWidget::HandleCraftButtonClicked);
+    }
+    
+    if (DecreaseCraftCountButton)
+    {
+        DecreaseCraftCountButton->OnClicked.RemoveDynamic(
+            this, &UKOFactoryCraftWidget::HandleDecreaseCraftCountClicked
+            );
+    }
+
+    if (IncreaseCraftCountButton)
+    {
+        IncreaseCraftCountButton->OnClicked.RemoveDynamic(
+            this, &UKOFactoryCraftWidget::HandleIncreaseCraftCountClicked
+        );
+    }
+    
+    if (DecreaseCraftCount10Button)
+    {
+        DecreaseCraftCount10Button->OnClicked.RemoveDynamic(
+            this, &UKOFactoryCraftWidget::HandleDecreaseCraftCount10Clicked
+        );
+    }
+
+    if (IncreaseCraftCount10Button)
+    {
+        IncreaseCraftCount10Button->OnClicked.RemoveDynamic(
+            this, &UKOFactoryCraftWidget::HandleIncreaseCraftCount10Clicked
+        );
     }
 
     Super::NativeDestruct();
@@ -60,6 +114,7 @@ void UKOFactoryCraftWidget::Refresh()
 {
     RebuildFactoryList();
     RefreshDetail();
+    RefreshCraftCountText();
 }
 
 void UKOFactoryCraftWidget::RebuildFactoryList()
@@ -108,7 +163,7 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
 
         UTexture2D* Icon = LoadSub->ResolveFactoryIcon(FactoryId);
         
-        const bool bCanCraft = CanCraftFactory(FactoryId);
+        const bool bCanCraft = CanCraftFactory(FactoryId, 1);
 
         EntryWidget->SetupEntry(
             FactoryId,
@@ -131,6 +186,9 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
 void UKOFactoryCraftWidget::HandleFactoryEntryClicked(FName InFactoryId)
 {
     SelectedFactoryId = InFactoryId;
+    CraftCount = MinCraftCount;
+
+    RefreshCraftCountText();
     RefreshDetail();
 }
 
@@ -213,35 +271,27 @@ void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
 
     CostListBox->ClearChildren();
 
-    if (!FactoryRow)
+    if (!FactoryRow || !CostEntryWidgetClass)
     {
         return;
     }
 
-    if (!CostEntryWidgetClass)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] CostEntryWidgetClass가 설정되지 않았습니다."));
-        return;
-    }
-
-    UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     UKOInventoryComponent* Inventory = CachedInventory.Get();
-
-    if (!LoadSub || !Inventory)
+    if (!Inventory)
+    {
+        return;
+    }
+    
+    TArray<TPair<FName, int32>> RequiredItems;
+    if (!BuildRequiredItems(SelectedFactoryId, CraftCount, RequiredItems))
     {
         return;
     }
 
-    for (const TPair<FGameplayTag, int32>& Cost : FactoryRow->CraftCosts)
+    for (const TPair<FName, int32>& RequiredItem : RequiredItems)
     {
-        const FName ItemId = LoadSub->FindItemIdByTag(Cost.Key);
-        if (ItemId.IsNone())
-        {
-            UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] ItemTag 해석 실패: %s"), *Cost.Key.ToString());
-            continue;
-        }
-
-        const int32 RequiredCount = Cost.Value;
+        const FName ItemId = RequiredItem.Key;
+        const int32 RequiredCount = RequiredItem.Value;
         const int32 OwnedCount = Inventory->GetCountOf(ItemId);
 
         UKOFactoryCraftCostEntryWidget* CostEntry =
@@ -271,12 +321,193 @@ void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
     }
 }
 
-bool UKOFactoryCraftWidget::CanCraftFactory(FName FactoryId) const
+bool UKOFactoryCraftWidget::CanCraftFactory(FName FactoryId, int32 InCraftCount) const
 {
-    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    return GetCraftAvailability(FactoryId, InCraftCount)
+         == EKOFactoryCraftAvailability::CanCraft;
+}
+
+EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(FName FactoryId, int32 InCraftCount) const
+{
     const UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-    if (!LoadSub || !Inventory || FactoryId.IsNone())
+    if (!Inventory || FactoryId.IsNone() || InCraftCount <= 0)
+    {
+        return EKOFactoryCraftAvailability::Invalid;
+    }
+
+    TArray<TPair<FName, int32>> RequiredItems; // 제작 시 제거될 아이템
+    if (!BuildRequiredItems(FactoryId, InCraftCount, RequiredItems))
+    {
+        return EKOFactoryCraftAvailability::Invalid;
+    }
+    
+    for (const TPair<FName, int32>& RequiredItem : RequiredItems)
+    {
+        if (!Inventory->HasEnoughItems(RequiredItem.Key, RequiredItem.Value))
+        {
+            return EKOFactoryCraftAvailability::NotEnoughMaterials;
+        }
+    }
+    
+    const int32 AddableFactoryCount = Inventory->GetAddCountAfterRemoving(
+        EKOSlotKind::Factory,
+        FactoryId,
+        InCraftCount,
+        RequiredItems
+    );
+
+    if (AddableFactoryCount < InCraftCount)
+    {
+        return EKOFactoryCraftAvailability::NotEnoughInventorySpace;
+    }
+
+    return EKOFactoryCraftAvailability::CanCraft;
+}
+
+void UKOFactoryCraftWidget::RefreshCraftButtonState()
+{
+    if (!CraftButton)
+    {
+        return;
+    }
+
+    const EKOFactoryCraftAvailability Availability = GetCraftAvailability(SelectedFactoryId, CraftCount);
+
+    const bool bCanCraft = Availability == EKOFactoryCraftAvailability::CanCraft;
+
+    CraftButton->SetIsEnabled(bCanCraft);
+
+    CraftButton->SetBackgroundColor(
+        bCanCraft
+            ? CraftableButtonColor
+            : NotCraftableButtonColor
+    );
+
+    if (CraftButtonText)
+    {
+        FText ButtonText;
+
+        switch (Availability)
+        {
+        case EKOFactoryCraftAvailability::CanCraft:
+            ButtonText = FText::FromString(TEXT("제작"));
+            break;
+
+        case EKOFactoryCraftAvailability::NotEnoughMaterials:
+            ButtonText = FText::FromString(TEXT("재료 부족"));
+            break;
+
+        case EKOFactoryCraftAvailability::NotEnoughInventorySpace:
+            ButtonText = FText::FromString(TEXT("인벤토리 공간 부족"));
+            break;
+
+        default:
+            ButtonText = FText::FromString(TEXT("제작 불가"));
+            break;
+        }
+
+        CraftButtonText->SetText(ButtonText);
+    }
+}
+
+void UKOFactoryCraftWidget::HandleCraftButtonClicked()
+{
+    CraftSelectedFactory();
+}
+
+void UKOFactoryCraftWidget::HandleDecreaseCraftCountClicked()
+{
+    SetCraftCount(CraftCount - 1);
+}
+
+void UKOFactoryCraftWidget::HandleIncreaseCraftCountClicked()
+{
+    SetCraftCount(CraftCount + 1);
+}
+
+void UKOFactoryCraftWidget::HandleDecreaseCraftCount10Clicked()
+{
+    SetCraftCount(CraftCount - 10);
+}
+
+void UKOFactoryCraftWidget::HandleIncreaseCraftCount10Clicked()
+{
+    SetCraftCount(CraftCount + 10);
+}
+
+bool UKOFactoryCraftWidget::CraftSelectedFactory()
+{
+    UKOInventoryComponent* Inventory = CachedInventory.Get();
+
+    if (!Inventory || SelectedFactoryId.IsNone())
+    {
+        return false;
+    }
+
+    if (!CanCraftFactory(SelectedFactoryId, CraftCount))
+    {
+        return false;
+    }
+    
+    TArray<TPair<FName, int32>> RequiredItems;
+    if (!BuildRequiredItems(SelectedFactoryId, CraftCount, RequiredItems))
+    {
+        return false;
+    }
+
+    // 재료 차감
+    TArray<TPair<FName, int32>> RemovedItems;
+
+    for (const TPair<FName, int32>& RequiredItem : RequiredItems)
+    {
+        const FName ItemId = RequiredItem.Key;
+        const int32 RequiredCount = RequiredItem.Value;
+
+        if (!Inventory->TryRemoveItem(ItemId, RequiredCount))
+        {
+            // 재료 차감 복구
+            for (const TPair<FName, int32>& Removed : RemovedItems)
+            {
+                Inventory->TryAddItem(EKOSlotKind::Item, Removed.Key, Removed.Value);
+            }
+
+            return false;
+        }
+
+        RemovedItems.Add(RequiredItem);
+    }
+
+    // 설비 지급
+    const int32 Remaining = Inventory->TryAddItem(EKOSlotKind::Factory, SelectedFactoryId, CraftCount);
+
+    if (Remaining > 0)
+    {
+        // 재료 복구
+        for (const TPair<FName, int32>& Removed : RemovedItems)
+        {
+            Inventory->TryAddItem(EKOSlotKind::Item, Removed.Key, Removed.Value);
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedFactoryId.ToString());
+        Refresh();
+        return false;
+    }
+
+    CraftCount = MinCraftCount;
+    RefreshCraftCountText();
+    Refresh();
+    return true;
+}
+
+bool UKOFactoryCraftWidget::BuildRequiredItems(FName FactoryId, int32 InCraftCount,
+    TArray<TPair<FName, int32>>& OutRequiredItems) const
+{
+    OutRequiredItems.Reset();
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+
+    if (!LoadSub || FactoryId.IsNone() || InCraftCount <= 0)
     {
         return false;
     }
@@ -292,112 +523,106 @@ bool UKOFactoryCraftWidget::CanCraftFactory(FName FactoryId) const
         const FName ItemId = LoadSub->FindItemIdByTag(Cost.Key);
         if (ItemId.IsNone())
         {
+            UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] ItemTag 해석 실패: %s"), *Cost.Key.ToString());
             return false;
         }
 
-        if (!Inventory->HasEnoughItems(ItemId, Cost.Value))
+        const int32 RequiredPerOne = Cost.Value;
+        if (RequiredPerOne <= 0)
         {
-            return false;
+            continue;
         }
+
+        const int32 RequiredCount = RequiredPerOne * InCraftCount;
+        OutRequiredItems.Add(TPair<FName, int32>(ItemId, RequiredCount));
     }
 
     return true;
 }
 
-void UKOFactoryCraftWidget::RefreshCraftButtonState()
+void UKOFactoryCraftWidget::SetCraftCount(int32 NewCount)
 {
-    if (!CraftButton)
+    const int32 MaxCraftableCount = GetMaxCraftableCount(SelectedFactoryId);
+
+    int32 ClampedCount = MinCraftCount;
+
+    if (MaxCraftableCount > 0)
+    {
+        ClampedCount = FMath::Clamp(NewCount, MinCraftCount, MaxCraftableCount);
+    }
+
+    if (CraftCount == ClampedCount)
     {
         return;
     }
 
-    const bool bCanCraft = CanCraftFactory(SelectedFactoryId);
+    CraftCount = ClampedCount;
+
+    RefreshCraftCountText();
+    RefreshDetail();
+}
+
+void UKOFactoryCraftWidget::RefreshCraftCountText()
+{
+    if (CraftCountText)
+    {
+        CraftCountText->SetText(FText::AsNumber(CraftCount));
+    }
+}
+
+int32 UKOFactoryCraftWidget::GetMaxCraftableCount(FName FactoryId) const
+{
+    const UKOInventoryComponent* Inventory = CachedInventory.Get();
+
+    if (!Inventory || FactoryId.IsNone())
+    {
+        return 0;
+    }
     
-    CraftButton->SetIsEnabled(bCanCraft);
-
-    CraftButton->SetBackgroundColor(
-        bCanCraft
-            ? CraftableButtonColor
-            : NotCraftableButtonColor
-    );
-
-    if (CraftButtonText)
+    TArray<TPair<FName, int32>> RequiredItemsPerOne;
+    if (!BuildRequiredItems(FactoryId, 1, RequiredItemsPerOne))
     {
-        CraftButtonText->SetText(
-            bCanCraft
-                ? FText::FromString(TEXT("제작"))
-                : FText::FromString(TEXT("재료 부족"))
-        );
+        return 0;
     }
-}
-
-void UKOFactoryCraftWidget::HandleCraftButtonClicked()
-{
-    CraftSelectedFactory();
-}
-
-bool UKOFactoryCraftWidget::CraftSelectedFactory()
-{
-    UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-    UKOInventoryComponent* Inventory = CachedInventory.Get();
-
-    if (!LoadSub || !Inventory || SelectedFactoryId.IsNone())
+    
+    if (RequiredItemsPerOne.IsEmpty())
     {
-        return false;
+        return 0;
     }
 
-    const FKOFactoryRow* Row = LoadSub->FindFactoryRow(SelectedFactoryId);
-    if (!Row)
-    {
-        return false;
-    }
+    int32 MaxByMaterials = TNumericLimits<int32>::Max();
 
-    if (!CanCraftFactory(SelectedFactoryId))
+    for (const TPair<FName, int32>& RequiredItem : RequiredItemsPerOne)
     {
-        return false;
-    }
+        const FName ItemId = RequiredItem.Key;
+        const int32 RequiredPerOne = RequiredItem.Value;
 
-    // 재료 차감
-    TArray<TPair<FName, int32>> RemovedItems;
-
-    for (const TPair<FGameplayTag, int32>& Cost : Row->CraftCosts)
-    {
-        const FName ItemId = LoadSub->FindItemIdByTag(Cost.Key);
-        if (ItemId.IsNone())
+        if (RequiredPerOne <= 0)
         {
-            return false;
+            continue;
         }
 
-        if (!Inventory->TryRemoveItem(ItemId, Cost.Value))
-        {
-            // 재료 차감 복구
-            for (const TPair<FName, int32>& Removed : RemovedItems)
-            {
-                Inventory->TryAddItem(EKOSlotKind::Item, Removed.Key, Removed.Value);
-            }
+        const int32 OwnedCount = Inventory->GetCountOf(ItemId);
+        const int32 CraftableByThisItem = OwnedCount / RequiredPerOne;
 
-            return false;
-        }
-
-        RemovedItems.Add(TPair<FName, int32>(ItemId, Cost.Value));
+        MaxByMaterials = FMath::Min(MaxByMaterials, CraftableByThisItem);
     }
 
-    // 설비 지급
-    const int32 Remaining = Inventory->TryAddItem(EKOSlotKind::Factory, SelectedFactoryId, 1);
-
-    if (Remaining > 0)
+    if (MaxByMaterials == TNumericLimits<int32>::Max())
     {
-        // 재료 복구
-        for (const TPair<FName, int32>& Removed : RemovedItems)
-        {
-            Inventory->TryAddItem(EKOSlotKind::Item, Removed.Key, Removed.Value);
-        }
-
-        UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedFactoryId.ToString());
-        Refresh();
-        return false;
+        return 0;
     }
 
-    Refresh();
-    return true;
+    MaxByMaterials = FMath::Max(0, MaxByMaterials);
+    MaxByMaterials = FMath::Min(MaxByMaterials, MaxCraftCountLimit);
+
+    for (int32 Count = MaxByMaterials; Count >= 1; --Count)
+    {
+        if (CanCraftFactory(FactoryId, Count))
+        {
+            return Count;
+        }
+    }
+
+    return 0;
 }

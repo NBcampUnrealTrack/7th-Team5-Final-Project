@@ -66,6 +66,11 @@ int32 UKOInventoryComponent::TryAddItem(EKOSlotKind Kind, FName ItemId, int32 Co
 
     const int32 PreviousCount = GetCountOf(ItemId);
     const int32 MaxStack = UKOItemLibrary::GetMaxStack(this, Kind, ItemId);
+    if (MaxStack <= 0)
+    {
+        return Count;
+    }
+    
     int32 Remaining = Count;
 
     // 1단계: 동일 ItemId 슬롯에 먼저 채운다 
@@ -124,24 +129,10 @@ bool UKOInventoryComponent::TryRemoveItem(FName ItemId, int32 Count)
     }
 
     const int32 PreviousCount = GetCountOf(ItemId);
-    int32 Remaining = Count;
-
-    for (int32 i = Slots.Num() - 1; i >= 0 && Remaining > 0; --i)
+    
+    if (!RemoveItemFromSlots(Slots, ItemId, Count))
     {
-        FKOItemSlot& Slot = Slots[i];
-        if (Slot.ItemId != ItemId)
-        {
-            continue;
-        }
-
-        const int32 ToRemove = FMath::Min(Slot.Count, Remaining);
-        Slot.Count -= ToRemove;
-        Remaining  -= ToRemove;
-
-        if (Slot.Count == 0)
-        {
-            Slot = FKOItemSlot{};
-        }
+        return false;
     }
 
     const int32 NewCount = GetCountOf(ItemId);
@@ -299,20 +290,63 @@ void UKOInventoryComponent::MergeAllStacks()
 
 int32 UKOInventoryComponent::GetCountOf(FName ItemId) const
 {
+    return GetCountOfInSlots(Slots, ItemId);
+}
+
+int32 UKOInventoryComponent::GetCountOfInSlots(const TArray<FKOItemSlot>& SourceSlots, FName ItemId) const
+{
     int32 Total = 0;
-    for (const FKOItemSlot& Slot : Slots)
+
+    for (const FKOItemSlot& Slot : SourceSlots)
     {
         if (Slot.ItemId == ItemId)
         {
             Total += Slot.Count;
         }
     }
+
     return Total;
 }
 
 bool UKOInventoryComponent::HasEnoughItems(FName ItemId, int32 Count) const
 {
     return GetCountOf(ItemId) >= Count;
+}
+
+bool UKOInventoryComponent::RemoveItemFromSlots(TArray<FKOItemSlot>& TargetSlots, FName ItemId, int32 Count) const
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return false;
+    }
+
+    if (GetCountOfInSlots(TargetSlots, ItemId) < Count)
+    {
+        return false;
+    }
+
+    int32 Remaining = Count;
+
+    for (int32 i = TargetSlots.Num() - 1; i >= 0 && Remaining > 0; --i)
+    {
+        FKOItemSlot& Slot = TargetSlots[i];
+
+        if (Slot.ItemId != ItemId)
+        {
+            continue;
+        }
+
+        const int32 ToRemove = FMath::Min(Slot.Count, Remaining);
+        Slot.Count -= ToRemove;
+        Remaining -= ToRemove;
+
+        if (Slot.Count <= 0)
+        {
+            Slot = FKOItemSlot{};
+        }
+    }
+
+    return Remaining <= 0;
 }
 
 const FKOItemSlot* UKOInventoryComponent::GetSlotByIndex(int32 Index) const
@@ -376,4 +410,92 @@ bool UKOInventoryComponent::IsItemAccepted(EKOSlotKind Kind, FName ItemId) const
         return bAcceptFactories;
     }
     return false;
+}
+
+int32 UKOInventoryComponent::GetAddCountAfterRemoving(EKOSlotKind AddKind, FName AddItemId, int32 AddCount,
+    const TArray<TPair<FName, int32>>& ItemsToRemove) const
+{
+    if (AddItemId.IsNone() || AddCount <= 0)
+    {
+        return 0;
+    }
+
+    TArray<FKOItemSlot> SimulatedSlots = Slots;
+
+    for (const TPair<FName, int32>& RemoveItem : ItemsToRemove)
+    {
+        const FName RemoveItemId = RemoveItem.Key;
+        int32 RemoveCount = RemoveItem.Value;
+
+        if (RemoveItemId.IsNone() || RemoveCount <= 0)
+        {
+            continue;
+        }
+
+        if (!RemoveItemFromSlots(SimulatedSlots, RemoveItemId, RemoveCount))
+        {
+            return 0;
+        }
+    }
+
+    return GetAddCountInSlots(SimulatedSlots, AddKind, AddItemId, AddCount);
+}
+
+int32 UKOInventoryComponent::GetAddCountInSlots(const TArray<FKOItemSlot>& SourceSlots, EKOSlotKind Kind,
+    FName ItemId, int32 Count) const
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return 0;
+    }
+
+    if (!IsItemAccepted(Kind, ItemId))
+    {
+        return 0;
+    }
+
+    const int32 MaxStack = UKOItemLibrary::GetMaxStack(this, Kind, ItemId);
+    if (MaxStack <= 0)
+    {
+        return 0;
+    }
+
+    int32 AddableCount = 0;
+
+    // 같은 아이템이 들어 있는 기존 슬롯의 남은 공간 계산
+    for (const FKOItemSlot& Slot : SourceSlots)
+    {
+        if (!Slot.HasItem())
+        {
+            continue;
+        }
+
+        if (Slot.ItemId == ItemId && Slot.Count < MaxStack)
+        {
+            AddableCount += MaxStack - Slot.Count;
+
+            if (AddableCount >= Count)
+            {
+                return Count;
+            }
+        }
+    }
+
+    // 빈 슬롯에 들어갈 수 있는 수량 계산
+    for (const FKOItemSlot& Slot : SourceSlots)
+    {
+        if (Slot.HasItem())
+        {
+            continue;
+        }
+
+        AddableCount += MaxStack;
+
+        if (AddableCount >= Count)
+        {
+            return Count;
+        }
+    }
+
+    return FMath::Min(AddableCount, Count);
 }

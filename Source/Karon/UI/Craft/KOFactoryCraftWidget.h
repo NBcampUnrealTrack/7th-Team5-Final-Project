@@ -13,6 +13,15 @@ class UKOFactoryCraftEntryWidget;
 class UKOFactoryCraftCostEntryWidget;
 struct FKOFactoryRow;
 
+UENUM()
+enum class EKOFactoryCraftAvailability : uint8
+{
+    CanCraft,                   // 제작
+    NotEnoughMaterials,         // 재료 부족
+    NotEnoughInventorySpace,    // 인벤토리 공간 부족
+    Invalid
+};
+
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOFactoryCraftWidget : public UKOActivatableWidget
 {
@@ -60,6 +69,21 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> CraftButtonText;
     
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UButton> DecreaseCraftCountButton; // -1
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UButton> IncreaseCraftCountButton; // +1
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UButton> DecreaseCraftCount10Button; // -10
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UButton> IncreaseCraftCount10Button; // +10
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> CraftCountText;
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
     FLinearColor CraftableButtonColor = FLinearColor::White;
     
@@ -72,6 +96,15 @@ private:
 
     UPROPERTY()
     TWeakObjectPtr<UKOInventoryComponent> CachedInventory;
+    
+    UPROPERTY()
+    int32 CraftCount = MinCraftCount;
+    
+    UPROPERTY()
+    int32 MinCraftCount = 1;
+    
+    UPROPERTY()
+    int32 MaxCraftCountLimit = 999;
 
 private:
     void RebuildFactoryList(); // 설비 목록 만듦 (왼쪽)
@@ -79,12 +112,32 @@ private:
     void RebuildCostList(const FKOFactoryRow* FactoryRow); // 선택된 설비의 필요 재료 목록을 만듦
     void RefreshCraftButtonState();
 
-    bool CanCraftFactory(FName FactoryId) const; // 제작 가능 여부 검사
+    // 제작 가능 여부 검사
+    bool CanCraftFactory(FName FactoryId, int32 InCraftCount) const;
+    EKOFactoryCraftAvailability GetCraftAvailability(FName FactoryId, int32 InCraftCount) const;
+    bool BuildRequiredItems(FName FactoryId, int32 InCraftCount, TArray<TPair<FName, int32>>& OutRequiredItems) const;
+    
     bool CraftSelectedFactory(); // 설비 제작
+    
+    void SetCraftCount(int32 NewCount);
+    void RefreshCraftCountText();
+    int32 GetMaxCraftableCount(FName FactoryId) const;
 
     UFUNCTION()
     void HandleFactoryEntryClicked(FName InFactoryId);
 
     UFUNCTION()
     void HandleCraftButtonClicked();
+    
+    UFUNCTION()
+    void HandleDecreaseCraftCountClicked();
+
+    UFUNCTION()
+    void HandleIncreaseCraftCountClicked();
+    
+    UFUNCTION()
+    void HandleDecreaseCraftCount10Clicked();
+
+    UFUNCTION()
+    void HandleIncreaseCraftCount10Clicked();
 };
