@@ -1,5 +1,5 @@
 Binaries/
-Build/
+/Build/
 DerivedDataCache/
 Intermediate/
 Saved/
@@ -20,22 +20,22 @@ Saved/
 .idea/
 
 # Test Files
-Content/Test/
+/Content/Test/
 
 # Claude AI Assistant temporary files
 .claude/
 
 # JetBrains RiderLink plugin
-Plugins/Developer/RiderLink/
+/Plugins/Developer/RiderLink/
 
 # Visual Studio cache
 .vs/
 *.ipch
 
-Content/Karon/Asset/IgnoredAsset/
-Content/Karon/TEST
+/Content/Karon/Asset/IgnoredAsset/
+/Content/Karon/TEST
 
-Content/SteampunkTrainStation/
+/Content/SteampunkTrainStation/
 /BuildOutput
 /Content/SteamPunkCollection
 /Content/PaidAssets

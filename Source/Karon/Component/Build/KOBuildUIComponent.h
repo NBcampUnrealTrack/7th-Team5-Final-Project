@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Utility/Messaging/KOGMSInterface.h"
-
 #include "KOBuildUIComponent.generated.h"
 
 class UKOGridBuildComponent;

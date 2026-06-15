@@ -29,6 +29,9 @@ public:
     UPROPERTY(Config, EditAnywhere, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> RecipeTables;
     
+    UPROPERTY(EditDefaultsOnly, Config, Category = "KO|Data Registry")
+    TArray<TSoftObjectPtr<UDataTable>> EquipmentTables;
+    
     UPROPERTY(Config, EditAnywhere, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> SkillTables;
 

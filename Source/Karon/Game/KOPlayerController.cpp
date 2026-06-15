@@ -8,7 +8,7 @@
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Component/Skill/KOSkillComponent.h"
-#include "UI/Build/KOBuildUIComponent.h"
+#include "Component/Build/KOBuildUIComponent.h"
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
@@ -405,6 +405,15 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_ToggleMap,
 			true
 		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleFactoryCraft,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_OpenFactoryCraft,
+			true
+		);
 	}
 }
 
@@ -633,4 +642,19 @@ void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
 	{
 		MapUIComponent->ToggleMainMap();
 	}
+}
+
+void AKOPlayerController::Input_OpenFactoryCraft(const FInputActionValue& Value)
+{
+	// 건설 중에는 설비 제작 UI를 열지 않는다.
+	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
+	{
+		return;
+	}
+
+	// 인벤토리가 열려 있으면 닫는다.
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
+
+	// 설비 제작 UI 열기
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_FactoryCraft);
 }

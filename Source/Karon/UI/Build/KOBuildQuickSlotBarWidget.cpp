@@ -4,7 +4,7 @@
 #include "Components/PanelWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/Build/KOBuildQuickSlotWidget.h"
-#include "UI/Build/KOBuildUIComponent.h"
+#include "Component/Build/KOBuildUIComponent.h"
 
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"

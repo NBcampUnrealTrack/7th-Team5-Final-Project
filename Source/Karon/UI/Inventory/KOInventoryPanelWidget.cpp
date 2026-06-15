@@ -1,6 +1,9 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/Inventory/KOInventoryPanelWidget.h"
+
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "UI/Inventory/KOInventoryWidget.h"
+#include "UI/Inventory/KOWeaponSlotWidget.h"
 
 UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 {
@@ -11,10 +14,15 @@ UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 }
 
 void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
-{
+{    
     if (InventoryWidget)
     {
         InventoryWidget->SetInventoryComponent(InComponent);
+    }
+    
+    if (WeaponSlotWidget)
+    {
+        WeaponSlotWidget->SetInventoryComponent(InComponent);
     }
 }
 

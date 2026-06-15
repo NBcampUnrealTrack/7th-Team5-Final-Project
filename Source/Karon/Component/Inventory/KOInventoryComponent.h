@@ -41,8 +41,20 @@ public:
 
     // 아이템 조회 API
     int32 GetCountOf(FName ItemId) const;
+    int32 GetCountOfInSlots(const TArray<FKOItemSlot>& SourceSlots, FName ItemId) const;
     bool  HasEnoughItems(FName ItemId, int32 Count) const;
+    
+    // 아이템 제거
+    bool RemoveItemFromSlots(TArray<FKOItemSlot>& TargetSlots, FName ItemId, int32 Count) const;
 
+    // 재료 차감 후 인벤토리 공간 계산
+    int32 GetAddCountAfterRemoving(
+        EKOSlotKind AddKind,
+        FName AddItemId,
+        int32 AddCount,
+        const TArray<TPair<FName, int32>>& ItemsToRemove
+    ) const;
+    
     const TArray<FKOItemSlot>& GetSlots() const { return Slots; }
 
     /** 슬롯 인덱스로 안전 조회. 유효하지 않으면 nullptr 반환. */
@@ -63,4 +75,12 @@ protected:
 
     void NotifyInventoryChanged(FName ItemId, int32 PreviousCount, int32 NewCount);
     virtual bool IsItemAccepted(EKOSlotKind Kind, FName ItemId) const;
+
+    // 인벤토리 공간 계산
+    int32 GetAddCountInSlots(
+        const TArray<FKOItemSlot>& SourceSlots,
+        EKOSlotKind Kind,
+        FName ItemId,
+        int32 Count
+    ) const;
 };

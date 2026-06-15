@@ -38,9 +38,13 @@ void UKOLoadSubsystem::Deinitialize()
     ItemCache.Empty();
     FactoryCache.Empty();
     RecipeCache.Empty();
+    EquipmentCache.Empty();
     SkillCache.Empty();
     SkillExecutionCache.Empty();
+    
     ItemTagToId.Empty();
+    EquipmentTagToId.Empty();
+    
     ResolvedIcons.Empty();
     ResolvedBuildingClasses.Empty();
     ResolvedFactoryIcons.Empty();
@@ -123,10 +127,11 @@ void UKOLoadSubsystem::LoadAll()
     const UKODataRegistrySettings* Settings = GetDefault<UKODataRegistrySettings>();
     check(Settings);
 
-    IndexTableRowsByName<FKOItemRow>   (Settings->ItemTables,    ItemCache,    TEXT("Item"));
-    IndexTableRowsByName<FKOFactoryRow>(Settings->FactoryTables, FactoryCache, TEXT("Factory"));
-    IndexTableRowsByName<FKORecipeRow> (Settings->RecipeTables,  RecipeCache,  TEXT("Recipe"));
-    IndexTableRowsByName<FKOSkillRow>  (Settings->SkillTables,   SkillCache,   TEXT("Skill"));
+    IndexTableRowsByName<FKOItemRow>      (Settings->ItemTables,      ItemCache,      TEXT("Item"));
+    IndexTableRowsByName<FKOFactoryRow>   (Settings->FactoryTables,   FactoryCache,   TEXT("Factory"));
+    IndexTableRowsByName<FKORecipeRow>    (Settings->RecipeTables,    RecipeCache,    TEXT("Recipe"));
+    IndexTableRowsByName<FKOEquipmentRow> (Settings->EquipmentTables, EquipmentCache, TEXT("Equipment"));
+    IndexTableRowsByName<FKOSkillRow>     (Settings->SkillTables,     SkillCache,     TEXT("Skill"));
     IndexTableRowsByName<FKOSkillExecutionRow>  (Settings->SkillTables,
         SkillExecutionCache,   TEXT("SkillExecution"));
     
@@ -152,6 +157,29 @@ void UKOLoadSubsystem::LoadAll()
 
         ItemTagToId.Add(Row->ItemTag, Pair.Key);
     }
+    
+    // Equipment ItemTag → EquipmentId 역인덱스 빌드
+    EquipmentTagToId.Reset();
+    for (const TPair<FName, const FKOEquipmentRow*>& Pair : EquipmentCache)
+    {
+        const FKOEquipmentRow* Row = Pair.Value;
+        if (!Row || !Row->ItemTag.IsValid())
+        {
+            continue;
+        }
+
+        if (EquipmentTagToId.Contains(Row->ItemTag))
+        {
+            UE_LOG(LogKOLoad, Warning,
+                TEXT("UKOLoadSubsystem: 중복 Equipment ItemTag '%s' (기존='%s', 신규='%s' — 무시)."),
+                *Row->ItemTag.ToString(),
+                *EquipmentTagToId[Row->ItemTag].ToString(),
+                *Pair.Key.ToString());
+            continue;
+        }
+
+        EquipmentTagToId.Add(Row->ItemTag, Pair.Key);
+    }
 
     UE_LOG(LogKOLoad, Log,
         TEXT("UKOLoadSubsystem: LoadAll complete. Items=%d, Factories=%d, Recipes=%d, ItemTags=%d."),
@@ -166,6 +194,11 @@ FName UKOLoadSubsystem::FindItemIdByTag(FGameplayTag ItemTag) const
     }
     const FName* Found = ItemTagToId.Find(ItemTag);
     return Found ? *Found : NAME_None;
+}
+
+bool UKOLoadSubsystem::IsEquipmentItem(FGameplayTag ItemTag) const
+{
+    return FindEquipmentRowByItemTag(ItemTag) != nullptr;
 }
 
 const FKOItemRow* UKOLoadSubsystem::FindItemRow(FName ItemId) const
@@ -184,6 +217,28 @@ const FKORecipeRow* UKOLoadSubsystem::FindRecipeRow(FName RecipeId) const
 {
     const FKORecipeRow* const* Found = RecipeCache.Find(RecipeId);
     return Found ? *Found : nullptr;
+}
+
+const FKOEquipmentRow* UKOLoadSubsystem::FindEquipmentRow(FName EquipmentId) const
+{
+    const FKOEquipmentRow* const* Found = EquipmentCache.Find(EquipmentId);
+    return Found ? *Found : nullptr;
+}
+
+const FKOEquipmentRow* UKOLoadSubsystem::FindEquipmentRowByItemTag(FGameplayTag ItemTag) const
+{
+    if (!ItemTag.IsValid())
+    {
+        return nullptr;
+    }
+
+    const FName* EquipmentId = EquipmentTagToId.Find(ItemTag);
+    if (!EquipmentId)
+    {
+        return nullptr;
+    }
+
+    return FindEquipmentRow(*EquipmentId);
 }
 
 
@@ -311,6 +366,11 @@ void UKOLoadSubsystem::GetAllFactoryIds(TArray<FName>& Out) const
 void UKOLoadSubsystem::GetAllRecipeIds(TArray<FName>& Out) const
 {
     RecipeCache.GetKeys(Out);
+}
+
+void UKOLoadSubsystem::GetAllEquipmentIds(TArray<FName>& Out) const
+{
+    EquipmentCache.GetKeys(Out);
 }
 
 void UKOLoadSubsystem::GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TArray<FName>& Out) const

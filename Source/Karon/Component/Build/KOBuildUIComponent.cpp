@@ -1,4 +1,4 @@
-﻿#include "UI/Build/KOBuildUIComponent.h"
+﻿#include "KOBuildUIComponent.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Component/Build/KOGridBuildComponent.h"

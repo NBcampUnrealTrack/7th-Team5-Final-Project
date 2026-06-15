@@ -2,6 +2,7 @@
 
 #include "Items/KOItemLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "AbilitySystem/Tag/Item/KOGameplayTags_Item.h"
 #include "Building/KOBaseBuilding.h"
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Engine/World.h"
@@ -55,6 +56,34 @@ FText UKOItemLibrary::GetDisplayName(const UObject* WorldContext, EKOSlotKind Ki
         }
         break;
     }
+    return FText::GetEmpty();
+}
+
+FText UKOItemLibrary::GetDescription(const UObject* WorldContext, EKOSlotKind Kind, FName Id)
+{
+    const UKOLoadSubsystem* LS = GetLoadSubsystem(WorldContext);
+    if (!LS)
+    {
+        return FText::GetEmpty();
+    }
+
+    switch (Kind)
+    {
+    case EKOSlotKind::Item:
+        if (const FKOItemRow* Row = LS->FindItemRow(Id))
+        {
+            return Row->Description;
+        }
+        break;
+
+    case EKOSlotKind::Factory:
+        if (const FKOFactoryRow* Row = LS->FindFactoryRow(Id))
+        {
+            return Row->Description;
+        }
+        break;
+    }
+
     return FText::GetEmpty();
 }
 
@@ -203,4 +232,43 @@ void UKOItemLibrary::GatherFactoryPortSlots(const UObject* WorldContext, const A
     {
         OutSlots.Emplace(EKOPortKind::Output, Index, OutputItemIds[Index]);
     }
+}
+
+bool UKOItemLibrary::IsEquipmentItem(const UObject* WorldContextObject, FName ItemId)
+{
+    const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(WorldContextObject);
+    if (!LoadSubsystem)
+    {
+        return false;
+    }
+
+    const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        return false;
+    }
+
+    return LoadSubsystem->IsEquipmentItem(ItemRow->ItemTag);
+}
+
+bool UKOItemLibrary::IsWeaponEquipmentItem(const UObject* WorldContextObject, FName ItemId)
+{
+    const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(WorldContextObject);
+    if (!LoadSubsystem)
+    {
+        return false;
+    }
+
+    const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        return false;
+    }
+
+    if (!LoadSubsystem->IsEquipmentItem(ItemRow->ItemTag))
+    {
+        return false;
+    }
+
+    return ItemRow->Categories.HasTag(KOGameplayTags::Item_Category_Weapon);
 }

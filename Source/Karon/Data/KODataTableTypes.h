@@ -100,10 +100,6 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Energy")
     int32 EnergyCoverageRadius = 0;
 
-    /** 빌드 메뉴에 노출할지 여부. false면 디버그/내부 전용. */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
-    bool bShowInBuildMenu = true;
-
     /** 인벤토리 한 슬롯에 누적 가능한 최대 수량. 기본 1 (건물은 통상 비스택). */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     int32 MaxStack = 1;
@@ -115,18 +111,26 @@ struct KARON_API FKOFactoryRow : public FTableRowBase
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Factory")
     FGameplayTag FactoryCategoryTag;
+    
+    /** 설비 제작에 노출할지 여부. false면 디버그/내부 전용. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
+    bool bShowInBuildMenu = true;
 
-    /** 빌드 메뉴 내 정렬 순서. 작을수록 앞. */
+    /** 정렬 순서. 작을수록 앞. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     int32 SortOrder = 0;
 
-    /** 빌드 메뉴 썸네일 아이콘 (소프트 레퍼런스). */
+    /** 설비 썸네일 아이콘 (소프트 레퍼런스). */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     TSoftObjectPtr<UTexture2D> Icon;
 
     /** 노출되기 위해 플레이어가 보유해야 하는 해금 태그. 비어있으면 항상 해금. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BuildMenu")
     FGameplayTagContainer RequiredUnlockTags;
+    
+    /** 설비를 제작할 때 필요한 재료: ItemTag → 필요 수량 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    TMap<FGameplayTag, int32> CraftCosts;
 };
 
 USTRUCT(BlueprintType)
@@ -164,6 +168,16 @@ struct KARON_API FKORecipeRow : public FTableRowBase
      */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Recipe")
     float PowerPerSecond = 0.f;
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FKOEquipmentRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    /** 장비로 취급할 아이템 태그. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+    FGameplayTag ItemTag;
 };
 
 USTRUCT(BlueprintType)

@@ -21,6 +21,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleSKillTree,  "Input.Native.ToggleSkillTree");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_Build_Rotate,  "Input.Native.Build.Rotate");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleMap,  "Input.Native.ToggleMap");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleFactoryCraft, "Input.Native.ToggleFactoryCraft");
 	
 	
 	// ── Input | Ability | Movement ────────────────────────────────

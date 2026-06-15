@@ -7,7 +7,7 @@
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
-#include "UI/Build/KOBuildUIComponent.h"
+#include "Component/Build/KOBuildUIComponent.h"
 #include "UI/Inventory/KOItemDragSource.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
 
