@@ -8,4 +8,4 @@
 #include "UI/KOGameplayTags_UI.h"
 #include "Item/KOGameplayTags_Item.h"
 #include "Skill/KOGamePlayTags_Skill.h"
-
+#include "Object/KOGameplayTags_Object.h"
