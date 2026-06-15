@@ -30,6 +30,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	
+	
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -102,5 +105,4 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Locomotion")
 	EGait PreviousGait;
-
 };

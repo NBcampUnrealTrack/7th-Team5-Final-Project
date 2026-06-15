@@ -9,10 +9,10 @@
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
 #include "MotionWarpingComponent.h"
-#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
-#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Game/KOGameMode.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -81,6 +81,16 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
+}
+
+void AKOHeroCharacter::OnCharacterDead(AActor* DeathInstigator)
+{
+	Super::OnCharacterDead(DeathInstigator);
+	
+	AKOGameMode* GM = GetWorld()->GetAuthGameMode<AKOGameMode>();
+	if (!GM) return;
+	
+	GM->HandlePlayerDeath(DeathInstigator);
 }
 
 bool AKOHeroCharacter::IsLockOn() const

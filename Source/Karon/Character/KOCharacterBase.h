@@ -31,10 +31,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-protected:
-	
+public:
 	UFUNCTION()
-	virtual void OnCharacterDead();
+	virtual void OnCharacterDead(AActor* DeathInstigator);
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;
