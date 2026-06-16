@@ -30,28 +30,10 @@ protected:
 		bool bWasCancelled
 	) override;
 	
-	// ─── Gameplay Effect Class ────────────────────────────────────────────────
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
-	// ─── Gameplay Tag ─────────────────────────────────────────────────────────
+    
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Event")
 	FGameplayTag AttackEventTag;
-	
-	// ─── Animation Montage ────────────────────────────────────────────────────
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Animation")
-	TObjectPtr<UAnimMontage> AttackMontage;
-	
-	UFUNCTION()
-	void OnMontageCompleted();
-	
-	UFUNCTION()
-	void OnMontageCancelled();
-	
-	UFUNCTION()
-	void OnMontageBlendOut();
-	
-	UFUNCTION()
-	virtual void OnGameplayEventReceived(FGameplayEventData Payload);
 
 };

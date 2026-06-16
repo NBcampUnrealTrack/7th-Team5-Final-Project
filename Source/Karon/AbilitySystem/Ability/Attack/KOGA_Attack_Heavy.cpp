@@ -1,4 +1,4 @@
-#include "KOGA_Attack_Light.h"
+﻿#include "KOGA_Attack_Heavy.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -9,10 +9,10 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/KOComboActionData.h"
 
-UKOGA_Attack_Light::UKOGA_Attack_Light()
+UKOGA_Attack_Heavy::UKOGA_Attack_Heavy()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Light));
+	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Heavy));
 	
 	CurrentComboIndex = 1;
 	MaxComboCount = 1;
@@ -20,13 +20,13 @@ UKOGA_Attack_Light::UKOGA_Attack_Light()
 	ComboMontage = nullptr;
 }
 
-bool UKOGA_Attack_Light::CanActivateAbility(
+bool UKOGA_Attack_Heavy::CanActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayTagContainer* SourceTags,
 	const FGameplayTagContainer* TargetTags, 
 	FGameplayTagContainer* OptionalRelevantTags) const
-{
+{	
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
@@ -37,13 +37,13 @@ bool UKOGA_Attack_Light::CanActivateAbility(
 	return Character != nullptr;
 }
 
-void UKOGA_Attack_Light::ActivateAbility(
+void UKOGA_Attack_Heavy::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+		Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character)
@@ -64,8 +64,8 @@ void UKOGA_Attack_Light::ActivateAbility(
         
 		if (ComboData)
 		{
-			ComboMontage = ComboData->LightAttackMontage.Get();
-			MaxComboCount = ComboData->MaxLightComboCount;
+			ComboMontage = ComboData->HeavyAttackMontage.Get();
+			MaxComboCount = ComboData->MaxHeavyComboCount;
 		}
 		else
 		{
@@ -92,7 +92,7 @@ void UKOGA_Attack_Light::ActivateAbility(
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, InputEnableTag);
 	if (InputEventTask)
 	{
-		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Light::OnInputBufferOpened);
+		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Heavy::OnInputBufferOpened);
 		InputEventTask->ReadyForActivation();
 	}
 	
@@ -108,10 +108,8 @@ void UKOGA_Attack_Light::ActivateAbility(
 	PlayNextComboSection();
 }
 
-void UKOGA_Attack_Light::InputPressed(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo)
+void UKOGA_Attack_Heavy::InputPressed(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	UE_LOG(LogTemp, Warning, TEXT("어빌리티 내부에서 클릭 입력 감지 현재 타수: %d"), CurrentComboIndex);
@@ -123,7 +121,7 @@ void UKOGA_Attack_Light::InputPressed(
 	}
 }
 
-void UKOGA_Attack_Light::PlayNextComboSection()
+void UKOGA_Attack_Heavy::PlayNextComboSection()
 {
 	if (CurrentMontageTask)
 	{
@@ -154,7 +152,8 @@ void UKOGA_Attack_Light::PlayNextComboSection()
 	
 	CurrentMontageTask->ReadyForActivation();
 }
-void UKOGA_Attack_Light::OnComboWindowReceived(FGameplayEventData Payload)
+
+void UKOGA_Attack_Heavy::OnComboWindowReceived(FGameplayEventData Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("==== [Combo] 몽타주 노티파이 신호 수신 완료! ===="));
 
@@ -173,7 +172,7 @@ void UKOGA_Attack_Light::OnComboWindowReceived(FGameplayEventData Payload)
 	}
 }
 
-void UKOGA_Attack_Light::OnMontageEnded()
+void UKOGA_Attack_Heavy::OnMontageEnded()
 {
 	EndAbility(
 		CurrentSpecHandle, 
@@ -184,7 +183,7 @@ void UKOGA_Attack_Light::OnMontageEnded()
 	);
 }
 
-void UKOGA_Attack_Light::OnHitEventReceived(FGameplayEventData Payload)
+void UKOGA_Attack_Heavy::OnHitEventReceived(FGameplayEventData Payload)
 {
 	const UObject* RawPayloadTarget = Payload.Target;
 	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawPayloadTarget));
@@ -194,9 +193,8 @@ void UKOGA_Attack_Light::OnHitEventReceived(FGameplayEventData Payload)
 	}
 }
 
-void UKOGA_Attack_Light::OnInputBufferOpened(FGameplayEventData Payload)
+void UKOGA_Attack_Heavy::OnInputBufferOpened(FGameplayEventData Payload)
 {
 	bIsInputBufferOpen = true;
 }
-
 

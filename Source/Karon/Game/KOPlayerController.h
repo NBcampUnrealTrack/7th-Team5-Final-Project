@@ -116,7 +116,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
 	TObjectPtr<UKOSkillComponent> SkillComponent;
-	
+
 private:
 	bool bBuildIMCActive = false;
 

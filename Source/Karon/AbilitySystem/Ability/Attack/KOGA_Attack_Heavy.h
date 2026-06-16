@@ -1,19 +1,19 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "KOGA_AttackBase.h"
-#include "KOGA_Attack_Light.generated.h"
+#include "KOGA_Attack_Heavy.generated.h"
 
 class UGameplayEffect;
 class UAbilityTask_PlayMontageAndWait;
 
 UCLASS()
-class KARON_API UKOGA_Attack_Light : public UKOGA_AttackBase
+class KARON_API UKOGA_Attack_Heavy : public UKOGA_AttackBase
 {
 	GENERATED_BODY()
 	
 public:
-	UKOGA_Attack_Light();
+	UKOGA_Attack_Heavy();
 	
 protected:
 	virtual bool CanActivateAbility(
