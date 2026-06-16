@@ -22,7 +22,7 @@ namespace KOGameplayTags
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_GroundSlap);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_DoubleGroundHit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_DoubleSweep);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_GroundHit);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_ShockWave);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_Dash);
