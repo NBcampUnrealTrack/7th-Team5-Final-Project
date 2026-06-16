@@ -126,13 +126,9 @@ void UKOHealthSet::HandleDeath(const FGameplayEffectModCallbackData& Data)
 		// Ability 호출 (몽타주 재생 / GE_Death 적용) 
 		FGameplayEventData EventData;
 		EventData.Target = ASC->GetAvatarActor();
-	
-		ASC->HandleGameplayEvent(KOGameplayTags::Event_Death, &EventData);
+		EventData.Instigator = Data.EffectSpec.GetContext().GetInstigator();
 		
-		AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarActor());
-		if (!Character) return;
-	
-		Character->OnCharacterDead(Data.EffectSpec.GetContext().GetInstigator()); 
+		ASC->HandleGameplayEvent(KOGameplayTags::Event_Death, &EventData);
 	}
 }
 

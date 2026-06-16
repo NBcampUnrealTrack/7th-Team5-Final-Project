@@ -15,4 +15,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandlePlayerDeath(AActor* DeathInstigator); 
 	
+	
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Player | Death")
+	float RespawnDuration = 2.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Player | Death")
+	float FadeDuration = 2.f; 
+	
 };

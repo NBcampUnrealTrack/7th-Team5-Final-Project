@@ -29,5 +29,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	TSubclassOf<UGameplayEffect> GE_Death;
+	
+private:
+	TWeakObjectPtr<AActor> CachedInstigator;
+
 };
 
