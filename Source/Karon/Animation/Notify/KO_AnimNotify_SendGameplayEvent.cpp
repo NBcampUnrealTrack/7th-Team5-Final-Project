@@ -2,6 +2,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 UKO_AnimNotify_SendGameplayEvent::UKO_AnimNotify_SendGameplayEvent()
 {
@@ -12,27 +14,15 @@ void UKO_AnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, 
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 	
-	if (!MeshComp)
-	{
-		return;
-	}
+	AActor* Owner = MeshComp->GetOwner();
+	if (!Owner) return;
 	
-	AActor* OwnerActor = MeshComp->GetOwner();
-	if (!OwnerActor)
-	{
-		return;
-	}
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Owner);
+	if (!ASC) return;
 	
-	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwnerActor);
-	if (ASC)
-	{
-		FGameplayEventData PayloadData;
-		PayloadData.EventTag = EventTag;
-		PayloadData.Instigator = OwnerActor;
-		PayloadData.Target = OwnerActor;
-		
-		ASC->HandleGameplayEvent(EventTag, &PayloadData);
-	}
+	FGameplayEventData PayLoad;
+	
+	ASC->HandleGameplayEvent(EventTag, &PayLoad);
 }
 
 FString UKO_AnimNotify_SendGameplayEvent::GetNotifyName_Implementation() const
