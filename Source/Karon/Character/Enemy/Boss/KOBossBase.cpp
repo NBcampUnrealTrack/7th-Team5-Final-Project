@@ -11,6 +11,7 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -94,19 +95,25 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 		OnPhaseChanged(2);
 	}
 	
-	if (Ratio <= GimmickReadyRatio)
+	for (float GimmickRatio : GimmickReadyRatios)
 	{
-		AAIController* AIC = Cast<AAIController>(GetController());
-		if (!AIC)
+		if (Ratio <= GimmickRatio && !FiredGimmickRatios.Contains(GimmickRatio))
 		{
-			return;
-		}
- 
-		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-		{
-			if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if (!AIC)
 			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+				break;
+			}
+
+			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+			{
+				if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+				{
+					FiredGimmickRatios.Add(GimmickRatio);
+					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+
+					break;
+				}
 			}
 		}
 	}
