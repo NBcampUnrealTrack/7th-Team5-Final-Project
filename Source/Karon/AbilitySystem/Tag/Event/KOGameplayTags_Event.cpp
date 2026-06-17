@@ -7,6 +7,9 @@ namespace KOGameplayTags
 	// ── Event | Stamina ──────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Stamina_Exhausted, "Event.Stamina.Exhausted");
 	
+	// ── Event | Movement ──────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Movement_Jump_LockOn, "Event.Movement.Jump.LockOn");
+	
 	// ── Event | Hit ───────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Hit, "Event.Hit");
 	

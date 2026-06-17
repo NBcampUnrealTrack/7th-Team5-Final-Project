@@ -30,6 +30,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	
+	
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -49,6 +52,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UKOMovementSet* GetMovementSet() const { return MovementSet; }
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsLockOn() const;
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "MotionWarping")
@@ -99,5 +105,4 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Locomotion")
 	EGait PreviousGait;
-
 };
