@@ -9,3 +9,4 @@
 #include "Item/KOGameplayTags_Item.h"
 #include "Skill/KOGamePlayTags_Skill.h"
 #include "Object/KOGameplayTags_Object.h"
+#include "Name/KOGameplayTags_Name.h"

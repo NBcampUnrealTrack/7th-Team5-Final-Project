@@ -255,3 +255,18 @@ struct KARON_API FKOSkillExecutionRow : public FTableRowBase
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
     float StatModifierValue;
 };
+USTRUCT(BlueprintType)
+struct FKOEnemySkillRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    FGameplayTag EnemyNameTag;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGameplayTag SkillTag;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SkillMultiplier=1.f;
+};

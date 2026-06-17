@@ -48,7 +48,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
 	
-	//TODO: 원거리 몬스터 전용(컴포넌트로 분리)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMesh> ProjectileMesh;
 	
@@ -58,12 +57,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector ProjectileScale=FVector(1.f,1.f,1.f);
 	
-	//TODO: 비동기 로드로 세팅
+	//TODO: PDA로 세팅
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackRadius=150.f;
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
-
 	bool bIsEnemyLongRange=false;
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
@@ -74,6 +72,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackDelayTime=0.5f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag EnemyNameTag;
 
 protected:
 	UPROPERTY()
@@ -88,7 +89,7 @@ protected:
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
-		
+
 private:
 
 	
