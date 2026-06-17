@@ -51,13 +51,7 @@ void UKOGA_Charge_Attack_Base::ActivateAbility(
 	}
 	
 	StartCharging();
-	
-	// UAbilityTask_WaitInputRelease* ReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	// if (ReleaseTask)
-	// {
-	// 	ReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
-	// 	ReleaseTask->ReadyForActivation();
-	// }
+
 }
 
 void UKOGA_Charge_Attack_Base::EndAbility(
@@ -75,6 +69,8 @@ void UKOGA_Charge_Attack_Base::ExecuteAttack(float ChargePercentage)
 	// TODO:  
 	// 예: 최소 데미지는 보장하되(30%), 차징 비율에 따라 최대 100%까지 증가
 	// float DamageMultiplier = 0.3f + (ChargePercentage * 0.7f);
+	// 추후 자식 클래스 만들 때 아래의 EndAbility는 지우고 자식클래스에서 불러오면 됨.
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
@@ -110,8 +106,6 @@ void UKOGA_Charge_Attack_Base::OnChargeTick()
 	
 	if (CurrentChargeTime >= MaxChargeTime)
 	{
-		// StopCharging();
-		// ExecuteAttack(1.0f);
 		CurrentChargeTime = MaxChargeTime;
 		
 		UWorld* World = GetWorld();
