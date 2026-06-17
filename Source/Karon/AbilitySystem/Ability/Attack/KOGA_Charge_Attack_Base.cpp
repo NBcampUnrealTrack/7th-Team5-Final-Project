@@ -50,12 +50,12 @@ void UKOGA_Charge_Attack_Base::ActivateAbility(
 	
 	StartCharging();
 	
-	UAbilityTask_WaitInputRelease* ReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
-	if (ReleaseTask)
-	{
-		ReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
-		ReleaseTask->ReadyForActivation();
-	}
+	// UAbilityTask_WaitInputRelease* ReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this);
+	// if (ReleaseTask)
+	// {
+	// 	ReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
+	// 	ReleaseTask->ReadyForActivation();
+	// }
 }
 
 void UKOGA_Charge_Attack_Base::EndAbility(
@@ -75,7 +75,10 @@ void UKOGA_Charge_Attack_Base::ExecuteAttack(float ChargePercentage)
 	// float DamageMultiplier = 0.3f + (ChargePercentage * 0.7f);
 }
 
-void UKOGA_Charge_Attack_Base::OnInputReleased(float TimeHeld)
+void UKOGA_Charge_Attack_Base::InputReleased(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	if (bIsCharging)
 	{

@@ -29,6 +29,14 @@ protected:
 		bool bReplicateEndAbility, bool bWasCancelled
 	) override;
 	
+	virtual void InputReleased(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo
+	) override;
+	
+	virtual void ExecuteAttack(float ChargePercentage);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge|Animation")
 	UAnimMontage* ChargeMontage;
 	
@@ -37,9 +45,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge|Time")
 	float ChargeTickRate;
-	
-	virtual void ExecuteAttack(float ChargePercentage);
-	
+
 private:
 		
 	FTimerHandle ChargeTimerHandle;
@@ -50,14 +56,11 @@ private:
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> ChargeMontageTask;
 	
 	UFUNCTION()
-	void OnInputReleased(float TimeHeld);
-	
-	UFUNCTION()
 	void OnChargeMontageInterrupted();
 	
 	UFUNCTION()
 	void OnChargeTick();
-	
+
 	void StartCharging();
 	void StopCharging();
 
