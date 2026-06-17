@@ -85,7 +85,7 @@ protected:
     TObjectPtr<UTextBlock> CraftCountText;
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-    FLinearColor CraftableButtonColor = FLinearColor::White;
+    FLinearColor CraftableButtonColor = FLinearColor(0.71875f, 0.71875f, 0.71875f, 0.9f);
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
     FLinearColor NotCraftableButtonColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
