@@ -16,6 +16,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Factory_CornerBelt,              "Factory.CornerBelt");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Factory_PressurePipe,			"Factory.PressurePipe");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_RollingMill,				"Factory.RollingMill");
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Module,   "Item.Category.Module");
@@ -37,4 +38,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_DamagedMiningPipe,  "Item.DamagedMiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
 	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_BasicGunpowder, "Item.BasicGunpowder");
+	UE_DEFINE_GAMEPLAY_TAG(Item_CopperPlate, "Item.CopperPlate");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sulfur,      "Item.Sulfur");
 }
