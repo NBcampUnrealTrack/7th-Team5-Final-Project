@@ -2,6 +2,8 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 
 UKOBTTask_MoveToTaggedLocation::UKOBTTask_MoveToTaggedLocation()
@@ -40,6 +42,15 @@ EBTNodeResult::Type UKOBTTask_MoveToTaggedLocation::ExecuteTask(
 	
 	CachedOwnerComp = &OwnerComp;
 	AIC->ReceiveMoveCompleted.AddDynamic(this, &UKOBTTask_MoveToTaggedLocation::OnMoveCompleted);
+	
+	if (GimmickMoveSpeed > 0.f)
+	{
+		if (ACharacter* Character = Cast<ACharacter>(AIC->GetPawn()))
+		{
+			OriginalSpeed = Character->GetCharacterMovement()->MaxWalkSpeed;
+			Character->GetCharacterMovement()->MaxWalkSpeed = GimmickMoveSpeed;
+		}
+	}
  
 	FAIMoveRequest MoveReq(TargetLocation);
 	MoveReq.SetAcceptanceRadius(AcceptanceRadius);
@@ -74,8 +85,16 @@ void UKOBTTask_MoveToTaggedLocation::OnMoveCompleted(
 	if (AIC)
 	{
 		AIC->ReceiveMoveCompleted.RemoveDynamic(this, &UKOBTTask_MoveToTaggedLocation::OnMoveCompleted);
+
+		if (GimmickMoveSpeed > 0.f)
+		{
+			if (ACharacter* Character = Cast<ACharacter>(AIC->GetPawn()))
+			{
+				Character->GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
+			}
+		}
 	}
- 
+	
 	const EBTNodeResult::Type BTResult =
 		(Result == EPathFollowingResult::Success) ?
 		EBTNodeResult::Succeeded : EBTNodeResult::Failed;
@@ -92,6 +111,14 @@ void UKOBTTask_MoveToTaggedLocation::OnTaskFinished(
 	if (AIC)
 	{
 		AIC->ReceiveMoveCompleted.RemoveDynamic(this, &UKOBTTask_MoveToTaggedLocation::OnMoveCompleted);
+
+		if (GimmickMoveSpeed > 0.f && OriginalSpeed > 0.f)
+		{
+			if (ACharacter* Character = Cast<ACharacter>(AIC->GetPawn()))
+			{
+				Character->GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
+			}
+		}
 	}
  
 	CachedOwnerComp = nullptr;
