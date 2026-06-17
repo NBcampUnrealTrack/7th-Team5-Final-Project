@@ -36,7 +36,8 @@ protected:
 		bool bWasCancelled
 		) override;
 	
-	virtual void OnGameplayEventReceived(FGameplayEventData Payload) override;
+	UFUNCTION()
+	virtual void OnGameplayEventReceived(FGameplayEventData Payload);
 	
 	//애니메이션
 	UPROPERTY(EditDefaultsOnly, Category="Plunge|Animation")

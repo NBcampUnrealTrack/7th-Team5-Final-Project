@@ -5,6 +5,7 @@
 #include "NativeGameplayTags.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -19,7 +20,6 @@ UKOGA_Attack_Plunge::UKOGA_Attack_Plunge()
 
 
 // 진입점
-
 void UKOGA_Attack_Plunge::ActivateAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
@@ -130,6 +130,16 @@ void UKOGA_Attack_Plunge::OnFallMontageCompleted()
 
 void UKOGA_Attack_Plunge::StartLanding()
 {
+    UAbilityTask_WaitGameplayEvent* WaitEvent =
+    UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+        this, TAG_Event_Plunge_Land, nullptr, true, true
+    );
+    WaitEvent->EventReceived.AddDynamic(
+        this, &UKOGA_Attack_Plunge::OnGameplayEventReceived
+    );
+    WaitEvent->ReadyForActivation();
+    
+    
     // 중력 복구
     ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
     if (Character)
@@ -167,7 +177,7 @@ void UKOGA_Attack_Plunge::OnGameplayEventReceived(FGameplayEventData Payload)
         UE_LOG(LogTemp, Warning, TEXT("착지 충격! 차징 비율: %.2f, 배율: %.2f"),
             ChargeRatio, FMath::Lerp(1.f, MaxDamageMultiplier, ChargeRatio));
 
-        Super::OnGameplayEventReceived(Payload); // Base의 GE 적용 호출
+       
         return;
     }
 }
