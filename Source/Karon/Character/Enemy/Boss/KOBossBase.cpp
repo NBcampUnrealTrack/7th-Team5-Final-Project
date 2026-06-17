@@ -36,7 +36,7 @@ void AKOBossBase::NotifyPlayerDetected()
 	}
 
 	bPlayerDetected = true;
-	OnBossDetectedPlayer.Broadcast();
+	OnBossDetectedPlayer.Broadcast(this);
 }
 
 void AKOBossBase::NotifyDeathAnimEnd()
@@ -84,6 +84,7 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
  
 	if (NewVal <= 0.f)
 	{
+		OnBossDied.Broadcast();
 		OnBossDeath();
 		return;
 	}
@@ -94,19 +95,25 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 		OnPhaseChanged(2);
 	}
 	
-	if (Ratio <= GimmickReadyRatio)
+	for (float GimmickRatio : GimmickReadyRatios)
 	{
-		AAIController* AIC = Cast<AAIController>(GetController());
-		if (!AIC)
+		if (Ratio <= GimmickRatio && !FiredGimmickRatios.Contains(GimmickRatio))
 		{
-			return;
-		}
- 
-		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-		{
-			if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if (!AIC)
 			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+				break;
+			}
+
+			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+			{
+				if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+				{
+					FiredGimmickRatios.Add(GimmickRatio);
+					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+
+					break;
+				}
 			}
 		}
 	}
