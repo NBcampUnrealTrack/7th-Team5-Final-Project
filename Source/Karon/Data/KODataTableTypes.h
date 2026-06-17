@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
 class UGameplayAbility;
@@ -261,12 +262,21 @@ struct FKOEnemySkillRow : public FTableRowBase
     GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    FGameplayTag EnemyNameTag;
-	
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FGameplayTag SkillTag;
+    FEnemySkillInfo SkillInfo;
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float SkillMultiplier=1.f;
+};
+USTRUCT(BlueprintType)
+struct FKOEnemyDataRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyNameLevelInfo NameLevelData;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyInfo EnemyInfo;
 };

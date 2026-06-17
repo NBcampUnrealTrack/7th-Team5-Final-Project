@@ -5,7 +5,7 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
-#include "SubSystem/KOEnemySkillSubsystem.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 
 UKOEnemyAttackGameplayAbility::UKOEnemyAttackGameplayAbility()
 {
@@ -153,10 +153,10 @@ void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGamep
 		AActor* AvatarActor = GetAvatarActorFromActorInfo();
 		AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(AvatarActor);
 		float SkillMultiplier=1.f;
-		UKOEnemySkillSubsystem* SkillSubsystem=UKOEnemySkillSubsystem::Get(this);
+		UKOEnemyDataSubsystem* SkillSubsystem=UKOEnemyDataSubsystem::Get(this);
 		if (SkillSubsystem!=nullptr&&AssetTag!=FGameplayTag::EmptyTag&&Enemy!=nullptr)
 		{
-			FEnemySkillInfoTag SkillInfo;
+			FEnemySkillInfo SkillInfo;
 			SkillInfo.SkillTag=AssetTag;
 			SkillInfo.EnemyNameTag=Enemy->EnemyNameTag;
 			SkillMultiplier=SkillSubsystem->GetSkillData(SkillInfo);

@@ -34,7 +34,7 @@ struct FEnemyStat
 };
 
 USTRUCT(BlueprintType)
-struct FEnemySkillInfoTag
+struct FEnemySkillInfo
 {
 	GENERATED_BODY()
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -43,13 +43,48 @@ struct FEnemySkillInfoTag
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag SkillTag;
 	
-	bool operator==(const FEnemySkillInfoTag& Other) const
+	bool operator==(const FEnemySkillInfo& Other) const
 	{
 		return EnemyNameTag == Other.EnemyNameTag && SkillTag == Other.SkillTag;
 	}
 };
-//구조체가 키여서 GetTypeHash를 오버라이드
-FORCEINLINE uint32 GetTypeHash(const FEnemySkillInfoTag& Key)
+//구조체가 키여서 GetTypeHash 오버로딩
+FORCEINLINE uint32 GetTypeHash(const FEnemySkillInfo& Key)
 {
 	return HashCombine(GetTypeHash(Key.EnemyNameTag), GetTypeHash(Key.SkillTag));
 }
+
+USTRUCT(BlueprintType)
+struct FEnemyNameLevelInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGameplayTag EnemyNameTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Level;
+	
+	bool operator==(const FEnemyNameLevelInfo& Other) const
+	{
+		return EnemyNameTag == Other.EnemyNameTag && Level == Other.Level;
+	}
+};
+//구조체가 키여서 GetTypeHash를 오버로딩
+FORCEINLINE uint32 GetTypeHash(const  FEnemyNameLevelInfo& Key)
+{
+	return HashCombine(GetTypeHash(Key.EnemyNameTag), GetTypeHash(Key.Level));
+}
+
+USTRUCT(BlueprintType)
+struct FEnemyInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float AttackPower;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Defense;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackSpeed;
+};

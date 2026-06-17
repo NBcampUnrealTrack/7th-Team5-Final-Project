@@ -9,7 +9,7 @@
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
 #include "Data/Type/KOEnemyType.h"
 #include "Game/KOProjectilePoolSubsystem.h"
-#include "SubSystem/KOEnemySkillSubsystem.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 
 UKOEnemyProjectileAttackNotify::UKOEnemyProjectileAttackNotify()
 {
@@ -71,13 +71,13 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 				return;
 			}
 			//GA에서 AssetTag, Enemy에서 EnemyNameTag를 가져와 세팅한다.
-			FEnemySkillInfoTag SkillInfoTag;
+			FEnemySkillInfo SkillInfoTag;
 			
 			SkillInfoTag.SkillTag=EnemyGA->GetAssetTags().First();
 			SkillInfoTag.EnemyNameTag=Enemy->EnemyNameTag;
 			
 			//SkillSubsystem에서 Multiplier를 찾는다.
-			UKOEnemySkillSubsystem* SkillSubsystem=UKOEnemySkillSubsystem::Get(Enemy);
+			UKOEnemyDataSubsystem* SkillSubsystem=UKOEnemyDataSubsystem::Get(Enemy);
 			if (SkillSubsystem!=nullptr)
 			{
 				DamageMultiplier=SkillSubsystem->GetSkillData(SkillInfoTag);
