@@ -66,3 +66,9 @@ FKOEffectContext UKOAttributeSetBase::CacheEffectContext(const FGameplayEffectMo
 	
 	return Context; 
 }
+
+AActor* UKOAttributeSetBase::GetAvatarActor() const
+{
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	return ASC ? ASC->GetAvatarActor() : nullptr;
+}

@@ -26,6 +26,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_CornerBelt);
 	/** 압력 파이프 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PressurePipe);
+	/** 압연기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_RollingMill);
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
@@ -64,4 +66,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
 	/** 청동검 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzeSword);
+	/** 기초 화약 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicGunpowder);
+	/** 구리판 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_CopperPlate);
+	/** 황 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sulfur);
 }

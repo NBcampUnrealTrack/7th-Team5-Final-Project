@@ -30,6 +30,7 @@ protected:
 		bool bWasCancelled
 	) override;
 	
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
     

@@ -70,11 +70,13 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> NetworkProductionText;
 
+    /**
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> InputBufferText;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> OutputBufferText;
+    */
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UPanelWidget> InputSlotsPanel;

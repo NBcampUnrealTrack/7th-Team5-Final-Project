@@ -1,5 +1,4 @@
 ﻿#include "KOCharacterBase.h"
-#include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Component/Movement/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,18 +23,19 @@ UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
 void AKOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	
 }
 
-void AKOCharacterBase::OnCharacterDead()
+void AKOCharacterBase::OnCharacterDead(AActor* DeathInstigator)
 {
-	// TODO: GMS로 연결 (BeginPlay) 
+	KO_LOG(Combat, Warning, TEXT("[%s] is Dead.      Instigator : [%s]"),
+		*GetName(),
+		DeathInstigator ? *DeathInstigator->GetName() : TEXT("Unknown")
+	);
+	
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
 		CMC->DisableMovement();
 		CMC->StopMovementImmediately(); 
 	}
-	
 }
 
