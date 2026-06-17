@@ -4,6 +4,7 @@
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 #include "KOGA_Charge_Attack_Base.generated.h"
 
+class UAbilityTask_PlayMontageAndWait;
 
 UCLASS()
 class KARON_API UKOGA_Charge_Attack_Base : public UKOGameplayAbilityBase
@@ -31,10 +32,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge|Animation")
 	UAnimMontage* ChargeMontage;
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge|Time")
 	float MaxChargeTime;
 	
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Charge|Time")
 	float ChargeTickRate;
 	
 	virtual void ExecuteAttack(float ChargePercentage);
