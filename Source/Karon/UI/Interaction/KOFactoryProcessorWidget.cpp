@@ -424,7 +424,8 @@ void UKOFactoryProcessorWidget::RefreshEventDriven()
     {
         StateText->SetText(StateToText(Proc->GetState()));
     }
-
+    
+    /*
     if (InputBufferText)
     {
         InputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetInputBuffer())));
@@ -434,7 +435,8 @@ void UKOFactoryProcessorWidget::RefreshEventDriven()
     {
         OutputBufferText->SetText(FText::FromString(BufferToString(this, Proc->GetOutputBuffer())));
     }
-
+    */
+    
     RefreshIOSlots();
 }
 
