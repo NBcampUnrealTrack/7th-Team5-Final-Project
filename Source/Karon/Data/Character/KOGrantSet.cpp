@@ -35,7 +35,7 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 
 		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
 
-		KO_LOG(GAS, Log, TEXT("[Passive] Ability  | %-30s | Lv.%d "),
+		KO_LOG(GAS, Log, TEXT("[Passive] Ability   | %-30s | Lv.%d "),
 			*Spec.Ability->GetName(), Entry.AbilityLevel
 		);
 	}

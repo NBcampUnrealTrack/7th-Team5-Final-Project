@@ -95,8 +95,7 @@ void AKOHeroCharacter::OnCharacterDead(AActor* DeathInstigator)
 
 bool AKOHeroCharacter::IsLockOn() const
 {
-	return AbilitySystemComponent &&
-		AbilitySystemComponent->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn);
+	return AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn);
 }
 
 void AKOHeroCharacter::SetMotionWarpTarget(const FName& WarpTargetName)
