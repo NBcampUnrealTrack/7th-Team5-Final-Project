@@ -36,6 +36,7 @@ protected:
 		bool bWasCancelled
 		) override;
 	
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 	UFUNCTION()
 	virtual void OnGameplayEventReceived(FGameplayEventData Payload);
 	
@@ -78,5 +79,5 @@ private:
 	UFUNCTION() void OnFallMontageCompleted();
 	UFUNCTION() void OnLandMontageCompleted();
 	void OnMontageCancelled();
-	UFUNCTION() void OnInputReleased(float TimeHeld); // 버튼 뗐을 때
+	
 };

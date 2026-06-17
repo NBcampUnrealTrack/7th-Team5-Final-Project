@@ -65,21 +65,13 @@ void UKOGA_Attack_Plunge::StartCharge()
     CurrentMontageTask->ReadyForActivation();
 
     // 버튼을 뗐을 때 감지하는 태스크
-    UAbilityTask_WaitInputRelease* ReleaseTask =
+    /*UAbilityTask_WaitInputRelease* ReleaseTask =
         UAbilityTask_WaitInputRelease::WaitInputRelease(this, true);
     ReleaseTask->OnRelease.AddDynamic(this, &UKOGA_Attack_Plunge::OnInputReleased);
-    ReleaseTask->ReadyForActivation();
+    ReleaseTask->ReadyForActivation();*/
 }
 
-// 버튼 뗌 → 차징 시간 계산 후 하강
-void UKOGA_Attack_Plunge::OnInputReleased(float TimeHeld)
-{
-    // 차징 비율 계산 (0.0 ~ 1.0)
-    ChargeRatio = FMath::Clamp(TimeHeld / MaxChargeTime, 0.f, 1.f);
-    UE_LOG(LogTemp, Warning, TEXT("차징 비율: %.2f"), ChargeRatio);
 
-    StartPlunge();
-}
 
 void UKOGA_Attack_Plunge::OnChargeMontageCompleted()
 {
@@ -211,4 +203,16 @@ void UKOGA_Attack_Plunge::EndAbility(
 
     bIsPlunging = false;
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UKOGA_Attack_Plunge::InputReleased(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+    Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+    
+    // 차징 비율 계산 (0.0 ~ 1.0)
+    //ChargeRatio = FMath::Clamp(TimeHeld / MaxChargeTime, 0.f, 1.f);
+    //UE_LOG(LogTemp, Warning, TEXT("차징 비율: %.2f"), ChargeRatio);
+
+    StartPlunge();
 }
