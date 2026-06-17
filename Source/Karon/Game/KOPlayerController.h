@@ -115,7 +115,7 @@ protected:
 	TObjectPtr<UKOMapUIComponent> MapUIComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
-	TObjectPtr<UKOSkillComponent> SkillComponent;
+	TObjectPtr<UKOSkillComponent> SkillComponent; //TODO : 서브시스템으로 전환 
 
 private:
 	bool bBuildIMCActive = false;

@@ -10,6 +10,8 @@ struct FKOSkillRow;
 class UKOLoadSubsystem;
 class UKOInventoryComponent;
 
+
+// 숙제 : 로컬 플레이어 서브 시스템으로 변경 
 UCLASS(ClassGroup= "KO|Skill", meta=(BlueprintSpawnableComponent))
 class KARON_API UKOSkillComponent : public UActorComponent
 {
