@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/Ability/Attack/KOGA_Attack_PlungeCharge.h"
+#include "AbilitySystem/Ability/Attack/KOGA_Attack_Plunge.h"
 #include "NativeGameplayTags.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
@@ -11,7 +11,7 @@
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Ability_Attack_Plunge, "Input.Ability.Attack.Plunge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Plunge_Land,           "Event.Plunge.Land");
 
-UKOGA_Attack_PlungeCharge::UKOGA_Attack_PlungeCharge()
+UKOGA_Attack_Plunge::UKOGA_Attack_Plunge()
 {
     SetAssetTags(FGameplayTagContainer(TAG_Input_Ability_Attack_Plunge));
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -20,7 +20,7 @@ UKOGA_Attack_PlungeCharge::UKOGA_Attack_PlungeCharge()
 
 // 진입점
 
-void UKOGA_Attack_PlungeCharge::ActivateAbility(
+void UKOGA_Attack_Plunge::ActivateAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo,
@@ -46,7 +46,7 @@ void UKOGA_Attack_PlungeCharge::ActivateAbility(
 
 // 페이즈 1: 차징
 
-void UKOGA_Attack_PlungeCharge::StartCharge()
+void UKOGA_Attack_Plunge::StartCharge()
 {
     if (!ChargeMontage)
     {
@@ -59,20 +59,20 @@ void UKOGA_Attack_PlungeCharge::StartCharge()
     CurrentMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, ChargeMontage, 1.0f
     );
-    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnChargeMontageCompleted);
-    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
-    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
+    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnChargeMontageCompleted);
+    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
+    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->ReadyForActivation();
 
     // 버튼을 뗐을 때 감지하는 태스크
     UAbilityTask_WaitInputRelease* ReleaseTask =
         UAbilityTask_WaitInputRelease::WaitInputRelease(this, true);
-    ReleaseTask->OnRelease.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnInputReleased);
+    ReleaseTask->OnRelease.AddDynamic(this, &UKOGA_Attack_Plunge::OnInputReleased);
     ReleaseTask->ReadyForActivation();
 }
 
 // 버튼 뗌 → 차징 시간 계산 후 하강
-void UKOGA_Attack_PlungeCharge::OnInputReleased(float TimeHeld)
+void UKOGA_Attack_Plunge::OnInputReleased(float TimeHeld)
 {
     // 차징 비율 계산 (0.0 ~ 1.0)
     ChargeRatio = FMath::Clamp(TimeHeld / MaxChargeTime, 0.f, 1.f);
@@ -81,7 +81,7 @@ void UKOGA_Attack_PlungeCharge::OnInputReleased(float TimeHeld)
     StartPlunge();
 }
 
-void UKOGA_Attack_PlungeCharge::OnChargeMontageCompleted()
+void UKOGA_Attack_Plunge::OnChargeMontageCompleted()
 {
     // 차징 몽타주가 끝까지 재생됨 = 풀차징
     ChargeRatio = 1.0f;
@@ -91,7 +91,7 @@ void UKOGA_Attack_PlungeCharge::OnChargeMontageCompleted()
 
 // 페이즈 2: 하강
 
-void UKOGA_Attack_PlungeCharge::StartPlunge()
+void UKOGA_Attack_Plunge::StartPlunge()
 {
     bIsPlunging = true;
 
@@ -114,13 +114,13 @@ void UKOGA_Attack_PlungeCharge::StartPlunge()
     CurrentMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, FallMontage, 1.0f
     );
-    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnFallMontageCompleted);
-    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
-    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
+    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnFallMontageCompleted);
+    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
+    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->ReadyForActivation();
 }
 
-void UKOGA_Attack_PlungeCharge::OnFallMontageCompleted()
+void UKOGA_Attack_Plunge::OnFallMontageCompleted()
 {
     StartLanding();
 }
@@ -128,7 +128,7 @@ void UKOGA_Attack_PlungeCharge::OnFallMontageCompleted()
 
 // 페이즈 3: 착지 충격
 
-void UKOGA_Attack_PlungeCharge::StartLanding()
+void UKOGA_Attack_Plunge::StartLanding()
 {
     // 중력 복구
     ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
@@ -146,9 +146,9 @@ void UKOGA_Attack_PlungeCharge::StartLanding()
     CurrentMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, LandMontage, 1.0f
     );
-    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnLandMontageCompleted);
-    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
-    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_PlungeCharge::OnMontageCancelled);
+    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnLandMontageCompleted);
+    CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
+    CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->ReadyForActivation();
     // 착지 애니에 AnimNotify_GameplayEvent("Event.Plunge.Land") 추가해놔야
     // OnGameplayEventReceived에서 피해 처리가 됨
@@ -157,7 +157,7 @@ void UKOGA_Attack_PlungeCharge::StartLanding()
 
 // 이벤트 수신 (착지 Notify → 피해 처리)
 
-void UKOGA_Attack_PlungeCharge::OnGameplayEventReceived(FGameplayEventData Payload)
+void UKOGA_Attack_Plunge::OnGameplayEventReceived(FGameplayEventData Payload)
 {
     if (Payload.EventTag == TAG_Event_Plunge_Land)
     {
@@ -175,17 +175,17 @@ void UKOGA_Attack_PlungeCharge::OnGameplayEventReceived(FGameplayEventData Paylo
 
 // 정리
 
-void UKOGA_Attack_PlungeCharge::OnLandMontageCompleted()
+void UKOGA_Attack_Plunge::OnLandMontageCompleted()
 {
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void UKOGA_Attack_PlungeCharge::OnMontageCancelled()
+void UKOGA_Attack_Plunge::OnMontageCancelled()
 {
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
-void UKOGA_Attack_PlungeCharge::EndAbility(
+void UKOGA_Attack_Plunge::EndAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo,

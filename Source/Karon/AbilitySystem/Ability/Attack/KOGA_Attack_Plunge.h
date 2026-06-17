@@ -7,18 +7,18 @@
 #include "NativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
-#include "KOGA_Attack_PlungeCharge.generated.h"
+#include "KOGA_Attack_Plunge.generated.h"
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Input_Ability_Attack_Plunge);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Plunge_Land);
 
 UCLASS()
-class KARON_API UKOGA_Attack_PlungeCharge : public UKOGA_AttackBase
+class KARON_API UKOGA_Attack_Plunge : public UKOGA_AttackBase
 {
 	GENERATED_BODY()
 	
 public:
-	UKOGA_Attack_PlungeCharge();
+	UKOGA_Attack_Plunge();
 	
 protected:
 	virtual void ActivateAbility(
