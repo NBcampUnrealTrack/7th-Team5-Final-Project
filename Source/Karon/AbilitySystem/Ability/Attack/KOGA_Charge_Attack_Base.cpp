@@ -33,13 +33,15 @@ void UKOGA_Charge_Attack_Base::ActivateAbility(
 			ChargeMontage,
 			1.0f,
 			NAME_None,
-			false
+			true
 		);
 		
 		if (ChargeMontageTask)
 		{
 			ChargeMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::UKOGA_Charge_Attack_Base::OnChargeMontageInterrupted);
 			ChargeMontageTask->OnCancelled.AddDynamic(this, &ThisClass::UKOGA_Charge_Attack_Base::OnChargeMontageInterrupted);
+			ChargeMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
+			ChargeMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
 			ChargeMontageTask->ReadyForActivation();
 		}
 	}
@@ -73,6 +75,7 @@ void UKOGA_Charge_Attack_Base::ExecuteAttack(float ChargePercentage)
 	// TODO:  
 	// 예: 최소 데미지는 보장하되(30%), 차징 비율에 따라 최대 100%까지 증가
 	// float DamageMultiplier = 0.3f + (ChargePercentage * 0.7f);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void UKOGA_Charge_Attack_Base::InputReleased(
@@ -107,8 +110,15 @@ void UKOGA_Charge_Attack_Base::OnChargeTick()
 	
 	if (CurrentChargeTime >= MaxChargeTime)
 	{
-		StopCharging();
-		ExecuteAttack(1.0f);
+		// StopCharging();
+		// ExecuteAttack(1.0f);
+		CurrentChargeTime = MaxChargeTime;
+		
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->GetTimerManager().ClearTimer(ChargeTimerHandle);
+		}
 	}
 }
 
