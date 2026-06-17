@@ -98,7 +98,7 @@ private:
     TWeakObjectPtr<UKOInventoryComponent> CachedInventory;
     
     UPROPERTY()
-    int32 CraftCount = MinCraftCount;
+    int32 CraftCount = 1;
     
     UPROPERTY()
     int32 MinCraftCount = 1;
