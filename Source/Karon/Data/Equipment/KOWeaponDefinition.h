@@ -25,14 +25,6 @@ class KARON_API UKOWeaponDefinition : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	// 장착 슬롯 (Weapon.Slot.Primary 등)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Slot")
-	FGameplayTag SlotTag;
-
-	// 애니 레이어 전환용 (Weapon.Type.Sword 등)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Type")
-	FGameplayTag WeaponTypeTag;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Type")
 	FName WeaponName = NAME_None;
 
@@ -41,22 +33,31 @@ public:
 	TSoftObjectPtr<UStaticMesh> WeaponMesh;
 
 	// 뽑은 상태: 손 소켓 (예: "hand_r")
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Visuals")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
 	FName EquipSocket = TEXT("hand_r");
 
 	// 넣은 상태: 칼집/등 소켓 (예: "spine_02")
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Visuals")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
 	FName UnEquipSocket = TEXT("spine_02");
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
+	FName GripSocket = TEXT("grip"); 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket | Trace")
+	FName TraceStartSocket = TEXT("TraceStart");
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket | Trace")
+	FName TraceEndSocket = TEXT("TraceStart");
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Stats")
 	FWeaponBaseStats BaseStats;
 
 	// 장착 시 부여할 어빌리티, GE 묶음
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|GAS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon| Grant")
 	TObjectPtr<UKOGrantSet> GrantedSet;
 
 	// 뽑기 몽타주 (칼집 → 손)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation | Montage")
 	TObjectPtr<UAnimMontage> DrawMontage;
 
 	// 넣기 몽타주 (손 → 칼집)

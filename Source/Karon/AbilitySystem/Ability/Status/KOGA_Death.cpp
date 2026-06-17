@@ -53,10 +53,10 @@ void UKOGA_Death::ActivateAbility(
 	{
 		UAbilityTask_PlayMontageAndWait* Task = 
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.0f,
+				this,
+				NAME_None,
+				Montage,
+				1.0f,
 			NAME_None,
 			true
 			);
@@ -80,19 +80,9 @@ void UKOGA_Death::ActivateAbility(
 
 void UKOGA_Death::OnMontageCompleted()
 {
-	AActor* AvatarActor = CurrentActorInfo ? CurrentActorInfo->AvatarActor.Get() : nullptr;
-	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
-	
-	UE_LOG(LogTemp, Warning, TEXT("AvatarActor: %s"), *GetNameSafe(AvatarActor));
-	UE_LOG(LogTemp, Warning, TEXT("Character: %s"), *GetNameSafe(Character));
-	
-	if (Character)
+	if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
 	{
 		Character->OnCharacterDead(CachedInstigator.Get());
-	}
-	else
-	{
-		KO_LOG(GAS, Warning, TEXT("Character is Null."));
 	}
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
