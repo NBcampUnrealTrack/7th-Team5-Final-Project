@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
 class UGameplayAbility;
@@ -254,4 +255,28 @@ struct KARON_API FKOSkillExecutionRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Passive",
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
     float StatModifierValue;
+};
+USTRUCT(BlueprintType)
+struct FKOEnemySkillRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemySkillInfo SkillInfo;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SkillMultiplier=1.f;
+};
+USTRUCT(BlueprintType)
+struct FKOEnemyDataRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyNameLevelInfo NameLevelData;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyInfo EnemyInfo;
 };
