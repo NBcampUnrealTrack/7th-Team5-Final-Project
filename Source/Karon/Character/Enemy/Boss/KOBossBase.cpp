@@ -11,7 +11,6 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
-#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -37,7 +36,7 @@ void AKOBossBase::NotifyPlayerDetected()
 	}
 
 	bPlayerDetected = true;
-	OnBossDetectedPlayer.Broadcast();
+	OnBossDetectedPlayer.Broadcast(this);
 }
 
 void AKOBossBase::NotifyDeathAnimEnd()
@@ -85,6 +84,7 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
  
 	if (NewVal <= 0.f)
 	{
+		OnBossDied.Broadcast();
 		OnBossDeath();
 		return;
 	}

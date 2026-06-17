@@ -4,15 +4,18 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
 
+
 struct FOnAttributeChangeData;
 struct FStreamableHandle;
+class AKOBossBase;
 class UKOCombatSet;
 class UKOBossDataAsset;
 class UStreamableHandle;
  
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
-DECLARE_MULTICAST_DELEGATE(FOnBossDetectedPlayer);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDetectedPlayer, AKOBossBase*);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
+DECLARE_MULTICAST_DELEGATE(FOnBossDied);
  
 UCLASS()
 class KARON_API AKOBossBase : public AKOCharacterBase
@@ -30,6 +33,7 @@ public:
 	FOnBossReady OnBossReady;
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
+	FOnBossDied OnBossDied;
 	
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
