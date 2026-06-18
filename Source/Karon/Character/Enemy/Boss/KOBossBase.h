@@ -4,15 +4,18 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
 
+
 struct FOnAttributeChangeData;
 struct FStreamableHandle;
+class AKOBossBase;
 class UKOCombatSet;
 class UKOBossDataAsset;
 class UStreamableHandle;
  
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
-DECLARE_MULTICAST_DELEGATE(FOnBossDetectedPlayer);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDetectedPlayer, AKOBossBase*);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
+DECLARE_MULTICAST_DELEGATE(FOnBossDied);
  
 UCLASS()
 class KARON_API AKOBossBase : public AKOCharacterBase
@@ -30,6 +33,7 @@ public:
 	FOnBossReady OnBossReady;
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
+	FOnBossDied OnBossDied;
 	
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
@@ -60,9 +64,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTest")
 	TObjectPtr<UKOBossDataAsset> DefaultDataAsset;
 	
-	// 기믹 준비 체력 비율 (여러 구간에서 사용할 수 있도록 수정예정)
+	// 기믹 준비 체력 비율
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss | Gimmick")
-	float GimmickReadyRatio = 0.9f;
+	TArray<float> GimmickReadyRatios = {0.5f, 0.15f};
  
 private:
 	TSharedPtr<FStreamableHandle> StreamableHandle;
@@ -81,6 +85,8 @@ public:
  
 private:
 	bool bPhase2Triggered = false;
+	
+	TArray<float> FiredGimmickRatios;
  
 	// 델리게이트 콜백 함수
 	UFUNCTION()

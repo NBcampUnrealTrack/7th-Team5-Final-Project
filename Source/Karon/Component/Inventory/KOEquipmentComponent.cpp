@@ -58,6 +58,12 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 	{
 		Def->GrantedSet->GiveToAsc(ASC, ActiveHandles);
 	}
+	
+	FTransform WeaponSocketLocal = NewWeapon->GetMesh()->GetSocketTransform(
+		Def->GripSocket,
+		ERelativeTransformSpace::RTS_Component
+	);
+	NewWeapon->SetActorRelativeTransform(WeaponSocketLocal.Inverse());
 
 	CurrentWeaponActor = NewWeapon;
 	CurrentWeaponConfig = Def;

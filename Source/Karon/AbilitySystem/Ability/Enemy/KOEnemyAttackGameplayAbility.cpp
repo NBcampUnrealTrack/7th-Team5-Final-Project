@@ -5,6 +5,7 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 
 UKOEnemyAttackGameplayAbility::UKOEnemyAttackGameplayAbility()
 {
@@ -149,8 +150,19 @@ void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGamep
 		
 		
 		//공격자의 총합 데미지
-		//TODO: 스킬데미지 공격력에 비례해 적용
-		float SkillFinalDamage = CombatSet->GetAttackPower();
+		AActor* AvatarActor = GetAvatarActorFromActorInfo();
+		AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(AvatarActor);
+		float SkillMultiplier=1.f;
+		UKOEnemyDataSubsystem* SkillSubsystem=UKOEnemyDataSubsystem::Get(this);
+		if (SkillSubsystem!=nullptr&&AssetTag!=FGameplayTag::EmptyTag&&Enemy!=nullptr)
+		{
+			FEnemySkillInfo SkillInfo;
+			SkillInfo.SkillTag=AssetTag;
+			SkillInfo.EnemyNameTag=Enemy->EnemyNameTag;
+			SkillMultiplier=SkillSubsystem->GetSkillData(SkillInfo);
+		}
+		UE_LOG(LogTemp,Warning,TEXT("%f"),SkillMultiplier);
+		float SkillFinalDamage = CombatSet->GetAttackPower()*SkillMultiplier;
 
 		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, SkillFinalDamage);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);

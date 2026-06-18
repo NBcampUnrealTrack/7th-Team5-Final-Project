@@ -41,6 +41,8 @@ protected:
 	
 	FKOEffectContext CacheEffectContext(const FGameplayEffectModCallbackData& Data);
 	
+	AActor* GetAvatarActor() const;
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debug")
 	float MinLogThreshold = 1.f;

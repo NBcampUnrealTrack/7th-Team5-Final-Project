@@ -15,4 +15,9 @@ void UAbilityTask_Tick::Activate()
 void UAbilityTask_Tick::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
+	
+	if (ShouldBroadcastAbilityTaskDelegates())
+	{
+		OnTick.Broadcast(DeltaTime);
+	}
 }

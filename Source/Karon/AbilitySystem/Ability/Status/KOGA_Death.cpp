@@ -3,7 +3,9 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/KOCharacterBase.h"
 #include "GameFramework/Character.h"
+#include "Utility/Log/KOLogManager.h"
 
 UKOGA_Death::UKOGA_Death()
 {
@@ -38,20 +40,23 @@ void UKOGA_Death::ActivateAbility(
 	}
 	
 	// 어빌리티 캔슬 
-	ASC->CancelAllAbilities(); 
+	ASC->CancelAllAbilities(this); 
 	
 	// GE_Death 적용
 	if (GE_Death) ApplyEffectToSelf(GE_Death); 
+	
+	if (TriggerEventData)
+		CachedInstigator = const_cast<AActor*>(TriggerEventData->Instigator.Get());
 	
 	// 몽타주 재생 
 	if (Montage)
 	{
 		UAbilityTask_PlayMontageAndWait* Task = 
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.0f,
+				this,
+				NAME_None,
+				Montage,
+				1.0f,
 			NAME_None,
 			true
 			);
@@ -75,5 +80,10 @@ void UKOGA_Death::ActivateAbility(
 
 void UKOGA_Death::OnMontageCompleted()
 {
+	if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
+	{
+		Character->OnCharacterDead(CachedInstigator.Get());
+	}
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

@@ -15,10 +15,6 @@ AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
 void AKOBossChapter01::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 180.f, 0.f);
 }
 
 void AKOBossChapter01::OnBossInitialized()
@@ -95,7 +91,7 @@ void AKOBossChapter01::OnBossDeath()
 		}
 	}
 }
- 
+
 // 코어 개방
 void AKOBossChapter01::OpenCore()
 {

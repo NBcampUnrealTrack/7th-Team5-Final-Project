@@ -18,7 +18,7 @@ namespace KOGameplayTags
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundSlap, "Data.CoolTime.BossCH01.GroundSlap");
-	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_DoubleGroundHit, "Data.CoolTime.BossCH01.DoubleGroundHit");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_DoubleSweep, "Data.CoolTime.BossCH01.DoubleSweep");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundHitL, "Data.CoolTime.BossCH01.GroundHit");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_ShockWave, "Data.CoolTime.BossCH01.ShockWave");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_Dash, "Data.CoolTime.BossCH01.Dash");

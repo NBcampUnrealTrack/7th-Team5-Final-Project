@@ -31,7 +31,7 @@ namespace KOGameplayTags
 	
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundSlap, "State.BossCH01.Attack.GroundSlap");
-	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_DoubleGroundHit, "State.BossCH01.Attack.DoubleGroundHit");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_DoubleSweep, "State.BossCH01.Attack.DoubleSweep");
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundHitL, "State.BossCH01.Attack.GroundHitL");
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundHitR, "State.BossCH01.Attack.GroundHitR");
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_Shockwave, "State.BossCH01.Attack.Shockwave");

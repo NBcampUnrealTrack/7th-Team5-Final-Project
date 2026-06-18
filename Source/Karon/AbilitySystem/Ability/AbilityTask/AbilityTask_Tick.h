@@ -12,7 +12,6 @@ class KARON_API UAbilityTask_Tick : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-	
 	UPROPERTY(BlueprintAssignable)
     FOnTickDelegate OnTick;
     

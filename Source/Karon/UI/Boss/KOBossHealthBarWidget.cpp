@@ -2,14 +2,35 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
+#include "Animation/WidgetAnimation.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Boss/KOBossDataAsset.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UKOBossHealthBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	SetVisibility(ESlateVisibility::Hidden);
+	
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(this, AKOBossBase::StaticClass(), Actors);
+	
+
+	for (AActor* Actor : Actors)
+	{
+		AKOBossBase* Boss = Cast<AKOBossBase>(Actor);
+		if (!Boss)
+		{
+			continue;
+		}
+
+		Boss->OnBossDetectedPlayer.AddUObject(this, &UKOBossHealthBarWidget::OnBossDetected);
+
+		Boss->OnBossDied.AddUObject(this, &UKOBossHealthBarWidget::OnBossDiedCallback);
+	}
 }
 
 void UKOBossHealthBarWidget::NativeDestruct()
@@ -28,6 +49,79 @@ void UKOBossHealthBarWidget::NativeDestruct()
 	}
 	
 	Super::NativeDestruct();
+}
+
+void UKOBossHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (!BossHealthYellow || MaxHP <= 0.f)
+	{
+		return;
+	}
+	if (YellowHP <= CurrentHP)
+	{
+		return;
+	}
+
+	if (!bYellowDecreasing)
+	{
+		TimeSinceLastHit += InDeltaTime;
+		if (TimeSinceLastHit >= YellowDelayTime)
+		{
+			bYellowDecreasing = true;
+		}
+	}
+	else
+	{
+		YellowHP = FMath::FInterpConstantTo(YellowHP, CurrentHP, InDeltaTime, MaxHP * YellowDecreaseSpeed);
+
+		BossHealthYellow->SetPercent(FMath::Clamp(YellowHP / MaxHP, 0.f, 1.f));
+
+		if (FMath::IsNearlyEqual(YellowHP, CurrentHP, 0.1f))
+		{
+			YellowHP = CurrentHP;
+			bYellowDecreasing = false;
+		}
+	}
+}
+
+void UKOBossHealthBarWidget::OnBossDetected(AKOBossBase* DetectedBoss)
+{
+	if (!DetectedBoss)
+	{
+		return;
+	}
+	
+	SetBoss(DetectedBoss);
+	
+	SetVisibility(ESlateVisibility::Visible);
+	
+	if (FadeIn)
+	{
+		PlayAnimation(FadeIn);
+	}
+}
+
+void UKOBossHealthBarWidget::OnBossDiedCallback()
+{
+	BossRef = nullptr;
+	
+	if (FadeOut)
+	{
+		PlayAnimation(FadeOut);
+		GetWorld()->GetTimerManager().SetTimer(
+			FadeOutTimerHandle,
+			this,
+			&UKOBossHealthBarWidget::OnFadeOutFinished,
+			FadeOut->GetEndTime(),
+			false
+		);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UKOBossHealthBarWidget::SetBoss(AKOBossBase* InBoss)
@@ -49,43 +143,58 @@ void UKOBossHealthBarWidget::SetBoss(AKOBossBase* InBoss)
 		return;
 	}
 	
+	BossRef = InBoss;
+	MaxHP = HealthSet->GetMaxHealth();
+	CurrentHP = HealthSet->GetHealth();
+	YellowHP = CurrentHP;
+	TimeSinceLastHit = 0.f;
+	bYellowDecreasing = false;
+	
 	if (BossName && InBoss->GetDataAsset())
 	{
 		BossName->SetText(FText::FromName(InBoss->GetDataAsset()->BossName));
 	}
 	
 	HealthSet->OnHealthChanged.AddUniqueDynamic(this, &UKOBossHealthBarWidget::OnHealthChanged);
-	UpdateHealthBar(HealthSet->GetHealth(), HealthSet->GetMaxHealth());
+	if (BossHealth)
+	{
+		BossHealth->SetPercent(FMath::Clamp(CurrentHP / MaxHP, 0.f, 1.f));
+	}
+
+	if (BossHealthYellow)
+	{
+		BossHealthYellow->SetPercent(FMath::Clamp(CurrentHP / MaxHP, 0.f, 1.f));
+	}
 }
 
 void UKOBossHealthBarWidget::OnHealthChanged(float OldVal, float NewVal)
 {
-	if (!BossRef)
+	if (!BossRef || MaxHP <= 0.f)
 	{
 		return;
 	}
- 
-	UAbilitySystemComponent* ASC = BossRef->GetAbilitySystemComponent();
-	if (!ASC)
+
+	CurrentHP = NewVal;
+	if (BossHealth)
 	{
-		return;
+		BossHealth->SetPercent(FMath::Clamp(CurrentHP / MaxHP, 0.f, 1.f));
 	}
  
-	const UKOHealthSet* HealthSet = ASC->GetSet<UKOHealthSet>();
-	if (!HealthSet)
-	{
-		return;
-	}
- 
-	UpdateHealthBar(NewVal, HealthSet->GetMaxHealth());
+	TimeSinceLastHit = 0.f;
+	bYellowDecreasing = false;
 }
 
 void UKOBossHealthBarWidget::UpdateHealthBar(float Current, float Max)
 {
-	if (!BossHealth || Max <= 0.f)
+	if (Max <= 0.f) { return; }
+	
+	if (BossHealth)
 	{
-		return;
+		BossHealth->SetPercent(FMath::Clamp(Current / Max, 0.f, 1.f));
 	}
- 
-	BossHealth->SetPercent(Current / Max);
+}
+
+void UKOBossHealthBarWidget::OnFadeOutFinished()
+{
+	SetVisibility(ESlateVisibility::Hidden);
 }

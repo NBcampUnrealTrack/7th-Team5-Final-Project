@@ -9,8 +9,10 @@
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
 #include "MotionWarpingComponent.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Game/KOGameMode.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -39,9 +41,6 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	Trajectory->PrimaryComponentTick.AddPrerequisite(
 		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
-	
-	// StaminaSet = CreateDefaultSubobject<UKOStaminaSet>(FName("StaminaSet"));
-	// CombatSet = CreateDefaultSubobject<UKOCombatSet>(FName("CombatSet"));
 	
 	//현석 : Enemy에서 SphereTrace를 위해 PlayerChannel 콜리전 Block 설정
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Player, ECollisionResponse::ECR_Block);
@@ -82,6 +81,21 @@ void AKOHeroCharacter::Tick(float DeltaTime)
 	{
 		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, false);
 	}
+}
+
+void AKOHeroCharacter::OnCharacterDead(AActor* DeathInstigator)
+{
+	Super::OnCharacterDead(DeathInstigator);
+	
+	AKOGameMode* GM = GetWorld()->GetAuthGameMode<AKOGameMode>();
+	if (!GM) return;
+	
+	GM->HandlePlayerDeath(DeathInstigator);
+}
+
+bool AKOHeroCharacter::IsLockOn() const
+{
+	return AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn);
 }
 
 void AKOHeroCharacter::SetMotionWarpTarget(const FName& WarpTargetName)

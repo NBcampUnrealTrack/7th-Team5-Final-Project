@@ -16,6 +16,8 @@ public:
 	AKOWeaponBase();
 
 	void InitializeWeapon(const UKOWeaponDefinition* Def);
+	
+	UStaticMeshComponent* GetMesh() const { return Mesh; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

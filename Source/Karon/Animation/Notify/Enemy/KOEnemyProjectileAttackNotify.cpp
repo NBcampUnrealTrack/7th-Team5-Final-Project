@@ -3,9 +3,13 @@
 
 #include "KOEnemyProjectileAttackNotify.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
+#include "Data/Type/KOEnemyType.h"
 #include "Game/KOProjectilePoolSubsystem.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 
 UKOEnemyProjectileAttackNotify::UKOEnemyProjectileAttackNotify()
 {
@@ -35,7 +39,6 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 		return;
 	}
 	
-	
 	//발사체의 위치와 방향을 세팅합니다.
 	FVector ProjectileLocation = Enemy->GetSocketLocation()+MeshComp->GetOwner()->GetActorForwardVector()*50.f;
 
@@ -54,7 +57,34 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 		{
 			EnemyProjectile->SetActorTransform(ProjectileTransform);
 			UE_LOG(LogTemp,Warning,TEXT("%s"),*ProjectileTransform.GetLocation().ToString());
-			//TODO: 스킬 계수는 DeveloperSetting DT로 설정
+			
+			//현재 활성화된 GA를 가져온다,
+			UAbilitySystemComponent* AbilitySystemComponent = Enemy->GetAbilitySystemComponent();
+			if (!AbilitySystemComponent)
+			{
+				return;
+			}
+			UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
+				AbilitySystemComponent->GetAnimatingAbility());
+			if (!EnemyGA)
+			{
+				return;
+			}
+			//GA에서 AssetTag, Enemy에서 EnemyNameTag를 가져와 세팅한다.
+			FEnemySkillInfo SkillInfoTag;
+			
+			SkillInfoTag.SkillTag=EnemyGA->GetAssetTags().First();
+			SkillInfoTag.EnemyNameTag=Enemy->EnemyNameTag;
+			
+			//SkillSubsystem에서 Multiplier를 찾는다.
+			UKOEnemyDataSubsystem* SkillSubsystem=UKOEnemyDataSubsystem::Get(Enemy);
+			if (SkillSubsystem!=nullptr)
+			{
+				DamageMultiplier=SkillSubsystem->GetSkillData(SkillInfoTag);
+			}
+			
+			UE_LOG(LogTemp,Warning,TEXT("%f"),DamageMultiplier);
+			//노티파이 순간의 Enemy의 AttackPoint, DamageMultiplier를 세팅한다. 
 			EnemyProjectile->SetProjectile(Enemy,Enemy->GetAttackPoint(),DamageMultiplier);
 			EnemyProjectile->SetActiveAndCollision(true);
 		}

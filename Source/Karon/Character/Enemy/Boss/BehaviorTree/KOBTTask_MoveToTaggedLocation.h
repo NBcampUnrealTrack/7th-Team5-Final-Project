@@ -34,6 +34,10 @@ protected:
  
 	UPROPERTY(EditAnywhere, Category = "Move")
 	float AcceptanceRadius = 50.f;
+	
+	// 기믹 이동 속도 (0이면 속도 변경 없음)
+	UPROPERTY(EditAnywhere, Category = "Move")
+	float GimmickMoveSpeed = 0.f;
  
 private:
 	UFUNCTION()
@@ -44,4 +48,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
+	
+	float OriginalSpeed;
+	
 };
