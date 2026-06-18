@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "KOEnemyProjectileActor.generated.h"
+class UNiagaraComponent;
 class UGameplayEffect;
 class UProjectileMovementComponent;
 class USphereComponent;
@@ -61,6 +62,8 @@ private:
 	UPROPERTY()
 	FTimerHandle TimerHandle;
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UNiagaraComponent> TrailEffectComponent;
 	
 	float ProjectileDamage=0.0f;	
 };

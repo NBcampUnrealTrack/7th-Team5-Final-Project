@@ -138,13 +138,11 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 	if (ImpactEffect)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ImpactEffect: %s"), *ImpactEffect->GetName());
-		//FVector SpawnLocation = HitResult.ImpactPoint + HitResult.ImpactNormal * 5.f;
-		FVector SpawnLocation =Enemy->GetActorLocation() + FVector(0, 0, 100.f);
-		//FRotator SpawnRotation = HitResult.ImpactNormal.Rotation(); 
+		FVector SpawnLocation = HitResult.ImpactPoint;
 		FRotator SpawnRotation = FRotator::ZeroRotator;
 
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
+			Enemy->GetWorld(),
 			ImpactEffect,
 			SpawnLocation,
 			SpawnRotation,

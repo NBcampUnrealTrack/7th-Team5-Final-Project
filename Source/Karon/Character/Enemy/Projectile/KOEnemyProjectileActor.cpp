@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
+#include "NiagaraComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Hero/KOHeroCharacter.h"
@@ -38,6 +39,10 @@ AKOEnemyProjectileActor::AKOEnemyProjectileActor()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	
+	//나이아가라 컴포넌트 생성
+	TrailEffectComponent=CreateDefaultSubobject<UNiagaraComponent>("TrailEffectComponent");
+	TrailEffectComponent->SetupAttachment(SphereComponent);
+	TrailEffectComponent->bAutoActivate = false;
 	
 	//풀링 대기로 멈춰있는다.
 	ProjectileMovementComponent->bAutoActivate= false;	
@@ -106,6 +111,8 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 	Enemy=InEnemy;
 	SetActorScale3D(InEnemy->ProjectileScale);
 	ProjectileStaticMesh->SetStaticMesh(InEnemy->ProjectileMesh);
+	TrailEffectComponent->SetAsset(InEnemy->ImpactEffect);
+	TrailEffectComponent->Activate(true);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
 	ProjectileDamage=AttackPoint*DamageMultiplier;
 }
@@ -155,6 +162,8 @@ void AKOEnemyProjectileActor::ReturnToPool()
 		//Owner를 비워준다.
 		SetOwner(nullptr);
 		ProjectileStaticMesh->SetStaticMesh(nullptr);
+		TrailEffectComponent->SetAsset(nullptr);
+		TrailEffectComponent->Activate(false);
 		SphereComponent->IgnoreActorWhenMoving(Enemy,false);
 		GetWorld()->GetSubsystem<UKOProjectilePoolSubsystem>()->ReturnToPool(this);
 	}

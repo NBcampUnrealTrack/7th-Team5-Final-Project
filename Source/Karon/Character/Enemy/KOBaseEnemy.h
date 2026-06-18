@@ -6,6 +6,7 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+
 class UKOEnemyDataSubsystem;
 class UGameplayEffect;
 class UWidgetComponent;
@@ -49,6 +50,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
 	
+	//Projectile
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMesh> ProjectileMesh;
 	
@@ -58,7 +60,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	FVector ProjectileScale=FVector(1.f,1.f,1.f);
 	
-	//TODO: PDA로 세팅
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	class UNiagaraSystem* ImpactEffect;
+	
+	
+	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackRadius=150.f;
 	
