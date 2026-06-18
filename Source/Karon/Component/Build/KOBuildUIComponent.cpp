@@ -21,6 +21,7 @@ void UKOBuildUIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//asdfasdf
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
 }
