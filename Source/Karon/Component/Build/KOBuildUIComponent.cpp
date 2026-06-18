@@ -23,6 +23,9 @@ void UKOBuildUIComponent::BeginPlay()
 
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
+	
+	
+	
 }
 
 APlayerController* UKOBuildUIComponent::GetOwningPlayerController() const
