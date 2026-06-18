@@ -16,14 +16,8 @@ public:
 	UKOGA_Attack_Light();
 	
 protected:
-	virtual bool CanActivateAbility(
-	   const FGameplayAbilitySpecHandle Handle,
-	   const FGameplayAbilityActorInfo* ActorInfo, 
-	   const FGameplayTagContainer* SourceTags,
-	   const FGameplayTagContainer* TargetTags, 
-	   FGameplayTagContainer* OptionalRelevantTags
-	) const override;
-	
+	// 수정 1 :  CanAbility 의미가 없음. (단순 캐릭터인지 확인만) 
+    	
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -43,8 +37,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Data")
 	FName WeaponRowName = FName("DefaultWeapon");
 	
-private:
+	// (캐릭터 -> EquipmentComp)-> WeaponData-> ? 
 	
+	// 콤보 데이터 테이블 - 무기 Def 통합 
+	
+private:
 	int32 CurrentComboIndex;
 	int32 MaxComboCount;
 	bool bIsComboQueued;

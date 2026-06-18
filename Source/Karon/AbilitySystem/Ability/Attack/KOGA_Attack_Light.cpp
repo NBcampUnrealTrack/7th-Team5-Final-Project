@@ -20,22 +20,6 @@ UKOGA_Attack_Light::UKOGA_Attack_Light()
 	ComboMontage = nullptr;
 }
 
-bool UKOGA_Attack_Light::CanActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags, 
-	FGameplayTagContainer* OptionalRelevantTags) const
-{
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-	{
-		return false;
-	}
-	
-	ACharacter* Character = GetAvatarCharacter();
-	
-	return Character != nullptr;
-}
 
 void UKOGA_Attack_Light::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -45,6 +29,13 @@ void UKOGA_Attack_Light::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	// 수정 2: 코드 순서 변경 : 어지간하면 커밋먼저 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character)
 	{
@@ -52,29 +43,46 @@ void UKOGA_Attack_Light::ActivateAbility(
 		return;
 	}
 	
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	// 수정 3: 콤보데이터 가 없으면 종료되지 않음. 
+	// if (ComboDataTable)
+	// {
+	// 	FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext"));
+	//        
+	// 	if (ComboData)
+	// 	{
+	// 		ComboMontage = ComboData->LightAttackMontage.Get();
+	// 		MaxComboCount = ComboData->MaxLightComboCount;
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("[%s] 데이터 테이블에서 '%s' 행을 찾을 수 없음"), *GetName(), *WeaponRowName.ToString());
+	// 		// 콤보 데이터가 없어도 어빌리티가 종료되지않음. 
+	// 	}
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName()); 
+	// 	// 데이터 테이블 없어도 어빌리티가 종료되지않음. 
+	// }
+	
+	if (!ComboDataTable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName()); 
+		
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	if (ComboDataTable)
+	if (FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext")))
 	{
-		FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext"));
-        
-		if (ComboData)
-		{
-			ComboMontage = ComboData->LightAttackMontage.Get();
-			MaxComboCount = ComboData->MaxLightComboCount;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[%s] 데이터 테이블에서 '%s' 행을 찾을 수 없음"), *GetName(), *WeaponRowName.ToString());
-		}
+		ComboMontage = ComboData->LightAttackMontage.Get();
+		MaxComboCount = ComboData->MaxLightComboCount;
 	}
-	else
+	
+	if (!ComboMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName());
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
 	}
 	
 	CurrentComboIndex = 1;
@@ -87,7 +95,8 @@ void UKOGA_Attack_Light::ActivateAbility(
 	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
 	HitTask->ReadyForActivation();
 	
-	FGameplayTag InputEnableTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.EnableInput"));
+	// 수정 4: 하드 코딩 제거 
+	FGameplayTag InputEnableTag = KOGameplayTags::Event_Combo_EnableInput; 
 	UAbilityTask_WaitGameplayEvent* InputEventTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, InputEnableTag);
 	if (InputEventTask)
@@ -96,7 +105,8 @@ void UKOGA_Attack_Light::ActivateAbility(
 		InputEventTask->ReadyForActivation();
 	}
 	
-	FGameplayTag ComboCheckTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.Check"));
+	// 수정 5: 하드 코딩 제거 
+	FGameplayTag ComboCheckTag = KOGameplayTags::Event_Combo_Check;
 	UAbilityTask_WaitGameplayEvent* ComboEventTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, ComboCheckTag);
 	if (ComboEventTask)
@@ -125,6 +135,11 @@ void UKOGA_Attack_Light::InputPressed(
 
 void UKOGA_Attack_Light::PlayNextComboSection()
 {
+	// 몽타주 1 섹션 -> 바인드 해제 다시 / 몽타주 2 섹션 -> 바인드 해제 / 다시 
+	// 바인드 -> 몽타주 재생 -> 섹션 2 -> 섹션 3? 
+	
+	
+	
 	if (CurrentMontageTask)
 	{
 		CurrentMontageTask->OnCompleted.RemoveDynamic(this, &ThisClass::OnMontageEnded);

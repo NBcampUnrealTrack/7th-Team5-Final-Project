@@ -13,7 +13,7 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
-protected:	
+public:	
 	// ─── Ability Life Cycle ───────────────────────────────────────────────────
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -30,11 +30,13 @@ protected:
 		bool bWasCancelled
 	) override;
 	
-	
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
     
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Event")
 	FGameplayTag AttackEventTag;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug")
+	bool bShowDebug = true; 
 };
