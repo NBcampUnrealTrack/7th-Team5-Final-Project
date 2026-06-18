@@ -51,15 +51,15 @@ void UKOGA_Movement_Jump::ActivateAbility(
 	}
 	
 	// 1. 락온 중인 경우 
-	if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn))
-	{
-		FGameplayTag EventTag = KOGameplayTags::Event_Movement_Jump_LockOn;
-		FGameplayEventData EventData;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Character, EventTag, EventData);
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
+	// if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn))
+	// {
+	// 	FGameplayTag EventTag = KOGameplayTags::Event_Movement_Jump_LockOn;
+	// 	FGameplayEventData EventData;
+	// 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Character, EventTag, EventData);
+	//
+	// 	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	// 	return;
+	// }
 	
 	// TODO: 
 	// 2. 파쿠르 

@@ -105,6 +105,9 @@ void UKOGA_Utility_LockOn::EndAbility(
 	{
 		DeactivateLockOn();
 	}
+	
+	// TODO: 임시로 쿨타임 
+	ApplyCooldown(Handle, ActorInfo, ActivationInfo);
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
