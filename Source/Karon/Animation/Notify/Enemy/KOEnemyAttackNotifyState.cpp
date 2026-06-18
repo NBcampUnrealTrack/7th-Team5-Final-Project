@@ -3,7 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Karon.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 
@@ -35,7 +35,7 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyBegin(FBranchingPointNotifyP
 	{
 		return;
 	}
-	UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
+	UKOEnemyGameplayAbility* EnemyGA = Cast<UKOEnemyGameplayAbility>(
 		AbilitySystemComponent->GetAnimatingAbility());
 	if (EnemyGA)
 	{

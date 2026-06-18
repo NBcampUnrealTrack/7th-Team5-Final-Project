@@ -1,4 +1,4 @@
-﻿#include "KOEnemyAttackGameplayAbility.h"
+﻿#include "KOEnemyGameplayAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
@@ -7,12 +7,12 @@
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
 
-UKOEnemyAttackGameplayAbility::UKOEnemyAttackGameplayAbility()
+UKOEnemyGameplayAbility::UKOEnemyGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-bool UKOEnemyAttackGameplayAbility::CanActivateAbility(
+bool UKOEnemyGameplayAbility::CanActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, 
 	const FGameplayTagContainer* SourceTags,
@@ -22,7 +22,7 @@ bool UKOEnemyAttackGameplayAbility::CanActivateAbility(
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
-void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void UKOEnemyGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
@@ -39,6 +39,14 @@ void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	{
 		return;
 	}
+	
+	if (const UKOCombatSet* CombatSet=EnemyASC->GetSet<UKOCombatSet>())
+	{
+		SKillAttackSpeed=CombatSet->GetAttackSpeed();
+	}
+	
+	
+	
 	//Play Montage Task(비동기)
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -54,9 +62,9 @@ void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 	//Bind Delegate
-	PlayMontageTask->OnCompleted.AddDynamic(this, &UKOEnemyAttackGameplayAbility::OnMontageCompleted);
-	PlayMontageTask->OnCancelled.AddDynamic(this, &UKOEnemyAttackGameplayAbility::OnMontageCancelled);
-	PlayMontageTask->OnInterrupted.AddDynamic(this, &UKOEnemyAttackGameplayAbility::OnMontageCancelled);
+	PlayMontageTask->OnCompleted.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCompleted);
+	PlayMontageTask->OnCancelled.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCancelled);
+	PlayMontageTask->OnInterrupted.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCancelled);
 	// Task 활성화
 	PlayMontageTask->ReadyForActivation();
 	
@@ -64,7 +72,7 @@ void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this, KOGameplayTags::Event_SkillHit, nullptr, false, false);
 
-	WaitEventTask->EventReceived.AddDynamic(this, &UKOEnemyAttackGameplayAbility::OnNotifyHitEvent);
+	WaitEventTask->EventReceived.AddDynamic(this, &UKOEnemyGameplayAbility::OnNotifyHitEvent);
 	WaitEventTask->ReadyForActivation();
 
 	//GE_CoolDown 적용
@@ -84,14 +92,14 @@ void UKOEnemyAttackGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 }
 
-void UKOEnemyAttackGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+void UKOEnemyGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOEnemyAttackGameplayAbility::OnMontageCompleted()
+void UKOEnemyGameplayAbility::OnMontageCompleted()
 {
 	//Ability가 종료되었다는 것을 BT에도 전달
 	if (AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarActorFromActorInfo()))
@@ -101,12 +109,12 @@ void UKOEnemyAttackGameplayAbility::OnMontageCompleted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void UKOEnemyAttackGameplayAbility::OnMontageCancelled()
+void UKOEnemyGameplayAbility::OnMontageCancelled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
-void UKOEnemyAttackGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEventData)
+void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEventData)
 {
 	//맞은 플레이어의 ASI, ASC를 가져온다.
 	

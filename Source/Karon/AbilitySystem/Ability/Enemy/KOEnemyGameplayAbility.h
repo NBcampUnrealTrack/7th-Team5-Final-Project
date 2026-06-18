@@ -3,18 +3,18 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 
-#include "KOEnemyAttackGameplayAbility.generated.h"
+#include "KOEnemyGameplayAbility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KARON_API UKOEnemyAttackGameplayAbility : public UKOGameplayAbilityBase
+class KARON_API UKOEnemyGameplayAbility : public UKOGameplayAbilityBase
 {
 	GENERATED_BODY()
 	
 public:
-	UKOEnemyAttackGameplayAbility();
+	UKOEnemyGameplayAbility();
 	
 	virtual bool CanActivateAbility(
 		const FGameplayAbilitySpecHandle Handle, 

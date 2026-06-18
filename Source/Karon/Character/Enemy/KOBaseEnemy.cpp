@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 #include "UI/Enemy/KOEnemyHPBar.h"
 
 
@@ -22,8 +23,7 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	HealthSet=CreateDefaultSubobject<UKOHealthSet>(TEXT("HealthSet"));
 	MovementSet=CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
 	CombatSet=CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
-	//TODO: 공격력 DDD로 전환. 현재는 테스트용 공격력 10
-	CombatSet->InitAttackPower(10.f);
+
 	
 	//WeaponSkeletalMeshComponent 생성 및 부착
 	WeaponMeshComponent=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
@@ -36,11 +36,25 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	EnemyHPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
-void AKOBaseEnemy::SetupEnemy(UKOEnemyDataAsset)
+void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 {
-	//TODO: 비동기 로드한 데이터로 해당 Enemy에 값을 주입
-	//TODO: 무기도 여기서 설정
-	//TODO: 오브젝트풀로 돌릴때 무기 Mesh를 nullptr로 변경
+	if (DataSubsystem==nullptr)
+	{
+		return;
+	}
+	
+	FEnemyNameLevelInfo NameLevelInfo;
+	NameLevelInfo.EnemyNameTag=EnemyNameTag;
+	NameLevelInfo.Level=Level;
+	
+	if (FEnemyInfo* EnemyInfo=DataSubsystem->GetEnemyData(NameLevelInfo))
+	{
+		HealthSet->InitMaxHealth(EnemyInfo->Health);
+		HealthSet->InitHealth(EnemyInfo->Health);
+		CombatSet->InitAttackPower(EnemyInfo->AttackPower);
+		CombatSet->InitDefense(EnemyInfo->Defense);
+		CombatSet->InitAttackSpeed(EnemyInfo->AttackSpeed);
+	}
 }
 
 // Called when the game starts or when spawned

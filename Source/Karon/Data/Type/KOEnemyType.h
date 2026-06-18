@@ -62,7 +62,7 @@ struct FEnemyNameLevelInfo
 	FGameplayTag EnemyNameTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Level;
+	int32 Level;
 	
 	bool operator==(const FEnemyNameLevelInfo& Other) const
 	{
@@ -79,6 +79,9 @@ USTRUCT(BlueprintType)
 struct FEnemyInfo
 {
 	GENERATED_BODY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float Health;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float AttackPower;
 	

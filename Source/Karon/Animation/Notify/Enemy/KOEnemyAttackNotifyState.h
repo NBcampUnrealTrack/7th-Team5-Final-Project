@@ -4,7 +4,7 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "KOEnemyAttackNotifyState.generated.h"
 
-class UKOEnemyAttackGameplayAbility;
+class UKOEnemyGameplayAbility;
 
 UCLASS()
 class KARON_API UKOEnemyAttackNotifyState : public UAnimNotifyState
@@ -28,5 +28,5 @@ private:
 	//소켓이름
 	FName SocketName=FName("Socket");
 	UPROPERTY()
-	TMap<USkeletalMeshComponent*,UKOEnemyAttackGameplayAbility*> CachedAbilities;
+	TMap<USkeletalMeshComponent*,UKOEnemyGameplayAbility*> CachedAbilities;
 };

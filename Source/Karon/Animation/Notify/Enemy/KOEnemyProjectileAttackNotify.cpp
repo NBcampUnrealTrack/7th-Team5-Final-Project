@@ -4,7 +4,7 @@
 #include "KOEnemyProjectileAttackNotify.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
 #include "Data/Type/KOEnemyType.h"
@@ -64,7 +64,7 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 			{
 				return;
 			}
-			UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
+			UKOEnemyGameplayAbility* EnemyGA = Cast<UKOEnemyGameplayAbility>(
 				AbilitySystemComponent->GetAnimatingAbility());
 			if (!EnemyGA)
 			{

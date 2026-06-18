@@ -30,6 +30,10 @@ protected:
 	UPROPERTY(EditAnywhere,Category="Enemy|Map")
 	TMap<TSubclassOf<AKOBaseEnemy>,int32> EnemyMap;
 	
+	//클러스터의 레벨(에너미들의 레벨)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	int32 Level = 1;
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> SpawningBox;
 	
@@ -44,6 +48,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
 	int32 MaxAttemptsPerPoint = 30;
 	
+
 private:
 	float ProjectionDistance=200.f;
 	float EnemyZOffset=90.f;

@@ -6,6 +6,7 @@
 #include "NavigationSystem.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SubSystem/KOEnemyDataSubsystem.h"
 
 
 // Sets default values
@@ -34,12 +35,19 @@ void AKOEnemyCluster::SpawnEnemies()
 	{
 		return;
 	}
+	//DataSubsystem 캐싱
+	UKOEnemyDataSubsystem* DataSubsystem=UKOEnemyDataSubsystem::Get(this);
+	if (DataSubsystem==nullptr)
+	{
+		return;
+	}
 	
 	const FVector BoxExtent = SpawningBox->GetScaledBoxExtent();
 	const FVector BoxOrigin = SpawningBox->GetComponentLocation();
 	
 	//이미 스폰된 위치를 저장
 	TArray<FVector> SpawnedLocations;
+	
 	
 	for (auto EnemyPair : EnemyMap)
 	{
@@ -92,13 +100,12 @@ void AKOEnemyCluster::SpawnEnemies()
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 				
-				
-				//TODO: 스폰 대신 풀링으로 관리
 				//랜덤한 방향으로 스폰
 				FRotator RandomRotation(0.f, UKismetMathLibrary::RandomFloatInRange(0.f, 360.f), 0.f);
 				//Z오프셋을 더해 Enemy가 바닥에 끼는 현상 방지
 				CandidatePoint=CandidatePoint+FVector(0,0,EnemyZOffset);
-				GetWorld()->SpawnActor<AKOBaseEnemy>(EnemyPair.Key, CandidatePoint, RandomRotation, SpawnParams);
+				AKOBaseEnemy* Enemy=GetWorld()->SpawnActor<AKOBaseEnemy>(EnemyPair.Key, CandidatePoint, RandomRotation, SpawnParams);
+				Enemy->SetupEnemy(DataSubsystem,Level);
 			}
 		}
 		

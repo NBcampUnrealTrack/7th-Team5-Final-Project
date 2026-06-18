@@ -6,6 +6,7 @@
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+class UKOEnemyDataSubsystem;
 class UGameplayEffect;
 class UWidgetComponent;
 class UKOAnimNotifyComponent;
@@ -29,7 +30,7 @@ public:
 	// Sets default values for this character's properties
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
-	void SetupEnemy(UKOEnemyDataAsset);
+	void SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level);
 	FVector GetSocketLocation();
 	float GetAttackPoint();
 	void OnBattleChanged(bool bIsBattle);

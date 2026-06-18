@@ -256,6 +256,7 @@ struct KARON_API FKOSkillExecutionRow : public FTableRowBase
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
     float StatModifierValue;
 };
+//Enemy 스킬 데이터
 USTRUCT(BlueprintType)
 struct FKOEnemySkillRow : public FTableRowBase
 {
@@ -268,6 +269,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float SkillMultiplier=1.f;
 };
+//Enemy 데이터
 USTRUCT(BlueprintType)
 struct FKOEnemyDataRow : public FTableRowBase
 {
