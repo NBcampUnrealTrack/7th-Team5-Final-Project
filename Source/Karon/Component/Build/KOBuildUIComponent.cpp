@@ -15,9 +15,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
 UKOBuildUIComponent::UKOBuildUIComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	
-	
-	
 }
 
 void UKOBuildUIComponent::BeginPlay()
