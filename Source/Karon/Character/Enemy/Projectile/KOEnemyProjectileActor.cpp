@@ -101,7 +101,6 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, ProjectileDamage);
 		CharacterASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
-	UE_LOG(LogTemp,Warning,TEXT("%s"),*OtherActor->GetActorLabel());
 	ReturnToPool();
 }
 

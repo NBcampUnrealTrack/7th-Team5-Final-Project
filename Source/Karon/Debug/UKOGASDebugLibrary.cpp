@@ -6,18 +6,19 @@
 #include "GameplayEffect.h"
 #include "Abilities/GameplayAbilityTypes.h"
 
-#if WITH_EDITOR
 
 // ─── GameplayEvent ──────────────────────────────────────────────────
 
 void UUKOGASDebugLibrary::SendDebugEvent(AActor* TargetActor, FGameplayTag EventTag, float Magnitude)
 {
+#if WITH_EDITOR
     if (!TargetActor) return;
      
     FGameplayEventData EventData;
     EventData.EventMagnitude = Magnitude;
 
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, EventTag, EventData);
+#endif
 }
 
 
@@ -25,6 +26,7 @@ void UUKOGASDebugLibrary::SendDebugEvent(AActor* TargetActor, FGameplayTag Event
 
 FActiveGameplayEffectHandle UUKOGASDebugLibrary::ApplyDebugGE(AActor* TargetActor, TSubclassOf<UGameplayEffect> GEClass)
 {
+#if WITH_EDITOR
     if (!TargetActor || !GEClass) return FActiveGameplayEffectHandle();
     
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
@@ -34,19 +36,25 @@ FActiveGameplayEffectHandle UUKOGASDebugLibrary::ApplyDebugGE(AActor* TargetActo
     FGameplayEffectSpecHandle Spec   = ASC->MakeOutgoingSpec(GEClass, 1.f, Ctx);
     
     return ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+#else
+    return FActiveGameplayEffectHandle();
+#endif
 }
 
 void UUKOGASDebugLibrary::RemoveDebugGE(AActor* TargetActor, FActiveGameplayEffectHandle Handle)
 {
+#if WITH_EDITOR
     if (!TargetActor || !Handle.IsValid()) return;
     
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     
     if (ASC) ASC->RemoveActiveGameplayEffect(Handle);
+#endif
 }
 
 TArray<FString> UUKOGASDebugLibrary::GetActiveGENames(AActor* TargetActor)
 {
+#if WITH_EDITOR
     TArray<FString> Names;
     if (!TargetActor) return Names;
     
@@ -64,6 +72,9 @@ TArray<FString> UUKOGASDebugLibrary::GetActiveGENames(AActor* TargetActor)
     }
     
     return Names;
+#else
+    return TArray<FString>();
+#endif
 }
 
 
@@ -74,6 +85,7 @@ FGameplayAbilitySpecHandle UUKOGASDebugLibrary::GrantDebugAbility(
     TSubclassOf<UGameplayAbility> GAClass, 
     int32 Level)
 {
+#if WITH_EDITOR
     if (!TargetActor || !GAClass) return FGameplayAbilitySpecHandle();
 
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
@@ -81,18 +93,24 @@ FGameplayAbilitySpecHandle UUKOGASDebugLibrary::GrantDebugAbility(
 
     FGameplayAbilitySpec Spec(GAClass, Level);
     return ASC->GiveAbility(Spec);
+#else
+    return FGameplayAbilitySpecHandle();
+#endif
 }
 
 void UUKOGASDebugLibrary::RemoveDebugAbility(AActor* TargetActor, FGameplayAbilitySpecHandle Handle)
 {
+#if WITH_EDITOR
     if (!TargetActor || !Handle.IsValid()) return;
 
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     if (ASC) ASC->ClearAbility(Handle);
+#endif
 }
 
 TArray<FString> UUKOGASDebugLibrary::GetActiveAbilityNames(AActor* TargetActor)
 {
+#if WITH_EDITOR
     TArray<FString> Names;
     if (!TargetActor) return Names;
 
@@ -105,6 +123,9 @@ TArray<FString> UUKOGASDebugLibrary::GetActiveAbilityNames(AActor* TargetActor)
             Names.Add(Spec.Ability->GetName());
     }
     return Names;
+#else
+    return TArray<FString>();
+#endif
 }
 
 
@@ -112,6 +133,7 @@ TArray<FString> UUKOGASDebugLibrary::GetActiveAbilityNames(AActor* TargetActor)
 
 FGameplayTagContainer UUKOGASDebugLibrary::GetCurrentTags(AActor* TargetActor)
 {
+#if WITH_EDITOR
     FGameplayTagContainer Tags;
     if (!TargetActor) return Tags;
     
@@ -119,29 +141,37 @@ FGameplayTagContainer UUKOGASDebugLibrary::GetCurrentTags(AActor* TargetActor)
     if (ASC) ASC->GetOwnedGameplayTags(Tags);
 
     return Tags;
+#else
+    return FGameplayTagContainer();
+#endif
 }
 
 void UUKOGASDebugLibrary::AddLooseTag(AActor* TargetActor, FGameplayTag Tag)
 {
+#if WITH_EDITOR
     if (!TargetActor || !Tag.IsValid()) return;
 
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     if (ASC) ASC->AddLooseGameplayTag(Tag);
+#endif
 }
 
 void UUKOGASDebugLibrary::RemoveLooseTag(AActor* TargetActor, FGameplayTag Tag)
 {
+#if WITH_EDITOR
     if (!TargetActor || !Tag.IsValid()) return;
 
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     if (ASC) ASC->RemoveLooseGameplayTag(Tag);
+#endif
 }
 
-	
+
 // ─── Attributes  ────────────────────────────────────────────────────
 
 TArray<FKOAttributeInfo> UUKOGASDebugLibrary::GetAllAttributes(AActor* TargetActor)
 {
+#if WITH_EDITOR
     TArray<FKOAttributeInfo> Result;
     if (!TargetActor) return Result;
 
@@ -170,10 +200,14 @@ TArray<FKOAttributeInfo> UUKOGASDebugLibrary::GetAllAttributes(AActor* TargetAct
         }
     }
     return Result;
+#else
+    return TArray<FKOAttributeInfo>();
+#endif
 }
 
 void UUKOGASDebugLibrary::SetAttributeBaseValue(AActor* TargetActor, const FString& AttributeName, float NewValue)
 {
+#if WITH_EDITOR
     if (!TargetActor) return;
 
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
@@ -196,6 +230,5 @@ void UUKOGASDebugLibrary::SetAttributeBaseValue(AActor* TargetActor, const FStri
             return;
         }
     }
-}
-
 #endif
+}
