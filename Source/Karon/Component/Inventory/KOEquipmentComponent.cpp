@@ -143,9 +143,4 @@ void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 	NewAnimLayer = NewAnimLayer ? NewAnimLayer : DefaultAnimLayerClass; 
 	
 	SkeletalMesh->LinkAnimClassLayers(NewAnimLayer);
-	UE_LOG(LogTemp, Warning, TEXT("NewAnimLayer : %s"),
-	   NewAnimLayer ? 
-	   *NewAnimLayer->GetDisplayNameText().ToString() : 
-	   TEXT("None")
-   );
 }
