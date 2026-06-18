@@ -12,7 +12,7 @@ AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	EquipmentComponent = CreateDefaultSubobject<UKOEquipmentComponent>(TEXT("EquivalentComponent"));
+	EquipmentComponent = CreateDefaultSubobject<UKOEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
