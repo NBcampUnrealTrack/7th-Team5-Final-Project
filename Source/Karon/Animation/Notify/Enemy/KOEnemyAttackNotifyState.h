@@ -23,6 +23,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
 	bool bShowDebug=true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	class UNiagaraSystem* ImpactEffect;
 
 private:
 	//소켓이름

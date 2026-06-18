@@ -2,6 +2,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Karon.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -132,5 +133,26 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_SkillHit, &HitGameplayEventData);
 	//재타격 방지
 	CachedAbilities[MeshComp]->bIsAttacked=true;
+	
+	//히트 이펙트
+	if (ImpactEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ImpactEffect: %s"), *ImpactEffect->GetName());
+		//FVector SpawnLocation = HitResult.ImpactPoint + HitResult.ImpactNormal * 5.f;
+		FVector SpawnLocation =Enemy->GetActorLocation() + FVector(0, 0, 100.f);
+		//FRotator SpawnRotation = HitResult.ImpactNormal.Rotation(); 
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			ImpactEffect,
+			SpawnLocation,
+			SpawnRotation,
+			FVector(1.f),
+			true
+		);
+		
+		UE_LOG(LogTemp,Warning,TEXT("%s"),*SpawnLocation.ToString());
+	}
 }
 
