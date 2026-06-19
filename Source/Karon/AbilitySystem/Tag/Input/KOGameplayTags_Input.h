@@ -14,18 +14,16 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleBuildMode);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Confirm);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleInventory);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Cancel);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Escape);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot1);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot2);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleSKillTree);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot3);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot4);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot5);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Rotate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleMap);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleFactoryCraft);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_OpenPlayerMenu);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);

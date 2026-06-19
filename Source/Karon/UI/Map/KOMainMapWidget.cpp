@@ -7,7 +7,7 @@
 
 UKOMainMapWidget::UKOMainMapWidget()
 {
-	InputMode = EKOUIInputMode::Menu;
+	InputMode = EKOUIInputMode::All;
 	bIsBackHandler = true;
 }
 

@@ -375,10 +375,10 @@ void AKOPlayerController::SetupInputComponent()
 
 		KOIC->BindNativeAction(
 			InputConfig,
-			KOGameplayTags::Input_Native_ToggleInventory,
+			KOGameplayTags::Input_Native_OpenPlayerMenu,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_OpenInventory,
+			&ThisClass::Input_OpenPlayerMenu,
 			true
 		);
 
@@ -390,15 +390,6 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_AbilityPressed,
 			&ThisClass::Input_AbilityReleased,
 			BindHandles
-		);
-		
-		KOIC->BindNativeAction(
-			InputConfig,
-			KOGameplayTags::Input_Native_ToggleSKillTree,
-			ETriggerEvent::Started,
-			this,
-			&ThisClass::Input_OpenSkillTree,
-			true
 		);
 		
 		KOIC->BindNativeAction(
@@ -416,15 +407,6 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_ToggleMap,
-			true
-		);
-		
-		KOIC->BindNativeAction(
-			InputConfig,
-			KOGameplayTags::Input_Native_ToggleFactoryCraft,
-			ETriggerEvent::Started,
-			this,
-			&ThisClass::Input_OpenFactoryCraft,
 			true
 		);
 	}
@@ -500,11 +482,9 @@ void AKOPlayerController::Input_OpenBuildMode(const FInputActionValue& /*Value*/
 	// 열기 전용. 이미 열려 있으면 무시(닫기는 Back). IMC 전환은 OnBuildModeChanged가 담당.
 	if (BuildUIComponent->IsBuildMenuOpen())
 	{
+		BuildUIComponent->CloseBuildMenu();
 		return;
 	}
-
-	// 건설 진입 시 인벤토리는 닫는다.
-	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
 
 	BuildUIComponent->OpenBuildMenu();
 }
@@ -596,15 +576,24 @@ void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
 	BuildUIComponent->RotateBuildPreview(Direction);
 }
 
-void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/)
-{
-	// 건설 중에는 인벤토리를 열지 않는다.
+void AKOPlayerController::Input_OpenPlayerMenu(const FInputActionValue& /*Value*/)
+{	
+	// 건설 중에는 메뉴창을 열지 않는다.
 	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
 	{
 		return;
 	}
+	
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_PlayerMenu))
+		{
+			UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+			return;
+		}
+	}
 
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 }
 
 void AKOPlayerController::EnterBuildIMC()
@@ -657,31 +646,10 @@ void AKOPlayerController::TryAddItemWithUI(FName ItemId, int32 Count)
 	//TODO: 획득 UI 추가
 }
 
-void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/)
-{
-	// 열기 전용. 닫기는 Back(스킬트리 팝업의 bIsBackHandler).
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
-}
-
 void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
 {
 	if (MapUIComponent)
 	{
 		MapUIComponent->ToggleMainMap();
 	}
-}
-
-void AKOPlayerController::Input_OpenFactoryCraft(const FInputActionValue& Value)
-{
-	// 건설 중에는 설비 제작 UI를 열지 않는다.
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
-	{
-		return;
-	}
-
-	// 인벤토리가 열려 있으면 닫는다.
-	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
-
-	// 설비 제작 UI 열기
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_FactoryCraft);
 }

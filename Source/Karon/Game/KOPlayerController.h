@@ -70,17 +70,10 @@ protected:
 	void Input_SelectBuildQuickSlot5(const FInputActionValue& Value);
 	
 	void Input_BuildRotate(const FInputActionValue& Value);
-
-	// 인벤토리 입력 (열기 전용 — 닫기는 Back)
-	void Input_OpenInventory(const FInputActionValue& Value);
-
-	// 스킬창 입력 (열기 전용 — 닫기는 Back)
-	void Input_OpenSkillTree(const FInputActionValue& Value);
+	
+	void Input_OpenPlayerMenu(const FInputActionValue& Value);
 
 	void Input_ToggleMap(const FInputActionValue& Value);
-	
-	// 설비 제작 UI 입력
-	void Input_OpenFactoryCraft(const FInputActionValue& Value);
 
 
 private:

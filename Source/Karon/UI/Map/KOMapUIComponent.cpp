@@ -17,10 +17,13 @@ void UKOMapUIComponent::BeginPlay()
 
 void UKOMapUIComponent::ToggleMainMap()
 {
-	if (MainMapWidget && MainMapWidget->IsActivated())
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 	{
-		CloseMainMap();
-		return;
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_Map_MainMap))
+		{
+			CloseMainMap();
+			return;
+		}
 	}
 
 	OpenMainMap();
@@ -41,6 +44,8 @@ void UKOMapUIComponent::OpenMainMap()
 
 void UKOMapUIComponent::CloseMainMap()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[Map] CloseMainMap"));
+	
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Map_MainMap);
 	MainMapWidget = nullptr;
 }

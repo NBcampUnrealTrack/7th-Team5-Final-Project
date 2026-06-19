@@ -25,15 +25,11 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Processor);
 	/** Producer 설비 상호작용 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Producer);
-	/** 인벤토리 패널 위젯 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Inventory);
 	/** 퀵슬롯 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_QuickSlotBar);
 	
 	//** 보스 체력바 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);
-	/** 스킬 트리 팝업 위젯 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
 	/** 타이틀 메뉴 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TitleMenu);
 	/** 벨트-공장 포트 연결 팝업 위젯 */
@@ -42,8 +38,8 @@ namespace KOGameplayTags
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
 	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_FactoryCraft);
-	
 	/** 메인 HUD */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InGameHUD);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_PlayerMenu);
 }
