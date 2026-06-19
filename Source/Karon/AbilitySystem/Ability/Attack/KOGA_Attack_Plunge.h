@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,69 +13,70 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_Plunge_Land);
 UCLASS()
 class KARON_API UKOGA_Attack_Plunge : public UKOGA_AttackBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 public:
-	UKOGA_Attack_Plunge();
-	
+    UKOGA_Attack_Plunge();
+
 protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData
-		)override;
-	
-	virtual void EndAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		bool bReplicateEndAbility,
-		bool bWasCancelled
-		) override;
-	
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
-	UFUNCTION()
-	virtual void OnGameplayEventReceived(FGameplayEventData Payload);
-	
-	//애니메이션
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Animation")
-	TObjectPtr<UAnimMontage> ChargeMontage;   // 차징 중 재생, 버튼 누르는 순간
+    virtual void ActivateAbility(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        const FGameplayEventData* TriggerEventData) override;
 
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Animation")
-	TObjectPtr<UAnimMontage> FallMontage;     // 하강 중 재생, 버튼 떼고 하강 중
+    virtual void InputReleased(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo) override;
+    
+    virtual void EndAbility(
+        const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        bool bReplicateEndAbility,
+        bool bWasCancelled) override;
 
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Animation")
-	TObjectPtr<UAnimMontage> LandMontage;     // 착지 시 재생
+    
+    
 
-	// ─── 차징 설정 ───────────────────────────────────────────────
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Charge")
-	float MaxChargeTime = 2.0f;              // 최대 차징 시간 (초)
+    // BP에서 설정: 칼 장착 상태 태그 (비워두면 항상 발동)
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Condition")
+    FGameplayTag RequiredWeaponTag;
 
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Charge")
-	float MaxDamageMultiplier = 3.0f;        // 풀차징 시 데미지 배율
+    // ChargeMontage는 부모에서 상속
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Animation")
+    TObjectPtr<UAnimMontage> ChargeMontage;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Animation")
+    TObjectPtr<UAnimMontage> FallMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category="Plunge|Charge")
-	float PlungeSpeed = 2000.0f;             // 하강 속도 (cm/s)
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Animation")
+    TObjectPtr<UAnimMontage> LandMontage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Charge")
+    float PlungeSpeed = 2000.f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Charge")
+    float MaxChargeTime = 2.0f; // 최대 차징 시간
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Plunge|Charge")
+    float MaxDamageMultiplier = 3.0f;
 
 private:
-	// 내부 상태
-	float ChargeStartTime = 0.f;
-	float ChargeRatio = 0.f;                 // 0.0 ~ 1.0
-	bool bIsPlunging = false;
+    float ChargeStartTime = 0.f;
+    float ChargeRatio = 0.f;
+    bool  bIsPlunging = false;
 
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_PlayMontageAndWait> CurrentMontageTask;
+    UPROPERTY()
+    TObjectPtr<UAbilityTask_PlayMontageAndWait> CurrentMontageTask;
 
-	// 페이즈별 함수
-	void StartCharge();
-	void StartPlunge();
-	void StartLanding();
+   
+    void StartPlunge();
+    void StartLanding();
 
-	// 콜백
-	UFUNCTION() void OnChargeMontageCompleted();
-	UFUNCTION() void OnFallMontageCompleted();
-	UFUNCTION() void OnLandMontageCompleted();
-	void OnMontageCancelled();
-	
+    UFUNCTION() void OnFallMontageCompleted();
+    UFUNCTION() void OnLandMontageCompleted();
+    UFUNCTION() void OnMontageCancelled();
+    UFUNCTION() void OnLandEventReceived(FGameplayEventData Payload);
 };
