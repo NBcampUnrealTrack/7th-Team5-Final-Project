@@ -84,9 +84,6 @@ public:
 	FGameplayTag EnemyNameTag;
 
 protected:
-	UPROPERTY()
-	TObjectPtr<UKOCombatSet> CombatSet;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
 	

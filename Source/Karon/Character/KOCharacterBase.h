@@ -12,6 +12,7 @@ struct FInstancedStruct;
 class FGameplayMessageCallback;
 class UKOHealthSet;
 class UKOMovementSet;
+class UKOCombatSet;
 class UKOAbilitySystemComponent; 
 
 UCLASS()
@@ -28,6 +29,10 @@ public:
 
 	UKOMovementSet* GetMovementSet() const { return MovementSet; }
 	
+	UKOHealthSet* GetHealthSet() const { return HealthSet; }
+	
+	UKOCombatSet* GetCombatSet() const { return CombatSet; }
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -38,6 +43,10 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;
+	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Combat")
+	TObjectPtr<UKOCombatSet> CombatSet;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Health")
 	TObjectPtr<UKOHealthSet> HealthSet;

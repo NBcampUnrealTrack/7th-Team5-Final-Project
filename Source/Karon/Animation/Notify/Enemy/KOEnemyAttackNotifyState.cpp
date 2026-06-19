@@ -20,22 +20,24 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyBegin(FBranchingPointNotifyP
 {
 	Super::BranchingPointNotifyBegin(BranchingPointPayload);
 	USkeletalMeshComponent* MeshComp = BranchingPointPayload.SkelMeshComponent;
-	if (!MeshComp ||
-		!MeshComp->GetOwner() ||
-		!MeshComp->GetAnimInstance())
+	
+	if (!MeshComp || !MeshComp->GetOwner() || !MeshComp->GetAnimInstance())
 	{
 		return;
 	}
+	
 	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(MeshComp->GetOwner());
 	if (!Enemy)
 	{
 		return;
 	}
+	
 	UAbilitySystemComponent* AbilitySystemComponent = Enemy->GetAbilitySystemComponent();
 	if (!AbilitySystemComponent)
 	{
 		return;
 	}
+	
 	UKOEnemyGameplayAbility* EnemyGA = Cast<UKOEnemyGameplayAbility>(
 		AbilitySystemComponent->GetAnimatingAbility());
 	if (EnemyGA)

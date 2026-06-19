@@ -92,10 +92,7 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOStaminaSet> StaminaSet;
-	
-	UPROPERTY()
-	TObjectPtr<UKOCombatSet> CombatSet;
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Reference")
 	TObjectPtr<UAnimInstance> MainAnimInstance;

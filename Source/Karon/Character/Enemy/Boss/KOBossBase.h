@@ -54,9 +54,6 @@ protected:
 	
 	virtual void OnBossDeath() {}
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Combat")
-	TObjectPtr<UKOCombatSet> CombatSet;
- 
 	UPROPERTY()
 	TObjectPtr<UKOBossDataAsset> DataAsset;
 	

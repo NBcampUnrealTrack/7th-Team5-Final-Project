@@ -1,50 +1,31 @@
-﻿#include "KOGA_Attack_Heavy.h"
-
+﻿#include "KOGA_Attack_Combo.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "AbilitySystemGlobals.h"
-#include "GameplayEffect.h"
-#include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/KOComboActionData.h"
+#include "Utility/Log/KOLogManager.h"
 
-UKOGA_Attack_Heavy::UKOGA_Attack_Heavy()
+UKOGA_Attack_Combo::UKOGA_Attack_Combo()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Heavy));
-	
-	CurrentComboIndex = 1;
-	MaxComboCount = 1;
-	bIsComboQueued = false;
-	ComboMontage = nullptr;
 }
 
-bool UKOGA_Attack_Heavy::CanActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags, 
-	FGameplayTagContainer* OptionalRelevantTags) const
-{	
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-	{
-		return false;
-	}
-	
-	ACharacter* Character = GetAvatarCharacter();
-	
-	return Character != nullptr;
-}
-
-void UKOGA_Attack_Heavy::ActivateAbility(
+void UKOGA_Attack_Combo::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-		Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character)
 	{
@@ -52,29 +33,18 @@ void UKOGA_Attack_Heavy::ActivateAbility(
 		return;
 	}
 	
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	if (!ComboDataTable)
 	{
+		KO_LOG(GAS, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName()); 
+		
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	if (ComboDataTable)
+	if (FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext")))
 	{
-		FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext"));
-        
-		if (ComboData)
-		{
-			ComboMontage = ComboData->HeavyAttackMontage.Get();
-			MaxComboCount = ComboData->MaxHeavyComboCount;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[%s] 데이터 테이블에서 '%s' 행을 찾을 수 없음"), *GetName(), *WeaponRowName.ToString());
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName());
+		ComboMontage = ComboData->LightAttackMontage.Get();
+		MaxComboCount = ComboData->MaxLightComboCount;
 	}
 	
 	CurrentComboIndex = 1;
@@ -84,21 +54,22 @@ void UKOGA_Attack_Heavy::ActivateAbility(
 	
 	UAbilityTask_WaitGameplayEvent* HitTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Hit);
-	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
-	HitTask->ReadyForActivation();
+	if (HitTask)
+	{
+		HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
+		HitTask->ReadyForActivation();
+	}
 	
-	FGameplayTag InputEnableTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.EnableInput"));
 	UAbilityTask_WaitGameplayEvent* InputEventTask =
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, InputEnableTag);
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_EnableInput);
 	if (InputEventTask)
 	{
-		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Heavy::OnInputBufferOpened);
+		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Combo::OnInputBufferOpened);
 		InputEventTask->ReadyForActivation();
 	}
 	
-	FGameplayTag ComboCheckTag = FGameplayTag::RequestGameplayTag(FName("Event.Combo.Check"));
 	UAbilityTask_WaitGameplayEvent* ComboEventTask = 
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, ComboCheckTag);
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Check);
 	if (ComboEventTask)
 	{
 		ComboEventTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowReceived);
@@ -108,7 +79,7 @@ void UKOGA_Attack_Heavy::ActivateAbility(
 	PlayNextComboSection();
 }
 
-void UKOGA_Attack_Heavy::InputPressed(const FGameplayAbilitySpecHandle Handle,
+void UKOGA_Attack_Combo::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
@@ -121,7 +92,7 @@ void UKOGA_Attack_Heavy::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	}
 }
 
-void UKOGA_Attack_Heavy::PlayNextComboSection()
+void UKOGA_Attack_Combo::PlayNextComboSection()
 {
 	if (CurrentMontageTask)
 	{
@@ -153,7 +124,7 @@ void UKOGA_Attack_Heavy::PlayNextComboSection()
 	CurrentMontageTask->ReadyForActivation();
 }
 
-void UKOGA_Attack_Heavy::OnComboWindowReceived(FGameplayEventData Payload)
+void UKOGA_Attack_Combo::OnComboWindowReceived(FGameplayEventData Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("==== [Combo] 몽타주 노티파이 신호 수신 완료! ===="));
 
@@ -172,28 +143,17 @@ void UKOGA_Attack_Heavy::OnComboWindowReceived(FGameplayEventData Payload)
 	}
 }
 
-void UKOGA_Attack_Heavy::OnMontageEnded()
+void UKOGA_Attack_Combo::OnMontageEnded()
 {
-	EndAbility(
-		CurrentSpecHandle, 
-		CurrentActorInfo,
-		CurrentActivationInfo,
-		true,
-		false
-	);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true,false);
 }
 
-void UKOGA_Attack_Heavy::OnHitEventReceived(FGameplayEventData Payload)
+void UKOGA_Attack_Combo::OnHitEventReceived(FGameplayEventData Payload)
 {
-	const UObject* RawPayloadTarget = Payload.Target;
-	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawPayloadTarget));
-	if (TargetActor && DamageEffectClass)
-	{
-		ApplyEffectToTarget(TargetActor, DamageEffectClass, GetAbilityLevel());
-	}
+	SendAttackEventsToTarget(&Payload);
 }
 
-void UKOGA_Attack_Heavy::OnInputBufferOpened(FGameplayEventData Payload)
+void UKOGA_Attack_Combo::OnInputBufferOpened(FGameplayEventData Payload)
 {
 	bIsInputBufferOpen = true;
 }
