@@ -11,6 +11,7 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -42,6 +43,22 @@ void AKOBossBase::NotifyPlayerDetected()
 void AKOBossBase::NotifyDeathAnimEnd()
 {
 	OnBossDeathAnimEnd.Broadcast();
+}
+
+void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
+{
+	Super::OnCharacterDead(DeathInstigator);
+	
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (!AIC) return;
+	
+	AIC->StopMovement(); 
+	
+	if (UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(AIC->BrainComponent))
+	{
+		BTComp->StopTree();
+	}
+	
 }
 
 void AKOBossBase::BeginPlay()

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+ 
+#include "AbilitySystem/Ability/Attack/KOGA_AttackBase.h"
 #include "KOGA_BossAttackBase.generated.h"
 
 UCLASS()
-class KARON_API UKOGA_BossAttackBase : public UGameplayAbility
+class KARON_API UKOGA_BossAttackBase : public UKOGA_AttackBase
 {
 	GENERATED_BODY()
 public:
@@ -25,14 +26,6 @@ public:
 		bool bReplicateEndAbility,
 		bool bWasCancelled
 	) override;
- 
-	virtual bool CanActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags,
-		const FGameplayTagContainer* TargetTags,
-		FGameplayTagContainer* OptionalRelevantTags
-	) const override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Damage")

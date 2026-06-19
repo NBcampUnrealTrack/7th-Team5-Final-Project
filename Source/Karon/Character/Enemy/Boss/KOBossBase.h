@@ -45,6 +45,8 @@ public:
 	
 	virtual void OnGroggyBegin() {}
 	
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
 protected:
 	virtual void BeginPlay() override;
 	

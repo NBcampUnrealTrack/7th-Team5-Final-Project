@@ -29,7 +29,6 @@ void UKOGA_AttackBase::SendAttackEventsToTarget(FGameplayEventData* InEventData)
 		
 		TargetASC->HandleGameplayEvent(EventTag, &EventData);
 	}
-	
 }
 
 void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
@@ -68,6 +67,5 @@ UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 	if (!Character) return nullptr;
 	
 	return Character->GetCombatSet(); 
-	
 }
 

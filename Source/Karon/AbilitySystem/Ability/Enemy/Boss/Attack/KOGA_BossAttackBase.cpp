@@ -13,10 +13,9 @@
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
-
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
  
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
 }
  
@@ -77,52 +76,24 @@ void UKOGA_BossAttackBase::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	if (MontageTask)
-	{
-		MontageTask->EndTask();
-		MontageTask = nullptr;
-	}
- 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-		bReplicateEndAbility, bWasCancelled);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-bool UKOGA_BossAttackBase::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	bool bCanActivate = Super::CanActivateAbility(
-	   Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags
-   );
-
-	return bCanActivate;
-}
 
 void UKOGA_BossAttackBase::OnMontageCompleted()
 {
-	const FGameplayAbilitySpecHandle Handle = GetCurrentAbilitySpecHandle();
-	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
-	const FGameplayAbilityActivationInfo ActivationInfo = GetCurrentActivationInfo();
- 
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
  
 void UKOGA_BossAttackBase::OnMontageCancelled()
 {
-	const FGameplayAbilitySpecHandle Handle = GetCurrentAbilitySpecHandle();
-	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
-	const FGameplayAbilityActivationInfo ActivationInfo = GetCurrentActivationInfo();
- 
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 bool UKOGA_BossAttackBase::IsTargetInRange() const
 {
 	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar)
-	{
-		return false;
-	}
+	if (!Avatar) return false;
  
 	APawn* Pawn = Cast<APawn>(Avatar);
 	if (!Pawn)

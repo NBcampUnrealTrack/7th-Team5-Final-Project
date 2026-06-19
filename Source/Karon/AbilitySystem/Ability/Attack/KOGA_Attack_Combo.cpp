@@ -151,6 +151,7 @@ void UKOGA_Attack_Combo::OnMontageEnded()
 void UKOGA_Attack_Combo::OnHitEventReceived(FGameplayEventData Payload)
 {
 	SendAttackEventsToTarget(&Payload);
+	ApplyHitEffects(&Payload);
 }
 
 void UKOGA_Attack_Combo::OnInputBufferOpened(FGameplayEventData Payload)

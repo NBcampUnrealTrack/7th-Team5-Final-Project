@@ -48,27 +48,20 @@ void UKOGA_Death::ActivateAbility(
 	if (TriggerEventData)
 		CachedInstigator = const_cast<AActor*>(TriggerEventData->Instigator.Get());
 	
-	// 몽타주 재생 
-	if (Montage)
+	if (!Montage)
 	{
-		UAbilityTask_PlayMontageAndWait* Task = 
-			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-				this,
-				NAME_None,
-				Montage,
-				1.0f,
-			NAME_None,
-			true
-			);
-		
-		if (Task)
-		{
-			Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			
-			Task->ReadyForActivation(); 
-		}
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return; 
 	}
+	
+	UAbilityTask_PlayMontageAndWait* Task = 
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, Montage, 1.0f, NAME_None, true);
+	
+	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+	Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+			
+	Task->ReadyForActivation(); 
 	
 	// GameplayCue 
 	ACharacter* Character = GetAvatarCharacter();
@@ -78,12 +71,18 @@ void UKOGA_Death::ActivateAbility(
 	ASC->ExecuteGameplayCue(KOGameplayTags::GameplayCue_Death, CueParams);
 }
 
-void UKOGA_Death::OnMontageCompleted()
+void UKOGA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
 	{
 		Character->OnCharacterDead(CachedInstigator.Get());
 	}
 	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UKOGA_Death::OnMontageCompleted()
+{
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
