@@ -103,7 +103,8 @@ private:
 	AActor* LockedTarget = nullptr;   // 현재 락온된 타겟
  
 	bool bIsLockedOn = false;         // 락온 활성화 여부
- 
+	bool bDeactivatedByInput = false;
+	
 	FTimerHandle CameraUpdateTimerHandle;       // 카메라 회전 타이머
 	FTimerHandle LockOnDistanceTimerHandle;     // 거리 체크 타이머
 };

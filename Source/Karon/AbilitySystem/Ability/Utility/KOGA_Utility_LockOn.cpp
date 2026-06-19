@@ -37,6 +37,14 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	// Held 루프가 InputPressed() 직후 재활성화 시도하는 것을 차단
+	if (bDeactivatedByInput)
+	{
+		bDeactivatedByInput = false;
+		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);  // bWasCancelled=true
+		return;
+	}
+	
 	// 캐릭터 유효성 확인
 	AKOHeroCharacter* Character = Cast<AKOHeroCharacter>(GetAvatarCharacter());
 	if (!Character)
@@ -73,6 +81,7 @@ void UKOGA_Utility_LockOn::InputPressed(
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo)
 {
+	bDeactivatedByInput = true;  // ← Held 루프 차단 플래그 세팅
 	// 락온 상태 해제
 	DeactivateLockOn();
  
@@ -107,6 +116,7 @@ void UKOGA_Utility_LockOn::EndAbility(
 	}
 	
 	// TODO: 임시로 쿨타임 
+	if (!bWasCancelled)
 	ApplyCooldown(Handle, ActorInfo, ActivationInfo);
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
