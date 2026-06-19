@@ -282,3 +282,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FEnemyInfo EnemyInfo;
 };
+//Enemy 아이템드랍테이블
+USTRUCT(BlueprintType)
+struct FKOEnemyDropItemRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyNameLevelInfo NameLevelData;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyDropItemInfo DropItemInfo;
+};

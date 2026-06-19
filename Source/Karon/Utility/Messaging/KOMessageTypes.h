@@ -143,3 +143,18 @@ struct FKOProcessorChangedMessage
     UPROPERTY()
     TWeakObjectPtr<class UKOFactoryProcessorComponent> Processor;
 };
+/**
+ * 아이템 획득
+ * 채널: KOGameplayTags::Event_DropItem
+ */
+USTRUCT()
+struct FKODropItemMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FName ItemId;
+    
+    UPROPERTY()
+    int32 Count=0;
+};

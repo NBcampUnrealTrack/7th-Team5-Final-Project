@@ -3,14 +3,17 @@
 
 #include "KOBaseEnemy.h"
 #include "AbilitySystemComponent.h"
+#include "GMRouterSubsystem.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
 #include "UI/Enemy/KOEnemyHPBar.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 
 // Sets default values
@@ -42,6 +45,7 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 	{
 		return;
 	}
+	EnemyLevel=Level;
 	
 	FEnemyNameLevelInfo NameLevelInfo;
 	NameLevelInfo.EnemyNameTag=EnemyNameTag;
@@ -87,10 +91,12 @@ void AKOBaseEnemy::BeginPlay()
 void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 {
 	//체력이 0이라면 사망 콟백을 HPBar, AIController로 전달
-	if (Data.NewValue==0.f)
+	if (Data.NewValue==0.f&&!bIsDead)
 	{
 		OnHPChangedEvent.ExecuteIfBound(0.f,Data.OldValue-Data.NewValue);
 		OnEnemyDead.Broadcast();
+		DropItem();
+		bIsDead=true;
 	}
 	
 	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달
@@ -100,6 +106,50 @@ void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
 		OnCharacterHit.ExecuteIfBound();
 	}
 }
+
+void AKOBaseEnemy::DropItem()
+{
+	if (UKOEnemyDataSubsystem* DataSubsystem=UKOEnemyDataSubsystem::Get(this))
+	{
+		
+		FEnemyNameLevelInfo EnemyNameLevelInfo;
+		EnemyNameLevelInfo.EnemyNameTag=EnemyNameTag;
+		EnemyNameLevelInfo.Level=EnemyLevel;
+		
+		TArray<FEnemyDropItemInfo>* DropItemArray=DataSubsystem->GetEnemyDropItemArray(EnemyNameLevelInfo);
+		if (DropItemArray==nullptr)
+		{
+			return;
+		}
+		
+		float RandValue=FMath::RandRange(0.f,100.f);
+		float Value=0.f;
+		TMap<FName,int32> ItemMessageMap;
+		
+		for (FEnemyDropItemInfo& DropItem : *DropItemArray)
+		{
+			Value=DropItem.DropPercent;
+			if (RandValue<=Value)
+			{
+				ItemMessageMap.FindOrAdd(DropItem.DropItemName)+=DropItem.Count;
+			}
+		}
+		
+		for (auto MessagePair : ItemMessageMap)
+		{
+			FKODropItemMessage ItemMessage;
+			ItemMessage.ItemId=MessagePair.Key;
+			ItemMessage.Count=MessagePair.Value;
+			
+			UGMRouterSubsystem::BroadcastMessage(GetWorld(),
+				KOGameplayTags::Event_DropItem,
+				FInstancedStruct::Make(ItemMessage));
+		}
+		
+		
+	}
+}
+
 
 void AKOBaseEnemy::OnBattleChanged(bool bIsBattle)
 {

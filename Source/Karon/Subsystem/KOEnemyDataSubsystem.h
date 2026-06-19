@@ -24,10 +24,14 @@ public:
 	
 	// 특정 에너미 태그, 레벨로 데이터를 빠르게 검색
 	FEnemyInfo* GetEnemyData(FEnemyNameLevelInfo EnemyNameLevelInfo);
+	
+	// 특정 에너미 태그, 레벨로 드랍아이템을 빠르게 검색
+	TArray<FEnemyDropItemInfo>* GetEnemyDropItemArray(FEnemyNameLevelInfo EnemyNameLevelInfo);
 
 private:
 	void InitEnemySkillSettings();
 	void InitEnemyDataSettings();
+	void InitEnemyDropItemSettings();
 	
 private:
 	UPROPERTY()
@@ -35,4 +39,7 @@ private:
 	
 	UPROPERTY()
 	TMap<FEnemyNameLevelInfo,FEnemyInfo> EnemyDataMap;
+	
+	UPROPERTY()
+	TMap<FEnemyNameLevelInfo,FEnemyDropItemArrayWrapper> EnemyDropItemMap;
 };

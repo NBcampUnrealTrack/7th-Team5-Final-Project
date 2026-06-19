@@ -34,6 +34,9 @@ class KARON_API AKOPlayerController : public APlayerController
 
 public:
 	AKOPlayerController();
+	
+	UFUNCTION()
+	void OnItemReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
 
 protected:
 	virtual void BeginPlay() override;
@@ -84,6 +87,9 @@ private:
 	// DefaultIMC ↔ BuildIMC 스왑. 건설 모드 진입/종료(Data.Message.Build.ModeChanged)에 반응.
 	void EnterBuildIMC();
 	void ExitBuildIMC();
+	
+	//TryAddItem+ UI 
+	void TryAddItemWithUI(FName ItemId,int32 Count);
 
 	// 건설 모드 변경 메시지 수신 → BuildIMC 추가/제거.
 	UFUNCTION()

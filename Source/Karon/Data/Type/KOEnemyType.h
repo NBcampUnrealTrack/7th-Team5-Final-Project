@@ -91,3 +91,25 @@ struct FEnemyInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackSpeed;
 };
+
+USTRUCT(BlueprintType)
+struct FEnemyDropItemInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName DropItemName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Count=0;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DropPercent=0.f;
+};
+//UPROPERTY 매크로가 포함된 TMap의 Value로 TArray를 사용하기 위해 Struct를 사용
+USTRUCT(BlueprintType)
+struct FEnemyDropItemArrayWrapper
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FEnemyDropItemInfo> DropItems;
+};

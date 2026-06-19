@@ -43,6 +43,7 @@ protected:
 
 private:
 	void OnHitCallback(const FOnAttributeChangeData& Data);
+	void DropItem();
 
 	
 public:
@@ -93,9 +94,11 @@ protected:
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
+	
+	int32 EnemyLevel=1;
 
 private:
-
+	bool bIsDead=false;
 	
 	//Delegates
 public:

@@ -44,6 +44,7 @@ namespace KOGameplayTags
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
+	UE_DEFINE_GAMEPLAY_TAG(Event_DropItem, "Event.DropItem");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss01_Shockwave, "Event.Boss1.Shockwave");
 }

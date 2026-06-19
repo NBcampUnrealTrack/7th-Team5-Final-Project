@@ -31,6 +31,16 @@ AKOPlayerController::AKOPlayerController()
 	MapUIComponent		 = CreateDefaultSubobject<UKOMapUIComponent>(TEXT("MapUIComponent"));
 }
 
+void AKOPlayerController::OnItemReceived(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+	//원하는 구조체로 형변환
+	if (const FKODropItemMessage* ItemMessage = Payload.GetPtr<FKODropItemMessage>())
+	{
+		//아이템 추가
+		TryAddItemWithUI(ItemMessage->ItemId,ItemMessage->Count);
+	}
+}
+
 void AKOPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -69,7 +79,6 @@ void AKOPlayerController::BeginPlay()
 		KOGameplayTags::Data_Message_Build_ModeChanged,
 		BuildModeChangedCallback);
 
-#if !(UE_BUILD_SHIPPING)
 	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
 	{
 		FoundInventoryComponent ->TryAddItem(
@@ -200,7 +209,11 @@ void AKOPlayerController::BeginPlay()
 			1
 		);
 	}
-#endif
+	
+	FGameplayTag Channel = KOGameplayTags::Event_DropItem;		
+	FGameplayMessageCallback Callback ;
+	Callback.BindDynamic(this, &AKOPlayerController::OnItemReceived);	
+	FGameplayMessageHandle MessageHandle=UGMRouterSubsystem::Subscribe(GetWorld(),Channel,Callback);
 }
 
 void AKOPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -628,6 +641,20 @@ void AKOPlayerController::ExitBuildIMC()
 	}
 
 	bBuildIMCActive = false;
+}
+
+void AKOPlayerController::TryAddItemWithUI(FName ItemId, int32 Count)
+{
+	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
+	{
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			ItemId,
+			Count
+		);
+	}
+	
+	//TODO: 획득 UI 추가
 }
 
 void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/)

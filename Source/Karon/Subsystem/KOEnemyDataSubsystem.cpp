@@ -28,6 +28,7 @@ void UKOEnemyDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 	InitEnemySkillSettings();
 	InitEnemyDataSettings();
+	InitEnemyDropItemSettings();
 }
 
 float UKOEnemyDataSubsystem::GetSkillData(FEnemySkillInfo EnemySkillInfo)
@@ -48,15 +49,24 @@ FEnemyInfo* UKOEnemyDataSubsystem::GetEnemyData(FEnemyNameLevelInfo EnemyNameLev
 	return nullptr;
 }
 
+TArray<FEnemyDropItemInfo>* UKOEnemyDataSubsystem::GetEnemyDropItemArray(FEnemyNameLevelInfo EnemyNameLevelInfo)
+{
+	if (FEnemyDropItemArrayWrapper* EnemyDropItemArray = EnemyDropItemMap.Find(EnemyNameLevelInfo))
+	{
+		return &EnemyDropItemArray->DropItems;
+	}
+	return nullptr;
+}
+
 void UKOEnemyDataSubsystem::InitEnemySkillSettings()
 {
-	const UKOEnemyDeveloperSettings* SkillSettings = GetDefault<UKOEnemyDeveloperSettings>();
-	if(!IsValid(SkillSettings))
+	const UKOEnemyDeveloperSettings* DeveloperSettings = GetDefault<UKOEnemyDeveloperSettings>();
+	if(!IsValid(DeveloperSettings))
 	{
 		return;
 	}
 	
-	UDataTable* SkillDT = SkillSettings->SkillMulDataTable.LoadSynchronous();
+	UDataTable* SkillDT = DeveloperSettings->SkillMulDataTable.LoadSynchronous();
 	
 	if (IsValid(SkillDT))
 	{
@@ -71,13 +81,13 @@ void UKOEnemyDataSubsystem::InitEnemySkillSettings()
 
 void UKOEnemyDataSubsystem::InitEnemyDataSettings()
 {
-	const UKOEnemyDeveloperSettings* SkillSettings = GetDefault<UKOEnemyDeveloperSettings>();
-	if(!IsValid(SkillSettings))
+	const UKOEnemyDeveloperSettings* DeveloperSettings = GetDefault<UKOEnemyDeveloperSettings>();
+	if(!IsValid(DeveloperSettings))
 	{
 		return;
 	}
 	
-	UDataTable* EnemyDT = SkillSettings->EnemyDataTable.LoadSynchronous();
+	UDataTable* EnemyDT = DeveloperSettings->EnemyDataTable.LoadSynchronous();
 	
 	if (IsValid(EnemyDT))
 	{
@@ -88,6 +98,29 @@ void UKOEnemyDataSubsystem::InitEnemyDataSettings()
 				const FEnemyInfo& EnemyInfo=Value.EnemyInfo;
 
 				EnemyDataMap.Add(EnemyNameLevelInfo,EnemyInfo);
+			});
+	}
+}
+
+void UKOEnemyDataSubsystem::InitEnemyDropItemSettings()
+{
+	const UKOEnemyDeveloperSettings* DeveloperSettings = GetDefault<UKOEnemyDeveloperSettings>();
+	if(!IsValid(DeveloperSettings))
+	{
+		return;
+	}
+	
+	UDataTable* EnemyDT = DeveloperSettings->EnemyDropItemDataTable.LoadSynchronous();
+	
+	if (IsValid(EnemyDT))
+	{
+		EnemyDT->ForeachRow<FKOEnemyDropItemRow>(TEXT("EDSkillDataSubsystem Init"), 
+			[this](const FName& Key, const FKOEnemyDropItemRow& Value)
+			{
+				const FEnemyNameLevelInfo& EnemyNameLevelInfo=Value.NameLevelData;
+				const FEnemyDropItemInfo& DropItemInfo=Value.DropItemInfo;
+				
+				EnemyDropItemMap.FindOrAdd(EnemyNameLevelInfo).DropItems.Add(DropItemInfo);
 			});
 	}
 }
