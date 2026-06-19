@@ -643,7 +643,6 @@ void AKOPlayerController::TryAddItemWithUI(FName ItemId, int32 Count)
 		);
 	}
 	
-	//TODO: 획득 UI 추가
 }
 
 void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)

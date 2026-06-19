@@ -30,6 +30,10 @@ namespace KOGameplayTags
 	
 	//** 보스 체력바 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);
+	//** 아이템 드랍 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_DropItem);
+	/** 스킬 트리 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
 	/** 타이틀 메뉴 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TitleMenu);
 	/** 벨트-공장 포트 연결 팝업 위젯 */
