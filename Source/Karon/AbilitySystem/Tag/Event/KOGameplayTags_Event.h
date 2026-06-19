@@ -41,6 +41,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Equip);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Unequip);
 	
+	// ── Event | Weapon Trace ───────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Trace_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Trace_End);
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_DropItem);

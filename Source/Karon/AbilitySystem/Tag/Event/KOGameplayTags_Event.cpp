@@ -41,6 +41,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Equip,   "Event.Weapon.Equip");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Unequip, "Event.Weapon.Unequip");
 	
+	// ── Event | Weapon Trace ───────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Trace_Start,   "Event.Trace.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Trace_End, "Event.Trace.End");
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
