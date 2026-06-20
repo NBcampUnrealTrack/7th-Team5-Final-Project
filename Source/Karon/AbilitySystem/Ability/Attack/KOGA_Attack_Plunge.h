@@ -70,8 +70,7 @@ private:
 
     UPROPERTY()
     TObjectPtr<UAbilityTask_PlayMontageAndWait> CurrentMontageTask;
-
-   
+    
     void StartPlunge();
     void StartLanding();
 

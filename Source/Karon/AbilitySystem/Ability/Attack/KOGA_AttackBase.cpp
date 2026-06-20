@@ -31,6 +31,21 @@ void UKOGA_AttackBase::SendAttackEventsToTarget(FGameplayEventData* InEventData)
 	}
 }
 
+void UKOGA_AttackBase::SendAttackEventsToTarget(AActor* TargetActor)
+{
+	UAbilitySystemComponent* TargetASC =
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	
+	for (auto EventTag : AttackEventTags)
+	{
+		FGameplayEventData EventData;
+		EventData.Instigator = Cast<const AActor>(GetAvatarCharacter());
+		EventData.Target = TargetActor; 
+		
+		TargetASC->HandleGameplayEvent(EventTag, &EventData);
+	}
+}
+
 void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
 {
 	if (!InEventData || !InEventData->Target) return;
@@ -39,6 +54,30 @@ void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
 	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
 	if (!TargetActor) return;
 	
+	UAbilitySystemComponent* SourceASC = GetASC(); 
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!SourceASC || !TargetASC) return;
+	
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(GetAvatarCharacter());
+	
+	for (const FKOHitEffectData& Effect : HitAppliedEffects)
+	{
+		FGameplayEffectSpecHandle SpecHandle = 
+		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
+		if (!SpecHandle.IsValid()) continue;
+		
+		for (const auto& Pair : Effect.SetByCallerValues)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value);
+		}
+		
+		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	}
+}
+
+void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
+{
 	UAbilitySystemComponent* SourceASC = GetASC(); 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!SourceASC || !TargetASC) return;

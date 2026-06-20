@@ -47,13 +47,17 @@ public:
 public:	
 	virtual void SendAttackEventsToTarget(FGameplayEventData* InEventData);
 	
+	virtual void SendAttackEventsToTarget(AActor* TargetActor); 
+	
 	virtual void ApplyHitEffects(FGameplayEventData* InEventData);
+	
+	virtual void ApplyHitEffects(AActor* TargetActor);
 	
 	UKOCombatSet* GetCombatSet();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	TArray<FKOAttackMontageData> MontageDatas;
+	TArray<FKOAttackMontageData> MontageData;
 	
 	// 데미지나 추가적인 이팩트 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")

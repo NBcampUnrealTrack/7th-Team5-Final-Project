@@ -18,14 +18,6 @@ public:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
 	) override;
- 
-	virtual void EndAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		bool bReplicateEndAbility,
-		bool bWasCancelled
-	) override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Damage")
@@ -48,7 +40,4 @@ protected:
 	// 공통 데미지 적용 함수
 	void ApplyDamageToTarget(AActor* TargetActor);
 	
-private:
-	UPROPERTY()
-	TObjectPtr<class UAbilityTask_PlayMontageAndWait> MontageTask;
 };

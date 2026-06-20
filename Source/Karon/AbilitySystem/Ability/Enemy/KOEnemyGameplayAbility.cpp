@@ -40,16 +40,16 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 	WaitEventTask->ReadyForActivation();
 	
 	const UKOCombatSet* CombatSet = GetCombatSet();
-	if (MontageDatas.IsEmpty() || !CombatSet)
+	if (MontageData.IsEmpty() || !CombatSet)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return; 
 	}
 	
-	float PlayRate = MontageDatas[0].PlayRate * CombatSet->GetAttackSpeed(); 
+	float PlayRate = MontageData[0].PlayRate * CombatSet->GetAttackSpeed(); 
 	
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MontageDatas[0].Montage, PlayRate);
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MontageData[0].Montage, PlayRate);
 	
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCompleted);
 	PlayMontageTask->OnCancelled.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCancelled);

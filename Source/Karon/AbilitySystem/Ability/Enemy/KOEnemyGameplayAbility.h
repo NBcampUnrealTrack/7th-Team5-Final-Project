@@ -41,5 +41,4 @@ public:
 	 //현재 Notify에서 플레이어를 타격하였는지 여부(중복 타격 방지, 싱글플레이)
 	 UPROPERTY()
 	 bool bIsAttacked=false;
-
 };

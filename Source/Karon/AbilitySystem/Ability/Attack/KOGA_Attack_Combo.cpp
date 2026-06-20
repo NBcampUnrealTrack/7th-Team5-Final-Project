@@ -54,28 +54,25 @@ void UKOGA_Attack_Combo::ActivateAbility(
 	
 	UAbilityTask_WaitGameplayEvent* HitTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Hit);
-	if (HitTask)
-	{
-		HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
-		HitTask->ReadyForActivation();
-	}
+	
+	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
+	HitTask->ReadyForActivation();
+	
 	
 	UAbilityTask_WaitGameplayEvent* InputEventTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_EnableInput);
-	if (InputEventTask)
-	{
-		InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Combo::OnInputBufferOpened);
-		InputEventTask->ReadyForActivation();
-	}
+	
+	InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Combo::OnInputBufferOpened);
+	InputEventTask->ReadyForActivation();
+	
 	
 	UAbilityTask_WaitGameplayEvent* ComboEventTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Check);
-	if (ComboEventTask)
-	{
-		ComboEventTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowReceived);
-		ComboEventTask->ReadyForActivation();
-	}
 	
+	ComboEventTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowReceived);
+	ComboEventTask->ReadyForActivation();
+	
+
 	PlayNextComboSection();
 }
 

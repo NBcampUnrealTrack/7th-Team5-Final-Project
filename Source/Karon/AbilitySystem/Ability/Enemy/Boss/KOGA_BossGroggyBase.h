@@ -1,16 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Ability/Attack/KOGA_AttackBase.h"
 #include "KOGA_BossGroggyBase.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
-class KARON_API UKOGA_BossGroggyBase : public UGameplayAbility
+class KARON_API UKOGA_BossGroggyBase : public UKOGA_AttackBase
 {
 	GENERATED_BODY()
 	

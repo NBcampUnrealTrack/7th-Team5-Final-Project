@@ -55,7 +55,4 @@ private:
  
 	int32 CurrentShockwaveCount = 0;
 	FTimerHandle ShockwaveTimerHandle;
- 
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitEventTask;
 };

@@ -46,21 +46,16 @@ void UKOGA_BossAttackBase::ActivateAbility(
 	}
  
 	// 몽타주 재생 태스크 생성
-	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-	this,
-	NAME_None,
-	AttackMontage,
-	MontageSpeed,
-	NAME_None,
-	false,
-	1.0f
+	UAbilityTask_PlayMontageAndWait* MontageTask = 
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		AttackMontage,
+		MontageSpeed,
+		NAME_None,
+		false,
+		1.0f
 	);
- 
-	if (!MontageTask)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 	
 	MontageTask->OnCompleted.AddDynamic(this, &UKOGA_BossAttackBase::OnMontageCompleted);
 	MontageTask->OnCancelled.AddDynamic(this, &UKOGA_BossAttackBase::OnMontageCancelled);
@@ -68,17 +63,6 @@ void UKOGA_BossAttackBase::ActivateAbility(
  
 	MontageTask->ReadyForActivation();
 }
- 
-void UKOGA_BossAttackBase::EndAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility,
-	bool bWasCancelled)
-{
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
 
 void UKOGA_BossAttackBase::OnMontageCompleted()
 {
@@ -92,88 +76,26 @@ void UKOGA_BossAttackBase::OnMontageCancelled()
 
 bool UKOGA_BossAttackBase::IsTargetInRange() const
 {
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar) return false;
+	// TODO:
+	// 역할 분리 필요. 어빌리티에서 타겟의 위치를 구하는건 맞지않음. 
+	// BT에서 처리 해야할듯. 
+	
+	
+	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter()); 
+	if (!Boss) return false; 
  
-	APawn* Pawn = Cast<APawn>(Avatar);
-	if (!Pawn)
-	{
-		return false;
-	}
- 
-	AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-	if (!AIC)
-	{
-		return false;
-	}
- 
+	AAIController* AIC = Cast<AAIController>(Boss->GetController());
+	if (!AIC) return false;
+	
 	UBlackboardComponent* BB = AIC->GetBlackboardComponent();
-	if (!BB)
-	{
-		return false;
-	}
- 
-	AActor* Target = Cast<AActor>(
-		BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
-	if (!Target)
-	{
-		return false;
-	}
- 
+	if (!BB) return false;
+	
+	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+	if (!Target) return false;
+	
 	// DA에서 GA 클래스 기준으로 AttackRange 조회
-	AKOBossBase* Boss = Cast<AKOBossBase>(Avatar);
-	UKOBossDataAsset* DA = Boss ? Boss->GetDataAsset() : nullptr;
+	UKOBossDataAsset* DA = Boss->GetDataAsset();
 	const float AttackRange = DA ? DA->GetAttackRange(GetClass()) : 300.f;
  
-	return FVector::Dist(Avatar->GetActorLocation(),Target->GetActorLocation()) <= AttackRange;
-}
-
-void UKOGA_BossAttackBase::ApplyDamageToTarget(AActor* TargetActor)
-{
-	if (!TargetActor)
-	{
-		return;
-	}
-	
-	if (!DamageEffectClass)
-	{
-		return;
-	}
- 
-	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(TargetActor);
-	if (!TargetASI)
-	{
-		return;
-	}
- 
-	UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
-	if (!TargetASC)
-	{
-		return;
-	}
- 
-	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-	if (!SourceASC)
-	{
-		return;
-	}
-	
-	const UKOCombatSet* CombatSet = SourceASC->GetSet<UKOCombatSet>();
-	if (!CombatSet)
-	{
-		return;
-	}
-	
-	const float AttackPower = CombatSet->GetAttackPower();
- 
-	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-	Context.AddSourceObject(GetAvatarActorFromActorInfo());
- 
-	FGameplayEffectSpecHandle Spec = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Context);
- 
-	if (Spec.IsValid())
-	{
-		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage,AttackPower);
-		SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
-	}
+	return FVector::Dist(Boss->GetActorLocation(),Target->GetActorLocation()) <= AttackRange;
 }

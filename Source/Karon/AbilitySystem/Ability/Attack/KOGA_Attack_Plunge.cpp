@@ -5,8 +5,6 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Ability_Attack_Plunge, "Input.Ability.Attack.Plunge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Plunge_Land,           "Event.Plunge.Land");
 
