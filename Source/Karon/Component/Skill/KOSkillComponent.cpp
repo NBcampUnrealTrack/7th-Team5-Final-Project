@@ -33,7 +33,7 @@ void UKOSkillComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
+bool UKOSkillComponent::TryUnlockSkill(const FName& SkillName)
 {
 	if (SkillName.IsNone())
 	{
@@ -106,13 +106,13 @@ bool UKOSkillComponent::TryUnlockSkill(FName SkillName)
 	return true;
 }
 
-ESkillState UKOSkillComponent::GetSkillState(FName SkillName) const
+ESkillState UKOSkillComponent::GetSkillState(const FName& SkillName) const
 {
 	const ESkillState* State = GetSkillInfo(SkillName);
 	return State ? *State : ESkillState::Locked;
 }
 
-bool UKOSkillComponent::IsUnlocked(FName SkillName) const
+bool UKOSkillComponent::IsUnlocked(const FName& SkillName) const
 {
 	return GetSkillState(SkillName) == ESkillState::Unlocked;
 }

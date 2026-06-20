@@ -4,7 +4,8 @@
 #include "Component/Skill/KOSkillComponent.h"
 #include "Components/Image.h"
 
-void UKOSkillNodeWidget::InitializeNode(FName InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost, ESkillState InState)
+void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
+                                        TArray<FSkillCost> InCost, ESkillState InState)
 {
 	SkillName = InSkillName;
 	SkillTag = InSkillTag;
@@ -25,7 +26,7 @@ void UKOSkillNodeWidget::NativeConstruct()
 			CachedSkillComponent = SkillComp;
 		}
 	}
-	
+
 	RefreshNode();
 }
 
@@ -39,7 +40,7 @@ void UKOSkillNodeWidget::NativeDestruct()
 void UKOSkillNodeWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
-	
+
 	if (CachedSkillComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillComponent가 없습니다."));
@@ -51,7 +52,7 @@ void UKOSkillNodeWidget::NativeOnClicked()
 		CachedSkillComponent->TryUnlockSkill(SkillName);
 		RefreshNode();
 	}
-			
+
 	if (OnSkillNodeClicked.IsBound())
 	{
 		OnSkillNodeClicked.Broadcast(this);
@@ -65,7 +66,7 @@ void UKOSkillNodeWidget::RefreshNode()
 		UE_LOG(LogTemp, Warning, TEXT("Skill Node: OverlayImage를 찾을 수 없습니다."));
 		return;
 	}
-	
+
 	switch (CurrentState)
 	{
 	case ESkillState::Locked:

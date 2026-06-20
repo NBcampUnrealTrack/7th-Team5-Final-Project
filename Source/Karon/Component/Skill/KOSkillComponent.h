@@ -23,9 +23,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
-	bool TryUnlockSkill(FName SkillName);
-	bool IsUnlocked(FName SkillName) const;
-	ESkillState GetSkillState(FName SkillName) const;
+	bool TryUnlockSkill(const FName& SkillName);
+	bool IsUnlocked(const FName& SkillName) const;
+	ESkillState GetSkillState(const FName& SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
 	void GetAllSkillNames(TArray<FName>& Out) const;
 
