@@ -19,7 +19,7 @@ void UKOSkillNodeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AController* OwningController = GetOwningPlayer())
+	if (APlayerController* OwningController = GetOwningPlayer())
 	{
 		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
 		{
@@ -35,6 +35,26 @@ void UKOSkillNodeWidget::NativeDestruct()
 	CachedSkillComponent = nullptr;
 
 	Super::NativeDestruct();
+}
+
+void UKOSkillNodeWidget::NativeOnHovered()
+{
+	Super::NativeOnHovered();
+
+	if (OnSkillNodeHovered.IsBound())
+	{
+		OnSkillNodeHovered.Broadcast(this);
+	}
+}
+
+void UKOSkillNodeWidget::NativeOnUnhovered()
+{
+	Super::NativeOnUnhovered();
+
+	if (OnSkillNodeUnhovered.IsBound())
+	{
+		OnSkillNodeUnhovered.Broadcast(this);
+	}
 }
 
 void UKOSkillNodeWidget::NativeOnClicked()

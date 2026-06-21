@@ -2,9 +2,25 @@
 
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
+#include "UI/Skill/KOSkillTooltipWidget.h"
 #include "Component/Skill/KOSkillComponent.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
+#include "Subsystem/KOLoadSubsystem.h"
+
+namespace
+{
+	FText GetExecutionTypeText(ESkillExecutionType Type)
+	{
+		switch (Type)
+		{
+		case ESkillExecutionType::Active:          return NSLOCTEXT("KOSkill", "Active", "액티브");
+		case ESkillExecutionType::ActiveExtension: return NSLOCTEXT("KOSkill", "ActiveExtension", "행동 추가");
+		case ESkillExecutionType::PassiveStat:     return NSLOCTEXT("KOSkill", "Passive", "패시브");
+		default:                                   return FText::GetEmpty();
+		}
+	}
+}
 
 UKOSkillTreePopup::UKOSkillTreePopup()
 {
@@ -24,34 +40,28 @@ void UKOSkillTreePopup::NativeConstruct()
 			SkillComponent = SkillComp;
 		}
 	}
+	
+	SetupAndBindSkillNodes();
 }
 
 void UKOSkillTreePopup::NativeDestruct()
 {
 	SkillComponent = nullptr;
 	
-	Super::NativeDestruct();
-}
-
-void UKOSkillTreePopup::NativeOnActivated()
-{
-	Super::NativeOnActivated();
-	
-	SetupAndBindSkillNodes();
-}
-
-void UKOSkillTreePopup::NativeOnDeactivated()
-{
 	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
 	{
 		if (IsValid(Node))
 		{
 			Node->OnSkillNodeClicked.RemoveAll(this);
+			Node->OnSkillNodeHovered.RemoveAll(this);
+			Node->OnSkillNodeUnhovered.RemoveAll(this);
 		}
 	}
 	CachedSkillNodes.Empty();
+
+	HideSkillTooltip();
 	
-	Super::NativeOnDeactivated();
+	Super::NativeDestruct();
 }
 
 void UKOSkillTreePopup::RefreshAllSkillNodes() const
@@ -97,18 +107,22 @@ void UKOSkillTreePopup::SetupAndBindSkillNodes()
 		if (IsValid(Node))
 		{
 			Node->OnSkillNodeClicked.RemoveAll(this);
+			Node->OnSkillNodeHovered.RemoveAll(this);
+			Node->OnSkillNodeUnhovered.RemoveAll(this);
 		}
 	}
 	CachedSkillNodes.Empty();
-	
+
 	TArray<UKOSkillNodeWidget*> RetrievedNodes = BP_GetAllSkillNodes();
 	for(UKOSkillNodeWidget* Node : RetrievedNodes)
 	{
 		if (IsValid(Node))
 		{
 			CachedSkillNodes.Add(Node);
-			
+
 			Node->OnSkillNodeClicked.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeClicked);
+			Node->OnSkillNodeHovered.AddUObject(this, &UKOSkillTreePopup::ShowSkillTooltip);
+			Node->OnSkillNodeUnhovered.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeUnhovered);
 		}
 	}
 	RefreshAllSkillNodes();
@@ -121,4 +135,60 @@ void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
 		return;
 	}
 	RefreshAllSkillNodes();
+}
+
+void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
+{
+	if (SkillTooltipWidget == nullptr || Node == nullptr)
+	{
+		return;
+	}
+
+	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->SkillName);
+	if (SkillRow == nullptr)
+	{
+		return;
+	}
+
+	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
+	if (LoadSubsystem == nullptr)
+	{
+		return;
+	}
+
+	// SkillName과 동일한 RowName의 실행 데이터 조회
+	FText ExecutionTypeText = FText::GetEmpty();
+	if (const FKOSkillExecutionRow* ExRow = LoadSubsystem->FindSkillExecutionRow(Node->SkillName))
+	{
+		ExecutionTypeText = GetExecutionTypeText(ExRow->ExecutionType);
+	}
+
+	// 비용 아이템 행 수집
+	TArray<FKOItemRow> CostItemRows;
+	for (const FSkillCost& Cost : SkillRow->UnlockCosts)
+	{
+		const FName ItemId = LoadSubsystem->FindItemIdByTag(Cost.ItemTag);
+		if (ItemId.IsNone()) continue;
+
+		if (const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId))
+		{
+			CostItemRows.Add(*ItemRow);
+		}
+	}
+
+	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, ExecutionTypeText, CostItemRows);
+	SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+}
+
+void UKOSkillTreePopup::HandleSkillNodeUnhovered(UKOSkillNodeWidget* /*Node*/)
+{
+	HideSkillTooltip();
+}
+
+void UKOSkillTreePopup::HideSkillTooltip()
+{
+	if (SkillTooltipWidget)
+	{
+		SkillTooltipWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }

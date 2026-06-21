@@ -8,6 +8,7 @@
 
 class UKOSkillNodeWidget;
 class UKOSkillComponent;
+class UKOSkillTooltipWidget;
 
 /**
  * 팝업시킬 스킬창 모체
@@ -24,12 +25,13 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	virtual void NativeOnActivated() override;
-	virtual void NativeOnDeactivated() override;
 	
 	void RefreshAllSkillNodes() const;
 	void SetupAndBindSkillNodes();
 	void HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode);
+	void ShowSkillTooltip(UKOSkillNodeWidget* Node);
+	void HandleSkillNodeUnhovered(UKOSkillNodeWidget* Node);
+	void HideSkillTooltip();
 	
 	UFUNCTION(BlueprintPure, Category="Skill Tree")
 	UKOSkillComponent* GetSkillComponent() const {return SkillComponent;}
@@ -40,7 +42,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillNodeWidget*> BP_GetAllSkillNodes() const;
 	
-private:
+	UPROPERTY(meta=(BindWidgetOptional))
+	TObjectPtr<UKOSkillTooltipWidget> SkillTooltipWidget;
+
 	UPROPERTY()
 	TArray<UKOSkillNodeWidget*> CachedSkillNodes;
 };

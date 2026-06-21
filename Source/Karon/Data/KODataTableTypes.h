@@ -190,6 +190,9 @@ struct KARON_API FKOSkillRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     FText DisplayName;
     
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FText Description;
+    
     /** 스킬 식별용 태그*/
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     FGameplayTag SkillTag;

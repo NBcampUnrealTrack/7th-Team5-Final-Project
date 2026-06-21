@@ -10,6 +10,7 @@ class UImage;
 class UKOSkillComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeClicked, UKOSkillNodeWidget*)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeHovered, UKOSkillNodeWidget*)
 
 /**
  * 스킬창에서 스킬 한 칸을 담당하는 클래스
@@ -21,6 +22,8 @@ class KARON_API UKOSkillNodeWidget : public UCommonButtonBase
 
 public:
 	FOnSkillNodeClicked OnSkillNodeClicked;
+	FOnSkillNodeHovered OnSkillNodeHovered;
+	FOnSkillNodeHovered OnSkillNodeUnhovered;
 	// 외부(팝업)에서 노드를 초기화할 때 호출할 함수
 	UFUNCTION(BlueprintCallable, Category = "Skill")
 	void InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
@@ -30,8 +33,9 @@ public:
 	virtual void NativeDestruct() override;
 
 protected:
-	// CommonButtonBase의 클릭 이벤트를 오버라이드
 	virtual void NativeOnClicked() override;
+	virtual void NativeOnHovered() override;
+	virtual void NativeOnUnhovered() override;
 
 	void RefreshNode();
 
