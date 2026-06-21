@@ -71,10 +71,10 @@ void AKOBaseEnemy::BeginPlay()
 		AbilitySystemComponent->GiveGrantSet();
 		AbilitySystemComponent->InitAbilityActorInfo(this,this);
 		
-		//ASC Duration Callback
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthSet->GetHealthAttribute())
-		.AddUObject(this, &AKOBaseEnemy::OnHitCallback);
+		// Bind Attributes Changed Functions 
+		InitializeAttributes(); 
 	}
+	
 	//HPBar Binding
 	if (EnemyHPBarWidgetComponent)
 	{
@@ -87,24 +87,34 @@ void AKOBaseEnemy::BeginPlay()
 	
 }
 
-
-void AKOBaseEnemy::OnHitCallback(const FOnAttributeChangeData& Data)
+void AKOBaseEnemy::InitializeAttributes()
 {
-	//체력이 0이라면 사망 콟백을 HPBar, AIController로 전달
-	if (Data.NewValue==0.f&&!bIsDead)
-	{
-		OnHPChangedEvent.ExecuteIfBound(0.f,Data.OldValue-Data.NewValue);
-		OnEnemyDead.Broadcast();
-		DropItem();
-		bIsDead=true;
-	}
+	Super::InitializeAttributes();
 	
-	//체력이 감소했다면 피격 콜백을 HPBar, AIController로 전달
-	else if (Data.NewValue<Data.OldValue)
+	if (HealthSet)
 	{
-		OnHPChangedEvent.ExecuteIfBound(Data.NewValue/HealthSet->GetMaxHealth(),Data.OldValue-Data.NewValue);
-		OnCharacterHit.ExecuteIfBound();
+		HealthSet->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
 	}
+}
+
+void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
+{
+	Super::OnCharacterDead(DeathInstigator);
+	
+	// 사망시 자동 호출 (어트리뷰트 -> 사망 어빌리티 -> 호출) 
+	
+	OnEnemyDead.Broadcast();
+	DropItem();
+	
+	bIsDead=true;
+}
+
+
+void AKOBaseEnemy::OnHealthChanged(float OldValue, float NewValue)
+{
+	OnHPChangedEvent.ExecuteIfBound( NewValue/ HealthSet->GetMaxHealth(), OldValue - NewValue);
+	
+	OnCharacterHit.ExecuteIfBound();
 }
 
 void AKOBaseEnemy::DropItem()

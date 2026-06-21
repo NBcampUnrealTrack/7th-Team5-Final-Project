@@ -42,7 +42,6 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 		PreCMCTick, PreCMCTick->PrimaryComponentTick
 	);
 	
-	//현석 : Enemy에서 SphereTrace를 위해 PlayerChannel 콜리전 Block 설정
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Player, ECollisionResponse::ECR_Block);
 }
 
@@ -71,6 +70,8 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	CombatSet = PS->GetCombatSet();
 	MovementSet = PS->GetMovementSet();
 	HealthSet = PS->GetHealthSet();
+	
+	InitializeAttributes();
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)

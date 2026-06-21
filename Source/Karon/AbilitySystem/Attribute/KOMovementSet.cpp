@@ -73,7 +73,7 @@ void UKOMovementSet::PostAttributeChange(const FGameplayAttribute& Attribute, fl
 		OnMaxWalkSpeedBaseChanged.Broadcast(OldValue, NewValue);
 	
 	if (Attribute == GetMaxAccelerationAttribute())
-		OnMaxWalkSpeedBaseChanged.Broadcast(OldValue, NewValue);
+		OnMaxAccelerationChanged.Broadcast(OldValue, NewValue);
 	
 	if (Attribute == GetGroundFrictionAttribute())
 		OnGroundFrictionChanged.Broadcast(OldValue, NewValue);

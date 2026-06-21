@@ -40,9 +40,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-
+	virtual void InitializeAttributes() override;
+	
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
 private:
-	void OnHitCallback(const FOnAttributeChangeData& Data);
+	UFUNCTION()
+	void OnHealthChanged(float OldValue, float NewValue);
+	
 	void DropItem();
 
 	

@@ -35,10 +35,30 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	
+	virtual void InitializeAttributes();
 
 public:
 	UFUNCTION()
 	virtual void OnCharacterDead(AActor* DeathInstigator);
+	
+	UFUNCTION()
+	void OnMaxWalkSpeedChanged(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void OnMaxAccelerationChanged(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void OnBrakingDecelerationChanged(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void OnGroundFrictionChanged(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void OnMaxWalkSpeedCrouchedChanged(float OldValue, float NewValue);
+	
+	UFUNCTION()
+	void OnJumpStrengthChanged(float OldValue, float NewValue);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")

@@ -64,8 +64,11 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyEnd(FBranchingPointNotifyPay
 	CachedAbilities.Remove(MeshComp);
 }
 
-void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                           float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UKOEnemyAttackNotifyState::NotifyTick(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
+	float FrameDeltaTime, 
+	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
@@ -109,6 +112,7 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 		FLinearColor::Green, // TraceHitColor
 		2.0f // DrawTime
 	);
+	
 	//이전 소켓의 위치를 갱신
 	CachedAbilities[MeshComp]->PresentAttackSocketLocation = CachedAbilities[MeshComp]->CurrentAttackSocketLocation;
 	//피격되지 않았으면 Early Return

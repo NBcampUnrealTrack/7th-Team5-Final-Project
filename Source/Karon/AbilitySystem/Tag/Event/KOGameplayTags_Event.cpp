@@ -29,7 +29,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");
 	
 	// ── Event | Combo ─────────────────────────────────────────────
-	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Check, "Event.Combo.Check");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Transition, "Event.Combo.Transition");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_EnableInput, "Event.Combo.EnableInput");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Open, "Event.Combo.Window.Open");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Window_Close, "Event.Combo.Window.Close");

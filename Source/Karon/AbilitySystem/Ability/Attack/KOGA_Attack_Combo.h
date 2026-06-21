@@ -22,47 +22,45 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
 	) override;
-
+	
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilityActivationInfo ActivationInfo, 
+		bool bReplicateEndAbility, bool bWasCancelled
+	)override;
+	
 	virtual void InputPressed(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo
 	) override;
-
-private:
-	UFUNCTION()
-	void PlayNextComboSection();
 	
-	UFUNCTION()
-	void OnComboWindowReceived(FGameplayEventData Payload);
+protected:
+	void PlayComboMontage();
 	
 	UFUNCTION()
 	void OnMontageEnded();
 	
 	UFUNCTION()
-	void OnHitEventReceived(FGameplayEventData Payload);
+	void OnComboWindowOpened(FGameplayEventData Payload);
 	
 	UFUNCTION()
-	void OnInputBufferOpened(FGameplayEventData Payload);
+	void OnComboWindowClosed(FGameplayEventData Payload);
 	
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Data")
-	TObjectPtr<UDataTable> ComboDataTable;
+	UFUNCTION()
+	void OnHitEventReceived(FGameplayEventData Payload);
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Data")
-	FName WeaponRowName = FName("DefaultWeapon");
-	
+	UFUNCTION()
+	void OnReceiveTransition(FGameplayEventData Payload);
+
 private:
-	int32 CurrentComboIndex;
-	int32 MaxComboCount;
-	bool bIsComboQueued;
-	bool bIsInputBufferOpen;
-	
-	UPROPERTY()
-	TObjectPtr<UAnimMontage> ComboMontage;
+	int32 ComboIndex = 0;
+	bool bNextComboRequested = false;
+	bool bComboWindowOpen = false;
+	bool bIsTransitioning = false; 
 	
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> CurrentMontageTask;
-	
 	
 };

@@ -3,7 +3,6 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Data/KOComboActionData.h"
 #include "Utility/Log/KOLogManager.h"
 
 UKOGA_Attack_Combo::UKOGA_Attack_Combo()
@@ -26,123 +25,119 @@ void UKOGA_Attack_Combo::ActivateAbility(
 		return;
 	}
 	
-	ACharacter* Character = GetAvatarCharacter();
-	if (!Character)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	if (!ComboDataTable)
-	{
-		KO_LOG(GAS, Warning, TEXT("[%s] ComboDataTable이 블루프린트에 설정되지 않음"), *GetName()); 
-		
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	if (FKOComboActionData* ComboData = ComboDataTable->FindRow<FKOComboActionData>(WeaponRowName, TEXT("ComboDataContext")))
-	{
-		ComboMontage = ComboData->LightAttackMontage.Get();
-		MaxComboCount = ComboData->MaxLightComboCount;
-	}
-	
-	CurrentComboIndex = 1;
-	bIsComboQueued = false;
-	bIsInputBufferOpen = false;
-	CurrentMontageTask = nullptr;
-	
+	// 1. Hit Event Task 
 	UAbilityTask_WaitGameplayEvent* HitTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Hit);
 	
 	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
 	HitTask->ReadyForActivation();
-	
-	
-	UAbilityTask_WaitGameplayEvent* InputEventTask =
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_EnableInput);
-	
-	InputEventTask->EventReceived.AddDynamic(this, &ThisClass::UKOGA_Attack_Combo::OnInputBufferOpened);
-	InputEventTask->ReadyForActivation();
-	
-	
-	UAbilityTask_WaitGameplayEvent* ComboEventTask = 
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Check);
-	
-	ComboEventTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowReceived);
-	ComboEventTask->ReadyForActivation();
-	
 
-	PlayNextComboSection();
+	// 2. Combo Window Tasks 
+	UAbilityTask_WaitGameplayEvent* ComboWindowOpenTask = 
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Window_Open);
+	
+	ComboWindowOpenTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowOpened);
+	ComboWindowOpenTask->ReadyForActivation();
+	
+	UAbilityTask_WaitGameplayEvent* ComboWindowCloseTask = 
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Window_Close);
+	
+	ComboWindowCloseTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowClosed);
+	ComboWindowCloseTask->ReadyForActivation();
+	
+	// 3. Combo Transition Task 
+	UAbilityTask_WaitGameplayEvent* ComboTransitionTask = 
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Transition);
+	
+	ComboTransitionTask->EventReceived.AddDynamic(this, &ThisClass::OnReceiveTransition);
+	ComboTransitionTask->ReadyForActivation();
+	
+	PlayComboMontage(); 
 }
 
-void UKOGA_Attack_Combo::InputPressed(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UKOGA_Attack_Combo::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	ComboIndex = 0;
+	bNextComboRequested = false;
+	bComboWindowOpen = false;
+	bIsTransitioning = false;
+	CurrentMontageTask = nullptr;
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UKOGA_Attack_Combo::InputPressed(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
-	UE_LOG(LogTemp, Warning, TEXT("어빌리티 내부에서 클릭 입력 감지 현재 타수: %d"), CurrentComboIndex);
-
-	if (bIsInputBufferOpen && CurrentComboIndex < MaxComboCount)
+	
+	if (bComboWindowOpen)
 	{
-		bIsComboQueued = true;
-		UE_LOG(LogTemp, Warning, TEXT("bIsComboQueued true"));
+		KO_LOG(Combat, Warning, TEXT("InputPressed in ComboWindow"));
+		
+		bNextComboRequested = true; 
 	}
 }
 
-void UKOGA_Attack_Combo::PlayNextComboSection()
+void UKOGA_Attack_Combo::PlayComboMontage()
 {
 	if (CurrentMontageTask)
 	{
 		CurrentMontageTask->OnCompleted.RemoveDynamic(this, &ThisClass::OnMontageEnded);
-		CurrentMontageTask->OnBlendOut.RemoveDynamic(this, &ThisClass::OnMontageEnded);
 		CurrentMontageTask->OnInterrupted.RemoveDynamic(this, &ThisClass::OnMontageEnded);
-		CurrentMontageTask->OnCancelled.RemoveDynamic(this, &ThisClass::OnMontageEnded);
 		CurrentMontageTask->EndTask();
+		CurrentMontageTask = nullptr;
 	}
 	
-	FName SectionName = FName(*FString::Printf(TEXT("Attack_%d"), CurrentComboIndex));
-	bIsInputBufferOpen = false;
+	if (!MontageData.IsValidIndex(ComboIndex))
+	{
+		KO_LOG(Combat, Error, TEXT("ComboIndex %d is out of MontageData range (%d)."),
+			ComboIndex, MontageData.Num());
+		
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+
+	KO_LOG(Combat, Warning, TEXT("Current ComboIndex : %d"), ComboIndex);
+	const FName TaskName = FName(*FString::Printf(TEXT("MontageTask_%d"), ComboIndex));
 	
-	CurrentMontageTask =
+	 CurrentMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			ComboMontage,
-			1.0f,
-			SectionName,
-			false
+			this, TaskName,
+			MontageData[ComboIndex].Montage,
+			MontageData[ComboIndex].PlayRate
 		);
 	
 	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageEnded);
 	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageEnded);
-	CurrentMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageEnded);
-	CurrentMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageEnded);
-	
 	CurrentMontageTask->ReadyForActivation();
-}
-
-void UKOGA_Attack_Combo::OnComboWindowReceived(FGameplayEventData Payload)
-{
-	UE_LOG(LogTemp, Warning, TEXT("==== [Combo] 몽타주 노티파이 신호 수신 완료! ===="));
-
-	if (bIsComboQueued)
-	{
-		CurrentComboIndex++;
-		bIsComboQueued = false;
-       
-		UE_LOG(LogTemp, Warning, TEXT("[Combo] 예약된 입력 %d타 애니메이션 재생"), CurrentComboIndex);
-       
-		PlayNextComboSection();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Combo] 예약된 입력이 없어서 콤보를 종료하고 대기"));
-	}
 }
 
 void UKOGA_Attack_Combo::OnMontageEnded()
 {
+	if (bIsTransitioning) return;
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true,false);
+}
+
+void UKOGA_Attack_Combo::OnComboWindowOpened(FGameplayEventData Payload)
+{
+	KO_LOG(Combat, Warning, TEXT("Combo check window opened."));
+	
+	bComboWindowOpen = true;
+}
+
+void UKOGA_Attack_Combo::OnComboWindowClosed(FGameplayEventData Payload)
+{
+	KO_LOG(Combat, Warning, TEXT("Combo check window closed."));
+	
+	bComboWindowOpen = false;
 }
 
 void UKOGA_Attack_Combo::OnHitEventReceived(FGameplayEventData Payload)
@@ -151,8 +146,19 @@ void UKOGA_Attack_Combo::OnHitEventReceived(FGameplayEventData Payload)
 	ApplyHitEffects(&Payload);
 }
 
-void UKOGA_Attack_Combo::OnInputBufferOpened(FGameplayEventData Payload)
+void UKOGA_Attack_Combo::OnReceiveTransition(FGameplayEventData Payload)
 {
-	bIsInputBufferOpen = true;
+	if (!bNextComboRequested) return; 
+	
+	KO_LOG(Combat, Warning, TEXT("Combo Transition %d -> %d."), ComboIndex, ComboIndex+1);
+	
+	bNextComboRequested = false;
+	bComboWindowOpen = false;
+	bIsTransitioning = true;
+	ComboIndex++; 
+	
+	PlayComboMontage(); 
+	
+	bIsTransitioning = false;
 }
 
