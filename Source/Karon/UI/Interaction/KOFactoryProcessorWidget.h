@@ -95,6 +95,12 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UButton> RecipeButton;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    FLinearColor RecipeButtonNormalColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
+
+    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
+    FLinearColor RecipeButtonPressureBlockedColor = FLinearColor(0.8f, 0.05f, 0.05f, 1.f);
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UPanelWidget> RecipeSelectPanel;
@@ -151,4 +157,7 @@ private:
 
     /** true면 Recipe 패널을 보여주고 Inventory를 숨김. false면 그 반대. 기본 Inventory. */
     bool bShowingRecipePanel = false;
+    
+    void RefreshRecipeButtonState();
+    bool IsPressureAvailable() const;
 };

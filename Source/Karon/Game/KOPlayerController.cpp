@@ -95,12 +95,6 @@ void AKOPlayerController::BeginPlay()
 		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
-			TEXT("PressurePipe"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
 			TEXT("AlloyMaker"),
 			1
 		);
@@ -125,8 +119,14 @@ void AKOPlayerController::BeginPlay()
 		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
-			TEXT("WeaponWorkbench"),
-			1
+			TEXT("CornerBelt"),
+			20
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Factory,
+			TEXT("StraightBelt"),
+			20
 		);
 		
 		// 아이템 -----------------------------------------
@@ -183,18 +183,6 @@ void AKOPlayerController::BeginPlay()
 			EKOSlotKind::Item,
 			TEXT("MiningPipe"),
 			50
-		);
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("StraightBelt"),
-			20
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("CornerBelt"),
-			20
 		);
 		
 		FoundInventoryComponent ->TryAddItem(

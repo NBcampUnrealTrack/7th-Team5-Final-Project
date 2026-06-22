@@ -3,6 +3,8 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "Component/Factory/KOFactoryProcessorComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Subsystem/KOEnergySubsystem.h"
 #include "Data/KODataTableTypes.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
@@ -10,13 +12,103 @@
 #include "Items/KOItemLibrary.h"
 
 #include "StructUtils/InstancedStruct.h"
-#include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
+#include "Camera/PlayerCameraManager.h"
+#include "Kismet/KismetMathLibrary.h"
+
 AKOBaseBuilding::AKOBaseBuilding()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AKOBaseBuilding::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	CachedProcessor = FindComponentByClass<UKOFactoryProcessorComponent>();
+
+	PressureWarningWidget = FindComponentByClass<UWidgetComponent>();
+
+	if (PressureWarningWidget)
+	{
+		PressureWarningWidget->SetHiddenInGame(true);
+	}
+}
+
+void AKOBaseBuilding::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	RefreshPressureWarning();
+	UpdatePressureWarningFacingCamera();
+}
+
+void AKOBaseBuilding::RefreshPressureWarning()
+{
+	if (!PressureWarningWidget)
+	{
+		return;
+	}
+
+	if (!bShowPressureWarning)
+	{
+		PressureWarningWidget->SetHiddenInGame(true);
+		return;
+	}
+
+	if (!CachedProcessor)
+	{
+		PressureWarningWidget->SetHiddenInGame(true);
+		return;
+	}
+
+	const bool bPressureAvailable = IsPressureAvailable();
+
+	PressureWarningWidget->SetHiddenInGame(bPressureAvailable);
+}
+
+void AKOBaseBuilding::UpdatePressureWarningFacingCamera()
+{
+	if (!PressureWarningWidget)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	APlayerController* PC = World->GetFirstPlayerController();
+	if (!PC || !PC->PlayerCameraManager)
+	{
+		return;
+	}
+
+	const FVector WidgetLocation = PressureWarningWidget->GetComponentLocation();
+	const FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
+
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+
+	PressureWarningWidget->SetWorldRotation(LookAtRotation);
+}
+
+bool AKOBaseBuilding::IsPressureAvailable() const
+{
+	if (!CachedProcessor)
+	{
+		return true;
+	}
+
+	if (const UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this))
+	{
+		return Energy->GetConsumerNetworkProductionRate(CachedProcessor) > KINDA_SMALL_NUMBER;
+	}
+
+	return false;
 }
 
 void AKOBaseBuilding::InitializeBuildingData(FName InFactoryId)
