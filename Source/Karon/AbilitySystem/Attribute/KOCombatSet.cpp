@@ -2,6 +2,7 @@
 
 UKOCombatSet::UKOCombatSet()
 {
+	InitAttackSpeed(1.f); 
 }
 
 // 최솟값 보장

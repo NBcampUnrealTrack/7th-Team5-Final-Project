@@ -79,8 +79,7 @@ void UKOGA_HitReact::ActivateAbility(
 void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 {
 	FVector LaunchDir =
-		EventData.ContextHandle.GetHitResult() ?
-		EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
+		EventData.ContextHandle.GetHitResult() ? EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
 		GetAvatarCharacter() ? GetAvatarCharacter()->GetActorForwardVector() *-1 : 
 		FVector(0, 0, 0);
 	

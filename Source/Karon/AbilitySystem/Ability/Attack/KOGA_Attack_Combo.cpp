@@ -53,7 +53,9 @@ void UKOGA_Attack_Combo::ActivateAbility(
 	ComboTransitionTask->EventReceived.AddDynamic(this, &ThisClass::OnReceiveTransition);
 	ComboTransitionTask->ReadyForActivation();
 	
+	KO_LOG(GAS, Warning, TEXT("Play Montage!!"));
 	PlayComboMontage(); 
+	
 }
 
 void UKOGA_Attack_Combo::EndAbility(
