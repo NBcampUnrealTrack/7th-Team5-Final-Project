@@ -14,6 +14,7 @@ class UMeshComponent;
 class AKOBaseBuilding;
 class AKOConveyorBelt;
 class UKOInventoryComponent;
+class AKOGridVisual;
 
 UENUM(BlueprintType)
 enum class EKOGridBuildMode : uint8
@@ -151,6 +152,9 @@ private:
 
 	/** 큐의 다음 공장에 대해 BeltConnect 팝업을 오픈. 팝업 닫힘(OnDeactivated)마다 재귀 호출. */
 	void OpenNextBeltConnectPopup();
+	
+	void UpdateGridVisualVisibility(); // 그리드 켜고 끄기
+	AKOGridVisual* FindGridVisualActor(); ////
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
@@ -185,6 +189,9 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<AKOGhostPreview> CurrentPreviewActor;
+	
+	UPROPERTY()
+	TObjectPtr<AKOGridVisual> CachedGridVisualActor; ///
 
 	FName CurrentFactoryId = NAME_None;
 	const FKOFactoryRow* CurrentFactoryRow = nullptr;

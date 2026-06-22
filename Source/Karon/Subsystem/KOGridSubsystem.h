@@ -48,9 +48,8 @@ public:
 
 	// 디버그 박스 크기 계산
 	float GetCellSize() const { return CellSize; }
-	
-	// 라인 디버깅
-	void DrawDebugGrid(float Duration = -1.0f) const;
+	FIntPoint GetGridDimensions() const { return GridDimensions; }
+	FVector GetGridOrigin() const { return GridOrigin; }
 	
 protected:
 	void FreeArea(FIntPoint AnchorLocation, FIntPoint AreaSize);
@@ -81,15 +80,4 @@ private:
 	
 	UPROPERTY()
 	TMap<TObjectPtr<AActor>, FKOGridOccupiedArea> OccupiedAreaByActor;
-	
-	// 그리드
-	UPROPERTY(EditDefaultsOnly, Category = "Grid|Debug")
-	bool bAutoDrawDebugGridOnBeginPlay = true;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Grid|Debug")
-	int32 DebugGridLineStep = 1;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Grid|Debug")
-	float DebugGridZOffset = 20.0f;
-	
 };

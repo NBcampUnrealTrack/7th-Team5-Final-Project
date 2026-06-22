@@ -1,6 +1,5 @@
 ﻿#include "KOGridSubsystem.h"
 #include "Engine/World.h"
-#include "DrawDebugHelpers.h"
 
 namespace
 {
@@ -27,11 +26,6 @@ void UKOGridSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	Super::OnWorldBeginPlay(InWorld);
 
 	BuildGridFromWorld(); // 그리드 데이터 생성
-	
-	if (bAutoDrawDebugGridOnBeginPlay)
-	{
-		DrawDebugGrid(-1.0f);
-	}
 }
 
 void UKOGridSubsystem::BuildGridFromWorld()
@@ -353,59 +347,4 @@ bool UKOGridSubsystem::IsValidGridLocation(const FIntPoint& GridLocation) const
 int32 UKOGridSubsystem::ToIndex(const FIntPoint& GridLocation) const
 {
 	return GridLocation.Y * GridDimensions.X + GridLocation.X;
-}
-
-void UKOGridSubsystem::DrawDebugGrid(float Duration) const
-{
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
-
-	if (GridDimensions.X <= 0 || GridDimensions.Y <= 0 || CellSize <= 0.0f)
-	{
-		return;
-	}
-
-	const float MinX = GridOrigin.X;
-	const float MinY = GridOrigin.Y;
-	const float MaxX = GridOrigin.X + GridDimensions.X * CellSize;
-	const float MaxY = GridOrigin.Y + GridDimensions.Y * CellSize;
-	const float Z = GridOrigin.Z + DebugGridZOffset;
-
-	const bool bPersistent = Duration < 0.0f;
-	const float LifeTime = Duration;
-	const int32 Step = FMath::Max(1, DebugGridLineStep);
-
-	// X방향 세로선
-	for (int32 X = 0; X <= GridDimensions.X; X += Step)
-	{
-		const float WorldX = GridOrigin.X + X * CellSize;
-		DrawDebugLine(
-			World,
-			FVector(WorldX, MinY, Z),
-			FVector(WorldX, MaxY, Z),
-			FColor::Green,
-			bPersistent,
-			LifeTime,
-			0,
-			0.5f
-		);
-	}
-	// Y방향 가로선
-	for (int32 Y = 0; Y <= GridDimensions.Y; Y += Step)
-	{
-		const float WorldY = GridOrigin.Y + Y * CellSize;
-		DrawDebugLine(
-			World,
-			FVector(MinX, WorldY, Z),
-			FVector(MaxX, WorldY, Z),
-			FColor::Green,
-			bPersistent,
-			LifeTime,
-			0,
-			0.5f
-		);
-	}
 }

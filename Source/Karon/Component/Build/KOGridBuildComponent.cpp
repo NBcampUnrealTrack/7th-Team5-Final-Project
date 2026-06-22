@@ -5,6 +5,8 @@
 #include "Building/KOBaseBuilding.h"
 #include "Building/KOGhostPreview.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
+#include "Building/KOGridVisual.h"
+#include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "HAL/IConsoleManager.h"
@@ -524,6 +526,11 @@ void UKOGridBuildComponent::RequestBuild()
 		NewBuilding->Destroy();
 		return;
 	}
+	
+	if (AKOGridVisual* GridVisual = FindGridVisualActor())
+	{
+		GridVisual->RefreshInstalledPowerCoverage();
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건물 설치 완료: %s / Grid(%d, %d) / Size(%d, %d)"),
 		*NewBuilding->GetName(),
@@ -709,6 +716,53 @@ void UKOGridBuildComponent::OpenNextBeltConnectPopup()
 	{
 		OpenNextBeltConnectPopup();
 	});
+}
+
+void UKOGridBuildComponent::UpdateGridVisualVisibility()
+{
+	AKOGridVisual* GridVisualActor = FindGridVisualActor();
+	if (!GridVisualActor)
+	{
+		return;
+	}
+
+	const bool bShouldShowGrid =
+		CurrentMode == EKOGridBuildMode::BuildMenu ||
+		CurrentMode == EKOGridBuildMode::Placing ||
+		CurrentMode == EKOGridBuildMode::Destroying;
+
+	GridVisualActor->SetGridVisible(bShouldShowGrid);
+	
+	if (bShouldShowGrid)
+	{
+		GridVisualActor->RefreshInstalledPowerCoverage();
+	}
+	else
+	{
+		GridVisualActor->ClearPowerCoverageCells();
+	}
+}
+
+AKOGridVisual* UKOGridBuildComponent::FindGridVisualActor()
+{
+	if (CachedGridVisualActor)
+	{
+		return CachedGridVisualActor;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	for (TActorIterator<AKOGridVisual> It(World); It; ++It)
+	{
+		CachedGridVisualActor = *It;
+		return CachedGridVisualActor;
+	}
+
+	return nullptr;
 }
 
 void UKOGridBuildComponent::CancelCurrentMode()
@@ -910,6 +964,11 @@ void UKOGridBuildComponent::RequestDestroy()
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
 		*TargetBuilding->GetName()
 	);
+	
+	if (AKOGridVisual* GridVisual = FindGridVisualActor())
+	{
+		GridVisual->RefreshInstalledPowerCoverage();
+	}
 
 	ClearDestroyTargetActor();
 
@@ -1197,6 +1256,8 @@ void UKOGridBuildComponent::SetCurrentMode(EKOGridBuildMode NewMode)
 		KOGameplayTags::Data_Message_Build_ModeChanged,
 		FInstancedStruct::Make(Message)
 	);
+	
+	UpdateGridVisualVisibility();
 
 	UE_LOG(
 		LogKOBuild,
