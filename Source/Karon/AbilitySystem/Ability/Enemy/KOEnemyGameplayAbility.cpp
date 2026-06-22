@@ -59,12 +59,6 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 
 void UKOEnemyGameplayAbility::OnMontageCompleted()
 {
-	//Ability가 종료되었다는 것을 BT에도 전달
-	if (AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarCharacter()))
-	{
-		Enemy->OnGameplayAbilityEnd.ExecuteIfBound();
-	}
-	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
@@ -113,7 +107,7 @@ void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEve
 	//
 	// if (SpecHandle.IsValid() && IsValid(CombatSet))
 	// {
-	// 	// TODO: ExecCalc 로 이전 해야함. 
+	// 	
 	// 	
 	// 	//AssetTag 로 검색
 	// 	const FGameplayTagContainer& AssetTags=GetAssetTags();

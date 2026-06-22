@@ -34,9 +34,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	Enemy->OnCharacterHit.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
-	//TODO: SetAI 구현
-	//Enemy->OnCharacterSetAI.AddDynamic(this,&AKOBaseEnemyAIController::SetAI);
-	Enemy->OnGameplayAbilityEnd.BindUObject(this,&AKOBaseEnemyAIController::OnGameplayAbilityEnd);
+	
 	AIPerceptionComp->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AKOBaseEnemyAIController::OnTargetPerceptionUpdated);
 
 	//TeamId 설정
@@ -67,14 +65,6 @@ ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActo
 		return ETeamAttitude::Friendly;
 	}
 	return ETeamAttitude::Neutral;
-}
-
-void AKOBaseEnemyAIController::OnGameplayAbilityEnd()
-{
-	if (BBComp!=nullptr)
-	{
-		BBComp->SetValueAsBool(bIsMontageEndKey, true);
-	}
 }
 
 void AKOBaseEnemyAIController::HitEvent()

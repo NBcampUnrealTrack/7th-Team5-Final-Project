@@ -24,8 +24,6 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
-	UFUNCTION()
-	void OnGameplayAbilityEnd();
 	
 	UFUNCTION()
 	void HitEvent();
@@ -62,7 +60,6 @@ protected:
 	//bool BB 키(FName)
 	const FName bIsDeadKey=TEXT("bIsDead");
 	const FName bIsHitKey = TEXT("bIsHit");
-	const FName bIsMontageEndKey = TEXT("bIsMontageEnd");
 	const FName bIsLongRangeKey = TEXT("bIsLongRange");
 	const FName SelfActorKey = TEXT("SelfActor");
 	const FName AttackRadiusKey = TEXT("AttackRadius");
