@@ -24,6 +24,8 @@ namespace KOGameplayTags
 	// ── Event | Death ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Death, "Event.Death");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Finish, "Event.Montage.Finish");
+	
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");

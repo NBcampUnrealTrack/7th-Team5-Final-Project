@@ -23,6 +23,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_HitReact_KnockBack_Launch);
 	// ── Event | Death ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Finish);
 
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Light);

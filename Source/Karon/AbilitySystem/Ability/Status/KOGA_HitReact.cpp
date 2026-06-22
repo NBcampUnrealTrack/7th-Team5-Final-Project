@@ -76,20 +76,14 @@ void UKOGA_HitReact::ActivateAbility(
 	
 }
 
-void UKOGA_HitReact::EndAbility(
-	const FGameplayAbilitySpecHandle Handle, 
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, 
-	bool bReplicateEndAbility,
-	bool bWasCancelled)
-{
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
 void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 {
 	FVector LaunchDir =
-		EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f;
+		EventData.ContextHandle.GetHitResult() ?
+		EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
+		GetAvatarCharacter() ? GetAvatarCharacter()->GetActorForwardVector() *-1 : 
+		FVector(0, 0, 0);
+	
 	
 	const bool bIsLaunch = 
 		EventData.InstigatorTags.HasTag(KOGameplayTags::Event_HitReact_KnockBack_Launch);

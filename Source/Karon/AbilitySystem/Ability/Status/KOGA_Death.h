@@ -29,7 +29,7 @@ public:
 	
 private:
 	UFUNCTION()
-	void OnMontageCompleted();
+	void OnReceiveEvent(FGameplayEventData Payload);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")

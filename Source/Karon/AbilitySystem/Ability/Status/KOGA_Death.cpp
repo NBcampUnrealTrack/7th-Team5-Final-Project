@@ -2,6 +2,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
 #include "GameFramework/Character.h"
@@ -9,7 +10,8 @@
 
 UKOGA_Death::UKOGA_Death()
 {
-	InstancingPolicy   = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Dead); 
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
 	
 	FAbilityTriggerData Trigger;
@@ -54,13 +56,17 @@ void UKOGA_Death::ActivateAbility(
 		return; 
 	}
 	
+	UAbilityTask_WaitGameplayEvent* WaitEvent = 
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this, KOGameplayTags::Event_Montage_Finish, nullptr, true);
+	
+	WaitEvent->EventReceived.AddDynamic(this, &ThisClass::OnReceiveEvent);
+	WaitEvent->ReadyForActivation(); 
+	
 	UAbilityTask_PlayMontageAndWait* Task = 
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this, NAME_None, Montage, 1.0f, NAME_None, true);
 	
-	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-	Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-			
 	Task->ReadyForActivation(); 
 	
 	// GameplayCue 
@@ -82,7 +88,8 @@ void UKOGA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOGA_Death::OnMontageCompleted()
+void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
 }
+

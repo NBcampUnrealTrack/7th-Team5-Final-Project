@@ -2,6 +2,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Utility/Log/KOLogManager.h"
 
@@ -25,7 +26,7 @@ void UKOGA_Attack_Combo::ActivateAbility(
 		return;
 	}
 	
-	// 1. Hit Event Task 
+	// 1. Hit Event Task
 	UAbilityTask_WaitGameplayEvent* HitTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Hit);
 	
@@ -107,11 +108,17 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 	KO_LOG(Combat, Warning, TEXT("Current ComboIndex : %d"), ComboIndex);
 	const FName TaskName = FName(*FString::Printf(TEXT("MontageTask_%d"), ComboIndex));
 	
+	float PlayRate = MontageData[ComboIndex].PlayRate;
+	if (UKOCombatSet* CombatSet = GetCombatSet())
+	{
+		PlayRate *= CombatSet->GetAttackSpeed();
+	}
+	
 	 CurrentMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this, TaskName,
 			MontageData[ComboIndex].Montage,
-			MontageData[ComboIndex].PlayRate
+			PlayRate
 		);
 	
 	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageEnded);

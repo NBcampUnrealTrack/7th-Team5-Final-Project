@@ -76,6 +76,7 @@ void UKOEnemyGameplayAbility::OnMontageCancelled()
 void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEventData)
 {
 	ApplyHitEffects(&HitGameplayEventData);
+	SendAttackEventsToTarget(&HitGameplayEventData);
 	
 	// AActor* HittedActor = const_cast<AActor*>(HitGameplayEventData.Target.Get());
 	// if (!IsValid(HittedActor))
