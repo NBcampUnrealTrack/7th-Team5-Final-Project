@@ -123,6 +123,8 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 			PlayRate
 		);
 	
+	ClearHitHistory();
+	
 	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageEnded);
 	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageEnded);
 	CurrentMontageTask->ReadyForActivation();

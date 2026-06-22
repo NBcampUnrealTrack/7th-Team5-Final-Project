@@ -44,6 +44,20 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
+protected:
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+	
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility, 
+		bool bWasCancelled) override;
+	
 public:	
 	virtual void SendAttackEventsToTarget(FGameplayEventData* InEventData);
 	
@@ -56,6 +70,33 @@ public:
 	UKOCombatSet* GetCombatSet();
 
 protected:
+	UFUNCTION(BlueprintCallable, Category = "Attack|Trace")
+	virtual void PerformWeaponTrace();
+	
+	UFUNCTION(BlueprintCallable, Category = "Attack|Trace")
+	virtual void ClearHitHistory();
+	
+	UFUNCTION()
+	void OnWeaponTraceStarted(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnWeaponTraceEnded(FGameplayEventData Payload);
+	
+	UPROPERTY()
+	FTimerHandle TraceTimerHandle;
+	
+	UPROPERTY()
+	TArray<AActor*> DamagedActors;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
+	FName WeaponStartSocket = FName("StartTrace");
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
+	FName WeaponEndSocket = FName("EndTrace");
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
+	float TraceRadius = 45.0f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	TArray<FKOAttackMontageData> MontageData;
 	
