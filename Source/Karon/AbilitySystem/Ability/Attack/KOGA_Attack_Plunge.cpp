@@ -4,7 +4,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Engine/OverlapResult.h"
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Ability_Attack_Plunge, "Input.Ability.Attack.Plunge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Plunge_Land,           "Event.Plunge.Land");
 
@@ -103,6 +103,13 @@ void UKOGA_Attack_Plunge::StartPlunge()
 
     if (!FallMontage) { StartLanding(); return; }
 
+    
+    // [수정 사항] 하강 단계(FallMontage)가 시작되자마자 이벤트를 기다리도록 바인딩합니다!
+    UAbilityTask_WaitGameplayEvent* WaitEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+        this, TAG_Event_Plunge_Land, nullptr, true, true); // TAG_Event_Plunge_Land = "Event.Plunge.Land"
+    WaitEvent->EventReceived.AddDynamic(this, &UKOGA_Attack_Plunge::OnLandEventReceived);
+    WaitEvent->ReadyForActivation();
+    
     CurrentMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, FallMontage, 1.0f);
     CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnFallMontageCompleted);
@@ -154,13 +161,63 @@ void UKOGA_Attack_Plunge::StartLanding()
 
 void UKOGA_Attack_Plunge::OnLandEventReceived(FGameplayEventData Payload)
 {
+    // 1. 내가(내 캐릭터가) 어디 있는지 위치 정보를 가져옵니다.
+    AActor* AvatarActor = GetAvatarActorFromActorInfo();
+    if (!AvatarActor) return;
+    
+    FVector LandLocation = AvatarActor->GetActorLocation();
+    
     float DamageMultiplier = FMath::Lerp(1.f, MaxDamageMultiplier, ChargeRatio);
     UE_LOG(LogTemp, Warning, TEXT("[Plunge] 착지 충격! 차징 %.0f%% / 배율 x%.2f"),
         ChargeRatio * 100.f, DamageMultiplier);
-    // AttackBase에서 상속받은 함수로 데미지 적용
-    // Payload에 적 정보(Target)가 포함되어 있어야 데미지가 들어갑니다.
-    SendAttackEventsToTarget(&Payload);
-    ApplyHitEffects(&Payload);
+    
+    // ── C++에서 직접 주변 적 탐색하기 ───────────────────────────────
+    
+    // 감지할 범위 반지름 설정 (예: 500cm = 5미터)
+    // 팁: 이 값을 헤더(.h) 파일에 UPROPERTY 변수로 빼면 에디터에서 수정하기 편합니다.
+    float ImpactRadius = 500.f; 
+    
+    TArray<FOverlapResult> OverlapResults;
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(ImpactRadius);
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(AvatarActor); // 공격자인 자기 자신은 제외합니다.
+
+    // 내 발밑(LandLocation)을 중심으로 주변의 Pawn(캐릭터들)을 싹 긁어 모읍니다.
+    GetWorld()->OverlapMultiByChannel(
+        OverlapResults,
+        LandLocation,
+        FQuat::Identity,
+        ECC_Pawn, // 캐릭터들이 사용하는 콜리전 채널
+        Sphere,
+        Params
+    );
+    
+    // 찾은 물체들을 하나씩 검사합니다. (반복문)
+    for (const FOverlapResult& Result : OverlapResults)
+    {
+        AActor* HitActor = Result.GetActor();
+        if (!IsValid(HitActor)) continue;
+
+        // "Enemy" 태그를 가진 적인지 확인합니다.
+        if (HitActor->ActorHasTag(FName("Enemy")))
+        {
+            // 배달할 택배 상자(Payload)의 복사본을 만듭니다.
+            FGameplayEventData TargetPayload = Payload;
+            
+            // 중요: 택배 상자의 'Target(받는 사람)'에 방금 찾은 적을 적어줍니다.
+            TargetPayload.Target = HitActor;
+            TargetPayload.Instigator = AvatarActor;
+            // (선택 사항) 만약 부모 클래스 데미지 시스템이 이 값을 사용한다면 
+            // 이벤트 매니튜드에 데미지 배율을 직접 넣어줄 수도 있습니다.
+            TargetPayload.EventMagnitude = DamageMultiplier;
+            
+            // AttackBase에서 상속받은 함수로 데미지 적용
+            // Payload에 적 정보(Target)가 포함되어 있어야 데미지가 들어갑니다.
+            SendAttackEventsToTarget(&TargetPayload);
+            ApplyHitEffects(&TargetPayload);
+            UE_LOG(LogTemp, Log, TEXT("[Plunge Attack] 적 발견 및 데미지 전달: %s"), *HitActor->GetName());
+        }
+    }
 }
 
 void UKOGA_Attack_Plunge::OnLandMontageCompleted()

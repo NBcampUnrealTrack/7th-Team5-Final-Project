@@ -5,6 +5,7 @@
 #include "NativeGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
+#include "GameplayEffect.h"
 #include "KOGA_Attack_Plunge.generated.h"
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Input_Ability_Attack_Plunge);
@@ -62,6 +63,8 @@ protected:
     
     UPROPERTY(EditDefaultsOnly, Category = "Plunge|Charge")
     float MaxDamageMultiplier = 3.0f;
+    
+    
 
 private:
     float ChargeStartTime = 0.f;
