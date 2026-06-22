@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
+#include "Data/Type/KOSkillTypes.h"
 #include "KOSkillCostEntryWidget.generated.h"
 
 class UCommonTextBlock;
@@ -18,7 +19,10 @@ class KARON_API UKOSkillCostEntryWidget : public UCommonUserWidget
 
 public:
 	void InitializeEntryWidget(UTexture2D* ItemTexture2D, const FText& ItemName,
+	                           ESkillState CurrentState,
 	                           const FText& CurrentAmount, const FText& RequireAmount);
+
+	void RefreshEntryWidget(ESkillState NewCurrentState, const FText& NewCurrentAmount);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -32,4 +36,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> RequireItemAmount;
+	
+private:
+	float CachedRequireAmount;
 };

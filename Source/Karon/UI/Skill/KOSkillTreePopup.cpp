@@ -7,6 +7,8 @@
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/ScrollBox.h"
 
 namespace
 {
@@ -41,7 +43,10 @@ void UKOSkillTreePopup::NativeConstruct()
 		}
 	}
 	
+	CachedLoadSubsystem = UKOLoadSubsystem::Get(this);
+	
 	SetupAndBindSkillNodes();
+	ScrollBox->ScrollToEnd();
 }
 
 void UKOSkillTreePopup::NativeDestruct()
@@ -100,6 +105,34 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 	}
 }
 
+void UKOSkillTreePopup::RefreshActiveTooltip(UKOSkillNodeWidget* Node)
+{
+	if (SkillTooltipWidget == nullptr || Node == nullptr)
+	{
+		return;
+	}
+
+	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->SkillName);
+	if (SkillRow == nullptr || CachedLoadSubsystem == nullptr)
+	{
+		return;
+	}
+	
+	TArray<FKOItemRow> CostItemRows;
+	for (const FSkillCost& Cost : SkillRow->UnlockCosts)
+	{
+		const FName ItemId = CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag);
+		if (ItemId.IsNone()) continue;
+
+		if (const FKOItemRow* ItemRow = CachedLoadSubsystem->FindItemRow(ItemId))
+		{
+			CostItemRows.Add(*ItemRow);
+		}
+	}
+	
+	SkillTooltipWidget->RefreshCostWidget(Node->CurrentState, CostItemRows);
+}
+
 void UKOSkillTreePopup::SetupAndBindSkillNodes()
 {
 	for(UKOSkillNodeWidget* Node : CachedSkillNodes)
@@ -135,6 +168,7 @@ void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
 		return;
 	}
 	RefreshAllSkillNodes();
+	RefreshActiveTooltip(ClickedNode);
 }
 
 void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
@@ -149,16 +183,15 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 	{
 		return;
 	}
-
-	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
-	if (LoadSubsystem == nullptr)
+	
+	if (CachedLoadSubsystem == nullptr)
 	{
 		return;
 	}
 
 	// SkillName과 동일한 RowName의 실행 데이터 조회
 	FText ExecutionTypeText = FText::GetEmpty();
-	if (const FKOSkillExecutionRow* ExRow = LoadSubsystem->FindSkillExecutionRow(Node->SkillName))
+	if (const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(Node->SkillName))
 	{
 		ExecutionTypeText = GetExecutionTypeText(ExRow->ExecutionType);
 	}
@@ -167,17 +200,40 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 	TArray<FKOItemRow> CostItemRows;
 	for (const FSkillCost& Cost : SkillRow->UnlockCosts)
 	{
-		const FName ItemId = LoadSubsystem->FindItemIdByTag(Cost.ItemTag);
+		const FName ItemId = CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag);
 		if (ItemId.IsNone()) continue;
 
-		if (const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(ItemId))
+		if (const FKOItemRow* ItemRow = CachedLoadSubsystem->FindItemRow(ItemId))
 		{
 			CostItemRows.Add(*ItemRow);
 		}
 	}
+	
+	ESkillState SkillState = Node->CurrentState;
 
-	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, ExecutionTypeText, CostItemRows);
+	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow,SkillState, ExecutionTypeText, CostItemRows);
 	SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+	// 노드 버튼 오른쪽에 툴팁 배치
+	if (UCanvasPanelSlot* TooltipSlot = Cast<UCanvasPanelSlot>(SkillTooltipWidget->Slot))
+	{
+		if (UCanvasPanelSlot* NodeSlot = Cast<UCanvasPanelSlot>(Node->Slot))
+		{
+			TooltipSlot->SetAlignment(FVector2D(0.f, 0.5f));
+			
+			const FVector2D NodePos  = NodeSlot->GetPosition();
+			const FVector2D NodeSize = NodeSlot->GetSize();
+			const FVector2D NodeAlignment = NodeSlot->GetAlignment();
+			
+			FVector2D NodeRelativeTopLeft = NodePos - (NodeSize * NodeAlignment);
+			
+			FVector2D NewPosition;
+			NewPosition.X = NodeRelativeTopLeft.X + NodeSize.X + TooltipInterval;
+			NewPosition.Y = NodeRelativeTopLeft.Y + (NodeSize.Y * 0.5f);
+			
+			TooltipSlot->SetPosition(NewPosition);
+		}
+	}
 }
 
 void UKOSkillTreePopup::HandleSkillNodeUnhovered(UKOSkillNodeWidget* /*Node*/)
