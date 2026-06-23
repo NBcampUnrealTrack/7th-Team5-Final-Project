@@ -16,7 +16,7 @@ UKOGA_HitReact::UKOGA_HitReact()
 	AbilityTriggers.Add(TriggerData);
 	
 	// 사망 / 무적 중 진입차단 
-	// ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Invincible);
 }
 

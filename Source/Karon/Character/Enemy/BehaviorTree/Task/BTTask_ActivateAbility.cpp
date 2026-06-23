@@ -129,13 +129,14 @@ EBTNodeResult::Type UBTTask_ActivateAbility::AbortTask(UBehaviorTreeComponent& O
 
 
 	//애님 몽타주도 캔슬
-	if (UAnimInstance* AnimInstance = Enemy->GetMesh()->GetAnimInstance())
-	{
-		if (AnimInstance->IsAnyMontagePlaying())
-		{
-			 AnimInstance->Montage_Stop(MontageBlendOutTime);
-		}
-	}
+	// if (UAnimInstance* AnimInstance = Enemy->GetMesh()->GetAnimInstance())
+	// {
+	// 	if (AnimInstance->IsAnyMontagePlaying())
+	// 	{
+	// 		 AnimInstance->Montage_Stop(MontageBlendOutTime);
+	// 	}
+	// }
+	
 	UE_LOG(LogTemp, Warning, TEXT("Aborted"));
 	return Super::AbortTask(OwnerComp, NodeMemory);
 }

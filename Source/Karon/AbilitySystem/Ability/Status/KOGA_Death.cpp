@@ -1,6 +1,7 @@
 ﻿#include "KOGA_Death.h"
 
 #include "AbilitySystemComponent.h"
+#include "KOGA_HitReact.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -60,7 +61,7 @@ void UKOGA_Death::ActivateAbility(
 	}
 	
 	// 어빌리티 캔슬 
-	// ASC->CancelAllAbilities(this); 
+	ASC->CancelAllAbilities(this);
 	
 	// GE_Death 적용
 	if (GE_Death) ApplyEffectToSelf(GE_Death); 
@@ -89,8 +90,6 @@ void UKOGA_Death::ActivateAbility(
 	Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
 	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	Task->ReadyForActivation(); 
-	
-	// ASC->CancelAllAbilities(this);
 	
 	// GameplayCue 
 	ACharacter* Character = GetAvatarCharacter();
