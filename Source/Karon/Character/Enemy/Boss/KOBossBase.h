@@ -47,9 +47,6 @@ public:
 	
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
 	
-	// ─── 추가 : 기믹 돌진 종료 알림 ─────────────────────────
-	// GA에서 BB 직접 접근 대신 이 함수 호출
-	// 챕터별 보스에서 오버라이드해서 BB 키 처리
 	virtual void NotifyGimmickDashEnd() {}
 	
 	// GA에서 타겟 읽기용 캐시

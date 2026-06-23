@@ -46,7 +46,6 @@ EBTNodeResult::Type UBTTask_BossActiveAbility::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
 	
-	// ─── 추가 : GA에서 BB 참조 없이 타겟 접근하도록 캐싱 ────
 	if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())

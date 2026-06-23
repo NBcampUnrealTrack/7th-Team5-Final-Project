@@ -4,7 +4,6 @@
 #include "KOAIC_BossChapter01.h"
 #include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
  
 AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
@@ -57,7 +56,6 @@ void AKOBossChapter01::OnGroggyBegin()
  
 	bIsGroggy = true;
 	
-	// ─── 추가 : BB bIsGroggyKey 설정 ─────────────────────────
 	// GA에서 BB 직접 접근 대신 이 함수 호출
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
