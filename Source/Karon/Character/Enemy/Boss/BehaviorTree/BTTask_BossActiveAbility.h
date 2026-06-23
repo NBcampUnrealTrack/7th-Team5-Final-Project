@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "BTTask_BossActiveAbility.generated.h"
 
 UCLASS()
@@ -26,4 +27,11 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, Category = "Ability")
 	FGameplayTag AbilityTag;
+	
+private:
+	UFUNCTION()
+	void OnAbilityEndedCallback(const FAbilityEndedData& Data);
+
+	UPROPERTY()
+	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 };

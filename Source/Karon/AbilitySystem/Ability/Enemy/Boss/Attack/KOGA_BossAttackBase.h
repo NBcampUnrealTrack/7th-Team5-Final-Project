@@ -34,8 +34,6 @@ protected:
  
 	UFUNCTION()
 	virtual void OnMontageCancelled();
- 
-	bool IsTargetInRange() const;
 	
 	// 공통 데미지 적용 함수
 	void ApplyDamageToTarget(AActor* TargetActor);

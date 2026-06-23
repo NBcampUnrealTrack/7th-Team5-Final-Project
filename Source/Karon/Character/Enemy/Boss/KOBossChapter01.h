@@ -20,6 +20,9 @@ protected:
 	
 	virtual void OnGroggyBegin() override;
 	virtual void OnGroggyEnd() override;
+	
+	// ─── 추가 : 챕터1 기믹 돌진 종료 처리 ───────────────────
+	virtual void NotifyGimmickDashEnd() override;
  
 	virtual void OnBossDeath() override;
  

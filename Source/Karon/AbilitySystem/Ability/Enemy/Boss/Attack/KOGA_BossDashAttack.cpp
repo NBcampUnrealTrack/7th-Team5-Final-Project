@@ -6,13 +6,13 @@
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UKOGA_BossDashAttack::UKOGA_BossDashAttack()
 {
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Dashing);
 	
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
@@ -39,25 +39,17 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		return;
 	}
 	
-	AAIController* AIC = Cast<AAIController>(Character->GetController());
-	if (!AIC)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
+	// ================================================================
+	// 수정 : BB->GetValueAsObject(TargetActorKey) 제거
+	//        BossBase::CurrentTarget으로 타겟 읽기
+	// ================================================================
+	AKOBossBase* Boss = Cast<AKOBossBase>(Character);
+	AActor* Target = Boss ? Boss-> CurrentTarget : nullptr;
  
-	UBlackboardComponent* BB = AIC->GetBlackboardComponent();
-	if (!BB)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
- 
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
-	DashDirection = Target ? 
+	DashDirection = Target ?
 		(Target->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal() :
 		Character->GetActorForwardVector();
-	DashDirection.Z = 0.f;
+		DashDirection.Z = 0.f;
 	
  
 	// 충돌 이벤트 바인딩
@@ -118,18 +110,16 @@ void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 	{
 		PillarActor->Destroy();
 	}
-	
-	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-	if (Pawn)
+ 
+	// ================================================================
+	// 수정 : BB->SetValueAsBool(bIsGroggyKey, true) 제거
+	//        BossBase::OnGroggyBegin() 호출로 대체
+	//        BB 접근 책임을 BossBase로 이동
+	// ================================================================
+	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());
+	if (Boss)
 	{
-		AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-		if (AIC)
-		{
-			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
-			}
-		}
+		Boss->OnGroggyBegin();
 	}
  
 	StopDash();
@@ -176,20 +166,20 @@ void UKOGA_BossDashAttack::EndAbility(
 		Character->GetCapsuleComponent()->OnComponentHit.RemoveAll(this);
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 		
-		// 기믹 돌진시 BBkey값 변경
+		// ================================================================
+		// 수정 : BB->SetValueAsBool(bIsGimmickReadyKey, false) 제거
+		//        BossBase::NotifyGimmickDashEnd() 호출로 대체
+		//        BB 접근 책임을 BossBase로 이동
+		// ================================================================
 		if (bIsGimmickDash)
 		{
-			AAIController* AIC = Cast<AAIController>(Character->GetController());
-			if (AIC)
+			AKOBossBase* Boss = Cast<AKOBossBase>(Character);
+			if (Boss)
 			{
-				if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-				{
-					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, false);
-				}
+				Boss->NotifyGimmickDashEnd();
 			}
 		}
 	}
 	
- 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo,bReplicateEndAbility, bWasCancelled);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

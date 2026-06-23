@@ -67,8 +67,14 @@ void UBTService_BossCh01_AttackCheck::TickNode(
 	const float Distance = FVector::Dist(BossPawn->GetActorLocation(), PlayerCharacter->GetActorLocation());
 	
 	const bool bIsAttacking = ASC->HasMatchingGameplayTag(
-		KOGameplayTags::State_Boss_Attacking);
- 
+		KOGameplayTags::State_Character_Attacking);
+	
+	if (bIsAttacking)
+	{
+		BB->SetValueAsBool(AKOAIC_BossChapter01::bIsAttackingKey, true);
+		return;
+	}
+
 	for (const FBossAttackInfo& Info : AttackInfos)
 	{
 		const bool bOnCooldown = ASC->HasMatchingGameplayTag(Info.CooldownTag);

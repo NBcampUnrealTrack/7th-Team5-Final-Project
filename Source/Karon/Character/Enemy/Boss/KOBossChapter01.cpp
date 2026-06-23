@@ -56,6 +56,16 @@ void AKOBossChapter01::OnGroggyBegin()
 	}
  
 	bIsGroggy = true;
+	
+	// ─── 추가 : BB bIsGroggyKey 설정 ─────────────────────────
+	// GA에서 BB 직접 접근 대신 이 함수 호출
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
+		}
+	}
  
 	OpenCore();
 }
@@ -88,6 +98,19 @@ void AKOBossChapter01::OnBossDeath()
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
 			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsDeadKey, true);
+		}
+	}
+}
+
+// ─── 추가 : 기믹 돌진 종료 시 BB 키 해제 ────────────────────
+// GA에서 BB 직접 접근 대신 이 함수 호출
+void AKOBossChapter01::NotifyGimmickDashEnd()
+{
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, false);
 		}
 	}
 }
