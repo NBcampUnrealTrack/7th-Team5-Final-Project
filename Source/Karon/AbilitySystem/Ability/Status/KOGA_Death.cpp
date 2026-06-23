@@ -12,12 +12,30 @@ UKOGA_Death::UKOGA_Death()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Dead); 
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
 	
 	FAbilityTriggerData Trigger;
 	Trigger.TriggerTag = KOGameplayTags::Event_Death;
 	Trigger.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(Trigger);
+}
+
+bool UKOGA_Death::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, 
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false; 
+	}
+	
+	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()); 
+	if (!Character) return false; 
+
+	return Character->bIsDead == false; // 죽지 않은 경우에만 실행 
+	
 }
 
 void UKOGA_Death::ActivateAbility(
@@ -30,7 +48,7 @@ void UKOGA_Death::ActivateAbility(
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
@@ -42,7 +60,7 @@ void UKOGA_Death::ActivateAbility(
 	}
 	
 	// 어빌리티 캔슬 
-	ASC->CancelAllAbilities(this); 
+	// ASC->CancelAllAbilities(this); 
 	
 	// GE_Death 적용
 	if (GE_Death) ApplyEffectToSelf(GE_Death); 
@@ -50,9 +68,10 @@ void UKOGA_Death::ActivateAbility(
 	if (TriggerEventData)
 		CachedInstigator = const_cast<AActor*>(TriggerEventData->Instigator.Get());
 	
-	if (!Montage)
+	if (!DeathMontage)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		KO_LOGS(GAS, Ability, Warning, TEXT("Death Ability has no Montage."));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return; 
 	}
 	
@@ -65,9 +84,13 @@ void UKOGA_Death::ActivateAbility(
 	
 	UAbilityTask_PlayMontageAndWait* Task = 
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-				this, NAME_None, Montage, 1.0f, NAME_None, true);
+				this, NAME_None, DeathMontage, 1.0f, NAME_None, false);
 	
+	Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	Task->ReadyForActivation(); 
+	
+	// ASC->CancelAllAbilities(this);
 	
 	// GameplayCue 
 	ACharacter* Character = GetAvatarCharacter();
@@ -77,19 +100,53 @@ void UKOGA_Death::ActivateAbility(
 	ASC->ExecuteGameplayCue(KOGameplayTags::GameplayCue_Death, CueParams);
 }
 
-void UKOGA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UKOGA_Death::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	if (bWasCancelled) return; 
+	
 	if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
 	{
+		if (Character->bIsDead) return; 
+		
 		Character->OnCharacterDead(CachedInstigator.Get());
+		Character->bIsDead = true; 
+		
+		Character->GetMesh()->bPauseAnims = true;
 	}
-	
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)
 {
+	KO_LOGS(GAS, Ability, Warning, TEXT("Received Tag in Death Montage"));
+	
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
+}
+
+void UKOGA_Death::OnMontageCompleted()
+{
+	KO_LOGS(GAS, Ability, Warning, TEXT("Death Montage Completed"));
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
+}
+
+void UKOGA_Death::OnMontageInterrupted()
+{
+	KO_LOGS(GAS, Ability, Warning, TEXT("Death Montage Interrupted"));
+	
+	if (ACharacter* Character = GetAvatarCharacter())
+	{
+		UAnimInstance* AnimInst = Character->GetMesh()->GetAnimInstance();
+		UAnimMontage* Current = AnimInst ? AnimInst->GetCurrentActiveMontage() : nullptr;
+		KO_LOG(GAS, Warning, TEXT("Interrupted by Montage: %s"),
+			Current ? *Current->GetName() : TEXT("None"));
+	}
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
 }
 

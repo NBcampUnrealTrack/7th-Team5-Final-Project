@@ -64,7 +64,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;
 	
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Combat")
 	TObjectPtr<UKOCombatSet> CombatSet;
 	
@@ -77,4 +76,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;
  
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool bIsDead = false; 
+	
 };

@@ -28,7 +28,6 @@ class KARON_API AKOBaseEnemy : public AKOCharacterBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
 	void SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level);
@@ -37,7 +36,6 @@ public:
 	void OnBattleChanged(bool bIsBattle);
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	virtual void InitializeAttributes() override;
@@ -101,11 +99,7 @@ protected:
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
 	
 	int32 EnemyLevel=1;
-
-private:
-	bool bIsDead=false;
 	
-	//Delegates
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
 	

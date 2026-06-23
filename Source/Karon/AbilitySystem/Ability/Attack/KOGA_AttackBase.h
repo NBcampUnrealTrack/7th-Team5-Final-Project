@@ -5,6 +5,7 @@
 #include "KOGA_AttackBase.generated.h"
 
 class UKOCombatSet;
+class UAbilityTask_Tick;
 
 USTRUCT(BlueprintType, Blueprintable)
 struct FKOHitEffectData
@@ -36,6 +37,27 @@ struct FKOAttackMontageData
 	float PlayRate = 1.f; 
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct FKOTraceData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bShowDebug = true;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName StartSocket = FName("StartTrace");
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName EndSocket = FName("EndTrace");
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceRadius = 45.0f;
+	
+	UPROPERTY()
+	TArray<AActor*> HitActors;
+};
+
 UCLASS(Abstract)
 class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 {
@@ -44,21 +66,13 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
-protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo, 
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-	
 	virtual void EndAbility(
-		const FGameplayAbilitySpecHandle Handle, 
-		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
-		bool bReplicateEndAbility, 
-		bool bWasCancelled) override;
-	
-public:	
+		bool bReplicateEndAbility, bool bWasCancelled
+	) override;
+
 	virtual void SendAttackEventsToTarget(FGameplayEventData* InEventData);
 	
 	virtual void SendAttackEventsToTarget(AActor* TargetActor); 
@@ -71,31 +85,13 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Attack|Trace")
-	virtual void PerformWeaponTrace();
+	virtual void PerformWeaponTrace(float DeltaTime);
 	
 	UFUNCTION(BlueprintCallable, Category = "Attack|Trace")
-	virtual void ClearHitHistory();
+	virtual void ResetHitActors();
 	
-	UFUNCTION()
-	void OnWeaponTraceStarted(FGameplayEventData Payload);
-	
-	UFUNCTION()
-	void OnWeaponTraceEnded(FGameplayEventData Payload);
-	
-	UPROPERTY()
-	FTimerHandle TraceTimerHandle;
-	
-	UPROPERTY()
-	TArray<AActor*> DamagedActors;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
-	FName WeaponStartSocket = FName("StartTrace");
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
-	FName WeaponEndSocket = FName("EndTrace");
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Trace")
-	float TraceRadius = 45.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace")
+	FKOTraceData TraceData; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	TArray<FKOAttackMontageData> MontageData;
@@ -106,7 +102,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
 	FGameplayTagContainer AttackEventTags; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug")
-	bool bShowDebug = true; 
+	
+	UAbilityTask_Tick* TickTask;
 };

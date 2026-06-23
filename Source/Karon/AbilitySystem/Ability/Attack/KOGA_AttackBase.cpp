@@ -1,58 +1,46 @@
 #include "KOGA_AttackBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Abilities/Tasks/AbilityTask.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
-#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-
 UKOGA_AttackBase::UKOGA_AttackBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
 }
 
-void UKOGA_AttackBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+void UKOGA_AttackBase::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	if (TickTask)
+	{
+		TickTask->StopTask(); 
+		TickTask = nullptr;
+	}
 	
-	UAbilityTask_WaitGameplayEvent* TraceStartTask = 
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Trace_Start);
-	TraceStartTask->EventReceived.AddDynamic(this, &ThisClass::OnWeaponTraceStarted);
-	TraceStartTask->ReadyForActivation();
-	
-	UAbilityTask_WaitGameplayEvent* TraceEndTask = 
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Trace_End);
-	TraceEndTask->EventReceived.AddDynamic(this, &ThisClass::OnWeaponTraceEnded);
-	TraceEndTask->ReadyForActivation();
-}
-
-void UKOGA_AttackBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
-{
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	
-	GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
-	ClearHitHistory();
 }
 
 void UKOGA_AttackBase::SendAttackEventsToTarget(FGameplayEventData* InEventData)
 {
 	if (!InEventData || !InEventData->Target) return;
-	const UObject* RawdTarget = InEventData->Target;
+	const UObject* RawTarget = InEventData->Target;
 	
-	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawdTarget));
+	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
 	if (!TargetActor) return;
 	
 	UAbilitySystemComponent* TargetASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!TargetASC) return;
 	
-	for (auto EventTag : AttackEventTags)
+	for (const auto& EventTag : AttackEventTags)
 	{
 		FGameplayEventData EventData;
 		EventData.Instigator = Cast<const AActor>(GetAvatarCharacter());
@@ -64,10 +52,13 @@ void UKOGA_AttackBase::SendAttackEventsToTarget(FGameplayEventData* InEventData)
 
 void UKOGA_AttackBase::SendAttackEventsToTarget(AActor* TargetActor)
 {
+	if (!TargetActor) return; 
+	
 	UAbilitySystemComponent* TargetASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!TargetASC) return;
 	
-	for (auto EventTag : AttackEventTags)
+	for (const auto& EventTag : AttackEventTags)
 	{
 		FGameplayEventData EventData;
 		EventData.Instigator = Cast<const AActor>(GetAvatarCharacter());
@@ -109,6 +100,8 @@ void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
 
 void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 {
+	if (!TargetActor) return; 
+	
 	UAbilitySystemComponent* SourceASC = GetASC(); 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!SourceASC || !TargetASC) return;
@@ -139,11 +132,14 @@ UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 	return Character->GetCombatSet(); 
 }
 
-void UKOGA_AttackBase::PerformWeaponTrace()
+void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 {
-	ACharacter* Avatar = Cast<ACharacter>(GetAvatarCharacter());
+	// 1. Character를 Character로 캐스팅 
+	ACharacter* Avatar =GetAvatarCharacter();
 	if (!Avatar) return;
 	
+	
+	// 2. 무기는 Skeletal이 아님 액터-> Static Mesh 
 	TArray<USkeletalMeshComponent*> SkeletalMeshes;
 	Avatar->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
 
@@ -151,7 +147,7 @@ void UKOGA_AttackBase::PerformWeaponTrace()
 
 	for (USkeletalMeshComponent* Comp : SkeletalMeshes)
 	{
-		if (Comp->DoesSocketExist(WeaponStartSocket))
+		if (Comp->DoesSocketExist(TraceData.StartSocket))
 		{
 			TargetMesh = Comp;
 			break;
@@ -160,12 +156,12 @@ void UKOGA_AttackBase::PerformWeaponTrace()
 
 	if (!TargetMesh)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[%s]  %s 소켓 찾을 수 없음."), *GetName(), *WeaponStartSocket.ToString());
+		UE_LOG(LogTemp, Error, TEXT("[%s]  %s 소켓 찾을 수 없음."), *GetName(), *TraceData.StartSocket.ToString());
 		return;
 	}
 	
-	FVector StartLoc = TargetMesh->GetSocketLocation(WeaponStartSocket);
-	FVector EndLoc = TargetMesh->GetSocketLocation(WeaponEndSocket);
+	FVector StartLoc = TargetMesh->GetSocketLocation(TraceData.StartSocket);
+	FVector EndLoc = TargetMesh->GetSocketLocation(TraceData.EndSocket);
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Avatar);
@@ -175,13 +171,13 @@ void UKOGA_AttackBase::PerformWeaponTrace()
 	ActorsToIgnore.Append(AttachedActors);
 	
 	FHitResult HitResult;
-	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+	EDrawDebugTrace::Type DebugType = TraceData.bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
 	
 	bool bHit = UKismetSystemLibrary::SphereTraceSingle(
 		this,
 		StartLoc,
 		EndLoc,
-		TraceRadius,
+		TraceData.TraceRadius,
 		UEngineTypes::ConvertToTraceType(ECC_Pawn),
 		false,
 		ActorsToIgnore,
@@ -194,9 +190,9 @@ void UKOGA_AttackBase::PerformWeaponTrace()
 	{
 		AActor* HitActor = HitResult.GetActor();
 		
-		if (!DamagedActors.Contains(HitActor))
+		if (!TraceData.HitActors.Contains(HitActor))
 		{
-			DamagedActors.Add(HitActor);
+			TraceData.HitActors.Add(HitActor);
 			
 			SendAttackEventsToTarget(HitActor);
 			ApplyHitEffects(HitActor);
@@ -204,25 +200,7 @@ void UKOGA_AttackBase::PerformWeaponTrace()
 	}
 }
 
-void UKOGA_AttackBase::ClearHitHistory()
+void UKOGA_AttackBase::ResetHitActors()
 {
-	DamagedActors.Empty();
+	TraceData.HitActors.Empty();
 }
-
-void UKOGA_AttackBase::OnWeaponTraceStarted(FGameplayEventData Payload)
-{
-	GetWorld()->GetTimerManager().SetTimer(
-		TraceTimerHandle, 
-		this,
-		&UKOGA_AttackBase::PerformWeaponTrace, 
-		0.016f, 
-		true
-	);
-}
-
-void UKOGA_AttackBase::OnWeaponTraceEnded(FGameplayEventData Payload)
-{
-	GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
-	ClearHitHistory();
-}
-

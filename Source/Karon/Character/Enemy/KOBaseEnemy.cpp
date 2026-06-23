@@ -101,12 +101,11 @@ void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 {
 	Super::OnCharacterDead(DeathInstigator);
 	
-	// 사망시 자동 호출 (어트리뷰트 -> 사망 어빌리티 -> 호출) 
+	bIsDead = true;
 	
 	OnEnemyDead.Broadcast();
+
 	DropItem();
-	
-	bIsDead=true;
 }
 
 

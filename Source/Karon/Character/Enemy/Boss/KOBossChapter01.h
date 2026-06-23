@@ -21,9 +21,12 @@ protected:
 	virtual void OnGroggyBegin() override;
 	virtual void OnGroggyEnd() override;
 	
+	
 	virtual void NotifyGimmickDashEnd() override;
  
 	virtual void OnBossDeath() override;
+ 
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
  
 private:
 	UPROPERTY(EditAnywhere, Category = "Boss|Core")
@@ -39,9 +42,6 @@ private:
  
 	void OpenCore();
 	void CloseCore();
-	
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Boss|State")
-	bool bIsDead = false;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Boss|State")
 	bool bIsGroggy = false;

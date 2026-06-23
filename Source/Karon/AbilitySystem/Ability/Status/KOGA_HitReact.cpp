@@ -8,7 +8,7 @@
 
 UKOGA_HitReact::UKOGA_HitReact()
 {
-	InstancingPolicy  = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+	InstancingPolicy  = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = KOGameplayTags::Event_HitReact; 
@@ -16,7 +16,7 @@ UKOGA_HitReact::UKOGA_HitReact()
 	AbilityTriggers.Add(TriggerData);
 	
 	// 사망 / 무적 중 진입차단 
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
+	// ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Invincible);
 }
 
@@ -104,7 +104,7 @@ void UKOGA_HitReact::OnHitStopFinished()
 {
 	ExecuteKnockBack(CachedTriggerEventData);
 	
-	UAnimMontage* Montage = DirectionalMontage[HitDirection];
+	UAnimMontage* Montage = DirectionalMontage.FindRef(HitDirection);
 	if (!Montage)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -118,7 +118,7 @@ void UKOGA_HitReact::OnHitStopFinished()
 			Montage,
 			1.0f,
 			NAME_None,
-			true
+			false
 		);
 	
 	if (MontageTask)

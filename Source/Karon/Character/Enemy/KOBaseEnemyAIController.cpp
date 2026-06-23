@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KOBaseEnemyAIController.h"
+﻿#include "KOBaseEnemyAIController.h"
 
 #include "KOBaseEnemy.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -15,7 +12,6 @@
 #include "Perception/AISense_Team.h"
 
 
-// Sets default values
 AKOBaseEnemyAIController::AKOBaseEnemyAIController()
 {
 	AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
@@ -30,6 +26,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	{
 		return;
 	}
+	
 	//Bindings
 	Enemy->OnCharacterHit.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
@@ -39,6 +36,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 
 	//TeamId 설정
 	TeamId = FGenericTeamId(1);
+	
 	//임시 설정. 풀 관리시 사용
 	SetAI(EnemyBehaviorTree,
 		Enemy->EnemyAttackRadius,
@@ -50,26 +48,21 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 
 ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	const APawn* OtherPawn = Cast<APawn>(&Other);
-	const ACharacter* OtherCharacter = Cast<ACharacter>(&Other);
-	if (OtherCharacter==nullptr)
-	{
-		return ETeamAttitude::Neutral;
-	}
-	if (const AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(&Other))
+	if (const AKOHeroCharacter* Player = Cast<AKOHeroCharacter>(&Other))
 	{
 		return ETeamAttitude::Hostile;
 	}
-	else if (const AKOBaseEnemy* OtherEnemy=Cast<AKOBaseEnemy>(&Other))
+	else if (const AKOBaseEnemy* OtherEnemy = Cast<AKOBaseEnemy>(&Other))
 	{
 		return ETeamAttitude::Friendly;
 	}
+	
 	return ETeamAttitude::Neutral;
 }
 
 void AKOBaseEnemyAIController::HitEvent()
 {
-	if (BBComp!=nullptr)
+	if (BBComp != nullptr)
 	{
 		BBComp->SetValueAsBool(bIsHitKey, true);
 	}
@@ -77,9 +70,10 @@ void AKOBaseEnemyAIController::HitEvent()
 
 void AKOBaseEnemyAIController::DeadEvent()
 {
-	if (BBComp!=nullptr&&!bIsDead)
+	if (BBComp != nullptr && !bIsDead)
 	{
-		bIsDead=true;
+		bIsDead = true;
+		
 		BBComp->SetValueAsBool(bIsDeadKey, true);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&AKOBaseEnemyAIController::StopBT,StopBTDelay,false);
 	}
@@ -97,7 +91,8 @@ void AKOBaseEnemyAIController::ResetEvent()
 	}
 }
 
-void AKOBaseEnemyAIController::SetAI(UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
+void AKOBaseEnemyAIController::SetAI(
+	UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
 	float StrafeSpeed, float EnemyAttackDelay)
 {
 	//TODO: 비동기 로드시 AIController세팅

@@ -59,6 +59,7 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 		BTComp->StopTree();
 	}
 	
+	OnBossDied.Broadcast();
 }
 
 void AKOBossBase::BeginPlay()
@@ -92,19 +93,9 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 	}
  
 	const float MaxHP = HealthSet->GetMaxHealth();
-	if (MaxHP <= 0.f)
-	{
-		return;
-	}
- 
+	if (MaxHP <= 0.f) return;
+	
 	const float Ratio = NewVal / MaxHP;
- 
-	if (NewVal <= 0.f)
-	{
-		OnBossDied.Broadcast();
-		OnBossDeath();
-		return;
-	}
  
 	if (Ratio <= PhaseRatio && !bPhase2Triggered)
 	{

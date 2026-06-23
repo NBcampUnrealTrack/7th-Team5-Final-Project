@@ -13,8 +13,21 @@ void UKOGameplayAbilityBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
 	
-	KO_LOGS(GAS, Ability, Log, TEXT("[%s] : Activated."), *GetClass()->GetName());
+	KO_LOGS(GAS, Ability, Log, TEXT("(+) %s | %s ← Activated"), *GetClass()->GetName(), *Character->GetName());
+}
+
+void UKOGameplayAbilityBase::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	KO_LOGS(GAS, Ability, Log, TEXT("(!) %s | %s ← Canceled"), *GetClass()->GetName(), *Character->GetName());
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UKOGameplayAbilityBase::EndAbility(
@@ -24,7 +37,10 @@ void UKOGameplayAbilityBase::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	KO_LOGS(GAS, Ability, Log, TEXT("[%s] : End."), *GetClass()->GetName());
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	
+	KO_LOGS(GAS, Ability, Log, TEXT("(-) %s | %s ← Ended"), *GetClass()->GetName(), *Character->GetName());
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

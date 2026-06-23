@@ -86,7 +86,7 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 	if (!Character) return; 
  
 	// 디버그 원형 표시
-	if (bShowDebug)
+	if (TraceData.bShowDebug)
 	{
 		DrawDebugCircle(
 			GetWorld(),

@@ -40,7 +40,16 @@ protected:
 	void PlayComboMontage();
 	
 	UFUNCTION()
-	void OnMontageEnded();
+	void OnMontageCompleted();
+	
+	UFUNCTION()
+	void OnMontageInterrupted();
+	
+	UFUNCTION()
+	void OnTraceStart(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnTraceEnd(FGameplayEventData Payload);
 	
 	UFUNCTION()
 	void OnComboWindowOpened(FGameplayEventData Payload);

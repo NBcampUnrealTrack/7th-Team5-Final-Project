@@ -56,12 +56,6 @@ void UKOCombatSet::PostAttributeChange(const FGameplayAttribute& Attribute, floa
 	if (Attribute == GetAttackSpeedAttribute())
 	{
 		OnAttackSpeedChanged.Broadcast(OldValue, NewValue);
-
-		// TODO:몽타주 재생 속도 동기화
-		// if (ACharacter* Character = Cast<ACharacter>(GetOwningAbilitySystemComponent()->GetAvatarActor()))
-		// {
-		// 	Character->GetMesh()->GlobalAnimRateScale = NewValue;
-		// }
 	}
 }
 

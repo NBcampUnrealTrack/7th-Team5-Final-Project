@@ -25,13 +25,8 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Aborted;
 	}
 
-	ACharacter* AICharacter = Cast<ACharacter>(Owner->GetPawn());
-	if (AICharacter == nullptr || ActivateTagName == FGameplayTag::EmptyTag)
-	{
-		return EBTNodeResult::Failed;
-	}
-	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(AICharacter);
-	if (Enemy == nullptr)
+	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(Owner->GetPawn());
+	if (Enemy == nullptr || ActivateTagName == FGameplayTag::EmptyTag || Enemy->bIsDead)
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -47,11 +42,11 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 	{
 		return EBTNodeResult::Failed;
 	}
+	
 	// 해당 태그가 추가/제거시 바인딩
 	ASC->RegisterGameplayTagEvent(ActivateTagName, EGameplayTagEventType::NewOrRemoved)
 	   .AddUObject(this, &UBTTask_ActivateAbility::OnSkillTagRemoved, &OwnerComp);
-
-
+	
 	//해당 태그에 매칭되는 GA 중에서 랜덤하게 하나만 실행한다.
 	FGameplayTagContainer AbilityTagContainer;
 	AbilityTagContainer.AddTag(ActivateTagName);
@@ -138,7 +133,7 @@ EBTNodeResult::Type UBTTask_ActivateAbility::AbortTask(UBehaviorTreeComponent& O
 	{
 		if (AnimInstance->IsAnyMontagePlaying())
 		{
-			AnimInstance->Montage_Stop(MontageBlendOutTime);
+			 AnimInstance->Montage_Stop(MontageBlendOutTime);
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Aborted"));

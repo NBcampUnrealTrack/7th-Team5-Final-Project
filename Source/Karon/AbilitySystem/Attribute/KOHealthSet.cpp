@@ -1,8 +1,12 @@
 ﻿#include "KOHealthSet.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "GMRouterSubsystem.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
+#include "Character/Enemy/KOBaseEnemy.h"
+#include "Perception/AISense_Damage.h"
 
 UKOHealthSet::UKOHealthSet()
 {
@@ -96,6 +100,18 @@ void UKOHealthSet::HandleDamage(const FGameplayEffectModCallbackData& Data)
 	
 	float DamageAmount = GetDamage();
 	
+	if (AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(Context.TargetActor))
+	{
+		UAISense_Damage::ReportDamageEvent(
+			Enemy->GetWorld(),
+			Enemy,
+			Context.Instigator, 
+			DamageAmount,
+			Context.Instigator->GetActorLocation(),
+			Enemy->GetActorLocation()
+		);
+	}
+	
 	// 무적이면 데미지 0 
 	if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Invincible))
 	{
@@ -128,7 +144,7 @@ void UKOHealthSet::HandleDeath(const FGameplayEffectModCallbackData& Data)
 		EventData.Target = ASC->GetAvatarActor();
 		EventData.Instigator = Data.EffectSpec.GetContext().GetInstigator();
 		
-		ASC->HandleGameplayEvent(KOGameplayTags::Event_Death, &EventData);
+		 ASC->HandleGameplayEvent(KOGameplayTags::Event_Death, &EventData);
 	}
 }
 

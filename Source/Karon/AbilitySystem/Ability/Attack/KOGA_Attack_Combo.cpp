@@ -2,6 +2,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Utility/Log/KOLogManager.h"
@@ -26,14 +27,27 @@ void UKOGA_Attack_Combo::ActivateAbility(
 		return;
 	}
 	
-	// 1. Hit Event Task
+	// 1. Trace Event Task
+	UAbilityTask_WaitGameplayEvent* TraceStartTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Trace_Start);
+	
+	TraceStartTask->EventReceived.AddDynamic(this, &ThisClass::OnTraceStart);
+	TraceStartTask->ReadyForActivation(); 
+
+	UAbilityTask_WaitGameplayEvent* TraceEndTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Trace_End);
+	
+	TraceEndTask->EventReceived.AddDynamic(this, &ThisClass::OnTraceEnd);
+	TraceEndTask->ReadyForActivation(); 
+	
+	// 2. Hit Event Task
 	UAbilityTask_WaitGameplayEvent* HitTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Hit);
 	
 	HitTask->EventReceived.AddDynamic(this, &ThisClass::OnHitEventReceived);
 	HitTask->ReadyForActivation();
 
-	// 2. Combo Window Tasks 
+	// 3. Combo Window Tasks 
 	UAbilityTask_WaitGameplayEvent* ComboWindowOpenTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Window_Open);
 	
@@ -46,16 +60,14 @@ void UKOGA_Attack_Combo::ActivateAbility(
 	ComboWindowCloseTask->EventReceived.AddDynamic(this, &ThisClass::OnComboWindowClosed);
 	ComboWindowCloseTask->ReadyForActivation();
 	
-	// 3. Combo Transition Task 
+	// 4. Combo Transition Task 
 	UAbilityTask_WaitGameplayEvent* ComboTransitionTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Combo_Transition);
 	
 	ComboTransitionTask->EventReceived.AddDynamic(this, &ThisClass::OnReceiveTransition);
 	ComboTransitionTask->ReadyForActivation();
 	
-	KO_LOG(GAS, Warning, TEXT("Play Montage!!"));
 	PlayComboMontage(); 
-	
 }
 
 void UKOGA_Attack_Combo::EndAbility(
@@ -92,8 +104,8 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 {
 	if (CurrentMontageTask)
 	{
-		CurrentMontageTask->OnCompleted.RemoveDynamic(this, &ThisClass::OnMontageEnded);
-		CurrentMontageTask->OnInterrupted.RemoveDynamic(this, &ThisClass::OnMontageEnded);
+		CurrentMontageTask->OnCompleted.RemoveDynamic(this, &ThisClass::OnMontageCompleted);
+		CurrentMontageTask->OnInterrupted.RemoveDynamic(this, &ThisClass::OnMontageCompleted);
 		CurrentMontageTask->EndTask();
 		CurrentMontageTask = nullptr;
 	}
@@ -123,18 +135,43 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 			PlayRate
 		);
 	
-	ClearHitHistory();
+	ResetHitActors();
 	
-	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageEnded);
-	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageEnded);
+	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
 	CurrentMontageTask->ReadyForActivation();
 }
 
-void UKOGA_Attack_Combo::OnMontageEnded()
+void UKOGA_Attack_Combo::OnMontageCompleted()
 {
 	if (bIsTransitioning) return;
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true,false);
+}
+
+void UKOGA_Attack_Combo::OnMontageInterrupted()
+{
+	bIsTransitioning = false;
+    
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void UKOGA_Attack_Combo::OnTraceStart(FGameplayEventData Payload)
+{
+	ResetHitActors();
+	
+	TickTask = UAbilityTask_Tick::CreateTickTask(this);
+	TickTask->OnTick.AddDynamic(this, &ThisClass::PerformWeaponTrace);
+	TickTask->ReadyForActivation();
+}
+
+void UKOGA_Attack_Combo::OnTraceEnd(FGameplayEventData Payload)
+{
+	if (TickTask)
+	{
+		TickTask->StopTask();
+		TickTask = nullptr;
+	}
 }
 
 void UKOGA_Attack_Combo::OnComboWindowOpened(FGameplayEventData Payload)
@@ -168,7 +205,7 @@ void UKOGA_Attack_Combo::OnReceiveTransition(FGameplayEventData Payload)
 	bIsTransitioning = true;
 	ComboIndex++; 
 	
-	PlayComboMontage(); 
+	PlayComboMontage();
 	
 	bIsTransitioning = false;
 }

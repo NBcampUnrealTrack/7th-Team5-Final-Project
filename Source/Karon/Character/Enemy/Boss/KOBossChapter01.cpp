@@ -5,7 +5,8 @@
 #include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
- 
+#include "Utility/Log/KOLogManager.h"
+
 AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -96,6 +97,21 @@ void AKOBossChapter01::OnBossDeath()
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
 			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsDeadKey, true);
+		}
+	}
+}
+
+void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
+{
+	Super::OnCharacterDead(DeathInstigator);
+	
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsDeadKey, true);
+			
+			KO_LOG(GAS, Warning, TEXT("bISDeadKey is Changed")); 
 		}
 	}
 }
