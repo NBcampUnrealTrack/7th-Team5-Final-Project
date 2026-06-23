@@ -122,6 +122,11 @@ void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)
 {
 	KO_LOGS(GAS, Ability, Warning, TEXT("Received Tag in Death Montage"));
 	
+	if (ACharacter* Character = GetAvatarCharacter())
+	{
+		Character->GetMesh()->bPauseAnims = true; 
+	}
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
 }
 

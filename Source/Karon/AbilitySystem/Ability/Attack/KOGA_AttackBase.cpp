@@ -135,7 +135,7 @@ UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 {
 	// 1. Character를 Character로 캐스팅 
-	ACharacter* Avatar =GetAvatarCharacter();
+	ACharacter* Avatar = GetAvatarCharacter();
 	if (!Avatar) return;
 	
 	// 2. 무기는 Skeletal이 아님 액터-> Static Mesh 

@@ -38,7 +38,7 @@ void UKOGA_HitReact::ActivateAbility(
 	// 2. Caching 
 	if (TriggerEventData) CachedTriggerEventData = *TriggerEventData;
 	
-	// 3. Select Direction For Monatge 
+	// 3. Select Direction For Montage 
 	const FGameplayTagContainer& Tags = CachedTriggerEventData.InstigatorTags;
 	if (Tags.HasTag(KOGameplayTags::Event_HitReact_Backward)) HitDirection = EHitDirection::Backward;
 	else if (Tags.HasTag(KOGameplayTags::Event_HitReact_Left)) HitDirection = EHitDirection::Left;

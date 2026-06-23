@@ -48,7 +48,6 @@ void AKOCharacterBase::OnCharacterDead(AActor* DeathInstigator)
 	);
 	
 	bIsDead = true; 
-	GetMesh()->bPauseAnims = true;
 	
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
