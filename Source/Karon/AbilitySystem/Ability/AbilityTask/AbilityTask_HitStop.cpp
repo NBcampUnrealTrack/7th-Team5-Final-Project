@@ -1,6 +1,7 @@
 ﻿#include "AbilityTask_HitStop.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
+#include "Utility/Log/KOLogManager.h"
 
 UAbilityTask_HitStop* UAbilityTask_HitStop::HitStop(
 	UGameplayAbility* OwningAbility, 
@@ -46,7 +47,25 @@ void UAbilityTask_HitStop::Activate()
 	// 복구 타이머 
 	GetWorld()->GetTimerManager().SetTimer(
 		RecoveryTimer, this, &UAbilityTask_HitStop::RecoverTime, StopDuration, false);
+	
+	KO_LOG(GAS, Warning, TEXT("HitStop Task : Timer Start."));
 }
+
+void UAbilityTask_HitStop::OnDestroy(bool bInOwnerFinished)
+{
+	KO_LOG(GAS, Warning, TEXT("HitStop Task : OnDestroy."));
+	
+	GetWorld()->GetTimerManager().ClearTimer(RecoveryTimer);
+	
+	SetMeshAnimRate(CachedAvatarMesh.Get(), 1.f);
+	SetMeshAnimRate(CachedInstigatorMesh.Get(), 1.f);
+
+	OnFinished.Broadcast();
+	
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+
 
 void UAbilityTask_HitStop::SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate)
 {
@@ -55,9 +74,7 @@ void UAbilityTask_HitStop::SetMeshAnimRate(USkeletalMeshComponent* Mesh, float R
 
 void UAbilityTask_HitStop::RecoverTime()
 {
-	SetMeshAnimRate(CachedAvatarMesh.Get(), 1.f);
-	SetMeshAnimRate(CachedInstigatorMesh.Get(), 1.f);
-	
-	OnFinished.Broadcast();
 	EndTask();
+	
+	KO_LOG(GAS, Warning, TEXT("HitStop Task : Timer End."));
 }

@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/OverlapResult.h"
+#include "Utility/Log/KOLogManager.h"
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Ability_Attack_Plunge, "Input.Ability.Attack.Plunge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Plunge_Land,           "Event.Plunge.Land");
 
@@ -28,6 +29,7 @@ void UKOGA_Attack_Plunge::ActivateAbility(
         UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
         if (!ASC || !ASC->HasMatchingGameplayTag(RequiredWeaponTag))
         {
+            KO_LOG(GAS, Warning, TEXT(""));
             UE_LOG(LogTemp, Error, TEXT("[Plunge Debug] 무기 태그 조건 미충족으로 종료!")); // 로그 추가
             EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
             return;

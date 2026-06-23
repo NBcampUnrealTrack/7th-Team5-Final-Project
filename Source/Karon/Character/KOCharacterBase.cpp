@@ -47,10 +47,8 @@ void AKOCharacterBase::OnCharacterDead(AActor* DeathInstigator)
 		DeathInstigator ? *DeathInstigator->GetName() : TEXT("Unknown")
 	);
 	
-	// if (GetMesh())
-	// {
-	// 	GetMesh()->bPauseAnims = true;
-	// }
+	bIsDead = true; 
+	GetMesh()->bPauseAnims = true;
 	
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{

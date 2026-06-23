@@ -36,7 +36,6 @@ bool UKOGA_Death::CanActivateAbility(
 	if (!Character) return false; 
 
 	return Character->bIsDead == false; // 죽지 않은 경우에만 실행 
-	
 }
 
 void UKOGA_Death::ActivateAbility(
@@ -53,12 +52,22 @@ void UKOGA_Death::ActivateAbility(
 		return;
 	}
 	
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	UAbilitySystemComponent* ASC = GetASC();
 	if (!ASC)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	
+	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
+	if (!Character)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+	Character->OnCharacterDead(CachedInstigator.Get());
+	
 	
 	// 어빌리티 캔슬 
 	ASC->CancelAllAbilities(this);
@@ -68,6 +77,7 @@ void UKOGA_Death::ActivateAbility(
 	
 	if (TriggerEventData)
 		CachedInstigator = const_cast<AActor*>(TriggerEventData->Instigator.Get());
+	
 	
 	if (!DeathMontage)
 	{
@@ -91,11 +101,11 @@ void UKOGA_Death::ActivateAbility(
 	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	Task->ReadyForActivation(); 
 	
-	// GameplayCue 
-	ACharacter* Character = GetAvatarCharacter();
+	KO_LOGS(GAS, Ability, Warning, TEXT("Death Ability play Montage."));
 	
+	// Gameplay Cue 
 	FGameplayCueParameters CueParams;
-	CueParams.Location =  Character ? Character->GetActorLocation() : FVector::ZeroVector;
+	CueParams.Location = Character->GetActorLocation();
 	ASC->ExecuteGameplayCue(KOGameplayTags::GameplayCue_Death, CueParams);
 }
 
@@ -106,18 +116,6 @@ void UKOGA_Death::EndAbility(
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	
-	if (bWasCancelled) return; 
-	
-	if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
-	{
-		if (Character->bIsDead) return; 
-		
-		Character->OnCharacterDead(CachedInstigator.Get());
-		Character->bIsDead = true; 
-		
-		Character->GetMesh()->bPauseAnims = true;
-	}
 }
 
 void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)

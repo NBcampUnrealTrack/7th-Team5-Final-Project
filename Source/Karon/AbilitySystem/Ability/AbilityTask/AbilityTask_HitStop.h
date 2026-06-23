@@ -22,6 +22,8 @@ public:
 	
 	virtual void Activate() override;
 	
+	virtual void OnDestroy(bool bInOwnerFinished) override;
+	
 private:
 	void SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate);
 	
