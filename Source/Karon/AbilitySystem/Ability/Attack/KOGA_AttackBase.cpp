@@ -4,7 +4,9 @@
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 #include "GameFramework/Character.h"
+#include "Items/Equipment/KOWeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UKOGA_AttackBase::UKOGA_AttackBase()
@@ -138,21 +140,38 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 	ACharacter* Avatar = GetAvatarCharacter();
 	if (!Avatar) return;
 	
-	// 2. 무기는 Skeletal이 아님 액터-> Static Mesh 
-	TArray<USkeletalMeshComponent*> SkeletalMeshes;
-	Avatar->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
-
-	USkeletalMeshComponent* TargetMesh = nullptr;
-
-	for (USkeletalMeshComponent* Comp : SkeletalMeshes)
+	UMeshComponent* TargetMesh = nullptr;
+	UKOEquipmentComponent* EquipComp = Avatar->FindComponentByClass<UKOEquipmentComponent>();
+	
+	if (EquipComp && EquipComp->HasWeapon())
 	{
-		if (Comp->DoesSocketExist(TraceData.StartSocket))
+		AKOWeaponBase* WeaponActor = EquipComp->CurrentWeaponActor;
+		if (WeaponActor)
 		{
-			TargetMesh = Comp;
-			break;
+			UMeshComponent* WeaponMesh = WeaponActor->FindComponentByClass<UMeshComponent>();
+			if (WeaponActor && WeaponMesh->DoesSocketExist(TraceData.StartSocket))
+			{
+				TargetMesh = WeaponMesh;
+			}
 		}
 	}
-
+	
+	if (!TargetMesh)
+	{
+		// 2. 무기는 Skeletal이 아님 액터-> Static Mesh 
+		TArray<USkeletalMeshComponent*> SkeletalMeshes;
+		Avatar->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
+		
+		for (USkeletalMeshComponent* Comp : SkeletalMeshes)
+		{
+			if (Comp->DoesSocketExist(TraceData.StartSocket))
+			{
+				TargetMesh = Comp;
+				break;
+			}
+		}
+	}
+	
 	if (!TargetMesh)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[%s]  %s 소켓 찾을 수 없음."), *GetName(), *TraceData.StartSocket.ToString());
@@ -192,7 +211,6 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 		if (!TraceData.HitActors.Contains(HitActor))
 		{
 			TraceData.HitActors.Add(HitActor);
-			
 			SendAttackEventsToTarget(HitActor);
 			ApplyHitEffects(HitActor);
 		}

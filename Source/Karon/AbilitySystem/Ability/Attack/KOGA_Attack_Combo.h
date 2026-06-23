@@ -36,7 +36,7 @@ protected:
 		const FGameplayAbilityActivationInfo ActivationInfo
 	) override;
 	
-protected:
+protected:	
 	void PlayComboMontage();
 	
 	UFUNCTION()
