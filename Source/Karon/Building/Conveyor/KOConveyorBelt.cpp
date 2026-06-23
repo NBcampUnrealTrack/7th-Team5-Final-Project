@@ -2,6 +2,7 @@
 
 #include "Building/Conveyor/KOConveyorBelt.h"
 
+#include "Building/Conveyor/KOConveyorFlowResolver.h"
 #include "Subsystem/KOConveyorSubsystem.h"
 #include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
@@ -27,31 +28,6 @@ static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
     ECVF_Cheat
 );
 #endif
-
-namespace
-{
-    // 월드 방향을 축 정렬 그리드 스텝(±1,0)/(0,±1)으로 변환.
-    FIntPoint WorldDirToGridStep(const FVector& Dir)
-    {
-        if (FMath::Abs(Dir.X) >= FMath::Abs(Dir.Y))
-        {
-            return FIntPoint(Dir.X >= 0.f ? 1 : -1, 0);
-        }
-        return FIntPoint(0, Dir.Y >= 0.f ? 1 : -1);
-    }
-
-    // 그리드 스텝을 월드 단위 방향으로(그리드 X/Y = 월드 X/Y 직접 매핑).
-    FVector GridStepToWorldDir(const FIntPoint& Step)
-    {
-        return FVector(static_cast<float>(Step.X), static_cast<float>(Step.Y), 0.f).GetSafeNormal();
-    }
-
-    // FIntPoint 는 단항 - 연산자가 없어 수동 음수화.
-    FIntPoint NegateStep(const FIntPoint& Step)
-    {
-        return FIntPoint(-Step.X, -Step.Y);
-    }
-}
 
 AKOConveyorBelt::AKOConveyorBelt()
 {
@@ -158,8 +134,8 @@ void AKOConveyorBelt::RecomputePortDirections()
     if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
     if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
 
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // 로컬 +X 다리
-    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // 로컬 +Y 다리
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);   // 로컬 +X 다리
+    const FIntPoint Side    = FKOConveyorFlowResolver::WorldDirToGridStep(RightWorld); // 로컬 +Y 다리
 
     if (Shape == EKOBeltShape::Corner)
     {
@@ -167,26 +143,26 @@ void AKOConveyorBelt::RecomputePortDirections()
         // 흐름은 이 두 다리를 잇고, bCornerFlip 은 입/출구만 교환한다 → 같은 L 메시로 좌/우 코너 모두 표현(거울 메시 불필요).
         if (!bCornerFlip)
         {
-            InDir  = NegateStep(Side); // 입구 이웃 = MyCell - InDir = MyCell + Side
+            InDir  = FKOConveyorFlowResolver::NegateStep(Side);; // 입구 이웃 = MyCell - InDir = MyCell + Side
             OutDir = Forward;          // 출구 이웃 = MyCell + Forward
         }
         else
         {
-            InDir  = NegateStep(Forward); // 입구 이웃 = MyCell + Forward
+            InDir  = FKOConveyorFlowResolver::NegateStep(Forward); // 입구 이웃 = MyCell + Forward
             OutDir = Side;                // 출구 이웃 = MyCell + Side
         }
     }
     else
     {
         // 직선: 흐름 축은 Forward. bStraightReverse 면 정/역 반전(입구=+Forward, 출구=-Forward).
-        const FIntPoint Flow = bStraightReverse ? NegateStep(Forward) : Forward;
+        const FIntPoint Flow = bStraightReverse ? FKOConveyorFlowResolver::NegateStep(Forward) : Forward;
         InDir  = Flow;
         OutDir = Flow;
     }
 
     // 디버그/비주얼용: 중심에서 입구/출구 이웃을 향하는 월드 방향.
-    EntryDirWorld = GridStepToWorldDir(NegateStep(InDir));
-    ExitDirWorld  = GridStepToWorldDir(OutDir);
+    EntryDirWorld = FKOConveyorFlowResolver::GridStepToWorldDir(FKOConveyorFlowResolver::NegateStep(InDir));
+    ExitDirWorld  = FKOConveyorFlowResolver::GridStepToWorldDir(OutDir);
 
     if (const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr)
     {
@@ -283,27 +259,6 @@ void AKOConveyorBelt::ApplyPlacementFlow(bool bManualFlipFallback)
         (MyCell - InDir).X, (MyCell - InDir).Y, (MyCell + OutDir).X, (MyCell + OutDir).Y);
 }
 
-int32 AKOConveyorBelt::ClassifyNeighbor(const FIntPoint& MyCellAbs, const FIntPoint& NeighborCell) const
-{
-    AActor* Actor = GetActorAtCell(NeighborCell);
-    if (!Actor)
-    {
-        return 0;
-    }
-    if (const AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(Actor))
-    {
-        if (Belt->OutputsToCell(MyCellAbs))  { return +1; } // 이웃 벨트가 나를 향해 출력 → 업스트림
-        if (Belt->InputsFromCell(MyCellAbs)) { return -1; } // 이웃 벨트가 나에게서 입력 → 다운스트림
-        return 0;
-    }
-    // 머신: 단방향 포트만 있으면 방향 확정, 양쪽(Processor) 또는 없음이면 모호.
-    const bool bHasSource = ResolveSource(Actor) != nullptr;
-    const bool bHasSink   = ResolveSink(Actor)   != nullptr;
-    if (bHasSource && !bHasSink) { return +1; } // 출력만 → 나에게 공급
-    if (bHasSink && !bHasSource) { return -1; } // 입력만 → 내가 공급
-    return 0;
-}
-
 bool AKOConveyorBelt::TryResolveCornerFlipFromNeighbors(bool& OutFlip) const
 {
     const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr;
@@ -318,30 +273,16 @@ bool AKOConveyorBelt::TryResolveCornerFlipFromNeighbors(bool& OutFlip) const
     if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
     if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
 
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // LegA = +Forward
-    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // LegB = +Side
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);   // LegA = +Forward
+    const FIntPoint Side    = FKOConveyorFlowResolver::WorldDirToGridStep(RightWorld); // LegB = +Side
 
-    const FIntPoint CellA = Cell + Forward; // LegA(+Forward)
-    const FIntPoint CellB = Cell + Side;    // LegB(+Side)
-    const int32 RoleA = ClassifyNeighbor(Cell, CellA);
-    const int32 RoleB = ClassifyNeighbor(Cell, CellB);
-
-    // 역할 문자열(+1=업스트림/공급, -1=다운스트림/수취, 0=모호).
-    auto RoleStr = [](int32 R) { return R > 0 ? TEXT("업스트림(+1)") : (R < 0 ? TEXT("다운스트림(-1)") : TEXT("모호(0)")); };
-    KO_LOGS(Factory, Conveyor, Log,
-        TEXT("[FlowInfer] 벨트='%s' cell=(%d,%d) | LegA(+Fwd) cell=(%d,%d) actor='%s' → %s | LegB(+Side) cell=(%d,%d) actor='%s' → %s"),
-        *GetName(), Cell.X, Cell.Y,
-        CellA.X, CellA.Y, *GetNameSafe(GetActorAtCell(CellA)), RoleStr(RoleA),
-        CellB.X, CellB.Y, *GetNameSafe(GetActorAtCell(CellB)), RoleStr(RoleB));
-
-    // flip=false: 입구=+Side(LegB), 출구=+Forward(LegA).
-    // flip=true : 입구=+Forward(LegA), 출구=+Side(LegB).
-    const bool bWantFalse = (RoleB > 0) || (RoleA < 0); // Side 가 업스트림 또는 Forward 가 다운스트림
-    const bool bWantTrue  = (RoleA > 0) || (RoleB < 0); // Forward 가 업스트림 또는 Side 가 다운스트림
-
-    if (bWantFalse && !bWantTrue) { OutFlip = false; return true; }
-    if (bWantTrue && !bWantFalse) { OutFlip = true;  return true; }
-    return false; // 양쪽 충돌 또는 단서 없음 → 수동 폴백.
+    return FKOConveyorFlowResolver::TryResolveCornerFlip(
+         GetWorld(),
+         Cell,
+         Forward,
+         Side,
+         OutFlip
+     );
 }
 
 bool AKOConveyorBelt::TryResolveStraightFlowFromNeighbors(bool& OutReverse) const
@@ -355,29 +296,14 @@ bool AKOConveyorBelt::TryResolveStraightFlowFromNeighbors(bool& OutReverse) cons
 
     FVector FwdWorld = GetActorForwardVector().GetSafeNormal2D();
     if (FwdWorld.IsNearlyZero()) { FwdWorld = FVector::ForwardVector; }
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);
 
-    // 기본(정방향): 입구=뒤(-Forward), 출구=앞(+Forward).
-    const FIntPoint FrontCell = Cell + Forward; // 앞(기본 출구쪽)
-    const FIntPoint BackCell  = Cell - Forward; // 뒤(기본 입구쪽)
-    const int32 RoleFront = ClassifyNeighbor(Cell, FrontCell);
-    const int32 RoleBack  = ClassifyNeighbor(Cell, BackCell);
-
-    auto RoleStr = [](int32 R) { return R > 0 ? TEXT("업스트림(+1)") : (R < 0 ? TEXT("다운스트림(-1)") : TEXT("모호(0)")); };
-    KO_LOGS(Factory, Conveyor, Log,
-        TEXT("[FlowInfer-S] 벨트='%s' cell=(%d,%d) | 앞(+Fwd) cell=(%d,%d) actor='%s' → %s | 뒤(-Fwd) cell=(%d,%d) actor='%s' → %s"),
-        *GetName(), Cell.X, Cell.Y,
-        FrontCell.X, FrontCell.Y, *GetNameSafe(GetActorAtCell(FrontCell)), RoleStr(RoleFront),
-        BackCell.X, BackCell.Y, *GetNameSafe(GetActorAtCell(BackCell)), RoleStr(RoleBack));
-
-    // 정방향 유지: 뒤가 업스트림 또는 앞이 다운스트림.
-    // 역방향 반전: 앞이 업스트림 또는 뒤가 다운스트림.
-    const bool bWantForward = (RoleBack > 0)  || (RoleFront < 0);
-    const bool bWantReverse = (RoleFront > 0) || (RoleBack  < 0);
-
-    if (bWantForward && !bWantReverse) { OutReverse = false; return true; }
-    if (bWantReverse && !bWantForward) { OutReverse = true;  return true; }
-    return false; // 양쪽 충돌 또는 단서 없음 → 배치 방향 유지.
+    return FKOConveyorFlowResolver::TryResolveStraightReverse(
+        GetWorld(),
+        Cell,
+        Forward,
+        OutReverse
+    );
 }
 
 void AKOConveyorBelt::AdvanceBelt(float DeltaTime)

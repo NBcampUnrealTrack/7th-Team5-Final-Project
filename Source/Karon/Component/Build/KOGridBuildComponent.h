@@ -142,6 +142,10 @@ private:
 	void SetCurrentMode(EKOGridBuildMode NewMode);
 	FRotator GetPlacementRotation() const;
 	FIntPoint GetRotatedBuildingSize() const;
+	
+	FIntPoint GetPreviewForwardStep() const;
+	FIntPoint GetPreviewSideStep() const;
+	float GetPreviewConveyorArrowYaw() const;
 
 	/** 현재 배치 중인 건물 클래스가 코너 형태 컨베이어 벨트인지 CDO로 판정. */
 	bool IsCurrentBuildingCornerBelt() const;
@@ -154,7 +158,7 @@ private:
 	void OpenNextBeltConnectPopup();
 	
 	void UpdateGridVisualVisibility(); // 그리드 켜고 끄기
-	AKOGridVisual* FindGridVisualActor(); ////
+	AKOGridVisual* FindGridVisualActor();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
@@ -191,7 +195,7 @@ private:
 	TObjectPtr<AKOGhostPreview> CurrentPreviewActor;
 	
 	UPROPERTY()
-	TObjectPtr<AKOGridVisual> CachedGridVisualActor; ///
+	TObjectPtr<AKOGridVisual> CachedGridVisualActor;
 
 	FName CurrentFactoryId = NAME_None;
 	const FKOFactoryRow* CurrentFactoryRow = nullptr;

@@ -6,6 +6,7 @@
 #include "Building/KOGhostPreview.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
 #include "Building/KOGridVisual.h"
+#include "Building/Conveyor/KOConveyorFlowResolver.h"
 #include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
 #include "Component/Inventory/KOInventoryComponent.h"
@@ -18,7 +19,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
 
-
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Utility/Messaging/KOMessageTypes.h"
@@ -28,24 +28,6 @@
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "CommonActivatableWidget.h"
-
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-
-static TAutoConsoleVariable<int32> CVarKODrawBuildTrace(
-	TEXT("ko.DrawBuildTrace"),
-	0,
-	TEXT("화면 중앙 라인트레이스 디버그 표시 여부. 0: Off, 1: On"),
-	ECVF_Cheat
-);
-
-static TAutoConsoleVariable<int32> CVarKODrawBuildOccupiedCells(
-	TEXT("ko.DrawBuildCells"),
-	0,
-	TEXT("건물이 점유할 그리드 셀 디버그 박스 표시 여부. 0: Off, 1: On"),
-	ECVF_Cheat
-);
-
-#endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuild, Log, All);
 
@@ -328,6 +310,21 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 		PreviewLocation,
 		GetPlacementRotation()
 	);
+	
+	const bool bIsConveyorPreview =
+		CurrentBuildingClass.IsValid() &&
+		CurrentBuildingClass->IsChildOf(AKOConveyorBelt::StaticClass());
+	
+	// 컨베이어 벨트면 고스트 프리뷰에 진행 방향 화살표를 표시한다.
+	if (bIsConveyorPreview)
+	{
+		const float ArrowYaw = GetPreviewConveyorArrowYaw();
+		CurrentPreviewActor->ShowDirectionArrow(ArrowYaw);
+	}
+	else
+	{
+		CurrentPreviewActor->HideDirectionArrow();
+	}
 
 	// 설치할 수 있는지 검사
 	const bool bCanBuild = GridSub->CanBuildArea(
@@ -339,6 +336,8 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	bCurrentPlacementValid = bCanBuild;
 
 	SetPreviewActorBuildableState(bCanBuild);
+	
+	
 
 	// 에너지 발전기면 공급 커버리지 면적을 초록 오버레이로 표시(프리뷰 중에만).
 	if (CurrentFactoryRow->EnergyCoverageRadius > 0)
@@ -366,50 +365,6 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	{
 		CurrentPreviewActor->HideCoverageOverlay();
 	}
-
-	// 건물이 차지할 그리드 셀 디버그 표시
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (
-		IsInGameThread() &&
-		CVarKODrawBuildOccupiedCells.GetValueOnGameThread() != 0
-	)
-	{
-		const float CellSize = GridSub->GetCellSize();
-
-		const FVector CellExtent(
-			CellSize * 0.48f,
-			CellSize * 0.48f,
-			5.0f
-		);
-
-		const FColor OccupiedColor = bCanBuild ? FColor::Cyan : FColor::Red;
-
-		for (int32 Y = 0; Y < CurrentBuildingSize.Y; ++Y)
-		{
-			for (int32 X = 0; X < CurrentBuildingSize.X; ++X)
-			{
-				const FIntPoint TargetGrid(
-					CurrentAnchor.X + X,
-					CurrentAnchor.Y + Y
-				);
-
-				FVector CellCenter = GridSub->GridToWorldPosition(TargetGrid);
-				CellCenter.Z += 10.0f;
-
-				DrawDebugBox(
-					World,
-					CellCenter,
-					CellExtent,
-					OccupiedColor,
-					false,
-					0.03f,
-					0,
-					3.0f
-				);
-			}
-		}
-	}
-#endif
 }
 
 void UKOGridBuildComponent::RequestBuild()
@@ -763,6 +718,65 @@ AKOGridVisual* UKOGridBuildComponent::FindGridVisualActor()
 	}
 
 	return nullptr;
+}
+
+float UKOGridBuildComponent::GetPreviewConveyorArrowYaw() const
+{
+	UClass* BuildingClass = CurrentBuildingClass.Get();
+
+	if (!BuildingClass || !BuildingClass->IsChildOf(AKOConveyorBelt::StaticClass()))
+	{
+		return 0.0f;
+	}
+
+	const AKOConveyorBelt* BeltCDO = Cast<AKOConveyorBelt>(BuildingClass->GetDefaultObject());
+
+	if (!BeltCDO)
+	{
+		return 0.0f;
+	}
+
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return 0.0f;
+	}
+
+	const FIntPoint MyCell = CurrentAnchor;
+	const FIntPoint Forward = GetPreviewForwardStep();
+	const FIntPoint Side = GetPreviewSideStep();
+
+	if (BeltCDO->GetShape() == EKOBeltShape::Corner)
+	{
+		bool bResolvedFlip = false;
+
+		const bool bResolved =
+			FKOConveyorFlowResolver::TryResolveCornerFlip(
+				World,
+				MyCell,
+				Forward,
+				Side,
+				bResolvedFlip
+			);
+
+		const bool bFinalFlip = bResolved ? bResolvedFlip : bCornerFlipPlacement;
+		
+		return bFinalFlip ? 90.0f : 0.0f;
+	}
+
+	bool bResolvedReverse = false;
+
+	const bool bResolved =
+		FKOConveyorFlowResolver::TryResolveStraightReverse(
+			World,
+			MyCell,
+			Forward,
+			bResolvedReverse
+		);
+	
+	const bool bFinalReverse = bResolved ? bResolvedReverse : false;
+
+	return bFinalReverse ? 180.0f : 0.0f;
 }
 
 void UKOGridBuildComponent::CancelCurrentMode()
@@ -1285,6 +1299,36 @@ FIntPoint UKOGridBuildComponent::GetRotatedBuildingSize() const
 	return FIntPoint(BaseBuildingSize.Y, BaseBuildingSize.X);
 }
 
+FIntPoint UKOGridBuildComponent::GetPreviewForwardStep() const
+{
+	switch ((CurrentRotationStep % 4 + 4) % 4)
+	{
+	case 0:
+		return FIntPoint(1, 0);
+
+	case 1:
+		return FIntPoint(0, 1);
+
+	case 2:
+		return FIntPoint(-1, 0);
+
+	case 3:
+		return FIntPoint(0, -1);
+
+	default:
+		return FIntPoint(1, 0);
+	}
+}
+
+FIntPoint UKOGridBuildComponent::GetPreviewSideStep() const
+{
+	const FIntPoint Forward = GetPreviewForwardStep();
+
+	// 로컬 +Y 방향.
+	// Forward=(1,0)이면 Side=(0,1)
+	return FIntPoint(-Forward.Y, Forward.X);
+}
+
 bool UKOGridBuildComponent::IsCurrentBuildingCornerBelt() const
 {
 	UClass* BuildingClass = CurrentBuildingClass.Get();
@@ -1338,59 +1382,6 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollision
 		TraceChannel,
 		QueryParams
 	);
-	
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (
-		IsInGameThread() &&
-		CVarKODrawBuildTrace.GetValueOnGameThread() != 0
-	)
-	{
-		const float DebugLifeTime = 0.03f;
-		const float DebugThickness = 2.0f;
-
-		if (bHit)
-		{
-			// 카메라에서 맞은 지점까지 초록색 라인
-			DrawDebugLine(
-				World,
-				TraceStart,
-				OutHit.ImpactPoint,
-				FColor::Green,
-				false,
-				DebugLifeTime,
-				0,
-				DebugThickness
-			);
-
-			// 맞은 지점 표시
-			DrawDebugSphere(
-				World,
-				OutHit.ImpactPoint,
-				12.0f,
-				12,
-				FColor::Green,
-				false,
-				DebugLifeTime,
-				0,
-				1.5f
-			);
-		}
-		else
-		{
-			// 아무것도 맞지 않으면 전체 라인 빨간색
-			DrawDebugLine(
-				World,
-				TraceStart,
-				TraceEnd,
-				FColor::Red,
-				false,
-				DebugLifeTime,
-				0,
-				DebugThickness
-			);
-		}
-	}
-#endif
 
 	return bHit;	
 }

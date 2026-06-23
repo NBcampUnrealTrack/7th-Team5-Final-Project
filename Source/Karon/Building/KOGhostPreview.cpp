@@ -43,6 +43,14 @@ AKOGhostPreview::AKOGhostPreview()
 		CoveragePlaneMesh = PlaneMeshFinder.Object;
 		CoverageMeshComponent->SetStaticMesh(CoveragePlaneMesh);
 	}
+	
+	// 컨베이어 방향 표시 화살표.
+	DirectionArrowComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DirectionArrow"));
+	DirectionArrowComponent->SetupAttachment(SceneRoot);
+	DirectionArrowComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DirectionArrowComponent->SetGenerateOverlapEvents(false);
+	DirectionArrowComponent->SetCastShadow(false);
+	DirectionArrowComponent->SetVisibility(false);
 }
 
 void AKOGhostPreview::ShowCoverageOverlay(const FVector& WorldCenter, const FVector2D& WorldSize)
@@ -57,7 +65,7 @@ void AKOGhostPreview::ShowCoverageOverlay(const FVector& WorldCenter, const FVec
 		WorldSize.X / GEnginePlaneSize,
 		WorldSize.Y / GEnginePlaneSize,
 		1.0f));
-
+	
 	if (CoverageMaterial)
 	{
 		CoverageMeshComponent->SetMaterial(0, CoverageMaterial);
@@ -71,6 +79,42 @@ void AKOGhostPreview::HideCoverageOverlay()
 	if (CoverageMeshComponent)
 	{
 		CoverageMeshComponent->SetVisibility(false);
+	}
+}
+
+void AKOGhostPreview::ShowDirectionArrow(float AdditionalYaw)
+{
+	if (!DirectionArrowComponent)
+	{
+		return;
+	}
+
+	if (DirectionArrowMesh)
+	{
+		DirectionArrowComponent->SetStaticMesh(DirectionArrowMesh);
+	}
+	
+	if (DirectionArrowMaterial)
+	{
+		DirectionArrowComponent->SetMaterial(0, DirectionArrowMaterial);
+	}
+
+	DirectionArrowComponent->SetRelativeLocation(DirectionArrowRelativeLocation);
+
+	FRotator FinalRotation = DirectionArrowRelativeRotation;
+	FinalRotation.Yaw += AdditionalYaw;
+
+	DirectionArrowComponent->SetRelativeRotation(FinalRotation);
+	DirectionArrowComponent->SetRelativeScale3D(DirectionArrowRelativeScale);
+
+	DirectionArrowComponent->SetVisibility(true);
+}
+
+void AKOGhostPreview::HideDirectionArrow()
+{
+	if (DirectionArrowComponent)
+	{
+		DirectionArrowComponent->SetVisibility(false);
 	}
 }
 

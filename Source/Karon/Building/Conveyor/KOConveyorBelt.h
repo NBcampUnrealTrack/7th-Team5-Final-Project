@@ -170,9 +170,6 @@ private:
      */
     bool TryResolveStraightFlowFromNeighbors(bool& OutReverse) const;
 
-    /** 이웃 셀 1칸을 분류: +1=나에게 공급(업스트림), -1=내가 공급(다운스트림), 0=모호/없음. 코너·직선 공용. */
-    int32 ClassifyNeighbor(const FIntPoint& MyCellAbs, const FIntPoint& NeighborCell) const;
-
     /** 그리드 절대 셀의 점유 액터 조회. */
     AActor* GetActorAtCell(const FIntPoint& Cell) const;
 
