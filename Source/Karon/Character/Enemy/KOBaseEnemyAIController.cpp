@@ -115,6 +115,7 @@ void AKOBaseEnemyAIController::SetAI(
 		if (Enemy)
 		{
 			BBComp->SetValueAsBool(bCanAttackKey,Enemy->bCanAttack);
+			BBComp->SetValueAsBool(bCanPatrolKey,Enemy->bCanPatrol);
 		}
 		
 		RunBehaviorTree(EnemyBehaviorTree);

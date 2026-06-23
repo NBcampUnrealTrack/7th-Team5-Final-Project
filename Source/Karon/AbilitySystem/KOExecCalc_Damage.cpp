@@ -44,7 +44,7 @@ void UKOExecCalc_Damage::Execute_Implementation(
 	if (!InstigatorASC || !TargetASC) return;
 	
 	float RawDamage = Spec.GetSetByCallerMagnitude(
-	   KOGameplayTags::Data_Attribute_Health_Damage, false, 30.0f);
+	   KOGameplayTags::Data_Attribute_Health_Damage, false, 0.0f);
 	
 	float Defense = 0.f;
 	FAggregatorEvaluateParameters EvalParams;

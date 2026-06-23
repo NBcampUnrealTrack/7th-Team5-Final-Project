@@ -58,6 +58,7 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 		CombatSet->InitAttackPower(EnemyInfo->AttackPower);
 		CombatSet->InitDefense(EnemyInfo->Defense);
 		CombatSet->InitAttackSpeed(EnemyInfo->AttackSpeed);
+		UE_LOG(LogTemp,Warning,TEXT("%f"),EnemyInfo->AttackPower);
 	}
 }
 

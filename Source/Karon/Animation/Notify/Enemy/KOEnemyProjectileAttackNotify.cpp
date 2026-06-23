@@ -83,7 +83,7 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 				DamageMultiplier=SkillSubsystem->GetSkillData(SkillInfoTag);
 			}
 			
-			UE_LOG(LogTemp,Warning,TEXT("%f"),DamageMultiplier);
+			UE_LOG(LogTemp,Warning,TEXT("%f, %f"),Enemy->GetAttackPoint(),DamageMultiplier);
 			//노티파이 순간의 Enemy의 AttackPoint, DamageMultiplier를 세팅한다. 
 			EnemyProjectile->SetProjectile(Enemy,Enemy->GetAttackPoint(),DamageMultiplier);
 			EnemyProjectile->SetActiveAndCollision(true);

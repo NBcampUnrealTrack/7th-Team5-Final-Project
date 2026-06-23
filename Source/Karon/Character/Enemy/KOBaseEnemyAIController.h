@@ -67,6 +67,7 @@ protected:
 	const FName StrafeSpeedKey = TEXT("StrafeSpeed");
 	const FName EnemyAttackDelayTimeKey = TEXT("EnemyAttackDelayTime");
 	const FName bCanAttackKey = TEXT("bCanAttack");
+	const FName bCanPatrolKey = TEXT("bCanPatrol");
 	
 	
 	UPROPERTY()

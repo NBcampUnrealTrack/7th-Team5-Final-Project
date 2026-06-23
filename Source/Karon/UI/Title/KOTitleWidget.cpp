@@ -21,7 +21,7 @@ void UKOTitleWidget::NativeConstruct()
 void UKOTitleWidget::OnStartGameClicked() const
 {
 	//TODO_CSH 메인 레벨 추가시 이름 등록
-	FName TargetLevelName = FName("L_TestMap");
+	FName TargetLevelName = FName("L_MainLevel");
 	//아래 경로를 확인해 레벨오픈
 	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
 

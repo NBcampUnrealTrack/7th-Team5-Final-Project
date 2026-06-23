@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
 	
+	UPROPERTY(EditAnywhere)
+	bool bCanPatrol=true;
+	
 	//Projectile
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMesh> ProjectileMesh;
@@ -86,6 +89,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag EnemyNameTag;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	int32 EnemyLevel=1;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -98,7 +104,7 @@ protected:
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
 	
-	int32 EnemyLevel=1;
+
 	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
