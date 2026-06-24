@@ -50,6 +50,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Boss_Dashing);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Boss_Dead);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Boss_Groggy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Boss_InGroggy);
 
 
 	

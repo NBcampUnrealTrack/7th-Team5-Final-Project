@@ -3,6 +3,7 @@
 #include "AIController.h"
 #include "KOAIC_BossChapter01.h"
 #include "TimerManager.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Utility/Log/KOLogManager.h"
@@ -54,10 +55,9 @@ void AKOBossChapter01::OnGroggyBegin()
 	{
 		return;
 	}
- 
+	
 	bIsGroggy = true;
 	
-	// GA에서 BB 직접 접근 대신 이 함수 호출
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -68,6 +68,18 @@ void AKOBossChapter01::OnGroggyBegin()
  
 	OpenCore();
 }
+
+void AKOBossChapter01::TriggerGroggy()
+{
+	if (GroggySet)
+	{
+		GroggySet->SetGroggyHealth(0.f);
+	}
+	else
+	{
+		OnGroggyBegin();
+	}
+}
  
 // 그로기 종료
 void AKOBossChapter01::OnGroggyEnd()
@@ -75,6 +87,19 @@ void AKOBossChapter01::OnGroggyEnd()
 	if (bIsDead)
 	{
 		return;
+	}
+	
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, false);
+		}
+	}
+	
+	if (GroggySet)
+	{
+		GroggySet->SetGroggyHealth(GroggySet->GetMaxGroggyHealth());
 	}
  
 	bIsGroggy = false;
@@ -116,8 +141,6 @@ void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
 	}
 }
 
-// ─── 추가 : 기믹 돌진 종료 시 BB 키 해제 ────────────────────
-// GA에서 BB 직접 접근 대신 이 함수 호출
 void AKOBossChapter01::NotifyGimmickDashEnd()
 {
 	if (AAIController* AIC = Cast<AAIController>(GetController()))

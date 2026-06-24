@@ -20,7 +20,7 @@ protected:
 	
 	virtual void OnGroggyBegin() override;
 	virtual void OnGroggyEnd() override;
-	
+	virtual void TriggerGroggy() override;
 	
 	virtual void NotifyGimmickDashEnd() override;
  

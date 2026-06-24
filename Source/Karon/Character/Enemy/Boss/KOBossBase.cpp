@@ -11,6 +11,7 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "KOBossDataAsset.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -25,8 +26,8 @@ AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 
 	HealthSet   = CreateDefaultSubobject<UKOHealthSet>("HealthSet");
 	MovementSet = CreateDefaultSubobject<UKOMovementSet>("MovementSet");
-	
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>("CombatSet");
+	GroggySet = CreateDefaultSubobject<UKOGroggySet>("GroggySet");
 }
 
 void AKOBossBase::NotifyPlayerDetected()
@@ -50,7 +51,10 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	Super::OnCharacterDead(DeathInstigator);
 	
 	AAIController* AIC = Cast<AAIController>(GetController());
-	if (!AIC) return;
+	if (!AIC)
+	{
+		return;
+	}
 	
 	AIC->StopMovement(); 
 	
@@ -82,6 +86,11 @@ void AKOBossBase::BeginPlay()
 	if (MovementSet)
 	{
 		MovementSet->OnMaxWalkSpeedBaseChanged.AddUniqueDynamic(this, &AKOBossBase::OnMoveSpeedChangedCallback);
+	}
+	
+	if (GroggySet)
+	{
+		GroggySet->OnGroggyTriggered.AddUObject(this, &AKOBossBase::OnGroggyBegin);
 	}
 }
 

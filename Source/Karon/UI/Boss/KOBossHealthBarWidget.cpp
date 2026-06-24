@@ -1,6 +1,7 @@
 #include "UI/Boss/KOBossHealthBarWidget.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "Animation/WidgetAnimation.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
@@ -45,6 +46,12 @@ void UKOBossHealthBarWidget::NativeDestruct()
 			{
 				HealthSet->OnHealthChanged.RemoveDynamic(this, &UKOBossHealthBarWidget::OnHealthChanged);
 			}
+		}
+		
+		UKOGroggySet* GroggySet = const_cast<UKOGroggySet*>(ASC->GetSet<UKOGroggySet>());
+		if (GroggySet)
+		{
+			GroggySet->OnGroggyHealthChanged.RemoveDynamic(this, &UKOBossHealthBarWidget::OnGroggyChanged);
 		}
 	}
 	
@@ -165,6 +172,21 @@ void UKOBossHealthBarWidget::SetBoss(AKOBossBase* InBoss)
 	{
 		BossHealthYellow->SetPercent(FMath::Clamp(CurrentHP / MaxHP, 0.f, 1.f));
 	}
+	
+	UKOGroggySet* GroggySet = const_cast<UKOGroggySet*>(ASC->GetSet<UKOGroggySet>());
+	if (GroggySet)
+	{
+		MaxGroggy = GroggySet->GetMaxGroggyHealth();
+		CurrentGroggy = GroggySet->GetGroggyHealth();
+
+		GroggySet->OnGroggyHealthChanged.AddUniqueDynamic(
+			this, &UKOBossHealthBarWidget::OnGroggyChanged);
+
+		if (BossGroggy && MaxGroggy > 0.f)
+		{
+			BossGroggy->SetPercent(FMath::Clamp(CurrentGroggy / MaxGroggy, 0.f, 1.f));
+		}
+	}
 }
 
 void UKOBossHealthBarWidget::OnHealthChanged(float OldVal, float NewVal)
@@ -184,9 +206,23 @@ void UKOBossHealthBarWidget::OnHealthChanged(float OldVal, float NewVal)
 	bYellowDecreasing = false;
 }
 
+void UKOBossHealthBarWidget::OnGroggyChanged(float OldVal, float NewVal)
+{
+	if (!BossGroggy || MaxGroggy <= 0.f)
+	{
+		return;
+	}
+
+	CurrentGroggy = NewVal;
+	BossGroggy->SetPercent(FMath::Clamp(CurrentGroggy / MaxGroggy, 0.f, 1.f));
+}
+
 void UKOBossHealthBarWidget::UpdateHealthBar(float Current, float Max)
 {
-	if (Max <= 0.f) { return; }
+	if (Max <= 0.f)
+	{
+		return;
+	}
 	
 	if (BossHealth)
 	{

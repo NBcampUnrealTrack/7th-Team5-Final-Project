@@ -43,4 +43,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dashing, "State.Boss.Dashing");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dead, "State.Boss.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Groggy, "State.Boss.Groggy");
+	UE_DEFINE_GAMEPLAY_TAG(State_Boss_InGroggy, "State.Boss.InGroggy");
 }

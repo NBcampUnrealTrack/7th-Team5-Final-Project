@@ -9,10 +9,12 @@
 UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
- 
+	
+	
+	
 	// 그로기 중 재발동 방지
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
 }
 
 void UKOGA_BossGroggyBase::ActivateAbility(
@@ -22,6 +24,11 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (!IsActive())
+	{
+		return;
+	}
  
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -38,8 +45,6 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 	}
  
 	Boss->OnGroggyBegin();
- 
-	UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 진입 / 유지시간 : %.1f초"), GroggyDuration);
  
 	// 그로기 유지 타이머
 	GetWorld()->GetTimerManager().SetTimer(
@@ -58,17 +63,14 @@ void UKOGA_BossGroggyBase::EndAbility(
 	bool bReplicateEndAbility, 
 	bool bWasCancelled)
 {
-	// 타이머 정리
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(GroggyTimerHandle);
 	}
 	
-	// 보스 그로기 종료
 	if (AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter()))
 	{
 		Boss->OnGroggyEnd();
-		UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 종료"));
 	}
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -76,8 +78,6 @@ void UKOGA_BossGroggyBase::EndAbility(
 
 void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
 {
-	UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 타이머 종료"));
-	
 	ACharacter* Character = GetAvatarCharacter();
 	if (Character)
 	{

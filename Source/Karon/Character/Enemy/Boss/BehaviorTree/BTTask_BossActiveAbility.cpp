@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 
 UBTTask_BossActiveAbility::UBTTask_BossActiveAbility()
 {
@@ -45,23 +46,28 @@ EBTNodeResult::Type UBTTask_BossActiveAbility::ExecuteTask(
 	{
 		return EBTNodeResult::Failed;
 	}
-	
+
 	if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
 			Boss->CurrentTarget = Cast<AActor>(
 				BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+
+			if (AbilityTag == KOGameplayTags::State_BossCH01_Attack_Jump)
+			{
+				if (AActor* Target = Boss->CurrentTarget)
+				{
+					Boss->JumpTargetLocation = Target->GetActorLocation();
+				}
+			}
 		}
 	}
 	
 	CachedOwnerComp = &OwnerComp;
-	ASC->OnAbilityEnded.AddUObject(
-		this, &UBTTask_BossActiveAbility::OnAbilityEndedCallback);
- 
-	bool bSuccess = ASC->TryActivateAbilitiesByTag(
-		FGameplayTagContainer(AbilityTag)
-	);
+	ASC->OnAbilityEnded.AddUObject(this, &UBTTask_BossActiveAbility::OnAbilityEndedCallback);
+	
+	bool bSuccess = ASC->TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
  
 	if (!bSuccess)
 	{
@@ -83,9 +89,20 @@ void UBTTask_BossActiveAbility::OnTaskFinished(
 
 void UBTTask_BossActiveAbility::OnAbilityEndedCallback(const FAbilityEndedData& Data)
 {
-	if (!Data.AbilityThatEnded) { return; }
-	if (!Data.AbilityThatEnded->GetAssetTags().HasTag(AbilityTag)) { return; }
-	if (!CachedOwnerComp) { return; }
+	if (!Data.AbilityThatEnded)
+	{
+		return;
+	}
+	
+	if (!Data.AbilityThatEnded->GetAssetTags().HasTag(AbilityTag))
+	{
+		return;
+	}
+	
+	if (!CachedOwnerComp)
+	{
+		return;
+	}
 
 	const EBTNodeResult::Type Result = Data.bWasCancelled ?
 		EBTNodeResult::Failed : EBTNodeResult::Succeeded;

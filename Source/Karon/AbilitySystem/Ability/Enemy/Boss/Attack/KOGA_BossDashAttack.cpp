@@ -63,7 +63,10 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		FTimerDelegate::CreateLambda([this]()
 		{
 			ACharacter* Char = GetAvatarCharacter();
-			if (!IsActive() || !Char) return; 
+			if (!IsActive() || !Char)
+			{
+				return;
+			}
 			
 			Char->GetCharacterMovement()->Velocity = DashDirection * DashSpeed;
 		}),
@@ -79,7 +82,10 @@ void UKOGA_BossDashAttack::OnDashHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (!OtherActor) return;
+	if (!OtherActor)
+	{
+		return;
+	}
  
 	// 기믹 돌진 기둥 태그 확인 
 	if (bIsGimmickDash && OtherActor->ActorHasTag(FName("Object_BossCH01_Gimmick_Pillar")))
@@ -105,7 +111,7 @@ void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());
 	if (Boss)
 	{
-		Boss->OnGroggyBegin();
+		Boss->TriggerGroggy();
 	}
  
 	StopDash();

@@ -5,6 +5,7 @@
 #include "KOBossBase.generated.h"
 
 
+class UKOGroggySet;
 struct FOnAttributeChangeData;
 struct FStreamableHandle;
 class AKOBossBase;
@@ -28,6 +29,9 @@ public:
 	// 외부 호출
 	UFUNCTION(BlueprintCallable, Category = "Boss")
 	void StartAsyncLoad(UKOBossDataAsset* InDataAsset);
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Groggy")
+	TObjectPtr<UKOGroggySet> GroggySet;
  
 	// 델리게이트
 	FOnBossReady OnBossReady;
@@ -49,9 +53,14 @@ public:
 	
 	virtual void NotifyGimmickDashEnd() {}
 	
+	virtual void TriggerGroggy() { OnGroggyBegin(); }
+	
 	// GA에서 타겟 읽기용 캐시
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentTarget;
+	
+	UPROPERTY()
+	FVector JumpTargetLocation = FVector::ZeroVector;
 	
 protected:
 	virtual void BeginPlay() override;
