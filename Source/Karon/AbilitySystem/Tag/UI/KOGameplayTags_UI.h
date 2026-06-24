@@ -39,6 +39,9 @@ namespace KOGameplayTags
 	/** 벨트-공장 포트 연결 팝업 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BeltConnect);
 	
+	/** 키조작을 알려주는 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_KeyNotice);
+	
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
 	

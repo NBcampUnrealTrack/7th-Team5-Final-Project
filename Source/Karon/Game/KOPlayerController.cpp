@@ -71,7 +71,7 @@ void AKOPlayerController::BeginPlay()
 			});
 		}
 	}
-
+	
 	// 건설 모드 진입/종료에 따른 BuildIMC 전환을 토글키가 아닌 모드 변경 메시지로 구동.
 	BuildModeChangedCallback.BindDynamic(this, &AKOPlayerController::OnBuildModeChanged);
 	BuildModeChangedHandle = UGMRouterSubsystem::Subscribe(
