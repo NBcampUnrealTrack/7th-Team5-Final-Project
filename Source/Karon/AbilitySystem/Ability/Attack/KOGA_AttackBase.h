@@ -45,6 +45,9 @@ struct FKOTraceData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bShowDebug = true;
 	
+	UPROPERTY()
+	UMeshComponent* TraceMesh = nullptr; 
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName StartSocket = FName("StartTrace");
 	
@@ -65,6 +68,13 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 	
 public:
 	UKOGA_AttackBase();
+	
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData
+	) override;
 	
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -90,6 +100,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Attack|Trace")
 	virtual void ResetHitActors();
 	
+	UMeshComponent* FindTraceMesh(); 
+	
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace")
 	FKOTraceData TraceData; 
 	

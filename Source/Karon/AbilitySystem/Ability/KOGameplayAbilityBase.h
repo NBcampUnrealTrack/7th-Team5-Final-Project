@@ -107,6 +107,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
 	float CooldownDuration = 0.f;
 	
+	
+	// ─── Cost ────────────────────────────────────────────────────────
+	virtual UGameplayEffect* GetCostGameplayEffect() const override;
+	
+	virtual void ApplyCost(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo
+	) const override;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Cost")
+	TSubclassOf<UGameplayEffect> CostGEClass;
+	
+	mutable FActiveGameplayEffectHandle CostEffectHandle;
+	
 private:
 	mutable FGameplayTagContainer CachedCooldownTags;
 };

@@ -29,6 +29,8 @@ namespace KOGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Sprint);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Roll);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Dodge);
+	
 
     // ── Input | Ability | Attack ──────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Combo);

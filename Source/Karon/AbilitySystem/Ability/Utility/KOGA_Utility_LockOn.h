@@ -4,6 +4,28 @@
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 #include "KOGA_Utility_LockOn.generated.h"
 
+/*
+ *	TODO: 유나님 숙제 
+	1. 타이머 콜백 내부에서 EndAbility 직접 호출 (크래시 위험)
+	2. FindBestTarget 주석과 구현 불일치 (카메라 정면 고려 없음)
+	3. UpdateCameraRotation Pitch 하드코딩 (-35.f)
+	4. RInterpTo에 DeltaTime 대신 고정값 0.016f 사용 (프레임레이트 종속)
+	5. bDeactivatedByInput 플래그로 재진입 차단하는 구조가 불안정
+	6. EndAbility의 쿨타임 조건(bWasCancelled) 의도 불명확
+	7. IsTargetValid가 거리만 체크하고 액터 생존 여부(HP 등) 미확인
+	8. ApplyLockOnGameplayTag가 const인데 ASC 상태를 변경함 (논리적 불일치)
+	9. LockedTarget이 TWeakObjectPtr 아닌 raw 포인터 (TObjectPtr 권장)
+	10. DeactivateLockOn 중복 호출 가능성 (EndAbility와 InputPressed 양쪽에서 호출)
+	11. Enemy 태그 하드코딩 (FName("Enemy")) — GAS 태그 시스템과 불일치
+	12. CommitAbility 누락 — 코스트/쿨타임이 어빌리티 활성화 시 적용 안 됨
+	13. ActivateLockOn 내 ACharacter* 두번 캐스팅 
+	14. GEngine->AddOnScreenDebugMessage 다수 — 출판 코드에 디버그 출력 잔존
+	15. ActivateAbility 내 Character 미사용 
+	16. 주석 투머치 Til로 보내자 
+ */
+
+
+
 UCLASS()
 class KARON_API UKOGA_Utility_LockOn : public UKOGameplayAbilityBase
 {

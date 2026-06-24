@@ -3,6 +3,8 @@
 UKOCombatSet::UKOCombatSet()
 {
 	InitAttackSpeed(1.f); 
+	InitCritChance(0.05f);     
+	InitCritMultiplier(1.5f);   
 }
 
 // 최솟값 보장
@@ -26,6 +28,12 @@ void UKOCombatSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 	
 	if (Attribute == GetAttackSpeedAttribute())
 		NewValue = FMath::Clamp(NewValue, 0.1f, 10.f);
+	
+	if (Attribute == GetCritChanceAttribute())
+		NewValue = FMath::Clamp(NewValue, 0.f, 1.f);
+		
+	if (Attribute == GetCritMultiplierAttribute())
+		NewValue = FMath::Max(NewValue, 1.f);
 }
 
 // Base 영구 변경 (레벨업 / 장비 / 포인트 투자)
@@ -54,9 +62,8 @@ void UKOCombatSet::PostAttributeChange(const FGameplayAttribute& Attribute, floa
 		OnDefenseChanged.Broadcast(OldValue, NewValue);
 
 	if (Attribute == GetAttackSpeedAttribute())
-	{
 		OnAttackSpeedChanged.Broadcast(OldValue, NewValue);
-	}
+	
 }
 
 void UKOCombatSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)

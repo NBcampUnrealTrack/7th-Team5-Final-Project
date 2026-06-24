@@ -40,6 +40,12 @@ void UKOGameplayAbilityBase::EndAbility(
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return;
 	
+	if (CostEffectHandle.IsValid())
+	{
+		BP_RemoveGameplayEffectFromOwnerWithHandle(CostEffectHandle);
+		CostEffectHandle = FActiveGameplayEffectHandle();
+	}
+	
 	KO_LOGS(GAS, Ability, Log, TEXT("(-) %s | %s ← Ended"), *GetClass()->GetName(), *Character->GetName());
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -108,8 +114,7 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToSelf(
 FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToSelf(
 	TSubclassOf<UGameplayEffect> EffectClass,
 	FGameplayTag DataTag,
-	float Amount,
-	float Level)
+	float Amount, float Level)
 {
 	if (!EffectClass) return FActiveGameplayEffectHandle();
 	
@@ -145,8 +150,7 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarg
 	AActor* TargetActor,
 	TSubclassOf<UGameplayEffect> EffectClass, 
 	FGameplayTag DataTag,
-	float Amount,
-	float Level)
+	float Amount, float Level)
 {
 	UAbilitySystemComponent* SourceASC = GetASC();
 	if (!SourceASC || !EffectClass || !TargetActor) return FActiveGameplayEffectHandle();
@@ -198,4 +202,26 @@ void UKOGameplayAbilityBase::ApplyCooldown(
 	SpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
 
 	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+}
+
+UGameplayEffect* UKOGameplayAbilityBase::GetCostGameplayEffect() const
+{
+	if (CostGEClass)
+		return CostGEClass->GetDefaultObject<UGameplayEffect>();
+	
+	return nullptr;
+}
+
+void UKOGameplayAbilityBase::ApplyCost(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!CostGEClass) return;
+	
+	FGameplayEffectSpecHandle Spec = 
+		MakeOutgoingGameplayEffectSpec(CostGEClass, GetAbilityLevel());
+	
+	if (Spec.IsValid())
+		CostEffectHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
 }

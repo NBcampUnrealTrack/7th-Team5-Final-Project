@@ -27,8 +27,9 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, AttackPower);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, Defense);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, AttackSpeed);
-
-	//현석: DEFINE_ATTRIBUTE_CAPTUREDEF 매크로를 사용하기 위해 public 선언
+	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, CritChance);
+	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, CritMultiplier);
+	
 public:
 	// ─── Attributes ────────────────────────────────────────────────────
 	UPROPERTY(BlueprintReadOnly, Category = "Attack")
@@ -39,6 +40,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	FGameplayAttributeData AttackSpeed;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
+	FGameplayAttributeData CritChance;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Attack")
+	FGameplayAttributeData CritMultiplier;
 
 public:
 	// ─── Delegates ────────────────────────────────────────────────────

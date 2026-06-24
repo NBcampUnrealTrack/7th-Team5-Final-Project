@@ -48,6 +48,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Trace_Start,   "Event.Trace.Start");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Trace_End, "Event.Trace.End");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_Start, "Event.Dodge.Invincible.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_End, "Event.Dodge.Invincible.End");
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
 	UE_DEFINE_GAMEPLAY_TAG(Event_DropItem, "Event.DropItem");

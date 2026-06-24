@@ -65,8 +65,6 @@ void UAbilityTask_HitStop::OnDestroy(bool bInOwnerFinished)
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-
-
 void UAbilityTask_HitStop::SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate)
 {
 	if (Mesh) Mesh->GlobalAnimRateScale = Rate;

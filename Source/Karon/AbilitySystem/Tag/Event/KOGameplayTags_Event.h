@@ -48,6 +48,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Trace_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Trace_End);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_End);
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_DropItem);

@@ -56,13 +56,7 @@ protected:
 	TSubclassOf<UGameplayEffect> SprintEffect;
 	
 	FActiveGameplayEffectHandle SprintEffectHandle; 
-	
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Cost | Effect")
-	TSubclassOf<UGameplayEffect> SprintCostEffect;
-	
-	FActiveGameplayEffectHandle SprintCostEffectHandle; 
-	
+
 protected:
 	
 	FTimerHandle GraceTimer; 

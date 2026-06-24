@@ -8,11 +8,30 @@
 #include "GameFramework/Character.h"
 #include "Items/Equipment/KOWeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Utility/Log/KOLogManager.h"
 
 UKOGA_AttackBase::UKOGA_AttackBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
+}
+
+void UKOGA_AttackBase::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	TraceData.TraceMesh = FindTraceMesh();
+    
+	if (!TraceData.TraceMesh)
+	{
+		KO_LOG(Combat, Error, TEXT("TraceMesh 없음"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 }
 
 void UKOGA_AttackBase::EndAbility(
@@ -136,50 +155,11 @@ UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 
 void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 {
-	// 1. Character를 Character로 캐스팅 
 	ACharacter* Avatar = GetAvatarCharacter();
-	if (!Avatar) return;
+	if (!Avatar || !TraceData.TraceMesh) return;
 	
-	UMeshComponent* TargetMesh = nullptr;
-	UKOEquipmentComponent* EquipComp = Avatar->FindComponentByClass<UKOEquipmentComponent>();
-	
-	if (EquipComp && EquipComp->HasWeapon())
-	{
-		AKOWeaponBase* WeaponActor = EquipComp->CurrentWeaponActor;
-		if (WeaponActor)
-		{
-			UMeshComponent* WeaponMesh = WeaponActor->FindComponentByClass<UMeshComponent>();
-			if (WeaponActor && WeaponMesh->DoesSocketExist(TraceData.StartSocket))
-			{
-				TargetMesh = WeaponMesh;
-			}
-		}
-	}
-	
-	if (!TargetMesh)
-	{
-		// 2. 무기는 Skeletal이 아님 액터-> Static Mesh 
-		TArray<USkeletalMeshComponent*> SkeletalMeshes;
-		Avatar->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
-		
-		for (USkeletalMeshComponent* Comp : SkeletalMeshes)
-		{
-			if (Comp->DoesSocketExist(TraceData.StartSocket))
-			{
-				TargetMesh = Comp;
-				break;
-			}
-		}
-	}
-	
-	if (!TargetMesh)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[%s]  %s 소켓 찾을 수 없음."), *GetName(), *TraceData.StartSocket.ToString());
-		return;
-	}
-	
-	FVector StartLoc = TargetMesh->GetSocketLocation(TraceData.StartSocket);
-	FVector EndLoc = TargetMesh->GetSocketLocation(TraceData.EndSocket);
+	FVector StartLoc = TraceData.TraceMesh->GetSocketLocation(TraceData.StartSocket);
+	FVector EndLoc = TraceData.TraceMesh->GetSocketLocation(TraceData.EndSocket);
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Avatar);
@@ -220,4 +200,38 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 void UKOGA_AttackBase::ResetHitActors()
 {
 	TraceData.HitActors.Empty();
+}
+
+UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
+{
+	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
+	if (!Character) return nullptr;
+	
+	UKOEquipmentComponent* EquipComp = Character->GetEquipmentComponent(); 
+	if (!EquipComp) return nullptr;
+	
+	if (EquipComp->HasWeapon())
+	{
+		AKOWeaponBase* WeaponActor = EquipComp->CurrentWeaponActor;
+		if (UStaticMeshComponent* Mesh = WeaponActor->GetMesh())
+		{
+			if (Mesh->DoesSocketExist(TraceData.StartSocket)
+				&& Mesh->DoesSocketExist(TraceData.EndSocket)) 
+				return Mesh; 
+		}
+	}
+	
+	TArray<USkeletalMeshComponent*> SkeletalMeshes;
+	Character->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
+		
+	for (USkeletalMeshComponent* Mesh : SkeletalMeshes)
+	{
+		if (Mesh->DoesSocketExist(TraceData.StartSocket)
+			&& Mesh->DoesSocketExist(TraceData.EndSocket))
+		{
+			return Mesh; 
+		}
+	}
+	
+	return nullptr; 
 }

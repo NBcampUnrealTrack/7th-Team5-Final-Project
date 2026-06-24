@@ -79,11 +79,6 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 		SprintEffectHandle = ApplyEffectToSelf(SprintEffect);
 	}
 	
-	if (SprintCostEffect)
-	{
-		SprintCostEffectHandle = ApplyEffectToSelf(SprintCostEffect);
-	}
-	
 	CachedCharacter->UpdateGait(EGait::Sprint);
 	
 	// 3. Stamina 감소시 마다 달리기 조건 체크 Task 
@@ -114,10 +109,6 @@ void UKOGA_Movement_Sprint::EndAbility(
 	if (SprintEffectHandle.IsValid())
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintEffectHandle);
-	}
-	if (SprintCostEffectHandle.IsValid())
-	{
-		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintCostEffectHandle);
 	}
 	
 	if (CachedCharacter)
