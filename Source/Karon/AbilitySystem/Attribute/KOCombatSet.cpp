@@ -3,7 +3,7 @@
 UKOCombatSet::UKOCombatSet()
 {
 	InitAttackSpeed(1.f); 
-	InitCritChance(0.05f);     
+	InitCritChance(0.5f);     
 	InitCritMultiplier(1.5f);   
 }
 

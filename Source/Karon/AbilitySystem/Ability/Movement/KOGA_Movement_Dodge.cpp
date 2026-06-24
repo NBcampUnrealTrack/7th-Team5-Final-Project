@@ -35,6 +35,9 @@ void UKOGA_Movement_Dodge::ActivateAbility(
 		return;
 	}
 	
+	GetASC()->CancelAbilities(nullptr, nullptr, this);
+	
+	
 	UAbilityTask_WaitGameplayEvent* StartEventTask =  
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Dodge_Invincible_Start); 
 	
