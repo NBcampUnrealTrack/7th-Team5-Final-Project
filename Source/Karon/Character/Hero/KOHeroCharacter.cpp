@@ -63,8 +63,6 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent = Cast<UKOAbilitySystemComponent>(PS->GetAbilitySystemComponent());
 	if (!AbilitySystemComponent) return;
 	
-	AbilitySystemComponent->GiveGrantSet(); 
-	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	
 	StaminaSet = PS->GetStaminaSet();
 	CombatSet = PS->GetCombatSet();
