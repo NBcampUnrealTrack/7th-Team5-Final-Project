@@ -292,7 +292,7 @@ void AKOGridVisual::AddPowerCoverageArea(const FIntPoint& Anchor, const FIntPoin
 				1.0f
 			);
 
-			PowerCellInstances->AddInstance(
+			PowerCellInstances->AddInstanceWorldSpace(
 				FTransform(
 					FRotator::ZeroRotator,
 					CellCenter,
