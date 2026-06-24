@@ -25,6 +25,8 @@ class KARON_API UKOGridSubsystem : public UWorldSubsystem
 	
 public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+	
+	void SetGridOrigin(const FVector& NewOrigin) { GridOrigin = NewOrigin; }
 
 public:
 	FIntPoint WorldToGridPosition(const FVector& WorldLocation) const;
@@ -70,7 +72,7 @@ private:
 	FVector GridOrigin = FVector(400.0f, 300.0f, 0.0f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
-	float TraceHeight = 1000.0f;
+	float TraceHeight = 10000.0f;
 
 	ECollisionChannel GridGroundTraceChannel = ECC_Visibility;
 	ECollisionChannel PlacementCollisionChannel = ECC_GameTraceChannel1;

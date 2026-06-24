@@ -169,12 +169,12 @@ bool UKOGridSubsystem::CanBuildArea(FIntPoint AnchorLocation, FIntPoint AreaSize
 	}
 
 	FVector CenterLocation = GetAreaCenterWorldPosition(AnchorLocation, AreaSize);
-	CenterLocation.Z += 50.0f;
+	CenterLocation.Z += 60.0f;
 
 	const FVector BoxExtent(
 		AreaSize.X * CellSize * 0.45f,
 		AreaSize.Y * CellSize * 0.45f,
-		50.0f
+		40.0f
 	);
 
 	FCollisionQueryParams QueryParams;

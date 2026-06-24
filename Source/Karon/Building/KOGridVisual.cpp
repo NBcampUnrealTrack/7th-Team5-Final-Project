@@ -32,6 +32,19 @@ void AKOGridVisual::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (UWorld* World = GetWorld())
+	{
+		if (UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>())
+		{
+			FVector PlacedLocation = GetActorLocation();
+			
+			GridSub->SetGridOrigin(PlacedLocation);
+			
+			GridSub->BuildGridFromWorld();
+		}
+	}
+    
+
 	BuildGridVisual();
 
 	// 게임 시작 시 기본 숨김
@@ -101,7 +114,7 @@ void AKOGridVisual::BuildGridVisual()
 			0.005f
 		);
 
-		GridLineInstances->AddInstance(
+		GridLineInstances->AddInstanceWorldSpace(
 			FTransform(
 				FRotator::ZeroRotator,
 				Location,
@@ -127,7 +140,7 @@ void AKOGridVisual::BuildGridVisual()
 			0.005f
 		);
 
-		GridLineInstances->AddInstance(
+		GridLineInstances->AddInstanceWorldSpace(
 			FTransform(
 				FRotator::ZeroRotator,
 				Location,
