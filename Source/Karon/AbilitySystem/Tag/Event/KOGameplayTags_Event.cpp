@@ -29,6 +29,7 @@ namespace KOGameplayTags
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Plunge_Land, "Event.Plunge.Land");
 	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Transition, "Event.Combo.Transition");

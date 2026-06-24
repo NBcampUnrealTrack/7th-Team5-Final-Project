@@ -33,7 +33,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Heavy, "Input.Ability.Attack.Heavy");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Charge, "Input.Ability.Attack.Charge");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Dash, "Input.Ability.Attack.Dash");
-	
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Attack_Plunge, "Input.Ability.Attack.Plunge"); 
 	// ── Input | Ability | Interaction ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Interaction, "Input.Ability.Interaction");
 	

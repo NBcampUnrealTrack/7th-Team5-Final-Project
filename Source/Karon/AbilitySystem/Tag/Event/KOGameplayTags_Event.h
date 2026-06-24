@@ -29,6 +29,7 @@ namespace KOGameplayTags
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Light);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Heavy);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Plunge_Land);
 	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Transition);
