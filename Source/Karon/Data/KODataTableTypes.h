@@ -224,6 +224,12 @@ struct KARON_API FKOSkillExecutionRow : public FTableRowBase
     /** 스킬 유형 타입*/
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
     ESkillExecutionType ExecutionType;
+    /** 스킬 활성화 태그*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
+    FGameplayTag UnlockTag;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
+    TSubclassOf<UGameplayEffect> ActiveEffectClassBase;
 
     /**
      * 액티브 스킬 정보 데이터

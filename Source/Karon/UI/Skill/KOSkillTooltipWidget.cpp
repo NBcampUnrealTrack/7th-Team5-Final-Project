@@ -53,6 +53,10 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 		SlateBrush.SetResourceObject(IconTexture);
 		SkillIcon->SetBrush(SlateBrush);
 	}
+	else if (SkillRow.Icon.IsNull() && SkillIcon)
+	{
+		SkillIcon->SetBrush(DefaultBrush);
+	}
 
 	if (CostListContainer == nullptr || CostWidget == nullptr)
 	{

@@ -131,9 +131,8 @@ void UKOLoadSubsystem::LoadAll()
     IndexTableRowsByName<FKOFactoryRow>   (Settings->FactoryTables,   FactoryCache,   TEXT("Factory"));
     IndexTableRowsByName<FKORecipeRow>    (Settings->RecipeTables,    RecipeCache,    TEXT("Recipe"));
     IndexTableRowsByName<FKOEquipmentRow> (Settings->EquipmentTables, EquipmentCache, TEXT("Equipment"));
-    IndexTableRowsByName<FKOSkillRow>     (Settings->SkillTables,     SkillCache,     TEXT("Skill"));
-    IndexTableRowsByName<FKOSkillExecutionRow>  (Settings->SkillTables,
-        SkillExecutionCache,   TEXT("SkillExecution"));
+    IndexTableRowsByName<FKOSkillRow>          (Settings->SkillTables,          SkillCache,          TEXT("Skill"));
+    IndexTableRowsByName<FKOSkillExecutionRow> (Settings->SkillExecutionTables, SkillExecutionCache, TEXT("SkillExecution"));
     
     // ItemTag → ItemId 역인덱스 빌드
     ItemTagToId.Reset();

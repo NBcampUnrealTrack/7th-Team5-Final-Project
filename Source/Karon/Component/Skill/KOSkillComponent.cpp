@@ -1,8 +1,12 @@
 ﻿// Copyright Karon Team 5. All Rights Reserved.
 
 #include "KOSkillComponent.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Game/KOPlayerController.h"
+#include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 
@@ -20,6 +24,12 @@ void UKOSkillComponent::BeginPlay()
 	if (AKOPlayerController* PC = Cast<AKOPlayerController>(GetOwner()))
 	{
 		CachedInventoryComponent = PC->FindComponentByClass<UKOInventoryComponent>();
+
+		AKOPlayerState* PS = PC->GetPlayerState<AKOPlayerState>();
+		if (PS)
+		{
+			CachedASC = PS->GetAbilitySystemComponent();
+		}
 	}
 
 	InitializeSkillStates();
@@ -51,11 +61,25 @@ bool UKOSkillComponent::TryUnlockSkill(const FName& SkillName)
 		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 캐싱된 LoadSubsystem이 없습니다."));
 		return false;
 	}
+
+	if (CachedASC == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 캐싱된 AbilitySystemComponent가 없습니다."));
+		return false;
+	}
+
 	const FKOSkillRow* Row = CachedLoadSubsystem->FindSkillRow(SkillName);
+	const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(SkillName);
 
 	if (Row == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 스킬 데이터를 찾을 수 없습니다."), *SkillName.ToString());
+		return false;
+	}
+
+	if (ExRow == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 스킬 실행 데이터를 찾을 수 없습니다."), *SkillName.ToString());
 		return false;
 	}
 
@@ -85,12 +109,14 @@ bool UKOSkillComponent::TryUnlockSkill(const FName& SkillName)
 			const FName ItemId = CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag);
 			if (ItemId.IsNone())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 비용 태그 [%s]에 해당하는 아이템이 없습니다."), *Cost.ItemTag.ToString());
+				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: 비용 태그 [%s]에 해당하는 아이템이 없습니다."),
+				       *Cost.ItemTag.ToString());
 				return false;
 			}
 			if (!CachedInventoryComponent->HasEnoughItems(ItemId, Cost.Amount))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 수량 부족 (필요: %d)"), *ItemId.ToString(), Cost.Amount);
+				UE_LOG(LogTemp, Warning, TEXT("SkillComponent: [%s] 수량 부족 (필요: %d)"),
+				       *ItemId.ToString(), Cost.Amount);
 				return false;
 			}
 		}
@@ -98,6 +124,50 @@ bool UKOSkillComponent::TryUnlockSkill(const FName& SkillName)
 		for (const FSkillCost& Cost : Row->UnlockCosts)
 		{
 			CachedInventoryComponent->TryRemoveItem(CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag), Cost.Amount);
+		}
+	}
+
+	FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
+
+	if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
+	{
+		FGameplayAbilitySpec* ExistingSpec = CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass);
+		if (ExistingSpec)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("이미 태그가 부여되어 있습니다. 어캐들어옴?"));
+			return false;
+		}
+		
+		FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
+		
+		FGameplayAbilitySpecHandle SpecHandle = CachedASC->GiveAbility(NewSpec);
+		if (SpecHandle.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s 스킬 해금 후 태그 지급 완료"), *SkillName.ToString());
+			bool bSuccess = CachedASC->TryActivateAbility(SpecHandle);
+			UE_LOG(LogTemp, Warning, TEXT("Handle- 스킬 강제 발동 테스트 결과: %s"), bSuccess ? TEXT("성공"): TEXT("실패"));
+		}
+		
+		if (ExRow->AbilityClass)
+		{
+			bool bSuccess = CachedASC->TryActivateAbilityByClass(ExRow->AbilityClass);
+			UE_LOG(LogTemp, Warning, TEXT("ExRow - 스킬 강제 발동 테스트 결과: %s"), bSuccess ? TEXT("성공"): TEXT("실패"));
+		}
+	}
+	else if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
+	{
+		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
+			ExRow->PassiveEffectClass, 1.f, EffectContext);
+		if (!SpecHandle.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TryUnlockSkill: [%s] Passive SpecHandle 생성 실패"), *SkillName.ToString());
+			return false;
+		}
+		CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+
+		for (FGameplayAbilitySpec& AbilitySpec : CachedASC->GetActivatableAbilities())
+		{
+			CachedASC->MarkAbilitySpecDirty(AbilitySpec);
 		}
 	}
 
@@ -115,6 +185,22 @@ ESkillState UKOSkillComponent::GetSkillState(const FName& SkillName) const
 bool UKOSkillComponent::IsUnlocked(const FName& SkillName) const
 {
 	return GetSkillState(SkillName) == ESkillState::Unlocked;
+}
+
+bool UKOSkillComponent::HasActiveAbilityInASC(TSubclassOf<UGameplayAbility> AbilityClass) const
+{
+	if (CachedASC)
+	{
+		const TArray<FGameplayAbilitySpec>& AbilitySpecs = CachedASC->GetActivatableAbilities();
+		for (const FGameplayAbilitySpec& Spec : AbilitySpecs)
+		{
+			if (Spec.Ability && Spec.Ability->GetClass() == AbilityClass)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 FGameplayTagContainer UKOSkillComponent::GetUnlockedSkillTags() const

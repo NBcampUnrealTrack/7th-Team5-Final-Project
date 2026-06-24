@@ -11,6 +11,8 @@ class UImage;
 class UVerticalBox;
 class UKOSkillCostEntryWidget;
 class UKOInventoryComponent;
+class UKOLoadSubsystem;
+struct FSlateBrush;
 struct FKOSkillRow;
 struct FKOItemRow;
 /**
@@ -48,6 +50,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UKOSkillCostEntryWidget> CostWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	FSlateBrush DefaultBrush;
 private:
 	UPROPERTY()
 	TObjectPtr<UKOInventoryComponent> CachedInventoryComp;
