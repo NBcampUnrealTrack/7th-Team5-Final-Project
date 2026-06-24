@@ -52,6 +52,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UTexture2D> MapTexture;
 
-	float LevelDimension = 20000.f;
+	float LevelDimension = 160000.f;
 	float MiniMapZoom = 0.2f;
 };
