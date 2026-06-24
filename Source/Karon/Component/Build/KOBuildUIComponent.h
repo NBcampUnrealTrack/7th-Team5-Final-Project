@@ -7,6 +7,8 @@
 
 class UKOGridBuildComponent;
 class UKOInventoryComponent;
+class UKOBuildKeyGuideWidget;
+class UKOInGameHUD;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOBuildUIComponent : public UActorComponent, public IKOGMSInterface
@@ -75,6 +77,9 @@ public:
 	// 회전
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void RotateBuildPreview(int32 Direction);
+	
+	void SetHUDKeyGuideMode(bool bBuildMode);
+	UKOInGameHUD* GetHUDWidget() const;
 
 private:
 	APlayerController* GetOwningPlayerController() const;
@@ -93,4 +98,7 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Build|QuickSlot")
 	int32 SelectedQuickSlotIndex = INDEX_NONE;
+	
+	UPROPERTY()
+	TObjectPtr<UKOInGameHUD> HUDWidget;
 };

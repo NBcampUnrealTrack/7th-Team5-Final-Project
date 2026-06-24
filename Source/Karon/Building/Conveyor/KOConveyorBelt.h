@@ -76,6 +76,15 @@ public:
 
     /** 머신 포트 바인딩 보유 여부. */
     bool HasMachineBinding() const { return BoundMachine.IsValid() && BoundPortIndex != INDEX_NONE; }
+    
+    /** 머신 포트 선택/바인딩을 취소한다. */
+    void ClearMachinePortBinding();
+
+    /** 포트 슬롯 선택 완료 여부. */
+    bool HasSelectedPort() const { return bHasSelectedPort; }
+    
+    /** 포트 선택 위젯이 열린 상태로, 아직 슬롯은 선택하지 않은 상태를 기록한다. */
+    void BeginMachinePortSelection(AKOBaseBuilding* Machine, EKOPortKind Kind);
 
     // ─── IKOInteractableInterface (재편집) ───────────────────────────────────
     /** 설치된 벨트와 상호작용 시 연결 팝업을 다시 연다(플레이어 빌드 컴포넌트 경유). */
@@ -204,6 +213,10 @@ private:
     TWeakObjectPtr<AKOBaseBuilding> BoundMachine;
     int32       BoundPortIndex = INDEX_NONE;
     EKOPortKind BoundKind       = EKOPortKind::Input;
+    FName BoundItemId = NAME_None;
+    
+    // 슬롯 선택 여부
+    bool bHasSelectedPort = false;
 
     /** 메시별 아이템 ISM. 같은 메시를 쓰는 아이템들은 ISM 하나를 공유(슬롯 인덱스로 인스턴스 식별). */
     UPROPERTY(Transient)

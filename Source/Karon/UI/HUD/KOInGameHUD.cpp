@@ -7,6 +7,28 @@
 
 #include "Components/ProgressBar.h"
 
+void UKOInGameHUD::SetBuildKeyGuideMode(bool bBuildMode)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[HUD] SetBuildKeyGuideMode bBuildMode=%d"), bBuildMode ? 1 : 0);
+	if (NormalKeyGuide)
+	{
+		NormalKeyGuide->SetVisibility(
+			bBuildMode
+				? ESlateVisibility::Collapsed
+				: ESlateVisibility::HitTestInvisible
+		);
+	}
+
+	if (BuildKeyGuide)
+	{
+		BuildKeyGuide->SetVisibility(
+			bBuildMode
+				? ESlateVisibility::HitTestInvisible
+				: ESlateVisibility::Collapsed
+		);
+	}
+}
+
 void UKOInGameHUD::NativeConstruct()
 {
 	Super::NativeConstruct();

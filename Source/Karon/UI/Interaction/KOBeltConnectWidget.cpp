@@ -53,6 +53,8 @@ void UKOBeltConnectWidget::BuildSlotEntries()
     {
         return; // 흐름상 머신에 안 닿음 — 정상 트리거 경로에선 발생하지 않음.
     }
+    
+    Belt->BeginMachinePortSelection(Building, ValidKind);
 
     // 선택 레시피 기준 아이템 힌트 수집(미선택/없으면 빈 칸으로 표시될 뿐, 포트는 그대로 노출).
     TArray<FKOFactoryPortSlot> Slots;
@@ -82,7 +84,7 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
     UKOConveyorSubsystem* ConveyorSub = UKOConveyorSubsystem::Get(this);
 
     // 일반 포트: 고정 칸 수와 힌트 수 중 큰 값만큼 포트 생성. 모든 포트가 바인딩 가능(빈 포트 포함).
-    const int32 Total = FMath::Max(FixedSlotCount, ItemHints.Num());
+    const int32 Total = ItemHints.Num();
     for (int32 Index = 0; Index < Total; ++Index)
     {
         UKOBeltConnectEntryWidget* Entry = CreateWidget<UKOBeltConnectEntryWidget>(this, EntryClass);
@@ -132,6 +134,14 @@ void UKOBeltConnectWidget::HandleSlotClicked(FKOFactoryPortSlot ClickedSlot)
 
 void UKOBeltConnectWidget::NativeOnDeactivated()
 {
+    if (AKOConveyorBelt* Belt = TargetBelt.Get())
+    {
+        if (!Belt->HasSelectedPort())
+        {
+            Belt->ClearMachinePortBinding();
+        }
+    }
+    
     for (UKOBeltConnectEntryWidget* Entry : EntryWidgets)
     {
         if (Entry)

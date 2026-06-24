@@ -17,6 +17,11 @@ class KARON_API UKOInGameHUD : public UKOActivatableWidget
 {
 	GENERATED_BODY()
 	
+	
+public:
+	UFUNCTION(BlueprintCallable, Category = "HUD|KeyGuide")
+	void SetBuildKeyGuideMode(bool bBuildMode);
+	
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -26,6 +31,12 @@ protected:
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UProgressBar> StaminaBar;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UWidget> NormalKeyGuide;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UWidget> BuildKeyGuide;
 	
 private:
 	float CachedCurrentHealth  = 0.f;

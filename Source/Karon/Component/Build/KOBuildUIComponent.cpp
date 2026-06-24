@@ -2,12 +2,13 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Component/Build/KOGridBuildComponent.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOUISubsystem.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Component/Inventory/KOInventoryComponent.h"
 #include "StructUtils/InstancedStruct.h"
+#include "UI/HUD/KOInGameHUD.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
@@ -21,7 +22,6 @@ void UKOBuildUIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//asdfasdf
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
 }
@@ -106,6 +106,8 @@ void UKOBuildUIComponent::OpenBuildMenu()
 
 	GridBuildComponent->EnterBuildMenuMode();
 	
+	SetHUDKeyGuideMode(true);
+	
 	OpenQuickSlotBar();
 }
 
@@ -118,6 +120,8 @@ void UKOBuildUIComponent::CloseBuildMenu()
 	{
 		GridBuildComponent->ExitBuildMenuMode();
 	}
+	
+	SetHUDKeyGuideMode(false);
 	
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 건설 모드 종료"));
 }
@@ -430,4 +434,31 @@ void UKOBuildUIComponent::RotateBuildPreview(int32 Direction)
 	}
 
 	GridBuildComponent->RotatePlacementPreview(Direction);
+}
+
+void UKOBuildUIComponent::SetHUDKeyGuideMode(bool bBuildMode)
+{
+	UKOInGameHUD* HUD = GetHUDWidget();
+
+	if (!HUD)
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] InGameHUD를 찾지 못했습니다."));
+		return;
+	}
+
+	HUD->SetBuildKeyGuideMode(bBuildMode);
+}
+
+UKOInGameHUD* UKOBuildUIComponent::GetHUDWidget() const
+{
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
+	if (!UISubsystem)
+	{
+		return nullptr;
+	}
+
+	UCommonActivatableWidget* ActiveWidget =
+		UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_InGameHUD);
+
+	return Cast<UKOInGameHUD>(ActiveWidget);
 }

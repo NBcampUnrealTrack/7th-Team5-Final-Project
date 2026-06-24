@@ -6,7 +6,6 @@
 #include "Subsystem/KOConveyorSubsystem.h"
 #include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "Component/Build/KOGridBuildComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
 #include "Utility/Log/KOLogManager.h"
@@ -14,10 +13,12 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Component/Build/KOGridBuildComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
-#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 #include "HAL/IConsoleManager.h"
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -73,13 +74,15 @@ void AKOConveyorBelt::BindToMachinePort(AKOBaseBuilding* Machine, const FKOFacto
     BoundMachine   = Machine;
     BoundKind      = Slot.Kind;
     BoundPortIndex = Slot.PortIndex;
+    BoundItemId    = Slot.ItemId;
+    bHasSelectedPort = true;
 
     KO_LOGS(Factory, Conveyor, Log,
         TEXT("BindToMachinePort: 벨트='%s' → 머신='%s' 포트=(%s, #%d, 힌트=%s)"),
         *GetName(), *GetNameSafe(Machine),
         (Slot.Kind == EKOPortKind::Input) ? TEXT("Input") : TEXT("Output"),
         Slot.PortIndex,
-        Slot.ItemId.IsNone() ? TEXT("-") : *Slot.ItemId.ToString());
+        BoundItemId.IsNone() ? TEXT("-") : *BoundItemId.ToString());
 }
 
 bool AKOConveyorBelt::IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const
@@ -88,6 +91,13 @@ bool AKOConveyorBelt::IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind 
         && BoundKind == Kind
         && BoundPortIndex == PortIndex
         && BoundPortIndex != INDEX_NONE;
+}
+
+void AKOConveyorBelt::ClearMachinePortBinding()
+{
+    BoundPortIndex = INDEX_NONE;
+    BoundItemId = NAME_None;
+    bHasSelectedPort = false;
 }
 
 bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const
@@ -112,6 +122,15 @@ bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind&
     }
 
     return false; // 흐름축이 머신에 안 닿음(수직 배치 등).
+}
+
+void AKOConveyorBelt::BeginMachinePortSelection(AKOBaseBuilding* Machine, EKOPortKind Kind)
+{
+    BoundMachine = Machine;
+    BoundKind = Kind;
+    BoundPortIndex = INDEX_NONE;
+    BoundItemId = NAME_None;
+    bHasSelectedPort = false;
 }
 
 void AKOConveyorBelt::OnInteract(AActor* Interactor)
@@ -351,7 +370,12 @@ void AKOConveyorBelt::StepOnce()
         IKOItemSink* Sink = nullptr;
         if (BoundKind == EKOPortKind::Input && BoundMachine.IsValid())
         {
-            Sink = ResolveSink(BoundMachine.Get());
+            const bool bMatchesBoundItem = BoundItemId.IsNone() || Slots[TailIdx].ItemId == BoundItemId;
+
+            if (bHasSelectedPort && bMatchesBoundItem)
+            {
+                Sink = ResolveSink(BoundMachine.Get());
+            }
         }
         else
         {
@@ -382,16 +406,28 @@ void AKOConveyorBelt::StepOnce()
     //    Output 바인딩이면 방향=바인딩 우선: 기하 이웃 대신 바인딩된 머신 출력 포트에서 pull.
     if (!Slots[0].IsValid())
     {
-        IKOItemSource* Src = nullptr;
+        // output 슬롯 선택 전에는 아무 아이템도 꺼내지 않는다.
         if (BoundKind == EKOPortKind::Output && BoundMachine.IsValid())
         {
-            Src = ResolveSource(BoundMachine.Get());
-        }
-        else
-        {
-            Src = ResolveSource(GetActorAtCell(MyCell - InDir));
+            if (!bHasSelectedPort || BoundItemId.IsNone())
+            {
+                return;
+            }
+
+            if (UKOFactoryProcessorComponent* Proc =
+                BoundMachine->FindComponentByClass<UKOFactoryProcessorComponent>())
+            {
+                if (Proc->TryExtractItem(BoundItemId, 1) == 1)
+                {
+                    Slots[0] = FKOConveyorItem(BoundItemId);
+                }
+            }
+            
+            return;
         }
 
+        // 일반 벨트 연결은 기존 방식 유지
+        IKOItemSource* Src = ResolveSource(GetActorAtCell(MyCell - InDir));
         if (Src)
         {
             FKOConveyorItem Pulled;
