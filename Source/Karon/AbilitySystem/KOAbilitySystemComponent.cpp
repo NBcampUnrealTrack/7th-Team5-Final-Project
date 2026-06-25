@@ -4,22 +4,25 @@
 
 void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
-	if (InputTag.IsValid())
+	if (!InputTag.IsValid()) return;
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+		if (!AbilitySpec.Ability) continue; 
+		
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) || 
+			AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
 		{
-			if (!AbilitySpec.Ability) continue; 
-			
-			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) || 
-				AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag))
+			if (!AbilitySpec.IsActive())
 			{
 				KO_LOG(Input, Log, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
-				
-				InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
-				InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
-			}
+			}	
+			
+			InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
+			InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);
 		}
 	}
+	
 }
 
 void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)

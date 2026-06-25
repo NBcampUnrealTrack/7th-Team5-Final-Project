@@ -11,6 +11,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_InAir);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Sprinting);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Rolling);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Dodging);
 
 	// ── State | Character | Attacking ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);

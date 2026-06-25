@@ -12,6 +12,7 @@ UKOGA_Movement_Dodge::UKOGA_Movement_Dodge()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Dodge)); 
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Movement_Dodging); 
 }
 
 void UKOGA_Movement_Dodge::ActivateAbility(
@@ -35,7 +36,9 @@ void UKOGA_Movement_Dodge::ActivateAbility(
 		return;
 	}
 	
-	GetASC()->CancelAbilities(nullptr, nullptr, this);
+	FGameplayTagContainer SprintTag;
+	SprintTag.AddTag(KOGameplayTags::Input_Ability_Movement_Sprint);
+	GetASC()->CancelAbilities(&SprintTag);
 	
 	
 	UAbilityTask_WaitGameplayEvent* StartEventTask =  
@@ -85,6 +88,7 @@ void UKOGA_Movement_Dodge::EndAbility(
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(GE_InvincibleHandle);
 	}
+	
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

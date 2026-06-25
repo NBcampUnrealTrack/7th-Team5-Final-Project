@@ -18,7 +18,7 @@ void UKOCharacterMovementComponent::OnMovementModeChanged(EMovementMode Previous
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(CharacterOwner);
 	if (!ASC) return;
 	
-	if (MovementMode == MOVE_Falling)
+	if (MovementMode == MOVE_Falling && !ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Movement_InAir))
 	{
 		 ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_Movement_InAir); 
 	}
