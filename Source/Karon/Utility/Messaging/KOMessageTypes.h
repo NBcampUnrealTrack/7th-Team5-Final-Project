@@ -158,3 +158,19 @@ struct FKODropItemMessage
     UPROPERTY()
     int32 Count=0;
 };
+
+/**
+ * 상호작용
+ * 채널: KOGameplayTags::Event_Interaction
+ */
+USTRUCT()
+struct FKOInteractionMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FText InteractionId;
+    
+    UPROPERTY()
+    bool bIsActive = true;
+};
