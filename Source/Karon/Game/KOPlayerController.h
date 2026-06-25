@@ -16,7 +16,6 @@ class UKOGridBuildComponent;
 class UKOInventoryComponent;
 class UKOBuildUIComponent;
 class UKOMapUIComponent;
-class UKOSkillComponent;
 class UKOFactoryCraftWidget;
 
 
@@ -106,9 +105,6 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="KO|Map")
 	TObjectPtr<UKOMapUIComponent> MapUIComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
-	TObjectPtr<UKOSkillComponent> SkillComponent; //TODO : 서브시스템으로 전환 
 
 private:
 	bool bBuildIMCActive = false;

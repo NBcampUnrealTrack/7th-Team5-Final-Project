@@ -2,9 +2,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Subsystems/LocalPlayerSubsystem.h"
 #include "Data/Type/KOSkillTypes.h"
-#include "KOSkillComponent.generated.h"
+#include "KOSkillSubsystem.generated.h"
 
 struct FKOSkillRow;
 class UKOLoadSubsystem;
@@ -13,19 +13,17 @@ class AKOPlayerState;
 class UAbilitySystemComponent;
 class UGameplayAbility;
 
-
-// 숙제 : 로컬 플레이어 서브 시스템으로 변경 
-UCLASS(ClassGroup= "KO|Skill", meta=(BlueprintSpawnableComponent))
-class KARON_API UKOSkillComponent : public UActorComponent
+UCLASS()
+class KARON_API UKOSkillSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	UKOSkillComponent();
-	
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
+	static UKOSkillSubsystem* Get(const UObject* WorldContext);
+
 	bool TryUnlockSkill(const FName& SkillName);
 	bool IsUnlocked(const FName& SkillName) const;
 	bool HasActiveAbilityInASC(TSubclassOf<UGameplayAbility> AbilityClass) const;
@@ -40,11 +38,12 @@ private:
 	TObjectPtr<UKOInventoryComponent> CachedInventoryComponent;
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> CachedASC;
-	
+
 	TMap<FName, ESkillState> SkillStates;
-	
+
+	void TryResolveCaches();
 	void InitializeSkillStates();
 	void ReevaluateAllSkillStates();
 	bool ArePrerequisitesMet(const FKOSkillRow& Row) const;
-	const ESkillState* GetSkillInfo(FName SkillId) const;	
+	const ESkillState* GetSkillInfo(FName SkillId) const;
 };

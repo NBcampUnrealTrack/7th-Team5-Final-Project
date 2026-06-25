@@ -7,7 +7,7 @@
 #include "KOSkillNodeWidget.generated.h"
 
 class UImage;
-class UKOSkillComponent;
+class UKOSkillSubsystem;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeClicked, UKOSkillNodeWidget*)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeHovered, UKOSkillNodeWidget*)
@@ -63,5 +63,5 @@ public:
 	ESkillState CurrentState;
 
 private:
-	TWeakObjectPtr<UKOSkillComponent> CachedSkillComponent;
+	TWeakObjectPtr<UKOSkillSubsystem> CachedSkillSubsystem;
 };

@@ -7,7 +7,6 @@
 #include "Component/Interaction/KOInteractionComponent.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
-#include "Component/Skill/KOSkillComponent.h"
 #include "Component/Build/KOBuildUIComponent.h"
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
@@ -27,7 +26,6 @@ AKOPlayerController::AKOPlayerController()
 	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
 	BuildUIComponent     = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
 	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
-	SkillComponent       = CreateDefaultSubobject<UKOSkillComponent>(TEXT("SkillComponent"));
 	MapUIComponent		 = CreateDefaultSubobject<UKOMapUIComponent>(TEXT("MapUIComponent"));
 }
 

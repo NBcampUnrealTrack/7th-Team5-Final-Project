@@ -2,12 +2,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Component/Skill/KOSkillComponent.h"
 #include "UI/KOActivatableWidget.h"
 #include "KOSkillTreePopup.generated.h"
 
 class UKOSkillNodeWidget;
-class UKOSkillComponent;
+class UKOSkillSubsystem;
 class UKOSkillTooltipWidget;
 class UKOLoadSubsystem;
 class UScrollBox;
@@ -37,10 +36,10 @@ protected:
 	void HideSkillTooltip();
 	
 	UFUNCTION(BlueprintPure, Category="Skill Tree")
-	UKOSkillComponent* GetSkillComponent() const {return SkillComponent;}
-	
+	UKOSkillSubsystem* GetSkillSubsystem() const { return SkillSubsystem; }
+
 	UPROPERTY(BlueprintReadOnly, Category="Skill Tree")
-	TObjectPtr<UKOSkillComponent> SkillComponent;
+	TObjectPtr<UKOSkillSubsystem> SkillSubsystem;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillNodeWidget*> BP_GetAllSkillNodes() const;

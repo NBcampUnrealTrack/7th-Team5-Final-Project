@@ -3,7 +3,7 @@
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
 #include "UI/Skill/KOSkillTooltipWidget.h"
-#include "Component/Skill/KOSkillComponent.h"
+#include "Subsystem/KOSkillSubsystem.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
@@ -35,12 +35,9 @@ void UKOSkillTreePopup::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AController* OwningController = GetOwningPlayer())
+	if (ULocalPlayer* LP = GetOwningLocalPlayer())
 	{
-		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
-		{
-			SkillComponent = SkillComp;
-		}
+		SkillSubsystem = LP->GetSubsystem<UKOSkillSubsystem>();
 	}
 
 	CachedLoadSubsystem = UKOLoadSubsystem::Get(this);
@@ -51,7 +48,7 @@ void UKOSkillTreePopup::NativeConstruct()
 
 void UKOSkillTreePopup::NativeDestruct()
 {
-	SkillComponent = nullptr;
+	SkillSubsystem = nullptr;
 
 	for (UKOSkillNodeWidget* Node : CachedSkillNodes)
 	{
@@ -78,9 +75,9 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		return;
 	}
 
-	if (SkillComponent == nullptr)
+	if (SkillSubsystem == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillComponent가 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillSubsystem이 없습니다."));
 		return;
 	}
 	/**   BP를 통해 가져오므로 슬롯 추가 시 BP에 등록 필요함   */
@@ -99,7 +96,7 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 				UE_LOG(LogTemp, Display, TEXT("SkillTree: Icon을 로딩합니다"));
 				CachedLoadSubsystem->ResolveSkillIcon(Node->SkillName);
 			}
-			ESkillState CurrentState = SkillComponent->GetSkillState(Node->SkillName);
+			ESkillState CurrentState = SkillSubsystem->GetSkillState(Node->SkillName);
 			Node->InitializeNode(Node->SkillName, SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
 		}
 		else

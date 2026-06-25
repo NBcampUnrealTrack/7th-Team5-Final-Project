@@ -1,7 +1,7 @@
 ﻿// Copyright Karon Team 5. All Rights Reserved.
 
 #include "UI/Skill/KOSkillNodeWidget.h"
-#include "Component/Skill/KOSkillComponent.h"
+#include "Subsystem/KOSkillSubsystem.h"
 #include "Components/Image.h"
 
 void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
@@ -19,12 +19,9 @@ void UKOSkillNodeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (APlayerController* OwningController = GetOwningPlayer())
+	if (ULocalPlayer* LP = GetOwningLocalPlayer())
 	{
-		if (UKOSkillComponent* SkillComp = OwningController->FindComponentByClass<UKOSkillComponent>())
-		{
-			CachedSkillComponent = SkillComp;
-		}
+		CachedSkillSubsystem = LP->GetSubsystem<UKOSkillSubsystem>();
 	}
 
 	RefreshNode();
@@ -32,7 +29,7 @@ void UKOSkillNodeWidget::NativeConstruct()
 
 void UKOSkillNodeWidget::NativeDestruct()
 {
-	CachedSkillComponent = nullptr;
+	CachedSkillSubsystem = nullptr;
 
 	Super::NativeDestruct();
 }
@@ -61,15 +58,15 @@ void UKOSkillNodeWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
 
-	if (CachedSkillComponent == nullptr)
+	if (!CachedSkillSubsystem.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillComponent가 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillSubsystem이 없습니다."));
 		return;
 	}
 
-	if (CachedSkillComponent.IsValid())
+	if (CachedSkillSubsystem.IsValid())
 	{
-		CachedSkillComponent->TryUnlockSkill(SkillName);
+		CachedSkillSubsystem->TryUnlockSkill(SkillName);
 		RefreshNode();
 	}
 
