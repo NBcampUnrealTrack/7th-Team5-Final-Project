@@ -1,5 +1,6 @@
 #include "KOGA_BossGroggyBase.h"
 
+#include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -9,8 +10,7 @@
 UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
-	
+	AbilityTags.AddTag(KOGameplayTags::State_Boss_Groggy);
 	
 	// 그로기 중 재발동 방지
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
@@ -34,6 +34,14 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
+	}
+	
+	// 그로기 진입 모든 공격 GA 즉시 종료
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		UGameplayAbility* GroggyInstance = GetCurrentAbilitySpec() ?
+			GetCurrentAbilitySpec()->GetPrimaryInstance() : nullptr;
+		ASC->CancelAbilities(nullptr, nullptr, GroggyInstance);
 	}
  
 	// 보스 그로기 진입

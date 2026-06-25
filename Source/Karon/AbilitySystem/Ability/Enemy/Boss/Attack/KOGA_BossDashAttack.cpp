@@ -117,7 +117,6 @@ void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 	StopDash();
 }
  
-// 돌진 종료
 void UKOGA_BossDashAttack::StopDash()
 {
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
