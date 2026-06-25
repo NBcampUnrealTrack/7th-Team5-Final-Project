@@ -7,6 +7,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "KOPlayerController.generated.h"
 
+class UInputAction;
 struct FInputActionValue;
 
 class UKOInputConfig;
@@ -18,6 +19,7 @@ class UKOBuildUIComponent;
 class UKOMapUIComponent;
 class UKOFactoryCraftWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponCreate);
 
 
 UCLASS()
@@ -30,6 +32,8 @@ public:
 	
 	UFUNCTION()
 	void OnItemReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
+	
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -67,6 +71,7 @@ protected:
 	void Input_OpenPlayerMenu(const FInputActionValue& Value);
 
 	void Input_ToggleMap(const FInputActionValue& Value);
+	void Input_Weapon(const FInputActionValue& Value);
 
 
 private:
@@ -81,6 +86,10 @@ private:
 	UFUNCTION()
 	void OnBuildModeChanged(FGameplayTag Channel, const FInstancedStruct& Payload);
 
+public:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputAction> IAWeapon; 
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UKOInputConfig> InputConfig;
@@ -112,4 +121,8 @@ private:
 	// 건설 모드 변경 메시지 구독 (BuildIMC 관리용).
 	FGameplayMessageCallback BuildModeChangedCallback;
 	FGameplayMessageHandle   BuildModeChangedHandle;
+	
+public:
+	UPROPERTY(BlueprintAssignable)
+	FWeaponCreate OnWeaponCreate;
 };

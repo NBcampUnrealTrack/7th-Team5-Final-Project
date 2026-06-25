@@ -395,6 +395,13 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_ToggleMap,
 			true
 		);
+		
+		KOIC->BindAction(
+		IAWeapon,
+		ETriggerEvent::Started,
+		this,
+		&ThisClass::Input_Weapon
+		);
 	}
 }
 
@@ -637,4 +644,9 @@ void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
 	{
 		MapUIComponent->ToggleMainMap();
 	}
+}
+
+void AKOPlayerController::Input_Weapon(const FInputActionValue& Value)
+{
+	OnWeaponCreate.Broadcast();
 }
