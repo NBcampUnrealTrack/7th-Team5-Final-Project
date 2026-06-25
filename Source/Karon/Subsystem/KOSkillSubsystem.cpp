@@ -152,56 +152,52 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 				return false;
 			}
 		}
-		// TODO 소모를 더 뒤로 이동 필요
+	}
+
+	FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
+	
+	if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
+	{
+		if (CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: [%s] 이미 부여된 어빌리티입니다."), *SkillName.ToString());
+			return false;
+		}
+
+		FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
+		if (ExRow->InputTag.IsValid())
+		{
+			NewSpec.DynamicAbilityTags.AddTag(ExRow->InputTag);
+		}
+
+		CachedASC->GiveAbility(NewSpec);
+		UE_LOG(LogTemp, Log, TEXT("SkillSubsystem: [%s] 어빌리티 부여 완료 (InputTag: %s)"),
+			*SkillName.ToString(), *ExRow->InputTag.ToString());
+	}
+	else if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
+	{
+		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
+			ExRow->PassiveEffectClass, 1.f, EffectContext);
+		if (!SpecHandle.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TryUnlockSkill: [%s] Passive SpecHandle 생성 실패"), *SkillName.ToString());
+			return false;
+		}
+		CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	
+		for (FGameplayAbilitySpec& AbilitySpec : CachedASC->GetActivatableAbilities())
+		{
+			CachedASC->MarkAbilitySpecDirty(AbilitySpec);
+		}
+	}
+	
+	if (!Row->UnlockCosts.IsEmpty())
+	{
 		for (const FSkillCost& Cost : Row->UnlockCosts)
 		{
 			CachedInventoryComponent->TryRemoveItem(CachedLoadSubsystem->FindItemIdByTag(Cost.ItemTag), Cost.Amount);
 		}
 	}
-
-	// FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
-	//
-	// if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
-	// {
-	// 	FGameplayAbilitySpec* ExistingSpec = CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass);
-	// 	if (ExistingSpec)
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("이미 태그가 부여되어 있습니다. 어캐들어옴?"));
-	// 		return false;
-	// 	}
-
-	// 	FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
-	//
-	// 	FGameplayAbilitySpecHandle SpecHandle = CachedASC->GiveAbility(NewSpec);
-	// 	if (SpecHandle.IsValid())
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("%s 스킬 해금 후 태그 지급 완료"), *SkillName.ToString());
-	// 		bool bSuccess = CachedASC->TryActivateAbility(SpecHandle);
-	// 		UE_LOG(LogTemp, Warning, TEXT("Handle- 스킬 강제 발동 테스트 결과: %s"), bSuccess ? TEXT("성공") : TEXT("실패"));
-	// 	}
-	//
-	// 	if (ExRow->AbilityClass)
-	// 	{
-	// 		bool bSuccess = CachedASC->TryActivateAbilityByClass(ExRow->AbilityClass);
-	// 		UE_LOG(LogTemp, Warning, TEXT("ExRow - 스킬 강제 발동 테스트 결과: %s"), bSuccess ? TEXT("성공") : TEXT("실패"));
-	// 	}
-	// }
-	// else if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
-	// {
-	// 	FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
-	// 		ExRow->PassiveEffectClass, 1.f, EffectContext);
-	// 	if (!SpecHandle.IsValid())
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("TryUnlockSkill: [%s] Passive SpecHandle 생성 실패"), *SkillName.ToString());
-	// 		return false;
-	// 	}
-	// 	CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
-	//
-	// 	for (FGameplayAbilitySpec& AbilitySpec : CachedASC->GetActivatableAbilities())
-	// 	{
-	// 		CachedASC->MarkAbilitySpecDirty(AbilitySpec);
-	// 	}
-	// }
 
 	*State = ESkillState::Unlocked;
 	ReevaluateAllSkillStates();

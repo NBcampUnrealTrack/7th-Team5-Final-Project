@@ -49,6 +49,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_SheatheWeapon);
 	
     // ── Input | Ability | CoreSkill ───────────────────────────────
-    // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_CoreSkill_);
+    // ── Input | Ability | Skill ───────────────────────────────────
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DimensionSever);
 
 }

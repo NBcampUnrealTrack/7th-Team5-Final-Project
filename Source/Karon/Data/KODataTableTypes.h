@@ -217,53 +217,29 @@ USTRUCT(BlueprintType)
 struct KARON_API FKOSkillExecutionRow : public FTableRowBase
 {
     GENERATED_BODY()
-    
-    /** 활성화 된 스킬 태그*/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
-    FGameplayTag ActivatedSkillTag;
-    /** 스킬 유형 타입*/
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
     ESkillExecutionType ExecutionType;
-    /** 스킬 활성화 태그*/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
-    FGameplayTag UnlockTag;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
-    TSubclassOf<UGameplayEffect> ActiveEffectClassBase;
 
-    /**
-     * 액티브 스킬 정보 데이터
-     */
+    // Active
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
     TSubclassOf<UGameplayAbility> AbilityClass;
-    
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-        meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CastTime;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CooldownDuration;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CostOverheat;
-    
-    /** 행동 추가용 태그*/
+        meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides,
+                Categories = "Input.Ability.Skill"))
+    FGameplayTag InputTag;
+
+    // ActiveExtension
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Extension",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::ActiveExtension", EditConditionHides))
+        meta = (EditCondition = "ExecutionType == ESkillExecutionType::ActiveExtension", EditConditionHides))
     FGameplayTag ActivationTriggerTag;
-    /**
-     * 패시브 정보 데이터
-     */
+
+    // PassiveStat
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Passive",
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
     TSubclassOf<UGameplayEffect> PassiveEffectClass;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Passive",
-        meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
-    float StatModifierValue;
 };
 //Enemy 스킬 데이터
 USTRUCT(BlueprintType)

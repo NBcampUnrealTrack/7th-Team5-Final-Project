@@ -44,4 +44,6 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Utility_SheatheWeapon, "Input.Ability.Utility.SheatheWeapon");
 	
 	// ── Input | Ability | CoreSkill ───────────────────────────────
+	// ── Input | Ability | Skill ───────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Skill_DimensionSever, "Input.Ability.Skill.DimensionSever");
 }
