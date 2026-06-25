@@ -35,8 +35,6 @@ public:
 	UKOGA_Utility_LockOn();
 
 	// ── GAS 오버라이드 ──────────────────────────────────────────────
- 
-	// 버튼 첫 누름 시 호출 (락온 활성화)
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -60,27 +58,15 @@ public:
 
 private:
 	// ── 락온 핵심 로직 ──────────────────────────────────────────────
- 
-	// 락온 활성화: 타겟 탐색 → 상태 설정 → 카메라 타이머 시작
 	void ActivateLockOn();
- 
-	// 락온 비활성화: 상태 초기화 → 캐릭터 회전 복구 → 태그 제거
 	void DeactivateLockOn();
  
 	// ── 타겟 탐색 & 유효성 ──────────────────────────────────────────
- 
-	// 카메라 정면 기준 가장 적합한 적 반환 (없으면 nullptr)
 	AActor* FindBestTarget() const;
- 
-	// 타겟이 살아있고 락온 반경 내에 있는지 확인
 	bool IsTargetValid() const;
- 
-	// 타겟의 LockOnSocket 위치 반환 (소켓 없으면 액터 위치)
 	FVector GetTargetSocketLocation() const;
 	
 	// ── 카메라 회전 ─────────────────────────────────────────────────
- 
-	// 0.016s 타이머로 매 프레임 카메라를 타겟 방향으로 보간 회전
 	UFUNCTION()
 	void UpdateCameraRotation();
  
@@ -88,8 +74,6 @@ private:
 	void StopCameraUpdate();    // 카메라 타이머 정지
  
 	// ── 거리 체크 ───────────────────────────────────────────────────
- 
-	// 0.2s 마다 거리 확인 → 초과 시 자동 락온 해제
 	UFUNCTION()
 	void CheckLockOnDistance();
  
@@ -97,13 +81,9 @@ private:
 	void StopLockOnDistanceCheck();   // 거리 체크 타이머 정지
  
 	// ── GAS 태그 ────────────────────────────────────────────────────
- 
-	// ASC에 State.Character.LockOn 태그를 추가/제거
-	void ApplyLockOnGameplayTag(bool bApply) const;
+	void ApplyLockOnGameplayTag(bool bApply); 
  
 	// ── 에디터 설정 ─────────────────────────────────────────────────
- 
-	// 락온 탐색 반경 (cm 단위, 기본 15m)
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float SearchRadius = 1500.f;
  
@@ -115,18 +95,32 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float LockOnBreakDistance = 1800.f;
  
-	// 타겟 캐릭터에서 카메라가 바라볼 소켓 이름
+	
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	FName TargetSocketName = FName("LockOnSocket");
  
-	// ── 런타임 상태 (저장하지 않음) ────────────────────────────────
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float LockOnCameraPitch = -35.f;
  
-	UPROPERTY()
-	AActor* LockedTarget = nullptr;   // 현재 락온된 타겟
- 
-	bool bIsLockedOn = false;         // 락온 활성화 여부
-	bool bDeactivatedByInput = false;
+	// 하드코딩 방지를 위한 액터 태그 변수 노출
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	FName EnemyActorTag = FName("Enemy");
+
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	FName BossActorTag = FName("Boss");
 	
-	FTimerHandle CameraUpdateTimerHandle;       // 카메라 회전 타이머
-	FTimerHandle LockOnDistanceTimerHandle;     // 거리 체크 타이머
+	// 디버그 메시지 출력 여부 제어
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	bool bShowDebugMessages = true;
+ 
+	// ── 런타임 상태 ─────────────────────────────────────────────────
+	// 메모리 누수 및 크래시 방지를 위해 약참조(TWeakObjectPtr) 사용
+	UPROPERTY()
+	TWeakObjectPtr<AActor> LockedTarget = nullptr;
+ 
+	bool bIsLockedOn = false;
+	float LockOnActivationTime = 0.f;
+	
+	FTimerHandle CameraUpdateTimerHandle;
+	FTimerHandle LockOnDistanceTimerHandle;
 };
