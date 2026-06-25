@@ -71,33 +71,48 @@ void AKOConveyorBelt::EndPlay(const EEndPlayReason::Type Reason)
 
 void AKOConveyorBelt::BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot)
 {
-    BoundMachine   = Machine;
-    BoundKind      = Slot.Kind;
-    BoundPortIndex = Slot.PortIndex;
-    BoundItemId    = Slot.ItemId;
-    bHasSelectedPort = true;
+    if (!Machine)
+    {
+        return;
+    }
+
+    // Input은 바인딩하지 않는다.
+    // Output 슬롯만 "이 벨트가 꺼낼 아이템 필터"로 저장한다.
+    if (Slot.Kind != EKOPortKind::Output)
+    {
+        return;
+    }
+
+    BoundOutputMachine = Machine;
+    BoundOutputPortIndex = Slot.PortIndex;
+    BoundOutputItemId = Slot.ItemId;
+    bHasSelectedOutputPort = true;
 
     KO_LOGS(Factory, Conveyor, Log,
-        TEXT("BindToMachinePort: 벨트='%s' → 머신='%s' 포트=(%s, #%d, 힌트=%s)"),
-        *GetName(), *GetNameSafe(Machine),
-        (Slot.Kind == EKOPortKind::Input) ? TEXT("Input") : TEXT("Output"),
-        Slot.PortIndex,
-        BoundItemId.IsNone() ? TEXT("-") : *BoundItemId.ToString());
+        TEXT("BindToMachinePort: 벨트='%s' → 머신='%s' Output #%d, 아이템=%s"),
+        *GetName(),
+        *GetNameSafe(Machine),
+        BoundOutputPortIndex,
+        BoundOutputItemId.IsNone() ? TEXT("-") : *BoundOutputItemId.ToString());
 }
 
 bool AKOConveyorBelt::IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const
 {
-    return BoundMachine.Get() == Machine
-        && BoundKind == Kind
-        && BoundPortIndex == PortIndex
-        && BoundPortIndex != INDEX_NONE;
+    if (Kind != EKOPortKind::Output)
+    {
+        return false;
+    }
+
+    return BoundOutputMachine.Get() == Machine
+        && BoundOutputPortIndex == PortIndex
+        && BoundOutputPortIndex != INDEX_NONE;
 }
 
-void AKOConveyorBelt::ClearMachinePortBinding()
+void AKOConveyorBelt::CancelOutputPortSelection()
 {
-    BoundPortIndex = INDEX_NONE;
-    BoundItemId = NAME_None;
-    bHasSelectedPort = false;
+    BoundOutputPortIndex = INDEX_NONE;
+    BoundOutputItemId = NAME_None;
+    bHasSelectedOutputPort = false;
 }
 
 bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const
@@ -124,13 +139,17 @@ bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind&
     return false; // 흐름축이 머신에 안 닿음(수직 배치 등).
 }
 
-void AKOConveyorBelt::BeginMachinePortSelection(AKOBaseBuilding* Machine, EKOPortKind Kind)
+void AKOConveyorBelt::BeginOutputPortSelection(AKOBaseBuilding* Machine)
 {
-    BoundMachine = Machine;
-    BoundKind = Kind;
-    BoundPortIndex = INDEX_NONE;
-    BoundItemId = NAME_None;
-    bHasSelectedPort = false;
+    if (!Machine)
+    {
+        return;
+    }
+
+    BoundOutputMachine = Machine;
+    BoundOutputPortIndex = INDEX_NONE;
+    BoundOutputItemId = NAME_None;
+    bHasSelectedOutputPort = false;
 }
 
 void AKOConveyorBelt::OnInteract(AActor* Interactor)
@@ -363,27 +382,16 @@ void AKOConveyorBelt::StepOnce()
     const int32 TailIdx = SlotCount - 1;
 
     // 1) tail → 다운스트림 sink push.
-    //    Input 바인딩이면 방향=바인딩 우선: 기하 이웃 대신 바인딩된 머신 입력 포트로 push.
-    //    아니면 기존 기하: 다운스트림이 머신이면 push(벨트면 그쪽이 pull 하도록 skip).
+    //    Input은 별도 할당하지 않는다.
+    //    출구 쪽에 설비가 있고, 설비가 해당 아이템을 받을 수 있으면 자동 투입한다.
     if (Slots[TailIdx].IsValid())
     {
         IKOItemSink* Sink = nullptr;
-        if (BoundKind == EKOPortKind::Input && BoundMachine.IsValid())
-        {
-            const bool bMatchesBoundItem = BoundItemId.IsNone() || Slots[TailIdx].ItemId == BoundItemId;
 
-            if (bHasSelectedPort && bMatchesBoundItem)
-            {
-                Sink = ResolveSink(BoundMachine.Get());
-            }
-        }
-        else
+        AActor* DownActor = GetActorAtCell(MyCell + OutDir);
+        if (DownActor && !DownActor->IsA(AKOConveyorBelt::StaticClass()))
         {
-            AActor* DownActor = GetActorAtCell(MyCell + OutDir);
-            if (DownActor && !DownActor->IsA(AKOConveyorBelt::StaticClass()))
-            {
-                Sink = ResolveSink(DownActor);
-            }
+            Sink = ResolveSink(DownActor);
         }
 
         if (Sink && Sink->CanAcceptItem(Slots[TailIdx]) && Sink->PushItem(Slots[TailIdx]))
@@ -402,31 +410,31 @@ void AKOConveyorBelt::StepOnce()
         }
     }
 
-    // 3) head 가 비었으면 업스트림 source 에서 pull.
-    //    Output 바인딩이면 방향=바인딩 우선: 기하 이웃 대신 바인딩된 머신 출력 포트에서 pull.
+    // 3) head가 비었으면 업스트림 source에서 pull.
+    //    Output 설비와 연결된 벨트는 선택한 Output 아이템만 꺼낸다.
+    //    선택 전이거나 ESC로 닫힌 상태면 아무것도 꺼내지 않는다.
     if (!Slots[0].IsValid())
     {
-        // output 슬롯 선택 전에는 아무 아이템도 꺼내지 않는다.
-        if (BoundKind == EKOPortKind::Output && BoundMachine.IsValid())
+        if (BoundOutputMachine.IsValid())
         {
-            if (!bHasSelectedPort || BoundItemId.IsNone())
+            if (!bHasSelectedOutputPort || BoundOutputItemId.IsNone())
             {
                 return;
             }
 
             if (UKOFactoryProcessorComponent* Proc =
-                BoundMachine->FindComponentByClass<UKOFactoryProcessorComponent>())
+                BoundOutputMachine->FindComponentByClass<UKOFactoryProcessorComponent>())
             {
-                if (Proc->TryExtractItem(BoundItemId, 1) == 1)
+                if (Proc->TryExtractItem(BoundOutputItemId, 1) == 1)
                 {
-                    Slots[0] = FKOConveyorItem(BoundItemId);
+                    Slots[0] = FKOConveyorItem(BoundOutputItemId);
                 }
             }
-            
+
             return;
         }
 
-        // 일반 벨트 연결은 기존 방식 유지
+        // 일반 벨트끼리 연결은 기존 방식 유지
         IKOItemSource* Src = ResolveSource(GetActorAtCell(MyCell - InDir));
         if (Src)
         {

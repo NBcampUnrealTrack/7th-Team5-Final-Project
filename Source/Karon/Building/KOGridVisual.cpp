@@ -30,20 +30,7 @@ AKOGridVisual::AKOGridVisual()
 
 void AKOGridVisual::BeginPlay()
 {
-	Super::BeginPlay();
-	
-	if (UWorld* World = GetWorld())
-	{
-		if (UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>())
-		{
-			FVector PlacedLocation = GetActorLocation();
-			
-			GridSub->SetGridOrigin(PlacedLocation);
-			
-			GridSub->BuildGridFromWorld();
-		}
-	}
-    
+	Super::BeginPlay();    
 
 	BuildGridVisual();
 

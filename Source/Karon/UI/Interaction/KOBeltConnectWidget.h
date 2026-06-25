@@ -43,10 +43,6 @@ protected:
     UFUNCTION()
     void HandleSlotClicked(FKOFactoryPortSlot ClickedSlot);
 
-    /** 입력 슬롯 엔트리를 담을 패널(VerticalBox 등). */
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UPanelWidget> InputSlotsPanel;
-
     /** 출력 슬롯 엔트리를 담을 패널. */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UPanelWidget> OutputSlotsPanel;
@@ -58,10 +54,6 @@ protected:
     /** 슬롯 엔트리 위젯 클래스(BP 에서 지정). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|BeltConnect")
     TSubclassOf<UKOBeltConnectEntryWidget> EntryClass;
-
-    /** 각 그룹(Input/Output)에 항상 표시할 최소 슬롯 칸 수. 실제 슬롯이 적으면 빈 칸으로 채움. */
-    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|BeltConnect", meta = (ClampMin = "0"))
-    int32 FixedSlotCount = 1;
 
 private:
     TWeakObjectPtr<AKOConveyorBelt> TargetBelt;

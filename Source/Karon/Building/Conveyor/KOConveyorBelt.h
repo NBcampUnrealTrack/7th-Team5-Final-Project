@@ -68,23 +68,23 @@ public:
     bool GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const;
 
     // ─── 머신 포트 바인딩 (벨트 연결 팝업에서 설정) ──────────────────────────
-    /** 이 벨트를 머신의 특정 포트 슬롯(Kind+ItemId)에 묶는다. 벨트당 단일 바인딩(재호출 시 덮어씀). */
+    /** Output 슬롯 선택 시, 이 벨트가 꺼낼 Output 아이템을 저장한다. Input 슬롯은 무시한다. */
     void BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot);
 
-    /** 이 벨트가 정확히 (Machine, Kind, PortIndex) 포트에 바인딩돼 있는가. 점유 질의용. */
+    /** 이 벨트가 특정 설비의 특정 Output 슬롯을 선택했는지 확인한다. */
     bool IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const;
 
-    /** 머신 포트 바인딩 보유 여부. */
-    bool HasMachineBinding() const { return BoundMachine.IsValid() && BoundPortIndex != INDEX_NONE; }
+    /** Output 설비 연결 정보가 있는지. 선택 완료 여부와는 별개다. */
+    bool HasOutputMachineBinding() const { return BoundOutputMachine.IsValid() && BoundOutputPortIndex != INDEX_NONE; }
     
-    /** 머신 포트 선택/바인딩을 취소한다. */
-    void ClearMachinePortBinding();
+    /** Output 선택 없이 위젯을 닫았을 때 호출한다. 설비 정보는 유지하고 선택값만 비운다. */
+    void CancelOutputPortSelection();
 
-    /** 포트 슬롯 선택 완료 여부. */
-    bool HasSelectedPort() const { return bHasSelectedPort; }
+    /** Output 슬롯 선택 완료 여부. */
+    bool HasSelectedOutputPort() const { return bHasSelectedOutputPort; }
     
-    /** 포트 선택 위젯이 열린 상태로, 아직 슬롯은 선택하지 않은 상태를 기록한다. */
-    void BeginMachinePortSelection(AKOBaseBuilding* Machine, EKOPortKind Kind);
+    /** Output 선택 위젯이 열린 상태. 아직 슬롯은 선택하지 않은 상태로 기록한다. */
+    void BeginOutputPortSelection(AKOBaseBuilding* Machine);
 
     // ─── IKOInteractableInterface (재편집) ───────────────────────────────────
     /** 설치된 벨트와 상호작용 시 연결 팝업을 다시 연다(플레이어 빌드 컴포넌트 경유). */
@@ -210,13 +210,10 @@ private:
     // 약참조라 GC/직렬화 마크업 불필요. 머신 파괴 시 자동 무효 → 점유도 자동 해제.
     // (저장·로드(Phase3)에서 영속화가 필요하면 UPROPERTY 로 승격)
     // 일반 포트 모델: 바인딩 키는 (BoundMachine, BoundKind, BoundPortIndex). 아이템 타입 무관.
-    TWeakObjectPtr<AKOBaseBuilding> BoundMachine;
-    int32       BoundPortIndex = INDEX_NONE;
-    EKOPortKind BoundKind       = EKOPortKind::Input;
-    FName BoundItemId = NAME_None;
-    
-    // 슬롯 선택 여부
-    bool bHasSelectedPort = false;
+    TWeakObjectPtr<AKOBaseBuilding> BoundOutputMachine;
+    int32 BoundOutputPortIndex = INDEX_NONE;
+    FName BoundOutputItemId = NAME_None;
+    bool bHasSelectedOutputPort = false; // 슬롯 선택 여부
 
     /** 메시별 아이템 ISM. 같은 메시를 쓰는 아이템들은 ISM 하나를 공유(슬롯 인덱스로 인스턴스 식별). */
     UPROPERTY(Transient)

@@ -57,6 +57,12 @@ void AKOBaseBuilding::RefreshPressureWarning()
 		PressureWarningWidget->SetHiddenInGame(true);
 		return;
 	}
+	
+	if (bPressureWarningSuppressed)
+	{
+		PressureWarningWidget->SetHiddenInGame(true);
+		return;
+	}
 
 	if (!CachedProcessor)
 	{
@@ -72,6 +78,11 @@ void AKOBaseBuilding::RefreshPressureWarning()
 void AKOBaseBuilding::UpdatePressureWarningFacingCamera()
 {
 	if (!PressureWarningWidget)
+	{
+		return;
+	}
+	
+	if (PressureWarningWidget->bHiddenInGame)
 	{
 		return;
 	}
@@ -134,6 +145,16 @@ const FKOFactoryRow* AKOBaseBuilding::GetFactoryRow() const
 	}
 
 	return UKOItemLibrary::GetFactoryRow(this, FactoryId);
+}
+
+void AKOBaseBuilding::SetPressureWarningSuppressed(bool bSuppressed)
+{
+	bPressureWarningSuppressed = bSuppressed;
+
+	if (bPressureWarningSuppressed && PressureWarningWidget)
+	{
+		PressureWarningWidget->SetHiddenInGame(true);
+	}
 }
 
 bool AKOBaseBuilding::CanInteract(AActor* /*Interactor*/) const

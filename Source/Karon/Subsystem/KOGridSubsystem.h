@@ -25,8 +25,6 @@ class KARON_API UKOGridSubsystem : public UWorldSubsystem
 	
 public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
-	
-	void SetGridOrigin(const FVector& NewOrigin) { GridOrigin = NewOrigin; }
 
 public:
 	FIntPoint WorldToGridPosition(const FVector& WorldLocation) const;
@@ -66,10 +64,10 @@ private:
 	float CellSize = 100.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	FIntPoint GridDimensions = FIntPoint(10, 10);
+	FIntPoint GridDimensions = FIntPoint(20, 20);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	FVector GridOrigin = FVector(400.0f, 300.0f, 0.0f);
+	FVector GridOrigin = FVector(-11400.0f, -8212.0f, -6315.0f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
 	float TraceHeight = 10000.0f;

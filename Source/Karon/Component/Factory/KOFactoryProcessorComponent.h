@@ -94,6 +94,8 @@ private:
     bool  HasInputsFor (const FKORecipeRow& Recipe) const;
     bool  CanFitOutputs(const FKORecipeRow& Recipe) const;
     float GetActiveRecipePowerPerSecond() const;
+    
+    bool CanAcceptInputItemForSelectedRecipe(FName ItemId) const;
 
     void  EvaluateAutoStart();
     void  SetState(EKOFactoryState NewState);

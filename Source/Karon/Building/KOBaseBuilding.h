@@ -17,8 +17,7 @@ class KARON_API AKOBaseBuilding : public AActor, public IKOInteractableInterface
 
 public:
 	AKOBaseBuilding();
-
-public:
+	
 	// 건설 직후 BuildComponent가 FactoryId를 넘겨주는 함수
 	void InitializeBuildingData(FName InFactoryId);
 
@@ -26,6 +25,8 @@ public:
 
 	/** LoadSubsystem을 통해 자신이 참조하는 Factory Row를 조회 */
 	const FKOFactoryRow* GetFactoryRow() const;
+	
+	void SetPressureWarningSuppressed(bool bSuppressed);
 
 	// ─── IKOInteractableInterface ─────────────────────────────────────────────
 	virtual bool  CanInteract(AActor* Interactor) const override;
@@ -37,7 +38,9 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Energy")
-	bool bShowPressureWarning = true;
+	bool bShowPressureWarning = true; // 압력 부족 표시 사용 여부
+	
+	bool bPressureWarningSuppressed = false; // 숨김 여부
 
 	// 실제 월드에 설치된 건물이 참조할 Factory DataTable의 RowName
 	UPROPERTY(VisibleInstanceOnly, Category = "Building")

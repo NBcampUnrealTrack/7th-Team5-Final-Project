@@ -64,6 +64,12 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
     {
         return Count;
     }
+    
+    // 레시피 미선택 / input이 아닌 아이템은 전부 거절
+    if (!CanAcceptInputItemForSelectedRecipe(ItemId))
+    {
+        return Count;
+    }
 
     int32& Current = InputBuffer.FindOrAdd(ItemId);
     const int32 Space = FMath::Max(0, MaxBufferPerItem - Current);
@@ -327,6 +333,12 @@ bool UKOFactoryProcessorComponent::CanAcceptItem(const FKOConveyorItem& Item) co
     {
         return false;
     }
+
+    if (!CanAcceptInputItemForSelectedRecipe(Item.ItemId))
+    {
+        return false;
+    }
+
     const int32* Current = InputBuffer.Find(Item.ItemId);
     return (Current ? *Current : 0) < MaxBufferPerItem;
 }
@@ -524,6 +536,44 @@ float UKOFactoryProcessorComponent::GetActiveRecipePowerPerSecond() const
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     const FKORecipeRow* Recipe = LoadSub ? LoadSub->FindRecipeRow(ActiveRecipeId) : nullptr;
     return Recipe ? FMath::Max(0.f, Recipe->PowerPerSecond) : 0.f;
+}
+
+bool UKOFactoryProcessorComponent::CanAcceptInputItemForSelectedRecipe(FName ItemId) const
+{
+    if (ItemId.IsNone())
+    {
+        return false;
+    }
+
+    // 레시피가 선택되지 않은 설비는 어떤 input도 받지 않는다.
+    if (SelectedRecipeId.IsNone())
+    {
+        return false;
+    }
+    
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
+    {
+        return false;
+    }
+
+    const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId);
+    if (!Selected)
+    {
+        return false;
+    }
+
+    // 선택된 레시피의 Inputs에 포함된 아이템인지 확인한다.
+    for (const TPair<FGameplayTag, int32>& In : Selected->Inputs)
+    {
+        const FName RequiredItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (RequiredItemId == ItemId)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void UKOFactoryProcessorComponent::EvaluateAutoStart()

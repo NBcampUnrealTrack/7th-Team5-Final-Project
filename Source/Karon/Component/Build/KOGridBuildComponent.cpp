@@ -602,7 +602,10 @@ void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint
 				EKOPortKind ConnectKind;
 				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
 				{
-					Factories.Add(Building);
+					if (ConnectKind == EKOPortKind::Output)
+					{
+						Factories.Add(Building);
+					}
 				}
 			}
 		}
@@ -835,6 +838,14 @@ void UKOGridBuildComponent::StartDestroyMode()
 	SetComponentTickEnabled(true);
 
 	UpdateDestroyTargetPreview();
+	
+	for (TActorIterator<AKOBaseBuilding> It(GetWorld()); It; ++It)
+	{
+		if (AKOBaseBuilding* Building = *It)
+		{
+			Building->SetPressureWarningSuppressed(true);
+		}
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 시작"));
 }
@@ -850,6 +861,14 @@ void UKOGridBuildComponent::CancelDestroyMode()
 
 	SetCurrentMode(EKOGridBuildMode::BuildMenu);
 	SetComponentTickEnabled(false);
+	
+	for (TActorIterator<AKOBaseBuilding> It(GetWorld()); It; ++It)
+	{
+		if (AKOBaseBuilding* Building = *It)
+		{
+			Building->SetPressureWarningSuppressed(false);
+		}
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료 - 건설 메뉴로 복귀"));
 }

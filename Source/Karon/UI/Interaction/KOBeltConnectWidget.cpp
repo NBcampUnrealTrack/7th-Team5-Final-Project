@@ -8,7 +8,6 @@
 #include "Components/TextBlock.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
-#include "Subsystem/KOConveyorSubsystem.h"
 #include "Data/KODataTableTypes.h"
 
 UKOBeltConnectWidget::UKOBeltConnectWidget()
@@ -21,12 +20,12 @@ void UKOBeltConnectWidget::SetupConnection(AKOConveyorBelt* InBelt, AKOBaseBuild
 {
     TargetBelt     = InBelt;
     TargetBuilding = InBuilding;
+
     BuildSlotEntries();
 }
 
 void UKOBeltConnectWidget::BuildSlotEntries()
 {
-    if (InputSlotsPanel)  InputSlotsPanel->ClearChildren();
     if (OutputSlotsPanel) OutputSlotsPanel->ClearChildren();
     EntryWidgets.Reset();
 
@@ -45,16 +44,14 @@ void UKOBeltConnectWidget::BuildSlotEntries()
             : FText::FromName(Building->GetFactoryId()));
     }
 
-    // 벨트 설치 방향으로 연결 가능한 Kind 결정 — 그 그룹만 노출(방향과 모순된 선택 차단).
-    // 출구가 머신 향함 → 머신 Input 에 공급, 입구가 머신 향함 → 머신 Output 에서 받음.
     AKOConveyorBelt* Belt = TargetBelt.Get();
-    EKOPortKind ValidKind = EKOPortKind::Input;
-    if (!Belt || !Belt->GetConnectablePortKind(Building, ValidKind))
+    if (!Belt)
     {
-        return; // 흐름상 머신에 안 닿음 — 정상 트리거 경로에선 발생하지 않음.
+        return;
     }
-    
-    Belt->BeginMachinePortSelection(Building, ValidKind);
+
+    // Output 선택 전에는 아무 output도 꺼내지 않도록 대기 상태로 만든다.
+    Belt->BeginOutputPortSelection(Building);
 
     // 선택 레시피 기준 아이템 힌트 수집(미선택/없으면 빈 칸으로 표시될 뿐, 포트는 그대로 노출).
     TArray<FKOFactoryPortSlot> Slots;
@@ -64,14 +61,13 @@ void UKOBeltConnectWidget::BuildSlotEntries()
     TArray<FName> Hints;
     for (const FKOFactoryPortSlot& PortSlot : Slots)
     {
-        if (PortSlot.Kind == ValidKind)
+        if (PortSlot.Kind == EKOPortKind::Output)
         {
             Hints.Add(PortSlot.ItemId);
         }
     }
 
-    UPanelWidget* Panel = (ValidKind == EKOPortKind::Input) ? InputSlotsPanel.Get() : OutputSlotsPanel.Get();
-    BuildGroupEntries(ValidKind, Hints, Panel, Building);
+    BuildGroupEntries(EKOPortKind::Output, Hints, OutputSlotsPanel.Get(), Building);
 }
 
 void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FName>& ItemHints, UPanelWidget* Panel, AKOBaseBuilding* Building)
@@ -81,9 +77,8 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
         return;
     }
 
-    UKOConveyorSubsystem* ConveyorSub = UKOConveyorSubsystem::Get(this);
-
-    // 일반 포트: 고정 칸 수와 힌트 수 중 큰 값만큼 포트 생성. 모든 포트가 바인딩 가능(빈 포트 포함).
+    // Output 아이템 힌트 수만큼 슬롯을 생성한다.
+    // 슬롯은 물리 포트 점유가 아니라, 이 벨트가 꺼낼 아이템 필터다.
     const int32 Total = ItemHints.Num();
     for (int32 Index = 0; Index < Total; ++Index)
     {
@@ -93,11 +88,8 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
             continue;
         }
 
-        const FName ItemHint = ItemHints.IsValidIndex(Index) ? ItemHints[Index] : NAME_None;
+        const FName ItemHint = ItemHints[Index];
         const FKOFactoryPortSlot PortSlot(Kind, Index, ItemHint);
-
-        // 이미 다른 벨트가 이 포트(Kind, Index)를 점유했으면 비활성으로 표시.
-        const bool bOccupied = ConveyorSub && ConveyorSub->IsSlotBound(Building, Kind, Index);
 
         FText DisplayName;
         UTexture2D* Icon = nullptr;
@@ -111,7 +103,7 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
             Icon = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemHint);
         }
 
-        Entry->SetupSlot(PortSlot, Index + 1, DisplayName, Icon, bOccupied);
+        Entry->SetupSlot(PortSlot, Index + 1, DisplayName, Icon);
         Entry->OnSlotClicked.AddDynamic(this, &UKOBeltConnectWidget::HandleSlotClicked);
 
         Panel->AddChild(Entry);
@@ -121,7 +113,7 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
 
 void UKOBeltConnectWidget::HandleSlotClicked(FKOFactoryPortSlot ClickedSlot)
 {
-    // 선택한 슬롯에 벨트를 실제 바인딩한 뒤 닫는다(점유 표시는 다음 오픈 시 반영).
+    // Output 슬롯을 선택하면 이 벨트가 꺼낼 아이템 필터로 저장한다.
     AKOConveyorBelt* Belt     = TargetBelt.Get();
     AKOBaseBuilding* Building  = TargetBuilding.Get();
     if (Belt && Building)
@@ -129,16 +121,16 @@ void UKOBeltConnectWidget::HandleSlotClicked(FKOFactoryPortSlot ClickedSlot)
         Belt->BindToMachinePort(Building, ClickedSlot);
     }
 
-    DeactivateWidget(); // 자기 닫기(스택에서 제거).
+    DeactivateWidget();
 }
 
 void UKOBeltConnectWidget::NativeOnDeactivated()
 {
     if (AKOConveyorBelt* Belt = TargetBelt.Get())
     {
-        if (!Belt->HasSelectedPort())
+        if (!Belt->HasSelectedOutputPort())
         {
-            Belt->ClearMachinePortBinding();
+            Belt->CancelOutputPortSelection();
         }
     }
     
@@ -150,7 +142,6 @@ void UKOBeltConnectWidget::NativeOnDeactivated()
         }
     }
     EntryWidgets.Reset();
-    if (InputSlotsPanel)  InputSlotsPanel->ClearChildren();
     if (OutputSlotsPanel) OutputSlotsPanel->ClearChildren();
 
     TargetBelt.Reset();
