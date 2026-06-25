@@ -45,6 +45,9 @@ namespace KOGameplayTags
 	/** 상호작용을 알려주는 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InteractionNotice);
 	
+	/** 오버클럭 프로그레스바*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_OverclockProgressBar);
+	
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
 	

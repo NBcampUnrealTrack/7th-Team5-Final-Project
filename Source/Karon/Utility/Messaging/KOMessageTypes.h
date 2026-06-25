@@ -174,3 +174,16 @@ struct FKOInteractionMessage
     UPROPERTY()
     bool bIsActive = true;
 };
+
+/**
+ * 오버클럭 프로그레스바
+ * 채널: KOGameplayTags::Event_SyncOverclockProgressBar
+ */
+USTRUCT()
+struct FKOOverclockProgressBarMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    float Percent=0.f;
+};

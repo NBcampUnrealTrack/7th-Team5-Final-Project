@@ -4,6 +4,7 @@
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 UKOCombatSet::UKOCombatSet()
 {
@@ -80,6 +81,13 @@ void UKOCombatSet::PostGameplayEffectExecute(const struct FGameplayEffectModCall
 		SetOverClockGauge(FMath::Clamp(GetOverClockGauge(), 0.0f, GetMaxOverClockGauge()));
 		
 		UE_LOG(LogTemp, Warning, TEXT("[Overclock] 현재 게이지: %f / %f"), GetOverClockGauge(), GetMaxOverClockGauge());
+		
+		FKOOverclockProgressBarMessage OverclockMessage;
+		OverclockMessage.Percent=GetOverClockGauge()/GetMaxOverClockGauge();
+			
+		UGMRouterSubsystem::BroadcastMessage(GetWorld(),
+			KOGameplayTags::Event_SyncOverclockProgressBar,
+			FInstancedStruct::Make(OverclockMessage));
 		
 		if (GetOverClockGauge() >= GetMaxOverClockGauge())
 		{

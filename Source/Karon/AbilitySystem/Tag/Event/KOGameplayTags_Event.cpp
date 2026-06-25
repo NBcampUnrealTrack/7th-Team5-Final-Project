@@ -60,5 +60,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_DropItem, "Event.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Interaction, "Event.Interaction");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_SyncOverclockProgressBar, "Event.SyncOverclockProgressBar");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss01_Shockwave, "Event.Boss1.Shockwave");
 }
