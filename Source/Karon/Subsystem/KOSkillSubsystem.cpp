@@ -5,7 +5,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Data/Type/KOSkillTypes.h"
-#include "Game/KOPlayerController.h"
 #include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
