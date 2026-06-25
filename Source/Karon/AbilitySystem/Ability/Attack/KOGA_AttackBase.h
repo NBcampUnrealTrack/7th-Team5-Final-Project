@@ -103,6 +103,8 @@ protected:
 	UMeshComponent* FindTraceMesh(); 
 	
 protected:
+	virtual void OnTargetHit(AActor* TargetActor);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace")
 	FKOTraceData TraceData; 
 	

@@ -4,6 +4,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "GameFramework/Character.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Utility/Log/KOLogManager.h"
 
@@ -97,6 +98,30 @@ void UKOGA_Attack_Combo::InputPressed(
 		KO_LOG(Combat, Warning, TEXT("InputPressed in ComboWindow"));
 		
 		bNextComboRequested = true; 
+	}
+}
+
+void UKOGA_Attack_Combo::OnTargetHit(AActor* TargetActor)
+{
+	Super::OnTargetHit(TargetActor);
+	
+	UAbilitySystemComponent* SourceASC = GetASC();
+	if (SourceASC && OverClockGainEffectClass)
+	{
+		FGameplayTag OverClockTag = KOGameplayTags::State_Character_OverClock;
+		
+		if (!SourceASC->HasMatchingGameplayTag(OverClockTag))
+		{
+			FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+			Context.AddSourceObject(GetAvatarCharacter());
+			SourceASC->ApplyGameplayEffectToSelf(OverClockGainEffectClass->GetDefaultObject<UGameplayEffect>(), 1.0f, Context);
+			UE_LOG(LogTemp, Warning, TEXT("[Overclock] 타격 성공 게이지 상승 이펙트 적용 타겟: %s"), *TargetActor->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Overclock] 이미 오버클럭 상태임으로 게이지 획득 스킵"));
+		}
+		
 	}
 }
 

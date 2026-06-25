@@ -12,6 +12,9 @@ namespace KOGameplayTags
 	// ── State | Character | Attacking ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Attacking, "State.Character.Attacking");
 	
+	// ── State | Character | OverClock ─────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_OverClock, "State.Character.OverClock");
+	
 	// ── State | Character | Etc ───────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Dead, "State.Character.Dead");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_StaminaExhausted, "State.Character.StaminaExhausted"); 

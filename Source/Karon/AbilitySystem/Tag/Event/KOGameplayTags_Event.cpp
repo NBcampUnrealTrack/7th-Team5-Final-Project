@@ -31,6 +31,10 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Heavy, "Event.Input.Heavy");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Plunge_Land, "Event.Plunge.Land");
 	
+	// ── Event | OverClock ─────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_OverClock_Start, "Event.OverClock.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_OverClock_End, "Event.OverClock.End");
+	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_Transition, "Event.Combo.Transition");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Combo_EnableInput, "Event.Combo.EnableInput");

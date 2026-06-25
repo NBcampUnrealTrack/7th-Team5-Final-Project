@@ -31,6 +31,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Plunge_Land);
 	
+	// ── Event | OverClock ─────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_OverClock_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_OverClock_End);
+	
 	// ── Event | Combo ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_Transition);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Combo_EnableInput);

@@ -1,4 +1,9 @@
 ﻿#include "KOCombatSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffectExtension.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 
 UKOCombatSet::UKOCombatSet()
 {
@@ -69,5 +74,34 @@ void UKOCombatSet::PostAttributeChange(const FGameplayAttribute& Attribute, floa
 void UKOCombatSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+	
+	if (Data.EvaluatedData.Attribute == GetOverClockGaugeAttribute())
+	{
+		SetOverClockGauge(FMath::Clamp(GetOverClockGauge(), 0.0f, GetMaxOverClockGauge()));
+		
+		UE_LOG(LogTemp, Warning, TEXT("[Overclock] 현재 게이지: %f / %f"), GetOverClockGauge(), GetMaxOverClockGauge());
+		
+		if (GetOverClockGauge() >= GetMaxOverClockGauge())
+		{
+			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+			
+			FGameplayTag OverClockTag = KOGameplayTags::State_Character_OverClock;
+			if (ASC && !ASC->HasMatchingGameplayTag(OverClockTag))
+			{
+				AActor* AvatarActor = Data.Target.GetAvatarActor();
+				if (!AvatarActor) return;
+				
+				FGameplayEventData Payload;
+				Payload.Instigator = AvatarActor;
+				Payload.Target = AvatarActor;
+				
+				FGameplayTag EventTag = KOGameplayTags::Event_OverClock_Start;
+				
+				UE_LOG(LogTemp, Error, TEXT("[Overclock] 게이지 MAX. 오버클럭 실행 이벤트를 발송"));
+				
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(AvatarActor, EventTag, Payload);
+			}
+		}
+	}
 }
 

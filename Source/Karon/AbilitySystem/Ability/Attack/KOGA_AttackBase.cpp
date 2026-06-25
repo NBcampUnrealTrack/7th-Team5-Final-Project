@@ -191,8 +191,7 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 		if (!TraceData.HitActors.Contains(HitActor))
 		{
 			TraceData.HitActors.Add(HitActor);
-			SendAttackEventsToTarget(HitActor);
-			ApplyHitEffects(HitActor);
+			OnTargetHit(HitActor);
 		}
 	}
 }
@@ -234,4 +233,10 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 	}
 	
 	return nullptr; 
+}
+
+void UKOGA_AttackBase::OnTargetHit(AActor* TargetActor)
+{
+	SendAttackEventsToTarget(TargetActor);
+	ApplyHitEffects(TargetActor);
 }

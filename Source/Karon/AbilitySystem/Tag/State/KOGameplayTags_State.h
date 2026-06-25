@@ -21,6 +21,9 @@ namespace KOGameplayTags
 	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Charge);
 	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Dash);
 
+	// ── State | Character | OverClock ─────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OverClock);
+	
 	// ── State | Character | Etc ───────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Dead);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_StaminaExhausted);
