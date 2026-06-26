@@ -79,6 +79,32 @@ void AKOPlayerController::BeginPlay()
 
 	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
 	{
+	    FoundInventoryComponent ->TryAddItem(
+    			EKOSlotKind::Factory,
+    			TEXT("Boiler"),
+    			1
+    		);
+			FoundInventoryComponent ->TryAddItem(
+    			EKOSlotKind::Factory,
+    			TEXT("UndergroundMiningModule"),
+    			1
+    		);
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("MiningPipe"),
+			50
+		);
+				FoundInventoryComponent ->TryAddItem(
+        			EKOSlotKind::Factory,
+        			TEXT("GearPress"),
+        			1
+        		);
+        				FoundInventoryComponent ->TryAddItem(
+                			EKOSlotKind::Item,
+                			TEXT("Gear"),
+                			14
+                		);
+	#if !UE_BUILD_SHIPPING
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
 			TEXT("ModuleDismantler"),
@@ -90,7 +116,7 @@ void AKOPlayerController::BeginPlay()
 			TEXT("Boiler"),
 			1
 		);
-		
+
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Factory,
 			TEXT("AlloyMaker"),
@@ -194,8 +220,10 @@ void AKOPlayerController::BeginPlay()
 			TEXT("BronzeSword"),
 			1
 		);
+#endif	
 	}
-	
+
+
 	FGameplayTag Channel = KOGameplayTags::Event_DropItem;		
 	FGameplayMessageCallback Callback ;
 	Callback.BindDynamic(this, &AKOPlayerController::OnItemReceived);	

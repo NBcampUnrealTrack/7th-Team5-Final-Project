@@ -3,7 +3,6 @@
 
 #include "KOOverclockProgressBar.h"
 
-#include "ImaginaryBlueprintData.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Components/ProgressBar.h"
 #include "Utility/Messaging/KOMessageTypes.h"
