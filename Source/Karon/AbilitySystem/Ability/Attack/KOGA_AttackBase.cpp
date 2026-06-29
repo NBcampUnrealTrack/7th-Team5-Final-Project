@@ -2,6 +2,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
@@ -32,6 +33,9 @@ void UKOGA_AttackBase::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	
+	TraceData.bIsFirstTick = true;
+	TraceData.HitActors.Empty();
 }
 
 void UKOGA_AttackBase::EndAbility(
@@ -104,7 +108,7 @@ void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
 	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarCharacter());
 	
-	for (const FKOHitEffectData& Effect : HitAppliedEffects)
+	for (const FKOHitEffectData& Effect : DamageEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
@@ -130,7 +134,25 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarCharacter());
 	
-	for (const FKOHitEffectData& Effect : HitAppliedEffects)
+	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 0.f;
+	for (const FKOHitEffectData& Effect : DamageEffects)
+	{
+		FGameplayEffectSpecHandle SpecHandle = 
+		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
+		if (!SpecHandle.IsValid()) continue;
+		
+		for (const auto& Pair : Effect.SetByCallerValues)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(
+				KOGameplayTags::Data_Attribute_Combat_AttackPower,  
+				AttackValue * Effect.AttackCoefficient
+			);
+		}
+		
+		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	}
+	
+	for (const FKOHitEffectData& Effect : AdditionalEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
@@ -143,6 +165,7 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
+	
 }
 
 UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
@@ -158,8 +181,18 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 	ACharacter* Avatar = GetAvatarCharacter();
 	if (!Avatar || !TraceData.TraceMesh) return;
 	
-	FVector StartLoc = TraceData.TraceMesh->GetSocketLocation(TraceData.StartSocket);
-	FVector EndLoc = TraceData.TraceMesh->GetSocketLocation(TraceData.EndSocket);
+	if (TraceData.MaxHitCount > 0 && TraceData.HitActors.Num() >= TraceData.MaxHitCount) return;
+	
+	FVector CurrentStart = TraceData.TraceMesh->GetSocketLocation(TraceData.GetStartSocket());
+	FVector CurrentEnd = TraceData.TraceMesh->GetSocketLocation(TraceData.GetEndSocket());
+	
+	if (TraceData.bIsFirstTick)
+	{
+		TraceData.PrevStartLocation = CurrentStart;
+		TraceData.PrevEndLocation = CurrentEnd;
+		TraceData.bIsFirstTick = false;
+		return; 
+	}
 	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Avatar);
@@ -168,32 +201,79 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 	Avatar->GetAttachedActors(AttachedActors);
 	ActorsToIgnore.Append(AttachedActors);
 	
-	FHitResult HitResult;
 	EDrawDebugTrace::Type DebugType = TraceData.bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_Pawn);
 	
-	bool bHit = UKismetSystemLibrary::SphereTraceSingle(
+	TArray<FHitResult> CombinedHits;
+	
+	TArray<FHitResult> StartHits;
+	UKismetSystemLibrary::SphereTraceMulti(
+		this, 
+		TraceData.PrevStartLocation, 
+		CurrentStart, 
+		TraceData.TraceRadius, 
+		TraceChannel, 
+		false,
+		ActorsToIgnore,
+		DebugType, 
+		StartHits, 
+		true
+	);
+	CombinedHits.Append(StartHits);
+	
+	TArray<FHitResult> EndHits;
+	UKismetSystemLibrary::SphereTraceMulti(
 		this,
-		StartLoc,
-		EndLoc,
-		TraceData.TraceRadius,
-		UEngineTypes::ConvertToTraceType(ECC_Pawn),
+		TraceData.PrevEndLocation,
+		CurrentEnd, TraceData.TraceRadius,
+		TraceChannel,
 		false,
 		ActorsToIgnore,
 		DebugType,
-		HitResult,
+		EndHits,
 		true
 	);
-
-	if (bHit && HitResult.GetActor())
+	CombinedHits.Append(EndHits);
+	
+	TArray<FHitResult> CurrentHits;
+	UKismetSystemLibrary::SphereTraceMulti(
+		this,
+		CurrentStart, 
+		CurrentEnd, 
+		TraceData.TraceRadius, 
+		TraceChannel, 
+		false, 
+		ActorsToIgnore, 
+		DebugType, 
+		CurrentHits, 
+		true
+	);
+	CombinedHits.Append(CurrentHits);
+	
+	CombinedHits.Sort([](const FHitResult& A, const FHitResult& B) {
+		return A.Distance < B.Distance;
+	});
+	
+	for (const FHitResult& HitResult : CombinedHits)
 	{
+		if (TraceData.MaxHitCount > 0 && TraceData.HitActors.Num() >= TraceData.MaxHitCount) break;
+		
 		AActor* HitActor = HitResult.GetActor();
+		if (!HitActor) continue;
+		
+		if (UPrimitiveComponent* HitComponent = HitResult.GetComponent())
+		{
+			if (HitComponent->GetCollisionObjectType() == ECC_WorldStatic) break; 
+		}
 		
 		if (!TraceData.HitActors.Contains(HitActor))
 		{
-			TraceData.HitActors.Add(HitActor);
-			OnTargetHit(HitActor);
+			OnTargetHit(HitResult);
 		}
 	}
+	
+	TraceData.PrevStartLocation = CurrentStart;
+	TraceData.PrevEndLocation = CurrentEnd;
 }
 
 void UKOGA_AttackBase::ResetHitActors()
@@ -207,15 +287,14 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 	if (!Character) return nullptr;
 	
 	UKOEquipmentComponent* EquipComp = Character->GetEquipmentComponent(); 
-	if (!EquipComp) return nullptr;
 	
-	if (EquipComp->HasWeapon())
+	if (EquipComp && EquipComp->HasWeapon())
 	{
 		AKOWeaponBase* WeaponActor = EquipComp->CurrentWeaponActor;
 		if (UStaticMeshComponent* Mesh = WeaponActor->GetMesh())
 		{
-			if (Mesh->DoesSocketExist(TraceData.StartSocket)
-				&& Mesh->DoesSocketExist(TraceData.EndSocket)) 
+			if (Mesh->DoesSocketExist(TraceData.GetStartSocket())
+				&& Mesh->DoesSocketExist(TraceData.GetEndSocket())) 
 				return Mesh; 
 		}
 	}
@@ -225,8 +304,8 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 		
 	for (USkeletalMeshComponent* Mesh : SkeletalMeshes)
 	{
-		if (Mesh->DoesSocketExist(TraceData.StartSocket)
-			&& Mesh->DoesSocketExist(TraceData.EndSocket))
+		if (Mesh->DoesSocketExist(TraceData.GetStartSocket())
+			&& Mesh->DoesSocketExist(TraceData.GetEndSocket()))
 		{
 			return Mesh; 
 		}
@@ -235,8 +314,14 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 	return nullptr; 
 }
 
-void UKOGA_AttackBase::OnTargetHit(AActor* TargetActor)
+void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 {
-	SendAttackEventsToTarget(TargetActor);
-	ApplyHitEffects(TargetActor);
+	AActor* HitActor = Hit.GetActor();
+	if (!Hit.bBlockingHit || !HitActor) return;
+	
+	TraceData.HitActors.Add(HitActor);
+	
+	SendAttackEventsToTarget(HitActor);
+	ApplyHitEffects(HitActor);
 }
+

@@ -36,7 +36,7 @@ public:
 private:
 	float StopDuration;
 	float StopDilation;
-	bool  bAffectInstigatorToo;
+	bool bAffectInstigatorToo;
 	
 	FTimerHandle RecoveryTimer;
 	

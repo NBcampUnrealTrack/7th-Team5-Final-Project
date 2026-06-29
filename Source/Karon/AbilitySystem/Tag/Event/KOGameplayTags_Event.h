@@ -25,6 +25,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Death);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Finish);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SwapSocket);
 
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Light);
@@ -44,6 +45,7 @@ namespace KOGameplayTags
 	// ── Event | Weapon ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Draw);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Sheathe);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_ShouldDraw);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Equip);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Weapon_Unequip);
@@ -55,10 +57,14 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_End);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_PerfectGuard_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_PerfectGuard_End);
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_DropItem);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Interaction);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Damaged);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SyncOverclockProgressBar);
 	

@@ -83,6 +83,12 @@ void UKOGA_Attack_Combo::EndAbility(
 	bIsTransitioning = false;
 	CurrentMontageTask = nullptr;
 	
+	if (CurrentMontageTask)
+	{
+		CurrentMontageTask->EndTask();
+		CurrentMontageTask = nullptr;
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -101,27 +107,26 @@ void UKOGA_Attack_Combo::InputPressed(
 	}
 }
 
-void UKOGA_Attack_Combo::OnTargetHit(AActor* TargetActor)
+void UKOGA_Attack_Combo::OnTargetHit(const FHitResult& Hit)
 {
-	Super::OnTargetHit(TargetActor);
+	Super::OnTargetHit(Hit);
 	
 	UAbilitySystemComponent* SourceASC = GetASC();
 	if (SourceASC && OverClockGainEffectClass)
 	{
-		FGameplayTag OverClockTag = KOGameplayTags::State_Character_OverClock;
-		
-		if (!SourceASC->HasMatchingGameplayTag(OverClockTag))
+		if (!SourceASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock))
 		{
 			FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 			Context.AddSourceObject(GetAvatarCharacter());
+			
+			ApplyEffectToSelf(OverClockGainEffectClass, 1.f);
 			SourceASC->ApplyGameplayEffectToSelf(OverClockGainEffectClass->GetDefaultObject<UGameplayEffect>(), 1.0f, Context);
-			UE_LOG(LogTemp, Warning, TEXT("[Overclock] 타격 성공 게이지 상승 이펙트 적용 타겟: %s"), *TargetActor->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("[Overclock] 타격 성공 게이지 상승 이펙트 적용 타겟: %s"), *Hit.GetActor()->GetName());
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[Overclock] 이미 오버클럭 상태임으로 게이지 획득 스킵"));
 		}
-		
 	}
 }
 

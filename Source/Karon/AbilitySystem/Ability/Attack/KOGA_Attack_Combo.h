@@ -37,11 +37,10 @@ protected:
 	) override;
 
 protected:	
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|OverClock")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OverClock")
 	TSubclassOf<UGameplayEffect> OverClockGainEffectClass;
 	
-	virtual void OnTargetHit(AActor* TargetActor) override;
+	virtual void OnTargetHit(const FHitResult& Hit) override;
 	
 	void PlayComboMontage();
 	

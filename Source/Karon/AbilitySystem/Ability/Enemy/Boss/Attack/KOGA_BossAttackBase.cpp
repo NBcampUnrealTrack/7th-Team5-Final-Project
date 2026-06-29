@@ -2,9 +2,7 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "AbilitySystem/Attribute/KOCombatSet.h"
-
-#include "Character/Enemy/Boss/KOBossBase.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
@@ -20,12 +18,6 @@ void UKOGA_BossAttackBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	// Super에서 EndAbility 호출됐는지 체크
-	if (!IsActive())
-	{
-		return;
-	}
 	
 	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
 	{

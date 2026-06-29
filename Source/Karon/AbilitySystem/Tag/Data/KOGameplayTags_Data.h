@@ -14,7 +14,19 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_MaxAcceleration);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_GroundFriction);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_BrakingDeceleration);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_MaxWalkSpeedCrouch);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_JumpStrength);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_AttackPower);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_AttackSpeed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_CritChance);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_CritMultiplier);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Defense);
+
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);

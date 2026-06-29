@@ -6,10 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "KOEnemyType.generated.h"
 
-/**
- * 
- */
-// 스탯 구조체
+
 USTRUCT(BlueprintType)
 struct FEnemyStat
 {
@@ -48,6 +45,8 @@ struct FEnemySkillInfo
 		return EnemyNameTag == Other.EnemyNameTag && SkillTag == Other.SkillTag;
 	}
 };
+
+
 //구조체가 키여서 GetTypeHash 오버로딩
 FORCEINLINE uint32 GetTypeHash(const FEnemySkillInfo& Key)
 {
@@ -69,6 +68,7 @@ struct FEnemyNameLevelInfo
 		return EnemyNameTag == Other.EnemyNameTag && Level == Other.Level;
 	}
 };
+
 //구조체가 키여서 GetTypeHash를 오버로딩
 FORCEINLINE uint32 GetTypeHash(const  FEnemyNameLevelInfo& Key)
 {
@@ -105,6 +105,7 @@ struct FEnemyDropItemInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DropPercent=0.f;
 };
+
 //UPROPERTY 매크로가 포함된 TMap의 Value로 TArray를 사용하기 위해 Struct를 사용
 USTRUCT(BlueprintType)
 struct FEnemyDropItemArrayWrapper

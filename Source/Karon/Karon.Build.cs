@@ -29,7 +29,7 @@ public class Karon : ModuleRules
 		{
 			"Slate", "SlateCore",
 			"UMG",
-			"NavigationSystem", 
+			"NavigationSystem", "SQLiteCore", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", });

@@ -20,8 +20,7 @@ UAbilityTask_HitStop* UAbilityTask_HitStop::HitStop(
 void UAbilityTask_HitStop::Activate()
 {
 	CachedAvatar = GetAvatarActor();
-	CachedInstigator = bAffectInstigatorToo ?
-		AbilitySystemComponent->GetOwnerActor() : nullptr;
+	CachedInstigator = bAffectInstigatorToo ? AbilitySystemComponent->GetOwnerActor() : nullptr;
 	
 	// 피격자 없으면 즉시 종료 
 	if (!CachedAvatar.IsValid())

@@ -25,6 +25,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Death, "Event.Death");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Finish, "Event.Montage.Finish");
+	UE_DEFINE_GAMEPLAY_TAG(Event_SwapSocket, "Event.SwapSocket");
 	
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");
@@ -43,6 +44,7 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Draw, "Event.Weapon.Draw");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Sheathe, "Event.Weapon.Sheathe");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_ShouldDraw, "Event.Weapon.ShouldDraw");
 	
 	// ── Event | Weapon ─────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Weapon_Equip,   "Event.Weapon.Equip");
@@ -55,10 +57,14 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_Start, "Event.Dodge.Invincible.Start");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_End, "Event.Dodge.Invincible.End");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_PerfectGuard_Start, "Event.Dodge.PerfectGuard.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_PerfectGuard_End, "Event.Dodge.PerfectGuard.End");
+	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");
 	UE_DEFINE_GAMEPLAY_TAG(Event_DropItem, "Event.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Interaction, "Event.Interaction");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Damaged, "Event.Damaged");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_SyncOverclockProgressBar, "Event.SyncOverclockProgressBar");
 	

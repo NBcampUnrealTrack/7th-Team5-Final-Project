@@ -8,10 +8,24 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Healing, "Data.Attribute.Health.Healing");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_MaxAcceleration, "Data.Attribute.Movement.MaxAcceleration");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_GroundFriction, "Data.Attribute.Movement.GroundFriction");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_BrakingDeceleration, "Data.Attribute.Movement.BrakingDeceleration");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_MaxWalkSpeedCrouch, "Data.Attribute.Movement.MaxWalkSpeedCrouch");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_JumpStrength, "Data.Attribute.Movement.JumpStrength");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
-
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_AttackPower, "Data.Attribute.Combat.AttackPower");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_AttackSpeed, "Data.Attribute.Combat.AttackSpeed");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritChance, "Data.Attribute.Combat.CritChance");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritMultiplier, "Data.Attribute.Combat.CritMultiplier");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_Defense, "Data.Attribute.Combat.Defense");
+	
+	
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");

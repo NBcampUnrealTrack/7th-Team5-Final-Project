@@ -6,7 +6,7 @@
 #include "Data/Type/KOEnemyType.h"
 #include "KOEnemyDataSubsystem.generated.h"
 
-/**
+/** 
  * 
  */
 UCLASS()
