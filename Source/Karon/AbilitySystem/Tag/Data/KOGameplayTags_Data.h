@@ -7,10 +7,16 @@ namespace KOGameplayTags
 {
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Current);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Max);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Healing);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Current);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Max);
+	
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);

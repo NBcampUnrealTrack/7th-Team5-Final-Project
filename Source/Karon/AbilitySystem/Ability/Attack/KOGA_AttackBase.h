@@ -64,7 +64,7 @@ struct FKOTraceData
 	UMeshComponent* TraceMesh = nullptr; 
 	
 	UPROPERTY(EditDefaultsOnly)
-	TArray<FKOTraceSocketPair> SocketPairs = {};
+	TArray<FKOTraceSocketPair> SocketPairs = {FKOTraceSocketPair{}};
 	
 	int32 CurrentSocketIndex = 0;
 	
@@ -150,6 +150,7 @@ protected:
 	
 	UMeshComponent* FindTraceMesh(); 
 	
+	UFUNCTION()
 	virtual void OnTargetHit(const FHitResult& Hit);
 	
 protected:	

@@ -13,18 +13,22 @@ void UKOGameplayAbilityBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return;
 	
 	KO_LOGS(GAS, Ability, Log, TEXT("(+) %s | %s ← Activated"), *Character->GetName(), *GetClass()->GetName());
 }
 
-void UKOGameplayAbilityBase::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+void UKOGameplayAbilityBase::CancelAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateCancelAbility)
 {
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return;
+	
 	KO_LOGS(GAS, Ability, Log, TEXT("(!) %s | %s ← Canceled"), *Character->GetName(), *GetClass()->GetName());
 	
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
@@ -140,10 +144,15 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToTarget(
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC) return FActiveGameplayEffectHandle();
 	
-	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
-	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(GetAvatarCharacter());
 	
-	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
+	FGameplayEffectSpecHandle SpecHandle = 
+		SourceASC->MakeOutgoingSpec(EffectClass, Level, Context);
+	
+	if (!SpecHandle.IsValid()) return FActiveGameplayEffectHandle();
+	
+	return SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, TargetASC);
 }
 
 FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarget(
@@ -219,9 +228,8 @@ void UKOGameplayAbilityBase::ApplyCost(
 {
 	if (!CostGEClass) return;
 	
-	FGameplayEffectSpecHandle Spec = 
-		MakeOutgoingGameplayEffectSpec(CostGEClass, GetAbilityLevel());
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(CostGEClass, GetAbilityLevel());
+	if (!Spec.IsValid()) return;
 	
-	if (Spec.IsValid())
-		CostEffectHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
+	CostEffectHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
 }

@@ -20,6 +20,8 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		//Commit Failed
@@ -32,6 +34,8 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 
 	WaitEventTask->EventReceived.AddDynamic(this, &UKOEnemyGameplayAbility::OnNotifyHitEvent);
 	WaitEventTask->ReadyForActivation();
+	
+	
 
 	const UKOCombatSet* CombatSet = GetCombatSet();
 	if (MontageData.IsEmpty() || !CombatSet)

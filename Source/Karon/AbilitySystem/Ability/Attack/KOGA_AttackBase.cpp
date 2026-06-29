@@ -15,6 +15,8 @@ UKOGA_AttackBase::UKOGA_AttackBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
+	
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 }
 
 void UKOGA_AttackBase::ActivateAbility(
@@ -56,22 +58,11 @@ void UKOGA_AttackBase::EndAbility(
 void UKOGA_AttackBase::SendAttackEventsToTarget(FGameplayEventData* InEventData)
 {
 	if (!InEventData || !InEventData->Target) return;
+	
 	const UObject* RawTarget = InEventData->Target;
-	
-	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
-	if (!TargetActor) return;
-	
-	UAbilitySystemComponent* TargetASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	if (!TargetASC) return;
-	
-	for (const auto& EventTag : AttackEventTags)
+	if (AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget)))
 	{
-		FGameplayEventData EventData;
-		EventData.Instigator = Cast<const AActor>(GetAvatarCharacter());
-		EventData.Target = TargetActor; 
-		
-		TargetASC->HandleGameplayEvent(EventTag, &EventData);
+		SendAttackEventsToTarget(TargetActor);
 	}
 }
 
@@ -98,28 +89,9 @@ void UKOGA_AttackBase::ApplyHitEffects(FGameplayEventData* InEventData)
 	if (!InEventData || !InEventData->Target) return;
 	
 	const UObject* RawTarget = InEventData->Target;
-	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
-	if (!TargetActor) return;
-	
-	UAbilitySystemComponent* SourceASC = GetASC(); 
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	if (!SourceASC || !TargetASC) return;
-	
-	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-	Context.AddSourceObject(GetAvatarCharacter());
-	
-	for (const FKOHitEffectData& Effect : DamageEffects)
+	if (AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget)))
 	{
-		FGameplayEffectSpecHandle SpecHandle = 
-		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
-		if (!SpecHandle.IsValid()) continue;
-		
-		for (const auto& Pair : Effect.SetByCallerValues)
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value);
-		}
-		
-		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+		ApplyHitEffects(TargetActor);
 	}
 }
 
@@ -134,7 +106,7 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarCharacter());
 	
-	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 0.f;
+	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 1.f;
 	for (const FKOHitEffectData& Effect : DamageEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
@@ -143,10 +115,7 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		
 		for (const auto& Pair : Effect.SetByCallerValues)
 		{
-			SpecHandle.Data->SetSetByCallerMagnitude(
-				KOGameplayTags::Data_Attribute_Combat_AttackPower,  
-				AttackValue * Effect.AttackCoefficient
-			);
+			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value); 
 		}
 		
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
@@ -171,9 +140,7 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 {
 	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
-	if (!Character) return nullptr;
-	
-	return Character->GetCombatSet(); 
+	return Character ? Character->GetCombatSet() : nullptr; 
 }
 
 void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
@@ -263,7 +230,7 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 		
 		if (UPrimitiveComponent* HitComponent = HitResult.GetComponent())
 		{
-			if (HitComponent->GetCollisionObjectType() == ECC_WorldStatic) break; 
+			if (HitComponent->GetCollisionObjectType() == ECC_WorldStatic) break;
 		}
 		
 		if (!TraceData.HitActors.Contains(HitActor))
@@ -316,8 +283,12 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 
 void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 {
+	KO_LOG(Combat, Warning, TEXT("OnTargetHit"));
+	
 	AActor* HitActor = Hit.GetActor();
 	if (!Hit.bBlockingHit || !HitActor) return;
+	
+	KO_LOG(Combat, Warning, TEXT("HitActor : %s"), *HitActor->GetName());
 	
 	TraceData.HitActors.Add(HitActor);
 	

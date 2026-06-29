@@ -31,8 +31,8 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 		return EBTNodeResult::Failed;
 	}
 
-	UAbilitySystemComponent* ASC = GetASC(OwnerComp);
-	if (!ASC)
+	UAbilitySystemComponent* ASC = Enemy->GetAbilitySystemComponent(); 
+	if (ASC == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -45,7 +45,7 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 	
 	// 해당 태그가 추가/제거시 바인딩
 	ASC->RegisterGameplayTagEvent(ActivateTagName, EGameplayTagEventType::NewOrRemoved)
-	   .AddUObject(this, &UBTTask_ActivateAbility::OnSkillTagRemoved, &OwnerComp);
+	   .AddUObject(this, &ThisClass::OnSkillTagRemoved, &OwnerComp);
 	
 	//해당 태그에 매칭되는 GA 중에서 랜덤하게 하나만 실행한다.
 	FGameplayTagContainer AbilityTagContainer;
@@ -59,14 +59,18 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 	}
 
 	int32 RandomIndex = FMath::RandRange(0, ActivatableAbilities.Num() - 1);
-	ASC->TryActivateAbility(ActivatableAbilities[RandomIndex]->Handle);
-
-
+	
+	if (!ASC->TryActivateAbility(ActivatableAbilities[RandomIndex]->Handle))
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	return EBTNodeResult::InProgress;
 }
 
-void UBTTask_ActivateAbility::OnSkillTagRemoved(const FGameplayTag Tag, int32 NewCount,
-                                                UBehaviorTreeComponent* OwnerComp)
+void UBTTask_ActivateAbility::OnSkillTagRemoved(
+	const FGameplayTag Tag, int32 NewCount,
+	UBehaviorTreeComponent* OwnerComp)
 {
 	// 태그 제거시에만 적용
 	if (NewCount != 0)
@@ -126,16 +130,7 @@ EBTNodeResult::Type UBTTask_ActivateAbility::AbortTask(UBehaviorTreeComponent& O
 	FGameplayTagContainer AbilityTagContainer;
 	AbilityTagContainer.AddTag(ActivateTagName);
 	Enemy->GetAbilitySystemComponent()->CancelAbilities(&AbilityTagContainer);
-
-
-	//애님 몽타주도 캔슬
-	// if (UAnimInstance* AnimInstance = Enemy->GetMesh()->GetAnimInstance())
-	// {
-	// 	if (AnimInstance->IsAnyMontagePlaying())
-	// 	{
-	// 		 AnimInstance->Montage_Stop(MontageBlendOutTime);
-	// 	}
-	// }
+	
 	
 	UE_LOG(LogTemp, Warning, TEXT("Aborted"));
 	return Super::AbortTask(OwnerComp, NodeMemory);

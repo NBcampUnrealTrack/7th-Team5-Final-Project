@@ -8,7 +8,6 @@
 UKOGA_Gurad::UKOGA_Gurad()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor; 
-	
 }
 
 void UKOGA_Gurad::ActivateAbility(

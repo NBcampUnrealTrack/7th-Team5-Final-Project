@@ -76,9 +76,11 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 				ASC->MakeOutgoingSpec(AttributeInitializationEffect, 1.0f, EffectContext);
 			if (Handle.IsValid())
 			{
-				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health, Row->MaxHP);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Current, Row->MaxHP);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Max, Row->MaxHP);
 				
-				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Stamina, Row->MaxStamina);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Stamina_Current, Row->MaxStamina);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Stamina_Max, Row->MaxStamina);
 				
 				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_AttackPower, Row->Combat.Attack);
 				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_AttackSpeed, Row->Combat.AttackSpeed);

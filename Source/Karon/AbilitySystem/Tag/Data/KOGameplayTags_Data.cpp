@@ -4,10 +4,16 @@ namespace KOGameplayTags
 {
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health, "Data.Attribute.Health");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Current, "Data.Attribute.Health.Current");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Max, "Data.Attribute.Health.Max");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Damage, "Data.Attribute.Health.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Healing, "Data.Attribute.Health.Healing");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Current, "Data.Attribute.Stamina.Current");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Max, "Data.Attribute.Stamina.Max");
+	
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");

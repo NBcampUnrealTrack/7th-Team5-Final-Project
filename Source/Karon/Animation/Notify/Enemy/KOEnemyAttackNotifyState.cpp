@@ -136,7 +136,7 @@ void UKOEnemyAttackNotifyState::NotifyTick(
 	//Event_SkillHit 태그로 전달
 	FGameplayEventData HitGameplayEventData;
 	HitGameplayEventData.Target = HittedActor;
-	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_SkillHit, &HitGameplayEventData);
+	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_Hit, &HitGameplayEventData);
 	//재타격 방지
 	CachedAbilities[MeshComp]->bIsAttacked=true;
 	
