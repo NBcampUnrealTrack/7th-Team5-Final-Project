@@ -20,6 +20,7 @@ DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
 DECLARE_DELEGATE_OneParam(FOnUIBattleEvent,bool bIsBattle)
+DECLARE_DELEGATE_OneParam(FOnHitEvent,bool bIsHit)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 
 UCLASS()
@@ -108,14 +109,12 @@ protected:
 	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
-	
-	FOnCharacterEvent OnCharacterHit;
-
 	FOnCharacterEvent OnCharacterReset;
-	
 	FOnUIChangeEvent OnHPChangedEvent;
 	FOnUIBattleEvent OnBattleEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;
+	FOnHitEvent OnHitEvent;
+	
 };

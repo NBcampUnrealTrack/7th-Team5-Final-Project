@@ -29,6 +29,13 @@ public:
 		 const FGameplayEventData* TriggerEventData
 	) override;
 	
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility, bool bWasCancelled
+	) override;
+	
 	//TODO:
 	// 피격 감지 
 	// 방향 분기 

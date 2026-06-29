@@ -113,8 +113,6 @@ void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 void AKOBaseEnemy::OnHealthChanged(float OldValue, float NewValue)
 {
 	OnHPChangedEvent.ExecuteIfBound( NewValue/ HealthSet->GetMaxHealth(), OldValue - NewValue);
-	
-	OnCharacterHit.ExecuteIfBound();
 }
 
 void AKOBaseEnemy::DropItem()

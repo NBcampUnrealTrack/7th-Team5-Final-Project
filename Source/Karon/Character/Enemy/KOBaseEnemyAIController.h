@@ -26,7 +26,7 @@ protected:
 private:
 	
 	UFUNCTION()
-	void HitEvent();
+	void HitEvent(bool bIsHit);
 	
 	UFUNCTION()
 	void DeadEvent();

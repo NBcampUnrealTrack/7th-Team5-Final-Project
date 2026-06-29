@@ -38,6 +38,7 @@ void UKOGA_AttackBase::ActivateAbility(
 	
 	TraceData.bIsFirstTick = true;
 	TraceData.HitActors.Empty();
+	ApplySelfEffects();
 }
 
 void UKOGA_AttackBase::EndAbility(
@@ -135,6 +136,28 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	
+}
+
+void UKOGA_AttackBase::ApplySelfEffects()
+{
+	UAbilitySystemComponent* SourceASC = GetASC(); 
+	if (!SourceASC) return;
+	
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(GetAvatarCharacter());
+	
+	for (const FKOHitEffectData& Effect : SelfEffects)
+	{
+		FGameplayEffectSpecHandle SpecHandle = 
+		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
+		if (!SpecHandle.IsValid()) continue;
+		
+		for (const auto& Pair : Effect.SetByCallerValues)
+		{
+			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value); 
+		}
+		SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	}
 }
 
 UKOCombatSet* UKOGA_AttackBase::GetCombatSet()

@@ -105,9 +105,7 @@ void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEve
 			SkillInfo.EnemyNameTag = Enemy->EnemyNameTag;
 			SkillMultiplier = SkillSubsystem->GetSkillData(SkillInfo);
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("%f"), SkillMultiplier);
-
+		
 		float SkillFinalDamage = CombatSet->GetAttackPower() * SkillMultiplier;
 
 		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, SkillFinalDamage);

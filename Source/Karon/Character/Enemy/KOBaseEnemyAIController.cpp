@@ -28,7 +28,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	}
 	
 	//Bindings
-	Enemy->OnCharacterHit.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
+	Enemy->OnHitEvent.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
 	
@@ -60,11 +60,11 @@ ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActo
 	return ETeamAttitude::Neutral;
 }
 
-void AKOBaseEnemyAIController::HitEvent()
+void AKOBaseEnemyAIController::HitEvent(bool bIsHit)
 {
 	if (BBComp != nullptr)
 	{
-		BBComp->SetValueAsBool(bIsHitKey, true);
+		BBComp->SetValueAsBool(bIsHitKey, bIsHit);
 	}
 }
 

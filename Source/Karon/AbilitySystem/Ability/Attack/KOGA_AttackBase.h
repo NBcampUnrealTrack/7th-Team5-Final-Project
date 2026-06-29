@@ -139,6 +139,8 @@ public:
 	
 	virtual void ApplyHitEffects(AActor* TargetActor);
 	
+	virtual void ApplySelfEffects();
+	
 	UKOCombatSet* GetCombatSet();
 
 protected:
@@ -167,6 +169,10 @@ protected:
 	// 추가 효과 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	TArray<FKOHitEffectData> AdditionalEffects;
+	
+	// 자신 효과 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	TArray<FKOHitEffectData> SelfEffects;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
 	FGameplayTagContainer AttackEventTags; 

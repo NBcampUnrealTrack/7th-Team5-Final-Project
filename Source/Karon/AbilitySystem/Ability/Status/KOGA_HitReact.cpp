@@ -4,6 +4,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_HitStop.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Enemy/KOBaseEnemy.h"
 #include "GameFramework/Character.h"
 
 UKOGA_HitReact::UKOGA_HitReact()
@@ -45,6 +46,12 @@ void UKOGA_HitReact::ActivateAbility(
 	else if (Tags.HasTag(KOGameplayTags::Event_HitReact_Right)) HitDirection = EHitDirection::Right;	
 	else HitDirection = EHitDirection::Forward;
 	
+	//Enemy일 경우 Hit 브로드캐스트
+	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
+	{
+		Enemy->OnHitEvent.ExecuteIfBound(true);	
+	}
+	
 	// 4. Hit Stop Task  
 	UAbilityTask_HitStop* HitStopTask = 
 		UAbilityTask_HitStop::HitStop(
@@ -74,6 +81,19 @@ void UKOGA_HitReact::ActivateAbility(
 	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(
 		KOGameplayTags::GameplayCue_HitImpact, CueParams);
 	
+}
+
+void UKOGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	//Enemy일 경우 Hit 브로드캐스트
+	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
+	{
+		Enemy->OnHitEvent.ExecuteIfBound(false);
+	}
+	
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
