@@ -102,6 +102,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float LockOnCameraPitch = -35.f;
  
+	// 보스 타겟 락온 시 사용할 별도 카메라 Pitch (보스는 덩치가 크므로 더 위에서 봄)
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float BossLockOnCameraPitch = 20.f;
+	
 	// 하드코딩 방지를 위한 액터 태그 변수 노출
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	FName EnemyActorTag = FName("Enemy");

@@ -219,9 +219,9 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
 
         FVector ToTarget = (HitActor->GetActorLocation() - OwnerChar->GetActorLocation()).GetSafeNormal();
 
-        float Dot      = FVector::DotProduct(CameraForward, ToTarget);
+        //float Dot      = FVector::DotProduct(CameraForward, ToTarget);
         float NormDist = FVector::Dist(OwnerChar->GetActorLocation(), HitActor->GetActorLocation()) / SearchRadius;
-        float Score    = Dot - (NormDist * 0.3f);
+        float Score    = 1.f - NormDist;
 
         if (Score > BestScore)
         {
@@ -234,8 +234,7 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     GEngine->AddOnScreenDebugMessage(21, 3.f, BestTarget ? FColor::Green : FColor::Red,
         FString::Printf(TEXT("[LockOn] 선택된 타겟: %s"),
             BestTarget ? *BestTarget->GetName() : TEXT("없음")));
-
-    // ★ [C4715 에러 해결 핵심] 루프가 끝난 후 최종 선별된 타겟을 반드시 반환해야 합니다.
+	
     return BestTarget;
 }
  
@@ -332,7 +331,29 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
 
 	FRotator TargetRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, GetTargetSocketLocation());
-	TargetRot.Pitch = LockOnCameraPitch; // 하드코딩 제거된 변수 사용
+	
+	// 보스 타겟이면 더 높은 시야각(덜 내려다보는 각도) 사용
+	bool bTargetIsBoss = false;
+	if (LockedTarget.IsValid())
+	{
+		AActor* Target = LockedTarget.Get();
+		bTargetIsBoss = Target->ActorHasTag(BossActorTag);
+
+		if (!bTargetIsBoss)
+		{
+			if (IAbilitySystemInterface* ASCIface = Cast<IAbilitySystemInterface>(Target))
+			{
+				if (UAbilitySystemComponent* TargetASC = ASCIface->GetAbilitySystemComponent())
+				{
+					bTargetIsBoss = TargetASC->HasMatchingGameplayTag(
+						FGameplayTag::RequestGameplayTag(FName("State.Boss")));
+				}
+			}
+		}
+	}
+	
+	TargetRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
+	//TargetRot.Pitch = LockOnCameraPitch; // 하드코딩 제거된 변수 사용
 
 	// GetWorld()->GetDeltaSeconds()를 사용하여 프레임 독립적인 부드러운 보간 수행
 	FRotator NewRot = FMath::RInterpTo(
@@ -343,6 +364,8 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	);
 
 	PC->SetControlRotation(NewRot);
+	
+	
 }
  
 void UKOGA_Utility_LockOn::StartCameraUpdate()
