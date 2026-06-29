@@ -25,5 +25,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Death);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_SuperArmor);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_OverClock_Activate);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_OverClock_Aura);
 	
 }

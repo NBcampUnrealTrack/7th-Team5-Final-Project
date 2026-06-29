@@ -36,7 +36,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "OverClock")
 	TSubclassOf<UGameplayEffect> OverClockDrainEffectClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "OverClock|Effect")
+	FGameplayTag ActivationCueTag;
+	
 private:
 	FActiveGameplayEffectHandle BuffEffectHandle;
 	FActiveGameplayEffectHandle DrainEffectHandle;
+	
+	FTimerHandle SlowMotionTimerHandle;
+	
+	UFUNCTION()
+	void RestoreTimeDelation();
 };

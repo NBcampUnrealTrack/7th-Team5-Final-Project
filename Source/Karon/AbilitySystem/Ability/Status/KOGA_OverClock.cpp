@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "Kismet/GameplayStatics.h"
 
 UKOGA_OverClock::UKOGA_OverClock()
 {
@@ -42,6 +43,25 @@ void UKOGA_OverClock::ActivateAbility(
 			DrainContext
 		);
 	
+	if (ActivationCueTag.IsValid())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = GetAvatarActorFromActorInfo();
+		CueParams.EffectContext = ASC->MakeEffectContext();
+		
+		ASC->ExecuteGameplayCue(ActivationCueTag, CueParams);
+	}
+	
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		SlowMotionTimerHandle,
+		this,
+		&ThisClass::RestoreTimeDelation,
+		0.2f,
+		false
+	);
+	
 	UAbilityTask_WaitAttributeChange* WaitGaugeChange = 
 		UAbilityTask_WaitAttributeChange::WaitForAttributeChangeWithComparison(
 			this,
@@ -77,4 +97,9 @@ void UKOGA_OverClock::EndAbility(
 void UKOGA_OverClock::OnOverClockGaugeEmpty()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void UKOGA_OverClock::RestoreTimeDelation()
+{
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 }
