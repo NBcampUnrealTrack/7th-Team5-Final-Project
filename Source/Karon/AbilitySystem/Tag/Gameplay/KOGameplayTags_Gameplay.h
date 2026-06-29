@@ -24,6 +24,6 @@ namespace KOGameplayTags
 	// ───────────────────────── Cue ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Death);
-	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_SuperArmor);
 	
 }

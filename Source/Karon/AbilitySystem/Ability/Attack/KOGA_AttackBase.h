@@ -178,4 +178,8 @@ protected:
 	FGameplayTagContainer AttackEventTags; 
 	
 	UAbilityTask_Tick* TickTask;
+	
+private:
+	//자신 효과 핸들
+	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;
 };

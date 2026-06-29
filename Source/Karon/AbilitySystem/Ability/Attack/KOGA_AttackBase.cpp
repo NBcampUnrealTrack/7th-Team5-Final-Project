@@ -53,6 +53,16 @@ void UKOGA_AttackBase::EndAbility(
 		TickTask = nullptr;
 	}
 	
+	if (UAbilitySystemComponent* SourceASC = GetASC())
+	{
+		for (auto EffectHandle:SelfEffectsHandles)
+		{
+			SourceASC->RemoveActiveGameplayEffect(EffectHandle);
+		}
+		SelfEffectsHandles.Empty();
+	}
+
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -156,7 +166,11 @@ void UKOGA_AttackBase::ApplySelfEffects()
 		{
 			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value); 
 		}
-		SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		FActiveGameplayEffectHandle Handle=SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		if (Handle.IsValid())
+		{
+			SelfEffectsHandles.Add(Handle);
+		}
 	}
 }
 

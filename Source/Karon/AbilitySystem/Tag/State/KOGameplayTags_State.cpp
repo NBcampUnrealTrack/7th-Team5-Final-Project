@@ -26,6 +26,7 @@ namespace KOGameplayTags
 	
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_WeaponDrawn, "State.Character.WeaponDrawn");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_SuperArmor, "State.Character.SuperArmor");
 
 	// ─── Enemy Attack ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attack_Normal, "State.Enemy.Attack.Normal");
