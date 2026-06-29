@@ -49,6 +49,8 @@ public:
     void GetAllEquipmentIds(TArray<FName>& Out) const;
     void GetAllSkillIds(TArray<FName>& Out) const;
     void GetAllSkillExecutionIds(TArray<FName>& Out) const;
+    /** 제작 가능한 EquipmentId 목록 반환. */
+    void GetCraftableEquipmentIds(TArray<FName>& Out) const;
 
     /**
      * 빌드 메뉴에 노출할 FactoryId 목록을 SortOrder 오름차순으로 반환.

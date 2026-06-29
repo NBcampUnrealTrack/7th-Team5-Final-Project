@@ -61,13 +61,13 @@ private:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	float CellSize = 100.0f;
+	float CellSize = 150.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	FIntPoint GridDimensions = FIntPoint(20, 20);
+	FIntPoint GridDimensions = FIntPoint(17, 17);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Settings")
-	FVector GridOrigin = FVector(-11400.0f, -8212.0f, -6315.0f);
+	FVector GridOrigin = FVector(-11818.0f, -8285.0f, -6315.0f);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Grid|Trace")
 	float TraceHeight = 10000.0f;

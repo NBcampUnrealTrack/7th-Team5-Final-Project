@@ -38,8 +38,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource);
 	/** 가공 재료 카테고리 (BronzePlate, MiningPipe, Gear 등) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
-	/** 무기 카테고리 (BronzeSword) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
+	/** 장비 카테고리 (BronzeSword) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Equipment);
+	
 	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
 
@@ -64,8 +65,16 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_MiningPipe);
 	/** 기어 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
-	/** 청동검 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzeSword);
+	/** 무기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword);
+	/** 투구 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head);
+	/** 상의 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody);
+	/** 하의 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody);
+	/** 신발 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes);
 	/** 기초 화약 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicGunpowder);
 	/** 구리판 */

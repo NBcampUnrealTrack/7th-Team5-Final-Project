@@ -36,10 +36,6 @@ protected:
     /** WBP에 KOInventoryWidget 인스턴스를 'InventoryWidget'이라는 이름으로 배치. */
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UKOInventoryWidget> InventoryWidget;
-    
-    /** WBP에 KOWeaponSlotWidget 인스턴스를 'WeaponSlotWidget'이라는 이름으로 배치. */
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UKOWeaponSlotWidget> WeaponSlotWidget;
 
     /** 슬롯 클릭 시 호출. 자식 클래스/BP에서 오버라이드해 사용/장착/툴팁 등 분기. */
     UFUNCTION(BlueprintNativeEvent, Category = "KO|UI|Inventory")

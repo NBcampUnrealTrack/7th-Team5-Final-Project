@@ -140,6 +140,43 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
 
     FactoryListBox->ClearChildren();
 
+    bool bSelectedStillExists = false;
+
+    auto AddEntry = [this, &bSelectedStillExists](const FKOCraftTarget& Target, const FText& DisplayName, UTexture2D* Icon)
+    {
+        UKOFactoryCraftEntryWidget* EntryWidget =
+            CreateWidget<UKOFactoryCraftEntryWidget>(GetOwningPlayer(), EntryWidgetClass);
+
+        if (!EntryWidget)
+        {
+            return;
+        }
+
+        const bool bCanCraft = CanCraftTarget(Target, 1);
+
+        EntryWidget->SetupEntry(
+            Target.Type,
+            Target.Id,
+            DisplayName,
+            Icon,
+            bCanCraft
+        );
+
+        EntryWidget->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleCraftEntryClicked);
+        FactoryListBox->AddChild(EntryWidget);
+        
+        if (SelectedTarget.Type == Target.Type && SelectedTarget.Id == Target.Id)
+        {
+            bSelectedStillExists = true;
+        }
+
+        if (!SelectedTarget.IsValid())
+        {
+            SelectedTarget = Target;
+        }
+    };
+
+    // 1. 설비 목록 추가
     FKOBuildMenuQuery Query;
 
     TArray<FName> FactoryIds;
@@ -153,39 +190,36 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
             continue;
         }
 
-        UKOFactoryCraftEntryWidget* EntryWidget =
-            CreateWidget<UKOFactoryCraftEntryWidget>(GetOwningPlayer(), EntryWidgetClass);
+        AddEntry(
+            FKOCraftTarget(EKOCraftTargetType::Factory, FactoryId),
+            Row->DisplayName,
+            LoadSub->ResolveFactoryIcon(FactoryId)
+        );
+    }
 
-        if (!EntryWidget)
+    // 2. 장비 목록 추가
+    TArray<FName> EquipmentIds;
+    LoadSub->GetCraftableEquipmentIds(EquipmentIds);
+
+    for (const FName EquipmentId : EquipmentIds)
+    {
+        const FKOEquipmentRow* Row = LoadSub->FindEquipmentRow(EquipmentId);
+        if (!Row || !Row->bCraftable)
         {
             continue;
         }
 
-        UTexture2D* Icon = LoadSub->ResolveFactoryIcon(FactoryId);
-        
-        const bool bCanCraft = CanCraftFactory(FactoryId, 1);
-
-        EntryWidget->SetupEntry(
-            FactoryId,
-            Row->DisplayName,
-            Icon,
-            bCanCraft
+        AddEntry(
+            FKOCraftTarget(EKOCraftTargetType::Equipment, EquipmentId),
+            UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, EquipmentId),
+            UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, EquipmentId)
         );
-
-        EntryWidget->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleFactoryEntryClicked);
-
-        FactoryListBox->AddChild(EntryWidget);
-
-        if (SelectedFactoryId.IsNone())
-        {
-            SelectedFactoryId = FactoryId;
-        }
     }
 }
 
-void UKOFactoryCraftWidget::HandleFactoryEntryClicked(FName InFactoryId)
+void UKOFactoryCraftWidget::HandleCraftEntryClicked(EKOCraftTargetType InTargetType, FName InTargetId)
 {
-    SelectedFactoryId = InFactoryId;
+    SelectedTarget = FKOCraftTarget(InTargetType, InTargetId);
     CraftCount = MinCraftCount;
 
     RefreshCraftCountText();
@@ -197,7 +231,7 @@ void UKOFactoryCraftWidget::RefreshDetail()
     UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-    if (!LoadSub || SelectedFactoryId.IsNone())
+    if (!LoadSub || !SelectedTarget.IsValid())
     {
         if (FactoryIconImage)
         {
@@ -228,41 +262,84 @@ void UKOFactoryCraftWidget::RefreshDetail()
         return;
     }
 
-    const FKOFactoryRow* Row = LoadSub->FindFactoryRow(SelectedFactoryId);
-    if (!Row)
+    if (SelectedTarget.Type == EKOCraftTargetType::Factory)
     {
-        return;
-    }
+        const FKOFactoryRow* Row = LoadSub->FindFactoryRow(SelectedTarget.Id);
+        if (!Row)
+        {
+            return;
+        }
 
-    if (FactoryIconImage)
-    {
-        FactoryIconImage->SetBrushFromTexture(LoadSub->ResolveFactoryIcon(SelectedFactoryId));
-        FactoryIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-    }
+        if (FactoryIconImage)
+        {
+            FactoryIconImage->SetBrushFromTexture(LoadSub->ResolveFactoryIcon(SelectedTarget.Id));
+            FactoryIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        }
 
-    if (FactoryNameText)
-    {
-        FactoryNameText->SetText(Row->DisplayName);
-    }
+        if (FactoryNameText)
+        {
+            FactoryNameText->SetText(Row->DisplayName);
+        }
 
-    if (FactoryDescriptionText)
+        if (FactoryDescriptionText)
+        {
+            FactoryDescriptionText->SetText(Row->Description);
+        }
+    }
+    else
     {
-        FactoryDescriptionText->SetText(Row->Description);
+        const FKOEquipmentRow* Row = LoadSub->FindEquipmentRow(SelectedTarget.Id);
+        if (!Row)
+        {
+            return;
+        }
+
+        if (FactoryIconImage)
+        {
+            FactoryIconImage->SetBrushFromTexture(
+                UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, SelectedTarget.Id)
+            );
+            FactoryIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        }
+
+        if (FactoryNameText)
+        {
+            FactoryNameText->SetText(
+                UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, SelectedTarget.Id)
+            );
+        }
+
+        if (FactoryDescriptionText)
+        {
+            FText DescriptionText = FText::GetEmpty();
+
+            const FName ItemId = LoadSub->FindItemIdByTag(Row->ItemTag);
+
+            if (!ItemId.IsNone())
+            {
+                if (const FKOItemRow* ItemRow = LoadSub->FindItemRow(ItemId))
+                {
+                    DescriptionText = ItemRow->Description;
+                }
+            }
+
+            FactoryDescriptionText->SetText(DescriptionText);
+        }
     }
 
     if (OwnedCountText)
     {
-        const int32 OwnedCount = Inventory ? Inventory->GetCountOf(SelectedFactoryId) : 0;
+        const int32 OwnedCount = Inventory ? Inventory->GetCountOf(SelectedTarget.Id) : 0;
         OwnedCountText->SetText(FText::FromString(
             FString::Printf(TEXT("보유: %d"), OwnedCount)
         ));
     }
 
-    RebuildCostList(Row);
+    RebuildCostList();
     RefreshCraftButtonState();
 }
 
-void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
+void UKOFactoryCraftWidget::RebuildCostList()
 {
     if (!CostListBox)
     {
@@ -271,7 +348,7 @@ void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
 
     CostListBox->ClearChildren();
 
-    if (!FactoryRow || !CostEntryWidgetClass)
+    if (!CostEntryWidgetClass)
     {
         return;
     }
@@ -283,7 +360,7 @@ void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
     }
     
     TArray<TPair<FName, int32>> RequiredItems;
-    if (!BuildRequiredItems(SelectedFactoryId, CraftCount, RequiredItems))
+    if (!BuildRequiredItems(SelectedTarget, CraftCount, RequiredItems))
     {
         return;
     }
@@ -321,23 +398,33 @@ void UKOFactoryCraftWidget::RebuildCostList(const FKOFactoryRow* FactoryRow)
     }
 }
 
-bool UKOFactoryCraftWidget::CanCraftFactory(FName FactoryId, int32 InCraftCount) const
+bool UKOFactoryCraftWidget::CanCraftTarget(const FKOCraftTarget& Target, int32 InCraftCount) const
 {
-    return GetCraftAvailability(FactoryId, InCraftCount)
-         == EKOFactoryCraftAvailability::CanCraft;
+    return GetCraftAvailability(Target, InCraftCount)
+        == EKOFactoryCraftAvailability::CanCraft;
 }
 
-EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(FName FactoryId, int32 InCraftCount) const
+EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(const FKOCraftTarget& Target, int32 InCraftCount) const
 {
     const UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-    if (!Inventory || FactoryId.IsNone() || InCraftCount <= 0)
+    if (!Inventory)
+    {
+        return EKOFactoryCraftAvailability::Invalid;
+    }
+
+    if (!Target.IsValid())
+    {
+        return EKOFactoryCraftAvailability::Invalid;
+    }
+
+    if (InCraftCount <= 0)
     {
         return EKOFactoryCraftAvailability::Invalid;
     }
 
     TArray<TPair<FName, int32>> RequiredItems; // 제작 시 제거될 아이템
-    if (!BuildRequiredItems(FactoryId, InCraftCount, RequiredItems))
+    if (!BuildRequiredItems(Target, InCraftCount, RequiredItems))
     {
         return EKOFactoryCraftAvailability::Invalid;
     }
@@ -350,14 +437,18 @@ EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(FName Fa
         }
     }
     
-    const int32 AddableFactoryCount = Inventory->GetAddCountAfterRemoving(
-        EKOSlotKind::Factory,
-        FactoryId,
+    const EKOSlotKind ResultSlotKind = Target.Type == EKOCraftTargetType::Factory
+            ? EKOSlotKind::Factory
+            : EKOSlotKind::Item;
+    
+    const int32 AddableCount = Inventory->GetAddCountAfterRemoving(
+        ResultSlotKind,
+        Target.Id,
         InCraftCount,
         RequiredItems
     );
 
-    if (AddableFactoryCount < InCraftCount)
+    if (AddableCount < InCraftCount)
     {
         return EKOFactoryCraftAvailability::NotEnoughInventorySpace;
     }
@@ -372,7 +463,7 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
         return;
     }
 
-    const EKOFactoryCraftAvailability Availability = GetCraftAvailability(SelectedFactoryId, CraftCount);
+    const EKOFactoryCraftAvailability Availability = GetCraftAvailability(SelectedTarget, CraftCount);
 
     const bool bCanCraft = Availability == EKOFactoryCraftAvailability::CanCraft;
 
@@ -413,7 +504,7 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
 
 void UKOFactoryCraftWidget::HandleCraftButtonClicked()
 {
-    CraftSelectedFactory();
+    CraftSelectedTarget();
 }
 
 void UKOFactoryCraftWidget::HandleDecreaseCraftCountClicked()
@@ -436,22 +527,22 @@ void UKOFactoryCraftWidget::HandleIncreaseCraftCount10Clicked()
     SetCraftCount(CraftCount + 10);
 }
 
-bool UKOFactoryCraftWidget::CraftSelectedFactory()
+bool UKOFactoryCraftWidget::CraftSelectedTarget()
 {
     UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-    if (!Inventory || SelectedFactoryId.IsNone())
+    if (!Inventory || !SelectedTarget.IsValid())
     {
         return false;
     }
 
-    if (!CanCraftFactory(SelectedFactoryId, CraftCount))
+    if (!CanCraftTarget(SelectedTarget, CraftCount))
     {
         return false;
     }
     
     TArray<TPair<FName, int32>> RequiredItems;
-    if (!BuildRequiredItems(SelectedFactoryId, CraftCount, RequiredItems))
+    if (!BuildRequiredItems(SelectedTarget, CraftCount, RequiredItems))
     {
         return false;
     }
@@ -478,8 +569,12 @@ bool UKOFactoryCraftWidget::CraftSelectedFactory()
         RemovedItems.Add(RequiredItem);
     }
 
-    // 설비 지급
-    const int32 Remaining = Inventory->TryAddItem(EKOSlotKind::Factory, SelectedFactoryId, CraftCount);
+    // 설비/장비 지급
+    const EKOSlotKind ResultSlotKind = SelectedTarget.Type == EKOCraftTargetType::Factory
+            ? EKOSlotKind::Factory
+            : EKOSlotKind::Item;
+
+    const int32 Remaining = Inventory->TryAddItem(ResultSlotKind, SelectedTarget.Id, CraftCount);
 
     if (Remaining > 0)
     {
@@ -489,7 +584,7 @@ bool UKOFactoryCraftWidget::CraftSelectedFactory()
             Inventory->TryAddItem(EKOSlotKind::Item, Removed.Key, Removed.Value);
         }
 
-        UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedFactoryId.ToString());
+        UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedTarget.Id.ToString());
         Refresh();
         return false;
     }
@@ -500,25 +595,47 @@ bool UKOFactoryCraftWidget::CraftSelectedFactory()
     return true;
 }
 
-bool UKOFactoryCraftWidget::BuildRequiredItems(FName FactoryId, int32 InCraftCount,
+bool UKOFactoryCraftWidget::BuildRequiredItems(const FKOCraftTarget& Target, int32 InCraftCount, 
     TArray<TPair<FName, int32>>& OutRequiredItems) const
 {
     OutRequiredItems.Reset();
 
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
 
-    if (!LoadSub || FactoryId.IsNone() || InCraftCount <= 0)
+    if (!LoadSub || !Target.IsValid() || InCraftCount <= 0)
     {
         return false;
     }
 
-    const FKOFactoryRow* Row = LoadSub->FindFactoryRow(FactoryId);
-    if (!Row)
+    const TMap<FGameplayTag, int32>* CraftCosts = nullptr;
+
+    if (Target.Type == EKOCraftTargetType::Factory)
+    {
+        const FKOFactoryRow* Row = LoadSub->FindFactoryRow(Target.Id);
+        if (!Row)
+        {
+            return false;
+        }
+
+        CraftCosts = &Row->CraftCosts;
+    }
+    else
+    {
+        const FKOEquipmentRow* Row = LoadSub->FindEquipmentRow(Target.Id);
+        if (!Row || !Row->bCraftable)
+        {
+            return false;
+        }
+
+        CraftCosts = &Row->CraftCosts;
+    }
+
+    if (!CraftCosts)
     {
         return false;
     }
 
-    for (const TPair<FGameplayTag, int32>& Cost : Row->CraftCosts)
+    for (const TPair<FGameplayTag, int32>& Cost : *CraftCosts)
     {
         const FName ItemId = LoadSub->FindItemIdByTag(Cost.Key);
         if (ItemId.IsNone())
@@ -542,7 +659,7 @@ bool UKOFactoryCraftWidget::BuildRequiredItems(FName FactoryId, int32 InCraftCou
 
 void UKOFactoryCraftWidget::SetCraftCount(int32 NewCount)
 {
-    const int32 MaxCraftableCount = GetMaxCraftableCount(SelectedFactoryId);
+    const int32 MaxCraftableCount = GetMaxCraftableCount(SelectedTarget);
 
     int32 ClampedCount = MinCraftCount;
 
@@ -570,17 +687,17 @@ void UKOFactoryCraftWidget::RefreshCraftCountText()
     }
 }
 
-int32 UKOFactoryCraftWidget::GetMaxCraftableCount(FName FactoryId) const
+int32 UKOFactoryCraftWidget::GetMaxCraftableCount(const FKOCraftTarget& Target) const
 {
     const UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-    if (!Inventory || FactoryId.IsNone())
+    if (!Inventory || !Target.IsValid())
     {
         return 0;
     }
     
     TArray<TPair<FName, int32>> RequiredItemsPerOne;
-    if (!BuildRequiredItems(FactoryId, 1, RequiredItemsPerOne))
+    if (!BuildRequiredItems(Target, 1, RequiredItemsPerOne))
     {
         return 0;
     }
@@ -618,7 +735,7 @@ int32 UKOFactoryCraftWidget::GetMaxCraftableCount(FName FactoryId) const
 
     for (int32 Count = MaxByMaterials; Count >= 1; --Count)
     {
-        if (CanCraftFactory(FactoryId, Count))
+        if (CanCraftTarget(Target, Count))
         {
             return Count;
         }

@@ -372,6 +372,46 @@ void UKOLoadSubsystem::GetAllEquipmentIds(TArray<FName>& Out) const
     EquipmentCache.GetKeys(Out);
 }
 
+void UKOLoadSubsystem::GetCraftableEquipmentIds(TArray<FName>& Out) const
+{
+    Out.Reset();
+
+    struct FCandidate
+    {
+        FName Id;
+    };
+
+    TArray<FCandidate> Candidates;
+    Candidates.Reserve(EquipmentCache.Num());
+
+    for (const TPair<FName, const FKOEquipmentRow*>& Pair : EquipmentCache)
+    {
+        const FKOEquipmentRow* Row = Pair.Value;
+        if (!Row)
+        {
+            continue;
+        }
+
+        if (!Row->bCraftable)
+        {
+            continue;
+        }
+
+        Candidates.Add({ Pair.Key });
+    }
+
+    Candidates.Sort([](const FCandidate& A, const FCandidate& B)
+    {
+        return A.Id.LexicalLess(B.Id);
+    });
+
+    Out.Reserve(Candidates.Num());
+    for (const FCandidate& Candidate : Candidates)
+    {
+        Out.Add(Candidate.Id);
+    }
+}
+
 void UKOLoadSubsystem::GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TArray<FName>& Out) const
 {
     Out.Reset();
@@ -511,3 +551,4 @@ void UKOLoadSubsystem::GetAllSkillExecutionIds(TArray<FName>& Out) const
 {
     SkillExecutionCache.GetKeys(Out);
 }
+

@@ -217,7 +217,31 @@ void AKOPlayerController::BeginPlay()
 		
 		FoundInventoryComponent ->TryAddItem(
 			EKOSlotKind::Item,
-			TEXT("BronzeSword"),
+			TEXT("Sword"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Head"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("UpperBody"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("LowerBody"),
+			1
+		);
+		
+		FoundInventoryComponent ->TryAddItem(
+			EKOSlotKind::Item,
+			TEXT("Shoes"),
 			1
 		);
 #endif	
@@ -482,11 +506,6 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 
 void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 {
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
-	{
-		BuildUIComponent->CloseBuildMenu();
-	}
-	
 	if (InteractionComponent)
 	{
 		InteractionComponent->TryInteract();
@@ -598,13 +617,7 @@ void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
 }
 
 void AKOPlayerController::Input_OpenPlayerMenu(const FInputActionValue& /*Value*/)
-{	
-	// 건설 중에는 메뉴창을 열지 않는다.
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
-	{
-		return;
-	}
-	
+{		
 	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 	{
 		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_PlayerMenu))
@@ -627,9 +640,21 @@ void AKOPlayerController::EnterBuildIMC()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	if (Subsystem && BuildIMC)
+	if (!Subsystem)
 	{
-		Subsystem->AddMappingContext(BuildIMC, 1);
+		return;
+	}
+
+	// 기본 입력 제거
+	if (DefaultIMC)
+	{
+		Subsystem->RemoveMappingContext(DefaultIMC);
+	}
+
+	// 빌드 입력 추가
+	if (BuildIMC)
+	{
+		Subsystem->AddMappingContext(BuildIMC, 0);
 	}
 
 	bBuildIMCActive = true;
@@ -645,9 +670,21 @@ void AKOPlayerController::ExitBuildIMC()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	if (Subsystem && BuildIMC)
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	// 빌드 입력 제거
+	if (BuildIMC)
 	{
 		Subsystem->RemoveMappingContext(BuildIMC);
+	}
+
+	// 기본 입력 복구
+	if (DefaultIMC)
+	{
+		Subsystem->AddMappingContext(DefaultIMC, 0);
 	}
 
 	bBuildIMCActive = false;

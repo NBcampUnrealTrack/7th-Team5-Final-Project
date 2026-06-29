@@ -23,7 +23,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Coal,     "Item.Category.Coal");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
-	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Equipment,   "Item.Category.Equipment");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
@@ -37,7 +37,11 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_MiningPipe,  "Item.MiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_DamagedMiningPipe,  "Item.DamagedMiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
-	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword, "Item.Sword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head, "Item.Head");
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody, "Item.UpperBody");
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody, "Item.LowerBody");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes, "Item.Shoes");
 	UE_DEFINE_GAMEPLAY_TAG(Item_BasicGunpowder, "Item.BasicGunpowder");
 	UE_DEFINE_GAMEPLAY_TAG(Item_CopperPlate, "Item.CopperPlate");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Sulfur,      "Item.Sulfur");

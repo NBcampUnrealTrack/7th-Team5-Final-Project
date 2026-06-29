@@ -171,6 +171,16 @@ struct KARON_API FKORecipeRow : public FTableRowBase
     float PowerPerSecond = 0.f;
 };
 
+UENUM(BlueprintType)
+enum class EKOEquipmentSlotType : uint8
+{
+    Head       UMETA(DisplayName = Head),
+    UpperBody  UMETA(DisplayName = UpperBody),
+    LowerBody  UMETA(DisplayName = LowerBody),
+    Shoes      UMETA(DisplayName = Shoes),
+    Weapon     UMETA(DisplayName = Weapon)
+};
+
 USTRUCT(BlueprintType)
 struct KARON_API FKOEquipmentRow : public FTableRowBase
 {
@@ -179,6 +189,18 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     /** 장비로 취급할 아이템 태그. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
     FGameplayTag ItemTag;
+    
+    /** 이 장비가 들어갈 장비 슬롯 타입 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+    EKOEquipmentSlotType SlotType = EKOEquipmentSlotType::Weapon;
+
+    /** 제작에 필요한 재료 */
+   UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    TMap<FGameplayTag, int32> CraftCosts;
+
+    /** 제작 목록에 표시할지 여부 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    bool bCraftable = true;
 };
 
 USTRUCT(BlueprintType)

@@ -3,7 +3,6 @@
 
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "UI/Inventory/KOInventoryWidget.h"
-#include "UI/Inventory/KOWeaponSlotWidget.h"
 
 UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 {
@@ -18,11 +17,6 @@ void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InCom
     if (InventoryWidget)
     {
         InventoryWidget->SetInventoryComponent(InComponent);
-    }
-    
-    if (WeaponSlotWidget)
-    {
-        WeaponSlotWidget->SetInventoryComponent(InComponent);
     }
 }
 

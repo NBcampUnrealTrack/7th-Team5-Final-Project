@@ -270,5 +270,5 @@ bool UKOItemLibrary::IsWeaponEquipmentItem(const UObject* WorldContextObject, FN
         return false;
     }
 
-    return ItemRow->Categories.HasTag(KOGameplayTags::Item_Category_Weapon);
+    return ItemRow->Categories.HasTag(KOGameplayTags::Item_Category_Equipment);
 }

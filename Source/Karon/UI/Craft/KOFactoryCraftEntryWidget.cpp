@@ -26,12 +26,14 @@ void UKOFactoryCraftEntryWidget::NativeDestruct()
 }
 
 void UKOFactoryCraftEntryWidget::SetupEntry(
-	FName InFactoryId,
+	EKOCraftTargetType InTargetType,
+	FName InTargetId,
 	const FText& InDisplayName,
 	UTexture2D* InIcon,
 	bool bInCanCraft)
 {
-	FactoryId = InFactoryId;
+	TargetType = InTargetType;
+	TargetId = InTargetId;
 
 	if (FactoryNameText)
 	{
@@ -46,8 +48,7 @@ void UKOFactoryCraftEntryWidget::SetupEntry(
 	
 	if (EntryButton)
 	{
-		const FLinearColor TargetColor =
-			bInCanCraft ? CraftableColor : NotCraftableColor;
+		const FLinearColor TargetColor = bInCanCraft ? CraftableColor : NotCraftableColor;
 
 		EntryButton->SetBackgroundColor(TargetColor);
 	}
@@ -55,8 +56,8 @@ void UKOFactoryCraftEntryWidget::SetupEntry(
 
 void UKOFactoryCraftEntryWidget::HandleClicked()
 {
-	if (!FactoryId.IsNone())
+	if (!TargetId.IsNone())
 	{
-		OnClicked.Broadcast(FactoryId);
+		OnClicked.Broadcast(TargetType, TargetId);
 	}
 }

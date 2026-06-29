@@ -9,7 +9,14 @@ class UImage;
 class UTextBlock;
 class UTexture2D;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOFactoryCraftEntryClicked, FName, FactoryId);
+UENUM(BlueprintType)
+enum class EKOCraftTargetType : uint8
+{
+	Factory   UMETA(DisplayName = "Factory"),
+	Equipment UMETA(DisplayName = "Equipment")
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FKOFactoryCraftEntryClicked, EKOCraftTargetType, TargetType, FName, TargetId);
 
 UCLASS()
 class KARON_API UKOFactoryCraftEntryWidget : public UUserWidget
@@ -19,7 +26,13 @@ class KARON_API UKOFactoryCraftEntryWidget : public UUserWidget
 public:
 	FKOFactoryCraftEntryClicked OnClicked;
 	
-	void SetupEntry(FName InFactoryId, const FText& InDisplayName, UTexture2D* InIcon,  bool bInCanCraft);
+	void SetupEntry(
+		EKOCraftTargetType InTargetType,
+		FName InTargetId,
+		const FText& InDisplayName,
+		UTexture2D* InIcon,
+		bool bInCanCraft
+	);
 
 protected:
 	virtual void NativeConstruct() override;
@@ -42,7 +55,10 @@ protected:
 
 private:
 	UPROPERTY()
-	FName FactoryId = NAME_None;
+	EKOCraftTargetType TargetType = EKOCraftTargetType::Factory;
+
+	UPROPERTY()
+	FName TargetId = NAME_None;
 
 	UFUNCTION()
 	void HandleClicked();
