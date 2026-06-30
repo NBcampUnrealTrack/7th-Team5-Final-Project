@@ -131,6 +131,7 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 	{
 		DefaultCameraOffset = SpringArm->SocketOffset;
 		SpringArm->SocketOffset = LockOnCameraOffset;
+		DefaultArmLength = SpringArm->TargetArmLength;   // ← 추가: 원래 거리 기억
 	}
 	
 	ApplyLockOnGameplayTag(true);
@@ -159,7 +160,10 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 		
 		// 스프링암 오프셋 복구
 		if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+		{
 			SpringArm->SocketOffset = DefaultCameraOffset;
+			SpringArm->TargetArmLength = DefaultArmLength;   // ← 추가: 거리 복구
+		}
 	}
 	
 	ApplyLockOnGameplayTag(false);
@@ -365,9 +369,19 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
 	
 	TargetRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
-	//TargetRot.Pitch = LockOnCameraPitch; // 하드코딩 제거된 변수 사용
+	
+	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
+	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+	{
+		const float DesiredArm = bTargetIsBoss
+			? DefaultArmLength + BossLockOnExtraArmLength
+			: DefaultArmLength;
 
-	// GetWorld()->GetDeltaSeconds()를 사용하여 프레임 독립적인 부드러운 보간 수행
+		SpringArm->TargetArmLength = FMath::FInterpTo(
+			SpringArm->TargetArmLength, DesiredArm,
+			GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
+	}
+	
 	FRotator NewRot = FMath::RInterpTo(
 		PC->GetControlRotation(),
 		TargetRot,
