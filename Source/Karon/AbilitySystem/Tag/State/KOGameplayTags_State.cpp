@@ -24,6 +24,10 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_LockOn, "State.Character.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_OnPlatform, "State.Character.OnPlatform");
 	
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard, "State.Character.Guard");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard_Blocking, "State.Character.Guard.Blocking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard_Break, "State.Character.Guard.Break");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard_PerfectGuard, "State.Character.Guard.PerfectGuard");
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_WeaponDrawn, "State.Character.WeaponDrawn");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_SuperArmor, "State.Character.SuperArmor");

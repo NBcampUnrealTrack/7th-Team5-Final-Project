@@ -56,9 +56,15 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_Start, "Event.Dodge.Invincible.Start");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_Invincible_End, "Event.Dodge.Invincible.End");
+
+	// ── Event | Guard ─────────────────────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_Start, "Event.Guard.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_End, "Event.Guard.End");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_Break, "Event.Guard.Break");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_DirectionFail, "Event.Guard.DirectionFail");
 	
-	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_PerfectGuard_Start, "Event.Dodge.PerfectGuard.Start");
-	UE_DEFINE_GAMEPLAY_TAG(Event_Dodge_PerfectGuard_End, "Event.Dodge.PerfectGuard.End");
+	UE_DEFINE_GAMEPLAY_TAG(Event_PerfectGuard_Start, "Event.PerfectGuard.Start");
+	UE_DEFINE_GAMEPLAY_TAG(Event_PerfectGuard_End, "Event.PerfectGuard.End");
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_SkillHit, "Event.SkillHit");

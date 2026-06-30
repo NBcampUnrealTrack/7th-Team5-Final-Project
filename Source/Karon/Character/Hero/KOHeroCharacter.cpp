@@ -66,12 +66,21 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent->GiveGrantSet(); 
 	AbilitySystemComponent->InitAbilityActorInfo(PS,this);
 	
+	InitializeAttributes();
+}
+
+void AKOHeroCharacter::InitializeAttributes()
+{
+	AKOPlayerState* PS = GetPlayerState<AKOPlayerState>();
+	if (!PS) return;
+	
 	StaminaSet = PS->GetStaminaSet();
 	CombatSet = PS->GetCombatSet();
 	MovementSet = PS->GetMovementSet();
 	HealthSet = PS->GetHealthSet();
+	GuardSet = PS->GetGuardSet();
 	
-	InitializeAttributes();
+	Super::InitializeAttributes();
 }
 
 void AKOHeroCharacter::Tick(float DeltaTime)

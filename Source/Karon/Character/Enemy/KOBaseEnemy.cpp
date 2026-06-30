@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "GMRouterSubsystem.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "AbilitySystem/Attribute/KOGuardSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
@@ -23,18 +24,18 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	AbilitySystemComponent = CreateDefaultSubobject<UKOAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	
 	//어트리뷰트셋 생성
-	HealthSet=CreateDefaultSubobject<UKOHealthSet>(TEXT("HealthSet"));
-	MovementSet=CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
-	CombatSet=CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
-
+	HealthSet = CreateDefaultSubobject<UKOHealthSet>(TEXT("HealthSet"));
+	MovementSet = CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
+	CombatSet = CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
+	GuardSet = CreateDefaultSubobject<UKOGuardSet>(TEXT("GuardSet"));
 	
 	//WeaponSkeletalMeshComponent 생성 및 부착
-	WeaponMeshComponent=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMeshComponent->SetupAttachment(GetMesh(), HandSocketName);
 	WeaponMeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
 	
 	//Enemy HPBar 부착
-	EnemyHPBarWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
+	EnemyHPBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
 	EnemyHPBarWidgetComponent->SetupAttachment(GetMesh());
 	EnemyHPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
@@ -62,7 +63,6 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 	}
 }
 
-// Called when the game starts or when spawned
 void AKOBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -101,8 +101,6 @@ void AKOBaseEnemy::InitializeAttributes()
 void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 {
 	Super::OnCharacterDead(DeathInstigator);
-	
-	bIsDead = true;
 	
 	OnEnemyDead.Broadcast();
 
@@ -176,10 +174,8 @@ FVector AKOBaseEnemy::GetSocketLocation()
 
 float AKOBaseEnemy::GetAttackPoint()
 {
-	if (CombatSet)
-	{
-		return CombatSet->GetAttackPower();
-	}
+	if (CombatSet) return CombatSet->GetAttackPower();
+	
 	return 0.f;
 }
 

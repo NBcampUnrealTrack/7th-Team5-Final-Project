@@ -18,9 +18,9 @@ public:
 	virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& BranchingPointPayload) override;
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS|Tags")
-	FGameplayTag TraceStartTag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag StartTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS|Tags")
-	FGameplayTag TraceEndTag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag EndTag;
 };

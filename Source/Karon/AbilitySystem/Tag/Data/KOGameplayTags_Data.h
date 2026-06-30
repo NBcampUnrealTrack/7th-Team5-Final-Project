@@ -17,7 +17,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Current);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Max);
 	
-	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_MaxAcceleration);
@@ -33,6 +32,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_CritMultiplier);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Defense);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Guard);
+	
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);

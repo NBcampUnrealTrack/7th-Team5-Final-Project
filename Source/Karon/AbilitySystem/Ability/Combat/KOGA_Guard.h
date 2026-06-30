@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
-#include "KOGA_Gurad.generated.h"
+#include "KOGA_Guard.generated.h"
 
 
 UCLASS()
-class KARON_API UKOGA_Gurad : public UKOGameplayAbilityBase
+class KARON_API UKOGA_Guard : public UKOGameplayAbilityBase
 {
 	GENERATED_BODY()
 public:
-	UKOGA_Gurad();
+	UKOGA_Guard();
 	
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -34,7 +34,19 @@ public:
 	
 protected:
 	UFUNCTION()
+	void OnMontageCompleted();
+	
+	UFUNCTION()
 	void OnMontageCancelled();
+	
+	UFUNCTION()
+	void OnGuardFailed(FGameplayEventData Data);
+	
+	UFUNCTION()
+	void OnGuardStart(FGameplayEventData Data);
+	
+	UFUNCTION()
+	void OnGuardEnd(FGameplayEventData Data);
 	
 	UFUNCTION()
 	void OnPerfectWindowStart(FGameplayEventData Data);
@@ -42,13 +54,15 @@ protected:
 	UFUNCTION()
 	void OnPerfectWindowEnd(FGameplayEventData Data);
 	
-	UFUNCTION() 
-	void OnHitReceived(FGameplayEventData Data);
-	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	TObjectPtr<UAnimMontage> GuardMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TSubclassOf<UGameplayEffect> GE_Guard_Init; 
 	
-private:
-	bool bPerfectGuardWindowOpen = false; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TSubclassOf<UGameplayEffect> GE_Guard_Reset; 
+	
+	FActiveGameplayEffectHandle GuardEffectHandle; 
 };

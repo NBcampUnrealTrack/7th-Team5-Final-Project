@@ -13,6 +13,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Rolling);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Movement_Dodging);
 
+	
 	// ── State | Character | Attacking ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);
 	//TODO:
@@ -32,6 +33,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_NoStaminaRegen);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OnPlatform); // 보스 기믹용 태그 
+	
+	// ── State | Character | Guard ───────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Guard)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Guard_Blocking);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Guard_Break);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Guard_PerfectGuard);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_WeaponDrawn)
 	

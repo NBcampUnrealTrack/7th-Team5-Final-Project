@@ -20,4 +20,18 @@ public:
 		const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 		FGameplayEffectCustomExecutionOutput& OutExecutionOutput
 	) const override;
+	
+	float CalculateFinalDamage(
+		const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+		const FAggregatorEvaluateParameters& EvalParams,
+		const FGameplayEffectSpec& Spec
+	) const;
+	
+	void RouteGuardDamage(
+		float FinalDamage,
+		UAbilitySystemComponent* TargetASC,
+		const FAggregatorEvaluateParameters& EvalParams,
+		const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+		FGameplayEffectCustomExecutionOutput& OutExecutionOutput
+	) const;
 };

@@ -7,13 +7,13 @@
 
 #include "KOCharacterBase.generated.h"
 
-class UKOEquipmentComponent;
 struct FInstancedStruct;
-class FGameplayMessageCallback;
+class UKOAbilitySystemComponent; 
+class UKOEquipmentComponent;
 class UKOHealthSet;
 class UKOMovementSet;
 class UKOCombatSet;
-class UKOAbilitySystemComponent; 
+class UKOGuardSet;
 
 UCLASS()
 class KARON_API AKOCharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -32,6 +32,8 @@ public:
 	UKOHealthSet* GetHealthSet() const { return HealthSet; }
 	
 	UKOCombatSet* GetCombatSet() const { return CombatSet; }
+	
+	UKOGuardSet* GetGuardSet() const { return GuardSet; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +74,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Movement")
 	TObjectPtr<UKOMovementSet> MovementSet;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Guard")
+	TObjectPtr<UKOGuardSet> GuardSet;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;

@@ -31,6 +31,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	
+	virtual void InitializeAttributes() override;
 	
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
 

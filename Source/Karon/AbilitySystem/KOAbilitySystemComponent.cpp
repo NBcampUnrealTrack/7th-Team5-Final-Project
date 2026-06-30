@@ -16,7 +16,7 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 			if (!AbilitySpec.IsActive())
 			{
 				KO_LOG(Input, Log, TEXT("[%s Ability]: Pressed"), *AbilitySpec.Ability->GetName());
-			}	
+			}
 			
 			InputPressedSpecHandles.AddUnique(AbilitySpec.Handle);
 			InputHeldSpecHandles.AddUnique(AbilitySpec.Handle);

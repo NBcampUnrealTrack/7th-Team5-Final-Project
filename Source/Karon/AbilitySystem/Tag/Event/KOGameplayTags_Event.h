@@ -26,6 +26,17 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Finish);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SwapSocket);
+	
+	// ── Event | Guard ─────────────────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_End);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_Break);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_DirectionFail);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_PerfectGuard_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_PerfectGuard_End);
+	
+
 
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Light);
@@ -56,9 +67,7 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_Invincible_End);
-	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_PerfectGuard_Start);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Dodge_PerfectGuard_End);
+
 	
 	// ─── Enemy Event ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SkillHit);

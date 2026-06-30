@@ -18,6 +18,7 @@ UKOGA_HitReact::UKOGA_HitReact()
 	
 	// 사망 / 무적 / 슈퍼아머 중 진입차단 
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Guard_Blocking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Invincible);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_SuperArmor);
 }

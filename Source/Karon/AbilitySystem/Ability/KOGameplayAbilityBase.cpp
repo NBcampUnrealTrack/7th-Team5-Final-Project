@@ -41,16 +41,20 @@ void UKOGameplayAbilityBase::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	ACharacter* Character = GetAvatarCharacter();
-	if (!Character) return;
-	
 	if (CostEffectHandle.IsValid())
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(CostEffectHandle);
 		CostEffectHandle = FActiveGameplayEffectHandle();
 	}
 	
-	KO_LOGS(GAS, Ability, Log, TEXT("(-) %s | %s ← Ended"), *Character->GetName(), *GetClass()->GetName());
+	if (ActorInfo && ActorInfo->AvatarActor.IsValid())
+	{
+		KO_LOGS(GAS, Ability, Log, TEXT("(-) %s | %s ← Ended%s"),
+			*ActorInfo->AvatarActor->GetName(), 
+			*GetClass()->GetName(),
+			bWasCancelled ? TEXT(" (Cancelled)") : TEXT("")
+		);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

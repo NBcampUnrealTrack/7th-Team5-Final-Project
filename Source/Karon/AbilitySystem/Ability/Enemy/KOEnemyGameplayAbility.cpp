@@ -24,7 +24,6 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		//Commit Failed
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -71,45 +70,45 @@ void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEve
 	
 	ApplyHitEffects(&HitGameplayEventData);
 	SendAttackEventsToTarget(&HitGameplayEventData);
-
-	const UObject* RawTarget = HitGameplayEventData.Target;
-	AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
-	if (!TargetActor) return;
-
-	UAbilitySystemComponent* SourceASC = GetASC();
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	if (!SourceASC || !TargetASC) return;
-
-	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-	Context.AddSourceObject(GetAvatarCharacter());
 	
-	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
-
-	const UKOCombatSet* CombatSet = GetCombatSet();
-
-	if (SpecHandle.IsValid() && IsValid(CombatSet))
-	{
-		//AssetTag 로 검색
-		const FGameplayTagContainer& AssetTags = GetAssetTags();
-		FGameplayTag AssetTag = AssetTags.GetByIndex(0);
-
-		//공격자의 총합 데미지
-		AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarCharacter());
-		float SkillMultiplier = 1.f;
-		UKOEnemyDataSubsystem* SkillSubsystem = UKOEnemyDataSubsystem::Get(this);
-		
-		if (SkillSubsystem && AssetTag != FGameplayTag::EmptyTag && Enemy)
-		{
-			FEnemySkillInfo SkillInfo;
-			SkillInfo.SkillTag = AssetTag;
-			SkillInfo.EnemyNameTag = Enemy->EnemyNameTag;
-			SkillMultiplier = SkillSubsystem->GetSkillData(SkillInfo);
-		}
-		
-		float SkillFinalDamage = CombatSet->GetAttackPower() * SkillMultiplier;
-
-		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, SkillFinalDamage);
-		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
-	}
+	// const UObject* RawTarget = HitGameplayEventData.Target;
+	// AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));
+	// if (!TargetActor) return;
+	//
+	// UAbilitySystemComponent* SourceASC = GetASC();
+	// UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	// if (!SourceASC || !TargetASC) return;
+	//
+	// FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	// Context.AddSourceObject(GetAvatarCharacter());
+	//
+	// FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, Context);
+	//
+	// const UKOCombatSet* CombatSet = GetCombatSet();
+	//
+	// if (SpecHandle.IsValid() && IsValid(CombatSet))
+	// {
+	// 	//AssetTag 로 검색
+	// 	const FGameplayTagContainer& AssetTags = GetAssetTags();
+	// 	FGameplayTag AssetTag = AssetTags.GetByIndex(0);
+	//
+	// 	//공격자의 총합 데미지
+	// 	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarCharacter());
+	// 	float SkillMultiplier = 1.f;
+	// 	UKOEnemyDataSubsystem* SkillSubsystem = UKOEnemyDataSubsystem::Get(this);
+	// 	
+	// 	if (SkillSubsystem && AssetTag != FGameplayTag::EmptyTag && Enemy)
+	// 	{
+	// 		FEnemySkillInfo SkillInfo;
+	// 		SkillInfo.SkillTag = AssetTag;
+	// 		SkillInfo.EnemyNameTag = Enemy->EnemyNameTag;
+	// 		SkillMultiplier = SkillSubsystem->GetSkillData(SkillInfo);
+	// 	}
+	// 	
+	// 	float SkillFinalDamage = CombatSet->GetAttackPower() * SkillMultiplier;
+	//
+	// 	SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, SkillFinalDamage);
+	// 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	// }
 	
 }
