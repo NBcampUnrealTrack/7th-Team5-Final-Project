@@ -106,6 +106,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float BossLockOnCameraPitch = 20.f;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	FVector LockOnCameraOffset = FVector(100.f, 0.f, 0.f); // Y=오른쪽, Z=위
+
+	
+	FVector DefaultCameraOffset = FVector::ZeroVector; // 락온 해제 시 복구용
+	
 	// 하드코딩 방지를 위한 액터 태그 변수 노출
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	FName EnemyActorTag = FName("Enemy");

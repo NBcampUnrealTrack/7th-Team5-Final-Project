@@ -6,6 +6,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/OverlapResult.h"
@@ -124,8 +125,14 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 		MoveComp->bOrientRotationToMovement = false;
 	}
  
+	// 스프링암 오프셋 적용
+	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+	{
+		DefaultCameraOffset = SpringArm->SocketOffset;
+		SpringArm->SocketOffset = LockOnCameraOffset;
+	}
+	
 	ApplyLockOnGameplayTag(true);
- 
 	StartCameraUpdate();
 	StartLockOnDistanceCheck();
 }
@@ -148,6 +155,10 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 		{
 			MoveComp->bOrientRotationToMovement = true;
 		}
+		
+		// 스프링암 오프셋 복구
+		if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+			SpringArm->SocketOffset = DefaultCameraOffset;
 	}
 	
 	ApplyLockOnGameplayTag(false);
