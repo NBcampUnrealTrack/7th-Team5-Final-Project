@@ -16,11 +16,12 @@ UKOGA_HitReact::UKOGA_HitReact()
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
 	
-	// 사망 / 무적 / 슈퍼아머 중 진입차단 
+	// 사망 / 무적 / 슈퍼아머 / 패리그로기 중 진입차단 
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Dead);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Guard_Blocking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Invincible);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_SuperArmor);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Enemy_Parried);
 }
 
 void UKOGA_HitReact::ActivateAbility(

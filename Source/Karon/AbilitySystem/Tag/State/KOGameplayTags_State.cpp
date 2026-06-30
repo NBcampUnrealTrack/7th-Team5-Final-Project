@@ -37,7 +37,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attack_FirstSkill, "State.Enemy.Attack.FirstSkill");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Hit_Normal, "State.Enemy.Hit.Normal");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Dead, "State.Enemy.Dead");
-	
+	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Parried, "State.Enemy.Parried");
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GroundSlap, "State.BossCH01.Attack.GroundSlap");
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_DoubleSweep, "State.BossCH01.Attack.DoubleSweep");

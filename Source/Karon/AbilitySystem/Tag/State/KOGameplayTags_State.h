@@ -49,6 +49,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Parried);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_BossCH01_Attack_GroundSlap);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_BossCH01_Attack_DoubleSweep);
