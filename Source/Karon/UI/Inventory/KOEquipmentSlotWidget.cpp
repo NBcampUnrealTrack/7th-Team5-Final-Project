@@ -5,21 +5,23 @@
 #include "InputCoreTypes.h"
 
 #include "Component/Inventory/KOInventoryComponent.h"
-#include "Game/KOPlayerController.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Data/KODataTableTypes.h"
+#include "Data/Equipment/KOWeaponDefinition.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 void UKOEquipmentSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	ResolveInventoryComponentIfNeeded();
-	RefreshVisual();
+	SyncFromEquipmentComponent();
 }
 
 void UKOEquipmentSlotWidget::SetInventoryComponent(UKOInventoryComponent* InInventory)
@@ -51,6 +53,48 @@ void UKOEquipmentSlotWidget::ResolveInventoryComponentIfNeeded()
 	}
 }
 
+UKOEquipmentComponent* UKOEquipmentSlotWidget::ResolveEquipmentComponent() const
+{
+	APlayerController* PC = nullptr;
+
+	if (UWorld* World = GetWorld())
+	{
+		PC = UGameplayStatics::GetPlayerController(World, 0);
+	}
+
+	if (!PC)
+	{
+		PC = GetOwningPlayer();
+	}
+
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[EquipmentSlotUI] ResolveEquipmentComponent 실패: PC NULL"));
+		return nullptr;
+	}
+
+	APawn* Pawn = PC->GetPawn();
+	if (!Pawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[EquipmentSlotUI] ResolveEquipmentComponent 실패: Pawn NULL"));
+		return nullptr;
+	}
+
+	UKOEquipmentComponent* EquipmentComponent =
+		Pawn->FindComponentByClass<UKOEquipmentComponent>();
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[EquipmentSlotUI] ResolveEquipmentComponent PC=%s Pawn=%s Equipment=%s"),
+		*GetNameSafe(PC),
+		*GetNameSafe(Pawn),
+		*GetNameSafe(EquipmentComponent)
+	);
+
+	return EquipmentComponent;
+}
+
 bool UKOEquipmentSlotWidget::CanAcceptItem(FName ItemId) const
 {
 	if (ItemId.IsNone())
@@ -77,7 +121,91 @@ bool UKOEquipmentSlotWidget::CanAcceptItem(FName ItemId) const
 		return false;
 	}
 
-	return EquipmentRow->SlotType == SlotType;
+	if (EquipmentRow->SlotType != SlotType)
+	{
+		return false;
+	}
+
+	if (SlotType == EKOEquipmentSlotType::Weapon)
+	{
+		if (EquipmentRow->WeaponDefinition.IsNull())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void UKOEquipmentSlotWidget::SyncFromEquipmentComponent()
+{
+	UKOEquipmentComponent* EquipmentComponent = ResolveEquipmentComponent();
+	if (!EquipmentComponent)
+	{
+		EquippedItemId = NAME_None;
+		RefreshVisual();
+		return;
+	}
+
+	if (SlotType == EKOEquipmentSlotType::Weapon)
+	{
+		EquippedItemId = EquipmentComponent->GetCurrentWeaponItemId();
+	}
+
+	RefreshVisual();
+}
+
+
+bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
+{
+	UKOEquipmentComponent* EquipmentComponent = ResolveEquipmentComponent();
+	if (!EquipmentComponent)
+	{
+		return false;
+	}
+
+	if (SlotType == EKOEquipmentSlotType::Weapon)
+	{
+		if (EquippedItemId.IsNone())
+		{
+			EquipmentComponent->UnequipWeapon();
+			return true;
+		}
+
+		UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+		if (!LoadSub)
+		{
+			return false;
+		}
+
+		UKOWeaponDefinition* WeaponDef =
+			LoadSub->ResolveWeaponDefinitionByItemId(EquippedItemId);
+
+		if (!WeaponDef)
+		{
+			return false;
+		}
+
+		const bool bEquipped = EquipmentComponent->EquipWeaponFromItem(EquippedItemId, WeaponDef);
+
+		if (!bEquipped)
+		{
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("[EquipmentSlot] EquipWeaponFromItem 실패: ItemId=%s, WeaponDef=%s"),
+				*EquippedItemId.ToString(),
+				*GetNameSafe(WeaponDef)
+			);
+
+			return false;
+		}
+
+		return true;
+	}
+
+	// 방어구는 나중에 여기서 방어력/스탯 컴포넌트에 반영
+	return true;
 }
 
 bool UKOEquipmentSlotWidget::NativeOnDrop(
@@ -130,6 +258,8 @@ bool UKOEquipmentSlotWidget::NativeOnDrop(
     {
         return false;
     }
+	
+	const FName PreviousEquippedItemId = EquippedItemId;
 
 	// 아이템 교체
     if (!EquippedItemId.IsNone())
@@ -144,13 +274,18 @@ bool UKOEquipmentSlotWidget::NativeOnDrop(
 
         EquippedItemId = NAME_None;
     }
+	
+	EquippedItemId = DraggedItemId;
 
-    EquippedItemId = DraggedItemId;
+	if (!ApplyEquipmentToComponent())
+	{
+		EquippedItemId = PreviousEquippedItemId;
+		ItemDragOperation->Source->Restore(DraggedItemId, Extracted);
+		return false;
+	}
+	RefreshVisual();
 
-    NotifyEquipmentChanged();
-    RefreshVisual();
-
-    return true;
+	return true;
 }
 
 FReply UKOEquipmentSlotWidget::NativeOnMouseButtonDown(
@@ -190,28 +325,12 @@ bool UKOEquipmentSlotWidget::UnequipItem()
         return false;
     }
 
-    EquippedItemId = NAME_None;
+	EquippedItemId = NAME_None;
 
-    NotifyEquipmentChanged();
-    RefreshVisual();
+	ApplyEquipmentToComponent();
+	RefreshVisual();
 
-    return true;
-}
-
-void UKOEquipmentSlotWidget::NotifyEquipmentChanged()
-{
-    if (SlotType == EKOEquipmentSlotType::Weapon)
-    {
-        if (AKOPlayerController* PC = Cast<AKOPlayerController>(GetOwningPlayer()))
-        {
-            PC->OnWeaponCreate.Broadcast();
-        }
-    }
-	
-	else
-	{
-		// 방어력 올리기
-	}
+	return true;
 }
 
 void UKOEquipmentSlotWidget::RefreshVisual()

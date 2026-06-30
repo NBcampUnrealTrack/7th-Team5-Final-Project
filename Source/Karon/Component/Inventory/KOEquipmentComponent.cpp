@@ -5,6 +5,7 @@
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "Items/Equipment/KOWeaponBase.h"
 #include "Utility/Log/KOLogManager.h"
+#include "GameplayTagContainer.h"
 
 
 UKOEquipmentComponent::UKOEquipmentComponent()
@@ -75,7 +76,23 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 
 
 void UKOEquipmentComponent::UnequipWeapon()
-{
+{	
+	// 1. 무기 정보가 살아 있을 때 먼저 애니메이션을 Holster 상태로 돌린다.
+	if (CurrentWeaponConfig)
+	{
+		SetWeaponSlot(EWeaponSlot::Holster);
+	}
+	else
+	{
+		CurrentWeaponSlot = EWeaponSlot::Holster;
+
+		if (SkeletalMesh && DefaultAnimLayerClass)
+		{
+			SkeletalMesh->LinkAnimClassLayers(DefaultAnimLayerClass);
+		}
+	}
+	
+	// 2. GAS 무기 능력 제거
 	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
 	if (Character)
 	{
@@ -86,12 +103,19 @@ void UKOEquipmentComponent::UnequipWeapon()
 		}
 	}
 
+	// 3. 무기 액터 제거
 	if (CurrentWeaponActor)
 	{
 		CurrentWeaponActor->Destroy();
 		CurrentWeaponActor = nullptr;
 	}
-	SetWeaponSlot(CurrentWeaponSlot = EWeaponSlot::Holster); 
+	
+	// 4. 마지막에 무기 상태를 비운다.
+	CurrentWeaponConfig = nullptr;
+	CurrentWeaponItemId = NAME_None;
+	CurrentWeaponSlot = EWeaponSlot::Holster;
+	
+	SyncWeaponDrawnTagToASC();
 }
 
 void UKOEquipmentComponent::DrawWeapon()
@@ -119,28 +143,136 @@ void UKOEquipmentComponent::SheatheWeapon()
 	SetWeaponSlot(EWeaponSlot::Holster);
 }
 
+void UKOEquipmentComponent::ToggleWeaponDrawState()
+{
+	if (!CurrentWeaponActor || !CurrentWeaponConfig)
+	{
+		return;
+	}
+
+	if (CurrentWeaponSlot == EWeaponSlot::Hand)
+	{
+		SheatheWeapon();
+	}
+	else
+	{
+		DrawWeapon();
+	}
+}
+
+bool UKOEquipmentComponent::EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def)
+{
+	if (InWeaponItemId.IsNone() || !Def)
+	{
+		return false;
+	}
+
+	EquipWeapon(Def);
+
+	if (!CurrentWeaponActor || CurrentWeaponConfig != Def)
+	{
+		SyncWeaponDrawnTagToASC();
+		return false;
+	}
+
+	CurrentWeaponItemId = InWeaponItemId;
+
+	SyncWeaponDrawnTagToASC();
+
+	return true;
+}
+
+bool UKOEquipmentComponent::RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot)
+{
+	if (InWeaponItemId.IsNone() || !Def)
+	{
+		UnequipWeapon();
+		SyncWeaponDrawnTagToASC();
+		return false;
+	}
+
+	EquipWeapon(Def);
+
+	CurrentWeaponItemId = InWeaponItemId;
+	
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[EquipmentLoad] Owner=%s Component=%s Ptr=%p ItemId=%s"),
+		*GetNameSafe(GetOwner()),
+		*GetNameSafe(this),
+		this,
+		*CurrentWeaponItemId.ToString()
+	);
+
+	if (SavedSlot == EWeaponSlot::Hand)
+	{
+		DrawWeapon();
+	}
+	else
+	{
+		SheatheWeapon();
+	}
+
+	SyncWeaponDrawnTagToASC();
+	return true;
+}
+
 void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 {
-	CurrentWeaponSlot = NewSlot; 
-	
-	if (!SkeletalMesh) return;
-	
-	TSubclassOf<UAnimInstance> NewAnimLayer; 
-	
-	if (CurrentWeaponConfig)
+	CurrentWeaponSlot = NewSlot;
+
+	if (SkeletalMesh)
 	{
-		if (NewSlot == EWeaponSlot::Hand)
+		TSubclassOf<UAnimInstance> NewAnimLayer;
+
+		if (CurrentWeaponConfig)
 		{
-			NewAnimLayer = CurrentWeaponConfig->WeaponABP_Carrying ? 
-				CurrentWeaponConfig->WeaponABP_Carrying : nullptr; 
+			if (NewSlot == EWeaponSlot::Hand)
+			{
+				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Carrying
+					? CurrentWeaponConfig->WeaponABP_Carrying
+					: nullptr;
+			}
+			else
+			{
+				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Sheathed
+					? CurrentWeaponConfig->WeaponABP_Sheathed
+					: nullptr;
+			}
 		}
-		else
-		{
-			NewAnimLayer = CurrentWeaponConfig->WeaponABP_Sheathed ? 
-				CurrentWeaponConfig->WeaponABP_Sheathed : nullptr; 
-		}
+
+		NewAnimLayer = NewAnimLayer ? NewAnimLayer : DefaultAnimLayerClass;
+		SkeletalMesh->LinkAnimClassLayers(NewAnimLayer);
 	}
-	NewAnimLayer = NewAnimLayer ? NewAnimLayer : DefaultAnimLayerClass; 
-	
-	SkeletalMesh->LinkAnimClassLayers(NewAnimLayer);
+
+	SyncWeaponDrawnTagToASC();
+}
+
+void UKOEquipmentComponent::SyncWeaponDrawnTagToASC()
+{
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	const FGameplayTag WeaponDrawnTag =
+		FGameplayTag::RequestGameplayTag(TEXT("State.Character.WeaponDrawn"));
+
+	const bool bWeaponDrawn =
+		CurrentWeaponActor != nullptr &&
+		CurrentWeaponConfig != nullptr &&
+		CurrentWeaponSlot == EWeaponSlot::Hand;
+
+	ASC->SetLooseGameplayTagCount(
+		WeaponDrawnTag,
+		bWeaponDrawn ? 1 : 0
+	);
 }

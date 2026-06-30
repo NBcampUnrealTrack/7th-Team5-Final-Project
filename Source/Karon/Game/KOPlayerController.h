@@ -85,7 +85,11 @@ private:
 	// 건설 모드 변경 메시지 수신 → BuildIMC 추가/제거.
 	UFUNCTION()
 	void OnBuildModeChanged(FGameplayTag Channel, const FInstancedStruct& Payload);
-
+	
+	// 저장 파일이 있을 경우
+	void LoadOrCreateNewGame();
+	void GiveStarterItems();
+	
 public:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputAction> IAWeapon; 

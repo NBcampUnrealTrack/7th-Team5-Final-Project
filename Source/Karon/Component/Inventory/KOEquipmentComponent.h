@@ -53,6 +53,25 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Equipment")
 	UKOWeaponDefinition* GetCurrentWeaponConfig() const { return CurrentWeaponConfig; }
 	
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	void ToggleWeaponDrawState();
+	
+	// 세이브 로드
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	FName CurrentWeaponItemId = NAME_None;
+
+	UFUNCTION(BlueprintPure, Category = "Equipment")
+	FName GetCurrentWeaponItemId() const { return CurrentWeaponItemId; }
+
+	UFUNCTION(BlueprintPure, Category = "Equipment")
+	EWeaponSlot GetCurrentWeaponSlot() const { return CurrentWeaponSlot; }
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	bool EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def);
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	bool RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot);
+	
 protected:
 	void SetWeaponSlot(EWeaponSlot NewSlot);
 	
@@ -77,4 +96,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UAnimInstance> DefaultAnimLayerClass;
+	
+private:
+	void SyncWeaponDrawnTagToASC();
 };

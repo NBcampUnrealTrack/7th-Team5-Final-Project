@@ -9,6 +9,7 @@ class UImage;
 class UDragDropOperation;
 class UKOInventoryComponent;
 class UKOItemTooltipWidget;
+class UKOEquipmentComponent;
 
 UCLASS()
 class KARON_API UKOEquipmentSlotWidget : public UUserWidget
@@ -22,6 +23,10 @@ public:
     bool UnequipItem();
 
     FName GetEquippedItemId() const { return EquippedItemId; }
+    
+    /** EquipmentComponent 상태를 UI 슬롯에 반영 */
+    UFUNCTION(BlueprintCallable, Category = "KO|EquipmentSlot")
+    void SyncFromEquipmentComponent();
 
 protected:
     virtual void NativeConstruct() override;
@@ -55,10 +60,13 @@ protected:
 
 private:
     void ResolveInventoryComponentIfNeeded();
+    
+    UKOEquipmentComponent* ResolveEquipmentComponent() const;
 
     bool CanAcceptItem(FName ItemId) const;
-
-    void NotifyEquipmentChanged();
+    
+    // 무기 장착/해제
+    bool ApplyEquipmentToComponent();
 
     void RefreshVisual();
 

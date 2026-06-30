@@ -9,6 +9,7 @@
 class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
+class UKOWeaponDefinition;
 
 /**
  * UKOLoadSubsystem
@@ -69,6 +70,9 @@ public:
     
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
+    
+    /** WeaponDefinition Row의 ItemId 소프트 레퍼런스를 동기 로드 */
+    UKOWeaponDefinition* ResolveWeaponDefinitionByItemId(FName ItemId) const;
     
 private:
     void LoadAll();

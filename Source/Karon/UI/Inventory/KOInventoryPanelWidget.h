@@ -9,6 +9,7 @@
 class UKOWeaponSlotWidget;
 class UKOInventoryWidget;
 class UKOInventoryComponent;
+class UKOEquipmentSlotWidget;
 
 /**
  * 인벤토리 화면 컨테이너. CommonActivatableWidget 스택에 push/pop되는 단위.
@@ -28,6 +29,9 @@ public:
     void SetInventoryComponent(UKOInventoryComponent* InComponent);
 
     UKOInventoryWidget* GetInventoryWidget() const { return InventoryWidget; }
+    
+    UFUNCTION(BlueprintCallable, Category = "KO|UI|Inventory")
+    void SyncEquipmentSlotsFromEquipmentComponent();
 
 protected:
     virtual void NativeConstruct() override;

@@ -3,6 +3,8 @@
 
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "UI/Inventory/KOInventoryWidget.h"
+#include "Blueprint/WidgetTree.h"
+#include "UI/Inventory/KOEquipmentSlotWidget.h"
 
 UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 {
@@ -20,6 +22,30 @@ void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InCom
     }
 }
 
+void UKOInventoryPanelWidget::SyncEquipmentSlotsFromEquipmentComponent()
+{
+    if (!WidgetTree)
+    {
+        return;
+    }
+
+    TArray<UWidget*> Widgets;
+    WidgetTree->GetAllWidgets(Widgets);
+
+    for (UWidget* Widget : Widgets)
+    {
+        UKOEquipmentSlotWidget* EquipmentSlot =
+            Cast<UKOEquipmentSlotWidget>(Widget);
+
+        if (!EquipmentSlot)
+        {
+            continue;
+        }
+
+        EquipmentSlot->SyncFromEquipmentComponent();
+    }
+}
+
 void UKOInventoryPanelWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -28,6 +54,8 @@ void UKOInventoryPanelWidget::NativeConstruct()
     {
         InventoryWidget->OnSlotClicked.AddDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
     }
+    
+    SyncEquipmentSlotsFromEquipmentComponent();
 }
 
 void UKOInventoryPanelWidget::NativeDestruct()

@@ -11,6 +11,7 @@
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/GameInstance.h"
@@ -76,177 +77,8 @@ void AKOPlayerController::BeginPlay()
 		GetWorld(),
 		KOGameplayTags::Data_Message_Build_ModeChanged,
 		BuildModeChangedCallback);
-
-	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
-	{
-	    FoundInventoryComponent ->TryAddItem(
-    			EKOSlotKind::Factory,
-    			TEXT("Boiler"),
-    			1
-    		);
-			FoundInventoryComponent ->TryAddItem(
-    			EKOSlotKind::Factory,
-    			TEXT("UndergroundMiningModule"),
-    			1
-    		);
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("MiningPipe"),
-			50
-		);
-				FoundInventoryComponent ->TryAddItem(
-        			EKOSlotKind::Factory,
-        			TEXT("GearPress"),
-        			1
-        		);
-        				FoundInventoryComponent ->TryAddItem(
-                			EKOSlotKind::Item,
-                			TEXT("Gear"),
-                			14
-                		);
-	#if !UE_BUILD_SHIPPING
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("ModuleDismantler"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("Boiler"),
-			1
-		);
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("AlloyMaker"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("GearPress"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("PipeWorkshop"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("UndergroundMiningModule"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("CornerBelt"),
-			20
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("StraightBelt"),
-			20
-		);
-		
-		// 아이템 -----------------------------------------
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BasicModule"),
-			50
-		);
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Coal"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("CoalDust"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Copper"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Tin"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Bronze"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BronzePlate"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("DamagedMiningPipe"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("MiningPipe"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Gear"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Sword"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Head"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("UpperBody"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("LowerBody"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Shoes"),
-			1
-		);
-#endif	
-	}
-
+	
+	GiveStarterItems();
 
 	FGameplayTag Channel = KOGameplayTags::Event_DropItem;		
 	FGameplayMessageCallback Callback ;
@@ -291,6 +123,226 @@ void AKOPlayerController::OnBuildModeChanged(FGameplayTag /*Channel*/, const FIn
 	{
 		ExitBuildIMC();
 	}
+}
+
+void AKOPlayerController::LoadOrCreateNewGame()
+{
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (SaveSubsystem->LoadCurrentGame())
+		{
+			return;
+		}
+	}
+
+	GiveStarterItems();
+}
+
+void AKOPlayerController::GiveStarterItems()
+{
+	UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>();
+
+	if (!FoundInventoryComponent)
+	{
+		return;
+	}
+	
+    FoundInventoryComponent ->TryAddItem(
+    	EKOSlotKind::Factory,
+    	TEXT("Boiler"),
+    	1
+    );
+	FoundInventoryComponent ->TryAddItem(
+    	EKOSlotKind::Factory,
+    	TEXT("UndergroundMiningModule"),
+    	1
+    );
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("MiningPipe"),
+		50
+	);
+	FoundInventoryComponent ->TryAddItem(
+        EKOSlotKind::Factory,
+        TEXT("GearPress"),
+        1
+    );
+    FoundInventoryComponent ->TryAddItem(
+        EKOSlotKind::Item,
+        TEXT("Gear"),
+        14
+    );
+#if !UE_BUILD_SHIPPING
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("ModuleDismantler"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("Boiler"),
+		1
+	);
+
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("AlloyMaker"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("GearPress"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("PipeWorkshop"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("UndergroundMiningModule"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("CornerBelt"),
+		20
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("StraightBelt"),
+		20
+	);
+	
+	// 아이템 -----------------------------------------
+
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("BasicModule"),
+		50
+	);
+
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Coal"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("CoalDust"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Copper"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("CopperPlate"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Tin"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Bronze"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("BronzePlate"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("DamagedMiningPipe"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("MiningPipe"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Gear"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Sword"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Head"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("UpperBody"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("LowerBody"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Shoes"),
+		1
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HerbSeed"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Herb"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HerbJuice"),
+		50
+	);
+	
+	FoundInventoryComponent ->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HealingPotion"),
+		50
+	);
+#endif	
 }
 
 void AKOPlayerController::SetupInputComponent()
@@ -449,10 +501,10 @@ void AKOPlayerController::SetupInputComponent()
 		);
 		
 		KOIC->BindAction(
-		IAWeapon,
-		ETriggerEvent::Started,
-		this,
-		&ThisClass::Input_Weapon
+			IAWeapon,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_Weapon
 		);
 	}
 }

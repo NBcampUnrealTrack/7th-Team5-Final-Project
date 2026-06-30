@@ -13,6 +13,7 @@ class UGameplayEffect;
 class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
+class UKOWeaponDefinition;
 
 USTRUCT(BlueprintType)
 struct KARON_API FKOBuildMenuQuery
@@ -193,6 +194,10 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     /** 이 장비가 들어갈 장비 슬롯 타입 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
     EKOEquipmentSlotType SlotType = EKOEquipmentSlotType::Weapon;
+    
+    /** 장비 관련 데이터 에셋 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Weapon")
+    TSoftObjectPtr<UKOWeaponDefinition> WeaponDefinition;
 
     /** 제작에 필요한 재료 */
    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")

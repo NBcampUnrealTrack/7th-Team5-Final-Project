@@ -3,6 +3,7 @@
 
 #include "Building/KOBaseBuilding.h"
 #include "Data/KODataRegistrySettings.h"
+#include "Data/Equipment/KOWeaponDefinition.h"
 #include "Engine/DataTable.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
@@ -50,6 +51,7 @@ void UKOLoadSubsystem::Deinitialize()
     ResolvedFactoryIcons.Empty();
     ResolvedSkillIcons.Empty();
     LoadedTables.Empty();
+    ResolvedItemMeshes.Empty();
 
     Super::Deinitialize();
 }
@@ -350,6 +352,47 @@ UClass* UKOLoadSubsystem::ResolveBuildingClass(FName FactoryId) const
 
     ResolvedBuildingClasses.Add(FactoryId, Loaded);
     return Loaded;
+}
+
+UKOWeaponDefinition* UKOLoadSubsystem::ResolveWeaponDefinitionByItemId(FName ItemId) const
+{
+    if (ItemId.IsNone())
+    {
+        return nullptr;
+    }
+
+    const FKOItemRow* ItemRow = FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        UE_LOG(LogKOLoad, Warning, TEXT("[LoadSubsystem] ItemRow 없음: %s"), *ItemId.ToString());
+        return nullptr;
+    }
+
+    const FKOEquipmentRow* EquipmentRow =
+        FindEquipmentRowByItemTag(ItemRow->ItemTag);
+
+    if (!EquipmentRow)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("[LoadSubsystem] EquipmentRow 없음: ItemId=%s, ItemTag=%s"),
+            *ItemId.ToString(),
+            *ItemRow->ItemTag.ToString()
+        );
+        return nullptr;
+    }
+
+    if (EquipmentRow->SlotType != EKOEquipmentSlotType::Weapon)
+    {
+        return nullptr;
+    }
+
+    if (EquipmentRow->WeaponDefinition.IsNull())
+    {
+        UE_LOG(LogKOLoad, Warning, TEXT("[LoadSubsystem] WeaponDefinition 미설정: %s"), *ItemId.ToString());
+        return nullptr;
+    }
+
+    return EquipmentRow->WeaponDefinition.LoadSynchronous();
 }
 
 void UKOLoadSubsystem::GetAllItemIds(TArray<FName>& Out) const
