@@ -1,5 +1,6 @@
 #include "KOGA_Utility_LockOn.h"
 #include "Character/Hero/KOHeroCharacter.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
@@ -174,9 +175,6 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     if (!OwnerChar) return nullptr;
 
     APlayerController* PC = Cast<APlayerController>(OwnerChar->GetController());
-    /*FVector CameraForward = PC
-        ? PC->GetControlRotation().Vector()
-        : OwnerChar->GetActorForwardVector();*/
 
     TArray<FOverlapResult> OverlapResults;
     FCollisionShape Sphere = FCollisionShape::MakeSphere(SearchRadius);
@@ -208,6 +206,18 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
         AActor* HitActor = Result.GetActor();
         if (!IsValid(HitActor)) continue;
 
+    	// 죽은 적은 후보에서 제외 (시체에 다시 락온되는 것 방지)
+    	if (IAbilitySystemInterface* DeadIface = Cast<IAbilitySystemInterface>(HitActor))
+    	{
+    		if (UAbilitySystemComponent* DeadASC = DeadIface->GetAbilitySystemComponent())
+    		{
+    			if (DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Enemy_Dead) ||
+					DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Dead))
+    			{
+    				continue;
+    			}
+    		}
+    	}
         // 1. 일반 액터 태그 검사
         bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag);
         bool bIsBoss  = HitActor->ActorHasTag(FName("Boss"));
@@ -228,9 +238,6 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
    
         if (!bIsEnemy && !bIsBoss) continue;
 
-        //FVector ToTarget = (HitActor->GetActorLocation() - OwnerChar->GetActorLocation()).GetSafeNormal();
-
-        //float Dot      = FVector::DotProduct(CameraForward, ToTarget);
         float NormDist = FVector::Dist(OwnerChar->GetActorLocation(), HitActor->GetActorLocation()) / SearchRadius;
         float Score    = 1.f - NormDist;
 
@@ -254,14 +261,6 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
 // ─────────────────────────────────────────────────────────────────────
 bool UKOGA_Utility_LockOn::IsTargetValid() const
 {
-	// 1. 약참조 유효성 체크
-	/*if (!LockedTarget.IsValid())
-	{
-		if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Red, TEXT("[Valid] Target 소멸됨 (null)"));
-		return false;
-	}
-
-	AActor* TargetActor = LockedTarget.Get();*/
 	if (!LockedTarget.IsValid()) return false;
 
 	AActor* TargetActor = LockedTarget.Get();
@@ -361,25 +360,9 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 
 	FRotator TargetRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, GetTargetSocketLocation());
 	
-	// 보스 타겟이면 더 높은 시야각(덜 내려다보는 각도) 사용
-	bool bTargetIsBoss = false;
-	if (LockedTarget.IsValid())
-	{
-		AActor* Target = LockedTarget.Get();
-		bTargetIsBoss = Target->ActorHasTag(BossActorTag);
-
-		if (!bTargetIsBoss)
-		{
-			if (IAbilitySystemInterface* ASCIface = Cast<IAbilitySystemInterface>(Target))
-			{
-				if (UAbilitySystemComponent* TargetASC = ASCIface->GetAbilitySystemComponent())
-				{
-					bTargetIsBoss = TargetASC->HasMatchingGameplayTag(
-						FGameplayTag::RequestGameplayTag(FName("State.Boss")));
-				}
-			}
-		}
-	}
+	
+	const bool bTargetIsBoss =
+		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
 	
 	TargetRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
 	//TargetRot.Pitch = LockOnCameraPitch; // 하드코딩 제거된 변수 사용

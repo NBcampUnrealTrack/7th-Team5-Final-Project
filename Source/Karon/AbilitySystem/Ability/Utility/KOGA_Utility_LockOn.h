@@ -104,10 +104,10 @@ private:
  
 	// 보스 타겟 락온 시 사용할 별도 카메라 Pitch (보스는 덩치가 크므로 더 위에서 봄)
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
-	float BossLockOnCameraPitch = 20.f;
+	float BossLockOnCameraPitch = 15.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
-	FVector LockOnCameraOffset = FVector(100.f, 0.f, 0.f); // Y=오른쪽, Z=위
+	FVector LockOnCameraOffset = FVector(200.f, 0.f, 0.f); // Y=오른쪽, Z=위
 
 	
 	FVector DefaultCameraOffset = FVector::ZeroVector; // 락온 해제 시 복구용
