@@ -163,9 +163,9 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     if (!OwnerChar) return nullptr;
 
     APlayerController* PC = Cast<APlayerController>(OwnerChar->GetController());
-    FVector CameraForward = PC
+    /*FVector CameraForward = PC
         ? PC->GetControlRotation().Vector()
-        : OwnerChar->GetActorForwardVector();
+        : OwnerChar->GetActorForwardVector();*/
 
     TArray<FOverlapResult> OverlapResults;
     FCollisionShape Sphere = FCollisionShape::MakeSphere(SearchRadius);
@@ -217,7 +217,7 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
    
         if (!bIsEnemy && !bIsBoss) continue;
 
-        FVector ToTarget = (HitActor->GetActorLocation() - OwnerChar->GetActorLocation()).GetSafeNormal();
+        //FVector ToTarget = (HitActor->GetActorLocation() - OwnerChar->GetActorLocation()).GetSafeNormal();
 
         //float Dot      = FVector::DotProduct(CameraForward, ToTarget);
         float NormDist = FVector::Dist(OwnerChar->GetActorLocation(), HitActor->GetActorLocation()) / SearchRadius;
@@ -244,13 +244,17 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
 bool UKOGA_Utility_LockOn::IsTargetValid() const
 {
 	// 1. 약참조 유효성 체크
-	if (!LockedTarget.IsValid())
+	/*if (!LockedTarget.IsValid())
 	{
 		if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Red, TEXT("[Valid] Target 소멸됨 (null)"));
 		return false;
 	}
 
+	AActor* TargetActor = LockedTarget.Get();*/
+	if (!LockedTarget.IsValid()) return false;
+
 	AActor* TargetActor = LockedTarget.Get();
+	ACharacter* OwnerChar = GetAvatarCharacter();
 
 	// 2. GAS 사망 태그 여부 체크
 	if (IAbilitySystemInterface* ASCIface = Cast<IAbilitySystemInterface>(TargetActor))
@@ -267,6 +271,20 @@ bool UKOGA_Utility_LockOn::IsTargetValid() const
 		}
 	}
 
+	// LOS 체크 — 타겟 소켓 위치로 LineTrace
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(OwnerChar);
+	Params.AddIgnoredActor(TargetActor);
+
+	FVector Start = OwnerChar->GetActorLocation();
+	FVector End   = GetTargetSocketLocation();
+
+	bool bBlocked = GetWorld()->LineTraceSingleByChannel(
+		HitResult, Start, End, ECC_Visibility, Params);
+
+	if (bBlocked) return false;
+	
 	// 3. 거리 체크
 	float Distance = FVector::Dist(GetAvatarCharacter()->GetActorLocation(), TargetActor->GetActorLocation());
 	return Distance <= LockOnBreakDistance;
