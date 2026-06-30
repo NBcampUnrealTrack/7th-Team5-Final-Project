@@ -28,6 +28,13 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PressurePipe);
 	/** 압연기 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_RollingMill);
+	/** 약초 재배소 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_HerbFarm);
+	/** 착즙기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_JuicePress);
+	/** 조제기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PotionBrewer);
+	
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
@@ -38,9 +45,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource);
 	/** 가공 재료 카테고리 (BronzePlate, MiningPipe, Gear 등) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
-	/** 장비 카테고리 (BronzeSword) */
+	/** 장비 카테고리 (Sword) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Equipment);
-	
+	/** 소모품 카테고리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Consumable);
 	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
 
@@ -81,4 +89,12 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_CopperPlate);
 	/** 황 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sulfur);
-}
+	/** 약초 씨앗 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HerbSeed);
+	/** 약초 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Herb);
+	/** 약초 즙 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HerbJuice);
+	/** 회복약 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HealingPotion);
+	}

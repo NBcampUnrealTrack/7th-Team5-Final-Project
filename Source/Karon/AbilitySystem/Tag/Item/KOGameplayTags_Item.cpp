@@ -17,6 +17,10 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Factory_PressurePipe,			"Factory.PressurePipe");
 	UE_DEFINE_GAMEPLAY_TAG(Factory_RollingMill,				"Factory.RollingMill");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Factory_HerbFarm,				"Factory.HerbFarm");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_JuicePress,				"Factory.JuicePress");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_PotionBrewer,			"Factory.PotionBrewer");
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Module,   "Item.Category.Module");
@@ -24,6 +28,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Equipment,   "Item.Category.Equipment");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Consumable,   "Item.Category.Consumable");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
@@ -45,4 +50,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_BasicGunpowder, "Item.BasicGunpowder");
 	UE_DEFINE_GAMEPLAY_TAG(Item_CopperPlate, "Item.CopperPlate");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Sulfur,      "Item.Sulfur");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HerbSeed,       "Item.HerbSeed");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Herb,			"Item.Herb");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HerbJuice,      "Item.HerbJuice");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HealingPotion,  "Item.HealingPotion");
 }
