@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Component/Build/KOGridBuildComponent.h"
+#include "Data/Type/KOSkillTypes.h"
 #include "KOMessageTypes.generated.h"
 
 /**
@@ -173,6 +174,26 @@ struct FKOInteractionMessage
     
     UPROPERTY()
     bool bIsActive = true;
+};
+
+/**
+ * 스킬 퀵슬롯 배정 변경 메시지
+ * 채널: KOGameplayTags::Data_Message_Skill_QuickSlotChanged ("Data.Message.Skill.QuickSlotChanged")
+ */
+USTRUCT()
+struct FKOSkillQuickSlotChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    ESkillQuickSlotKey SlotKey = ESkillQuickSlotKey::Q;
+
+    /** 새로 배정된 스킬 이름. NAME_None이면 슬롯이 비워진 것. */
+    UPROPERTY()
+    FName SkillName = NAME_None;
+
+    UPROPERTY()
+    FGameplayTag SkillTag;
 };
 
 /**

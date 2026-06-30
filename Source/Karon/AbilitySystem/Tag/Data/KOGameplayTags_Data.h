@@ -67,4 +67,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Producer_FuelChanged);
 	/** Processor 변경 메시지 채널 (FKOProcessorChangedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Processor_Changed);
+	/** 스킬 퀵슬롯 배정 변경 메시지 채널 (FKOSkillQuickSlotChangedMessage 페이로드) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Skill_QuickSlotChanged);
 }

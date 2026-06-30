@@ -32,12 +32,25 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	FName GetSkillName() const { return SkillName; }
+	ESkillState GetCurrentState() const { return CurrentState; }
+
 protected:
 	virtual void NativeOnClicked() override;
 	virtual void NativeOnHovered() override;
 	virtual void NativeOnUnhovered() override;
 
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
+	                                  UDragDropOperation*& OutOperation) override;
+
 	void RefreshNode();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill|Drag")
+	FVector2D DragVisualSize = FVector2D(64.f, 64.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill|Drag")
+	float DragVisualOpacity = 0.85f;
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> OverlayImage;
@@ -49,9 +62,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
 	FLinearColor UnlockedColor = FLinearColor(1.f, 1.f, 1.f, 0.1f);
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
 	FName SkillName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Skill")
+	ESkillState CurrentState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
 	FGameplayTag SkillTag;
@@ -59,9 +74,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Skill")
 	TArray<FSkillCost> SkillCosts;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Skill")
-	ESkillState CurrentState;
-
 private:
 	TWeakObjectPtr<UKOSkillSubsystem> CachedSkillSubsystem;
+
+	bool CanDragThisSkill() const;
 };

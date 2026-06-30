@@ -21,6 +21,15 @@ enum class ESkillExecutionType : uint8
 	PassiveStat		 // 스탯 증가
 };
 
+UENUM(BlueprintType)
+enum class ESkillQuickSlotKey : uint8
+{
+	Q UMETA(DisplayName = "Q"),
+	E UMETA(DisplayName = "E"),
+	R UMETA(DisplayName = "R"),
+	V UMETA(DisplayName = "V"),
+};
+
 USTRUCT(BlueprintType)
 struct FSkillCost
 {

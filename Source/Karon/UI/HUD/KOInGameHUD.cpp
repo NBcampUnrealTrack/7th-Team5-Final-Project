@@ -4,6 +4,9 @@
 #include "Character/Hero/KOHeroCharacter.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "Utility/Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
 
 #include "Components/ProgressBar.h"
 
@@ -29,9 +32,31 @@ void UKOInGameHUD::SetBuildKeyGuideMode(bool bBuildMode)
 	}
 }
 
+void UKOInGameHUD::BP_OnSkillQuickSlotChanged_Implementation(ESkillQuickSlotKey SlotKey, FName SkillName)
+{
+	// Blueprint에서 오버라이드해 HUD 내 스킬 슬롯 UI를 갱신한다.
+}
+
+void UKOInGameHUD::HandleSkillQuickSlotChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+	const FKOSkillQuickSlotChangedMessage* Msg = Payload.GetPtr<FKOSkillQuickSlotChangedMessage>();
+	if (!Msg)
+	{
+		return;
+	}
+
+	BP_OnSkillQuickSlotChanged(Msg->SlotKey, Msg->SkillName);
+}
+
 void UKOInGameHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	SkillQuickSlotChangedCallback.BindDynamic(
+		this, &UKOInGameHUD::HandleSkillQuickSlotChangedMessage);
+	SkillQuickSlotChangedHandle = Subscribe(
+		KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
+		SkillQuickSlotChangedCallback);
 
 	AKOHeroCharacter* HeroCharacter = Cast<AKOHeroCharacter>(GetOwningPlayerPawn());
 	if (HeroCharacter == nullptr)
@@ -73,6 +98,9 @@ void UKOInGameHUD::NativeConstruct()
 
 void UKOInGameHUD::NativeDestruct()
 {
+	Unsubscribe(SkillQuickSlotChangedHandle);
+	SkillQuickSlotChangedCallback.Clear();
+
 	if (IsValid(CachedHealthSet))
 	{
 		CachedHealthSet->OnHealthChanged.RemoveDynamic(this, &UKOInGameHUD::OnCurrentHealthChanged);

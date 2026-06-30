@@ -151,9 +151,7 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 				return false;
 			}
 		}
-	}
-
-	FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
+	}		/** 아이템 소비는 실패처리 완료 후 진행 */
 	
 	if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
 	{
@@ -166,7 +164,7 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 		FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
 		if (ExRow->InputTag.IsValid())
 		{
-			NewSpec.DynamicAbilityTags.AddTag(ExRow->InputTag);
+			NewSpec.GetDynamicSpecSourceTags().AddTag(ExRow->InputTag);
 		}
 
 		CachedASC->GiveAbility(NewSpec);
@@ -175,6 +173,7 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 	}
 	else if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
 	{
+		FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
 		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
 			ExRow->PassiveEffectClass, 1.f, EffectContext);
 		if (!SpecHandle.IsValid())

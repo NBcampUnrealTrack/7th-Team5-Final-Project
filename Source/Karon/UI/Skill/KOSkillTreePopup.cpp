@@ -24,13 +24,6 @@ namespace
 	}
 }
 
-UKOSkillTreePopup::UKOSkillTreePopup()
-{
-	// Back(ESC) 입력 시 자동으로 Deactivate되어 닫힌다. (토글 제거 → Back 일원화)
-	InputMode = EKOUIInputMode::Menu;
-	bIsBackHandler = true;
-}
-
 void UKOSkillTreePopup::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -85,24 +78,24 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 
 	for (UKOSkillNodeWidget* Node : SkillNodes)
 	{
-		if (Node == nullptr || Node->SkillName.IsNone()) continue;
+		if (Node == nullptr || Node->GetSkillName().IsNone()) continue;
 
-		const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(WorldContext, Node->SkillName);
+		const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(WorldContext, Node->GetSkillName());
 
 		if (SkillRow)
 		{
 			if (SkillRow->Icon.Get() == nullptr && SkillRow->Icon.IsNull() == false)
 			{
 				UE_LOG(LogTemp, Display, TEXT("SkillTree: Icon을 로딩합니다"));
-				CachedLoadSubsystem->ResolveSkillIcon(Node->SkillName);
+				(void)CachedLoadSubsystem->ResolveSkillIcon(Node->GetSkillName());
 			}
-			ESkillState CurrentState = SkillSubsystem->GetSkillState(Node->SkillName);
-			Node->InitializeNode(Node->SkillName, SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
+			ESkillState CurrentState = SkillSubsystem->GetSkillState(Node->GetSkillName());
+			Node->InitializeNode(Node->GetSkillName(), SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row를 찾을 수 없습니다."),
-			       *Node->SkillName.ToString());
+			       *Node->GetSkillName().ToString());
 		}
 	}
 }
@@ -114,7 +107,7 @@ void UKOSkillTreePopup::RefreshActiveTooltip(UKOSkillNodeWidget* Node)
 		return;
 	}
 
-	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->SkillName);
+	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->GetSkillName());
 	if (SkillRow == nullptr || CachedLoadSubsystem == nullptr)
 	{
 		return;
@@ -132,7 +125,7 @@ void UKOSkillTreePopup::RefreshActiveTooltip(UKOSkillNodeWidget* Node)
 		}
 	}
 
-	SkillTooltipWidget->RefreshCostWidget(Node->CurrentState, CostItemRows);
+	SkillTooltipWidget->RefreshCostWidget(Node->GetCurrentState(), CostItemRows);
 }
 
 void UKOSkillTreePopup::SetupAndBindSkillNodes()
@@ -180,7 +173,7 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 		return;
 	}
 
-	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->SkillName);
+	const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(this, Node->GetSkillName());
 	if (SkillRow == nullptr)
 	{
 		return;
@@ -193,7 +186,7 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 
 	// SkillName과 동일한 RowName의 실행 데이터 조회
 	FText ExecutionTypeText = FText::GetEmpty();
-	if (const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(Node->SkillName))
+	if (const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(Node->GetSkillName()))
 	{
 		ExecutionTypeText = GetExecutionTypeText(ExRow->ExecutionType);
 	}
@@ -211,7 +204,7 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 		}
 	}
 
-	ESkillState SkillState = Node->CurrentState;
+	ESkillState SkillState = Node->GetCurrentState();
 
 	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, SkillState, ExecutionTypeText, CostItemRows);
 	SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
