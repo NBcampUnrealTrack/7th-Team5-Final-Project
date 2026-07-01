@@ -40,13 +40,15 @@ protected:
 	bool bIsGimmickDash = false;
  
 private:
-	// 발동 시점에 고정된 돌진 방향
 	FVector DashDirection = FVector::ZeroVector;
  
 	FTimerHandle DashTimerHandle;
 	FTimerHandle DashVelocityTimerHandle;
- 
-	// 충돌 이벤트
+	
+	FTimerHandle DashHitScanTimerHandle;
+	
+	TArray<TWeakObjectPtr<AActor>> DashedActors;
+	
 	UFUNCTION()
 	void OnDashHit(
 		UPrimitiveComponent* HitComponent,

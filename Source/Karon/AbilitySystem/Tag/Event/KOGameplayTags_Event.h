@@ -79,5 +79,6 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SyncOverclockProgressBar);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Jump_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Boss01_Shockwave);
 }

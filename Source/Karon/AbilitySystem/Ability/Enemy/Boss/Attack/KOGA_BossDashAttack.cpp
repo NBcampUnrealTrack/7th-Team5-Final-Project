@@ -42,12 +42,12 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		Character->GetActorForwardVector();
 		DashDirection.Z = 0.f;
 	
- 
-	// 충돌 이벤트 바인딩
+	DashedActors.Empty();
+	
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(
 		this, &UKOGA_BossDashAttack::OnDashHit
 	);
- 
+
 	// 최대 돌진 시간 타이머
 	GetWorld()->GetTimerManager().SetTimer(
 		DashTimerHandle,
@@ -57,7 +57,6 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		false
 	);
 	
-
 	GetWorld()->GetTimerManager().SetTimer(
 		DashVelocityTimerHandle,
 		FTimerDelegate::CreateLambda([this]()
@@ -86,17 +85,33 @@ void UKOGA_BossDashAttack::OnDashHit(
 	{
 		return;
 	}
- 
+	
 	// 기믹 돌진 기둥 태그 확인 
 	if (bIsGimmickDash && OtherActor->ActorHasTag(FName("Object_BossCH01_Gimmick_Pillar")))
 	{
 		HandleGimmickPillarHit(OtherActor); 
 		return;
 	}
- 
-	ApplyHitEffects(OtherActor);
- 
-	// 일반 벽 충돌
+	
+	// 데미지 주고 계속 돌진
+	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(OtherActor);
+	if (TargetASI && TargetASI->GetAbilitySystemComponent())
+	{
+		// 중복 방지
+		bool bAlreadyHit = DashedActors.ContainsByPredicate(
+			[OtherActor](const TWeakObjectPtr<AActor>& Weak)
+			{
+				return Weak.IsValid() && Weak.Get() == OtherActor;
+			});
+
+		if (!bAlreadyHit)
+		{
+			DashedActors.Add(OtherActor);
+			SendAttackEventsToTarget(OtherActor);
+			ApplyHitEffects(OtherActor);
+		}
+		return; // 돌진 계속
+	}
 	StopDash();
 }
  
@@ -128,6 +143,8 @@ void UKOGA_BossDashAttack::StopDash()
  
 	GetWorld()->GetTimerManager().ClearTimer(DashTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(DashVelocityTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(DashHitScanTimerHandle);
+	DashedActors.Empty();
  
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
@@ -149,7 +166,9 @@ void UKOGA_BossDashAttack::EndAbility(
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DashTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(DashVelocityTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(DashHitScanTimerHandle);
 	}
+	DashedActors.Empty();
  
 	ACharacter* Character = GetAvatarCharacter();
 	if (Character)

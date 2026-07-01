@@ -3,7 +3,6 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossMeleeAttackBase.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
 #include "Kismet/KismetSystemLibrary.h"
@@ -24,7 +23,6 @@ void UKOBossAttackNotifyState::NotifyBegin(
 	// 소켓 존재 여부 확인
 	if (!MeshComp->DoesSocketExist(AttackSocketName))
 	{
-		UE_LOG(LogTemp, Warning,TEXT("[BossMeleeNotify] 소켓 없음 : %s"), *AttackSocketName.ToString());
 		return;
 	}
  
@@ -54,13 +52,11 @@ void UKOBossAttackNotifyState::NotifyTick(
 	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Owner);
 	if (!ASCInterface)
 	{
-		return;
 	}
  
 	UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
 	if (!ASC)
 	{
-		return;
 	}
  
 	const FVector CurrSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
@@ -120,11 +116,18 @@ void UKOBossAttackNotifyState::NotifyTick(
 		}
 	}
  
+	// 식별 액터 필터링
 	for (AActor* TargetActor : ActorsToHit)
 	{
+		IAbilitySystemInterface* TargetASCInterface = Cast<IAbilitySystemInterface>(TargetActor);
+		if (!TargetASCInterface || !TargetASCInterface->GetAbilitySystemComponent())
+		{
+			continue;
+		}
+
 		FGameplayEventData HitGameplayEventData;
 		HitGameplayEventData.Target = TargetActor;
-		ASC->HandleGameplayEvent(KOGameplayTags::Event_SkillHit,&HitGameplayEventData);
+		ASC->HandleGameplayEvent(KOGameplayTags::Event_SkillHit, &HitGameplayEventData);
 	}
 }
  

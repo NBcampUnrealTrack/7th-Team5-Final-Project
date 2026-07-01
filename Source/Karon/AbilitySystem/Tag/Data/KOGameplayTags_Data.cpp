@@ -42,6 +42,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundHitL, "Data.CoolTime.BossCH01.GroundHit");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_ShockWave, "Data.CoolTime.BossCH01.ShockWave");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_Dash, "Data.CoolTime.BossCH01.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_Jump, "Data.CoolTime.BossCH01.Jump");
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");

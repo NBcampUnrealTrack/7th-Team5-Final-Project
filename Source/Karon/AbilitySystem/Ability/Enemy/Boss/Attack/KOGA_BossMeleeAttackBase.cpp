@@ -14,14 +14,7 @@ void UKOGA_BossMeleeAttackBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
- 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 	
-	// 히트 이벤트 대기 (NotifyState에서 발생)
 	UAbilityTask_WaitGameplayEvent* WaitHitEventTask = 
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,

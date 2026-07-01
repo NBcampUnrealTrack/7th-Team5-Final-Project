@@ -75,5 +75,6 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_SyncOverclockProgressBar, "Event.SyncOverclockProgressBar");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Jump_Launch, "Event.Jump.Launch");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss01_Shockwave, "Event.Boss1.Shockwave");
 }
