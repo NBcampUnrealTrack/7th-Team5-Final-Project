@@ -57,10 +57,7 @@ void UKOGA_OverClock::EndAbility(
 		ASC->RemoveActiveGameplayEffect(BuffEffectHandle);
 		ASC->RemoveActiveGameplayEffect(DrainEffectHandle);
 	}
-	
-	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimerHandle);
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-	
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -106,16 +103,6 @@ void UKOGA_OverClock::OnOverClockStart(FGameplayEventData Payload)
 		ASC->ExecuteGameplayCue(ActivationCueTag, CueParams);
 	}
 	
-	// TODO: Cue로 이전 
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
-	
-	GetWorld()->GetTimerManager().SetTimer(
-		SlowMotionTimerHandle,
-		this,
-		&ThisClass::RestoreTimeDilation,
-		0.2f,
-		false
-	);
 }
 
 void UKOGA_OverClock::OnOverClockEnd(FGameplayEventData Payload)
@@ -130,9 +117,3 @@ void UKOGA_OverClock::OnOverClockEnd(FGameplayEventData Payload)
 	}
 }
 
-
-void UKOGA_OverClock::RestoreTimeDilation()
-{
-	// TODO: Cue로 이전 
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-}

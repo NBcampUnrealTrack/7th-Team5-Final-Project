@@ -65,8 +65,4 @@ private:
 	FActiveGameplayEffectHandle BuffEffectHandle;
 	FActiveGameplayEffectHandle DrainEffectHandle;
 	
-	FTimerHandle SlowMotionTimerHandle;
-	
-	UFUNCTION()
-	void RestoreTimeDilation();
 };
