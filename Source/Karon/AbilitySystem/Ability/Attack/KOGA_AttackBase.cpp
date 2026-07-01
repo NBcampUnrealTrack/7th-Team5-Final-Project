@@ -327,6 +327,11 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 	
 	KO_LOG(Combat, Warning, TEXT("HitActor : %s"), *HitActor->GetName());
 	
+	UAbilitySystemComponent* TargetASC = 
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+	
+	if (!TargetASC || TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead)) return;
+	
 	TraceData.HitActors.Add(HitActor);
 	
 	SendAttackEventsToTarget(HitActor);

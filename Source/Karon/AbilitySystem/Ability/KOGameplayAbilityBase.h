@@ -86,6 +86,7 @@ public:
 		float Amount,
 		float Level = 1.f
 	);
+	
 protected:
 	// ─── Cooldown ─────────────────────────────────────────────────────
 	virtual UGameplayEffect* GetCooldownGameplayEffect() const override;

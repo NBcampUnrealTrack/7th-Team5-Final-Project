@@ -6,16 +6,20 @@
 namespace KOGameplayTags
 {
 	// ───────────────────────── Data ───────────────────────────────
+	// ───────── Attributes ─────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Current);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Max);
 	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Damage);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Health_Healing);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Healing);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Current);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Max);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_StaminaDrain);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_StaminaRegen);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_WalkSpeed);
@@ -31,13 +35,11 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_CritChance);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_CritMultiplier);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Defense);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Clock);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_Guard);
-	
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_GroundSlap);

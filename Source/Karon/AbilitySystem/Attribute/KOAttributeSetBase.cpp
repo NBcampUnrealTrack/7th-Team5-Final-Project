@@ -51,9 +51,9 @@ FKOEffectContext UKOAttributeSetBase::CacheEffectContext(const FGameplayEffectMo
 	if (SourceASC && SourceASC->AbilityActorInfo.IsValid())
 	{
 		Context.InstigatorASC        = SourceASC;
-		Context.Instigator      = SourceASC->GetAvatarActor();
+		Context.InstigatorActor      = SourceASC->GetAvatarActor();
 		Context.InstigatorController = SourceASC->AbilityActorInfo->PlayerController.Get();
-		Context.InstigatorCharacter  = Cast<ACharacter>(Context.Instigator);
+		Context.InstigatorCharacter  = Cast<ACharacter>(Context.InstigatorActor);
 	}
 	
 	// Target 

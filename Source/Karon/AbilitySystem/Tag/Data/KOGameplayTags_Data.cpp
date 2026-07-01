@@ -7,13 +7,15 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Current, "Data.Attribute.Health.Current");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Max, "Data.Attribute.Health.Max");
 	
-	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Damage, "Data.Attribute.Health.Damage");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Healing, "Data.Attribute.Health.Healing");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Healing, "Data.Healing");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Current, "Data.Attribute.Stamina.Current");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Max, "Data.Attribute.Stamina.Max");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Data_StaminaDrain, "Data.StaminaDrain");
+	UE_DEFINE_GAMEPLAY_TAG(Data_StaminaRegen, "Data.StaminaRegen");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
@@ -29,12 +31,12 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritChance, "Data.Attribute.Combat.CritChance");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritMultiplier, "Data.Attribute.Combat.CritMultiplier");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_Defense, "Data.Attribute.Combat.Defense");
-	
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_Clock, "Data.Attribute.Combat.Clock");
 	
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
+	
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundSlap, "Data.CoolTime.BossCH01.GroundSlap");

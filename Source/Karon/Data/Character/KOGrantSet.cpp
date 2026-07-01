@@ -40,8 +40,10 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 		{
 			OutHandles.AbilityHandles.Add(ASC->GiveAbilityAndActivateOnce(Spec));
 		}
-
-		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
+		else
+		{
+			OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
+		}
 
 		KO_LOG(GAS, Log, TEXT("[Sub] Ability   | %-30s | Lv.%d "),
 			*Spec.Ability->GetName(), Entry.AbilityLevel

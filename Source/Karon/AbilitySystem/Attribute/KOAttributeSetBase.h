@@ -11,7 +11,7 @@ struct FKOEffectContext
 	GENERATED_BODY()
 
 	UAbilitySystemComponent* InstigatorASC        = nullptr;
-	AActor*                  Instigator       = nullptr;
+	AActor*                  InstigatorActor       = nullptr;
 	AController*             InstigatorController  = nullptr;
 	ACharacter*              InstigatorCharacter   = nullptr;
 

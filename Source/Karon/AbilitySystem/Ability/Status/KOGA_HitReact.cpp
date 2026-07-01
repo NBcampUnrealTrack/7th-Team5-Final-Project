@@ -66,11 +66,9 @@ void UKOGA_HitReact::ActivateAbility(
 			 bAffectInstigator
 		);
 	
-	if (HitStopTask)
-	{
-		HitStopTask->OnFinished.AddDynamic(this, &ThisClass::OnHitStopFinished);
-		HitStopTask->ReadyForActivation();
-	}
+	HitStopTask->OnFinished.AddDynamic(this, &ThisClass::OnHitStopFinished);
+	HitStopTask->ReadyForActivation();
+	
 	
 	// 5. Gameplay Cue 
 	FGameplayCueParameters CueParams; 
@@ -88,15 +86,17 @@ void UKOGA_HitReact::ActivateAbility(
 	
 }
 
-void UKOGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UKOGA_HitReact::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	//Enemy일 경우 Hit 브로드캐스트
 	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
 	{
 		Enemy->OnHitEvent.ExecuteIfBound(false);
 	}
-	
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -146,13 +146,11 @@ void UKOGA_HitReact::OnHitStopFinished()
 			false
 		);
 	
-	if (MontageTask)
-	{
-		MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-		MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-		MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-		MontageTask->ReadyForActivation();
-	}
+	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->ReadyForActivation();
+	
 } 
 
 void UKOGA_HitReact::OnMontageCompleted()

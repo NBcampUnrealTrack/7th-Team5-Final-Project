@@ -1,6 +1,7 @@
 ﻿#include "KOCharacterBase.h"
 
 #include "AbilitySystem/Attribute/KOMovementSet.h"
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Component/Movement/KOCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -48,6 +49,12 @@ void AKOCharacterBase::OnCharacterDead(AActor* DeathInstigator)
 	);
 	
 	bIsDead = true; 
+	
+	// TODO: 임시 코드 
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(KOGameplayTags::State_Character_Dead);
+	}
 	
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{

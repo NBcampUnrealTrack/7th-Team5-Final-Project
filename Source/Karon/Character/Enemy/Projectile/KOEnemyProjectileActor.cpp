@@ -98,7 +98,7 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(Enemy->ProjectileDamageEffectClass, 1.0f, Context);
 	if (SpecHandle.IsValid() )
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, ProjectileDamage);
+		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage, ProjectileDamage);
 		CharacterASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	ReturnToPool();

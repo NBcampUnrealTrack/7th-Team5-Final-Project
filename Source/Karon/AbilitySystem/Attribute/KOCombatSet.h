@@ -29,8 +29,8 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, AttackSpeed);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, CritChance);
 	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, CritMultiplier);
-	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, OverClockGauge);
-	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, MaxOverClockGauge);
+	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, Clock);
+	ATTRIBUTE_ACCESSORS_BASIC(UKOCombatSet, ClockLimit);
 
 public:
 	// ─── Attributes ────────────────────────────────────────────────────
@@ -49,11 +49,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack")
 	FGameplayAttributeData CritMultiplier;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Attack|OverClock")
-	FGameplayAttributeData OverClockGauge;
+	UPROPERTY(BlueprintReadOnly, Category = "Clock")
+	FGameplayAttributeData Clock;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Attack|OverClock")
-	FGameplayAttributeData MaxOverClockGauge = 100.0f;
+	UPROPERTY(BlueprintReadOnly, Category = "Clock")
+	FGameplayAttributeData ClockLimit;
 
 public:
 	// ─── Delegates ────────────────────────────────────────────────────

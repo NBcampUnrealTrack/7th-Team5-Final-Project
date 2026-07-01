@@ -50,6 +50,9 @@ void UKOExecCalc_Damage::Execute_Implementation(
 	UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
 	UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	if (!TargetASC || !SourceASC) return;
+	
+	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead))
+		return; 
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
@@ -60,7 +63,7 @@ void UKOExecCalc_Damage::Execute_Implementation(
 	const float FinalDamage = CalculateFinalDamage(ExecutionParams, EvalParams, Spec);
 	if (FinalDamage <= 0.f) return;
 
-	RouteGuardDamage(FinalDamage, TargetASC, EvalParams, ExecutionParams, OutExecutionOutput);
+	RouteGuardDamage(FinalDamage, SourceASC, TargetASC, EvalParams, ExecutionParams, OutExecutionOutput);
 }
 
 float UKOExecCalc_Damage::CalculateFinalDamage(
@@ -101,6 +104,7 @@ float UKOExecCalc_Damage::CalculateFinalDamage(
 
 void UKOExecCalc_Damage::RouteGuardDamage(
 	float FinalDamage,
+	UAbilitySystemComponent* SourceASC,
 	UAbilitySystemComponent* TargetASC,
 	const FAggregatorEvaluateParameters& EvalParams,
 	const FGameplayEffectCustomExecutionParameters& ExecutionParams,
@@ -141,8 +145,6 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 		{
 			FGameplayEventData EventData;
 			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_DirectionFail, &EventData);
-			
-			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
 		}
 	}
 
@@ -150,5 +152,11 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 			UKOHealthSet::GetDamageAttribute(), EGameplayModOp::Additive, HealthDamage));
+		
+		FGameplayEventData EventData;
+		EventData.EventMagnitude = HealthDamage;
+		
+		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
+		SourceASC->HandleGameplayEvent(KOGameplayTags::Event_Clock_Gain, &EventData);
 	}
 }

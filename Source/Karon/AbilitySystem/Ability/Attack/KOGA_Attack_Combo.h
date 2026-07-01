@@ -40,8 +40,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OverClock")
 	TSubclassOf<UGameplayEffect> OverClockGainEffectClass;
 	
-	virtual void OnTargetHit(const FHitResult& Hit) override;
-	
 	void PlayComboMontage();
 	
 	UFUNCTION()

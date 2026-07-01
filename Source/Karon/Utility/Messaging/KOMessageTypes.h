@@ -206,5 +206,5 @@ struct FKOOverclockProgressBarMessage
     GENERATED_BODY()
 
     UPROPERTY()
-    float Percent=0.f;
+    float Ratio = 0.f;
 };

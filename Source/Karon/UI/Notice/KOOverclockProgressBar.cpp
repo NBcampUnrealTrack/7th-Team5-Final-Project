@@ -28,17 +28,17 @@ void UKOOverclockProgressBar::ProgressBarChanged(FGameplayTag Channel, const FIn
 	//원하는 구조체로 형변환
 	if (const FKOOverclockProgressBarMessage* OverclockMessage = Payload.GetPtr<FKOOverclockProgressBarMessage>())
 	{
-		if (OverclockMessage->Percent==0.f&&GetVisibility()==ESlateVisibility::Visible)
+		if (OverclockMessage->Ratio==0.f&&GetVisibility()==ESlateVisibility::Visible)
 		{
 			SetVisibility(ESlateVisibility::Hidden);
 		}
-		if (OverclockMessage->Percent>0.f)
+		if (OverclockMessage->Ratio>0.f)
 		{
 			if (GetVisibility()==ESlateVisibility::Hidden)
 			{
 				SetVisibility(ESlateVisibility::Visible);
 			}
-			OverclockProgressBar->SetPercent(OverclockMessage->Percent);
+			OverclockProgressBar->SetPercent(OverclockMessage->Ratio);
 		}
 		if (UWorld* World = GetWorld())
 		{

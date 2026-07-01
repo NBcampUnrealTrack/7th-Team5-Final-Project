@@ -8,7 +8,9 @@ UKOCombatSet::UKOCombatSet()
 {
 	InitAttackSpeed(1.f); 
 	InitCritChance(0.5f);     
-	InitCritMultiplier(1.5f);   
+	InitCritMultiplier(1.5f);
+	InitClock(0.f);
+	InitClockLimit(100.f);
 }
 
 // 최솟값 보장
@@ -24,6 +26,9 @@ void UKOCombatSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, f
 
 	if (Attribute == GetAttackSpeedAttribute())
 		NewValue = FMath::Clamp(NewValue, 0.1f, 10.f);
+	
+	if (Attribute == GetClockAttribute())
+		NewValue = FMath::Clamp(NewValue, 0.f, GetClockLimit());
 }
 
 void UKOCombatSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -33,11 +38,14 @@ void UKOCombatSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 	if (Attribute == GetAttackSpeedAttribute())
 		NewValue = FMath::Clamp(NewValue, 0.1f, 10.f);
 	
-	if (Attribute == GetCritChanceAttribute())
+	else if (Attribute == GetCritChanceAttribute())
 		NewValue = FMath::Clamp(NewValue, 0.f, 1.f);
 		
-	if (Attribute == GetCritMultiplierAttribute())
+	else if (Attribute == GetCritMultiplierAttribute())
 		NewValue = FMath::Max(NewValue, 1.f);
+	
+	else if (Attribute == GetClockAttribute())
+		NewValue = FMath::Clamp(NewValue, 0.f, GetClockLimit());
 }
 
 // Base 영구 변경 (레벨업 / 장비 / 포인트 투자)
@@ -68,45 +76,41 @@ void UKOCombatSet::PostAttributeChange(const FGameplayAttribute& Attribute, floa
 	if (Attribute == GetAttackSpeedAttribute())
 		OnAttackSpeedChanged.Broadcast(OldValue, NewValue);
 	
+	if (Attribute == GetClockAttribute())
+	{
+		FKOOverclockProgressBarMessage Message;
+		Message.Ratio = GetClock() / GetClockLimit();
+		
+		UGMRouterSubsystem::BroadcastMessage(
+			GetWorld(), KOGameplayTags::Event_SyncOverclockProgressBar, 
+			FInstancedStruct::Make(Message)
+		);
+	}
 }
 
 void UKOCombatSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 	
-	if (Data.EvaluatedData.Attribute == GetOverClockGaugeAttribute())
+	
+	if (Data.EvaluatedData.Attribute == GetClockAttribute())
 	{
-		SetOverClockGauge(FMath::Clamp(GetOverClockGauge(), 0.0f, GetMaxOverClockGauge()));
+		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+		if (!ASC) return;
 		
-		UE_LOG(LogTemp, Warning, TEXT("[Overclock] 현재 게이지: %f / %f"), GetOverClockGauge(), GetMaxOverClockGauge());
-		
-		FKOOverclockProgressBarMessage OverclockMessage;
-		OverclockMessage.Percent = GetOverClockGauge()/GetMaxOverClockGauge();
-			
-		UGMRouterSubsystem::BroadcastMessage(GetWorld(),
-			KOGameplayTags::Event_SyncOverclockProgressBar,
-			FInstancedStruct::Make(OverclockMessage));
-		
-		if (GetOverClockGauge() >= GetMaxOverClockGauge())
+		if (GetClock() >= GetClockLimit() && !ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock))
 		{
-			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
-			
-			FGameplayTag OverClockTag = KOGameplayTags::State_Character_OverClock;
-			if (ASC && !ASC->HasMatchingGameplayTag(OverClockTag))
-			{
-				AActor* AvatarActor = Data.Target.GetAvatarActor();
-				if (!AvatarActor) return;
-				
-				FGameplayEventData Payload;
-				Payload.Instigator = AvatarActor;
-				Payload.Target = AvatarActor;
-				
-				FGameplayTag EventTag = KOGameplayTags::Event_OverClock_Start;
-				
-				UE_LOG(LogTemp, Error, TEXT("[Overclock] 게이지 MAX. 오버클럭 실행 이벤트를 발송"));
-				
-				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(AvatarActor, EventTag, Payload);
-			}
+			FGameplayEventData Payload;
+			Payload.Instigator = GetOwningActor();
+			Payload.Target =  GetOwningActor();
+			ASC->HandleGameplayEvent(KOGameplayTags::Event_OverClock_Start, &Payload);
+		}
+		else if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock) && GetClock() <= 0.f)
+		{
+			FGameplayEventData Payload;
+			Payload.Instigator = GetOwningActor();
+			Payload.Target =  GetOwningActor();
+			ASC->HandleGameplayEvent(KOGameplayTags::Event_OverClock_End, &Payload);
 		}
 	}
 }

@@ -4,6 +4,8 @@
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 #include "KOGA_OverClock.generated.h"
 
+
+class UAbilityTask_WaitGameplayEvent;
 UCLASS()
 class KARON_API UKOGA_OverClock : public UKOGameplayAbilityBase
 {
@@ -17,34 +19,54 @@ protected:
 		const FGameplayAbilitySpecHandle Handle, 
 		const FGameplayAbilityActorInfo* ActorInfo, 
 		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
+		const FGameplayEventData* TriggerEventData
+	) override;
 	
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		bool bReplicateEndAbility,
-		bool bWasCancelled) override;
+		bool bWasCancelled
+	) override;
 	
 	UFUNCTION()
-	void OnOverClockGaugeEmpty();
+	void OnClockGain(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnOverClockStart(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	void OnOverClockEnd(FGameplayEventData Payload);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "OverClock")
-	TSubclassOf<UGameplayEffect> OverClockBuffEffectClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_OverClockBuff;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "OverClock")
-	TSubclassOf<UGameplayEffect> OverClockDrainEffectClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_ClockDrain;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_ClockGain;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "OverClock|Effect")
 	FGameplayTag ActivationCueTag;
 	
 private:
+	UPROPERTY() 
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> ClockGainTask;
+	
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> OverClockStartTask;
+	
+	UPROPERTY() 
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> OverClockEndTask;
+	
 	FActiveGameplayEffectHandle BuffEffectHandle;
 	FActiveGameplayEffectHandle DrainEffectHandle;
 	
 	FTimerHandle SlowMotionTimerHandle;
 	
 	UFUNCTION()
-	void RestoreTimeDelation();
+	void RestoreTimeDilation();
 };

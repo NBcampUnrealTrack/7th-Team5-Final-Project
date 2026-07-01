@@ -29,6 +29,7 @@ public:
 	
 	void RouteGuardDamage(
 		float FinalDamage,
+		UAbilitySystemComponent* SourceASC,
 		UAbilitySystemComponent* TargetASC,
 		const FAggregatorEvaluateParameters& EvalParams,
 		const FGameplayEffectCustomExecutionParameters& ExecutionParams,

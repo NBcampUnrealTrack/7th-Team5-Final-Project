@@ -1,9 +1,10 @@
 ﻿#include "KOGA_OverClock.h"
 
 #include "AbilitySystemComponent.h"
-#include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
-#include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/Log/KOLogManager.h"
 
 UKOGA_OverClock::UKOGA_OverClock()
 {
@@ -18,63 +19,30 @@ void UKOGA_OverClock::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (!ASC || !OverClockBuffEffectClass || !OverClockDrainEffectClass)
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
+		return; 
 	}
 	
-	FGameplayEffectContextHandle BuffContext = ASC->MakeEffectContext();
-	BuffContext.AddSourceObject(GetAvatarActorFromActorInfo());
-	BuffEffectHandle = 
-		ASC->ApplyGameplayEffectToSelf(
-			OverClockBuffEffectClass->GetDefaultObject<UGameplayEffect>(),
-			1.0f,
-			BuffContext
-		);
+	 ClockGainTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	 	this, KOGameplayTags::Event_Clock_Gain);
 	
-	FGameplayEffectContextHandle DrainContext = ASC->MakeEffectContext();
-	DrainContext.AddSourceObject(GetAvatarActorFromActorInfo());
-	DrainEffectHandle =
-		ASC->ApplyGameplayEffectToSelf(
-			OverClockDrainEffectClass->GetDefaultObject<UGameplayEffect>(),
-			1.0f,
-			DrainContext
-		);
+	ClockGainTask->EventReceived.AddDynamic(this, &ThisClass::OnClockGain); 
+	ClockGainTask->ReadyForActivation(); 
 	
-	if (ActivationCueTag.IsValid())
-	{
-		FGameplayCueParameters CueParams;
-		CueParams.Instigator = GetAvatarActorFromActorInfo();
-		CueParams.EffectContext = ASC->MakeEffectContext();
-		
-		ASC->ExecuteGameplayCue(ActivationCueTag, CueParams);
-	}
 	
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
+	OverClockStartTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this, KOGameplayTags::Event_OverClock_Start);
 	
-	GetWorld()->GetTimerManager().SetTimer(
-		SlowMotionTimerHandle,
-		this,
-		&ThisClass::RestoreTimeDelation,
-		0.2f,
-		false
-	);
+	OverClockStartTask->EventReceived.AddDynamic(this, &ThisClass::OnOverClockStart); 
+	OverClockStartTask->ReadyForActivation(); 
 	
-	UAbilityTask_WaitAttributeChange* WaitGaugeChange = 
-		UAbilityTask_WaitAttributeChange::WaitForAttributeChangeWithComparison(
-			this,
-			UKOCombatSet::GetOverClockGaugeAttribute(),
-			FGameplayTag(),
-			FGameplayTag(),
-			EWaitAttributeChangeComparison::LessThanOrEqualTo,
-			0.01f,
-			false
-		);
+	 OverClockEndTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	 	this, KOGameplayTags::Event_OverClock_End);
 	
-	WaitGaugeChange->OnChange.AddDynamic(this, &ThisClass::OnOverClockGaugeEmpty);
-	WaitGaugeChange->ReadyForActivation();
+	OverClockEndTask->EventReceived.AddDynamic(this, &ThisClass::OnOverClockEnd); 
+	OverClockEndTask->ReadyForActivation(); 
 }
 
 void UKOGA_OverClock::EndAbility(
@@ -84,22 +52,87 @@ void UKOGA_OverClock::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (ASC)
+	if (UAbilitySystemComponent* ASC = GetASC())
 	{
 		ASC->RemoveActiveGameplayEffect(BuffEffectHandle);
 		ASC->RemoveActiveGameplayEffect(DrainEffectHandle);
 	}
+	
+	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimerHandle);
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOGA_OverClock::OnOverClockGaugeEmpty()
+void UKOGA_OverClock::OnClockGain(FGameplayEventData Payload)
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC || !GE_ClockGain || Payload.EventMagnitude <= 0.f) return;
+	
+	const float ClockAmount = 
+		ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock) ?
+		Payload.EventMagnitude : Payload.EventMagnitude / 2.5;
+	
+	ApplyEffectSetByCallerToSelf(
+		GE_ClockGain,
+		KOGameplayTags::Data_Attribute_Combat_Clock,
+		ClockAmount
+		,1.f
+	);
 }
 
-void UKOGA_OverClock::RestoreTimeDelation()
+void UKOGA_OverClock::OnOverClockStart(FGameplayEventData Payload)
 {
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC) return; 
+	
+	KO_LOG(Combat, Log, TEXT("OverClock Start")); 
+	
+	ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_OverClock);
+	
+	if (GE_OverClockBuff) 
+		BuffEffectHandle = ApplyEffectToSelf(GE_OverClockBuff, 1.f);
+	 
+	if (GE_ClockDrain) 
+		DrainEffectHandle = ApplyEffectToSelf(GE_ClockDrain, 1.f);
+	
+
+	if (ActivationCueTag.IsValid())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Instigator = GetAvatarActorFromActorInfo();
+		CueParams.EffectContext = ASC->MakeEffectContext();
+		
+		ASC->ExecuteGameplayCue(ActivationCueTag, CueParams);
+	}
+	
+	// TODO: Cue로 이전 
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		SlowMotionTimerHandle,
+		this,
+		&ThisClass::RestoreTimeDilation,
+		0.2f,
+		false
+	);
+}
+
+void UKOGA_OverClock::OnOverClockEnd(FGameplayEventData Payload)
+{
+	KO_LOG(Combat, Log, TEXT("OverClock End")); 
+	if (UAbilitySystemComponent* ASC = GetASC())
+	{
+		ASC->RemoveActiveGameplayEffect(BuffEffectHandle);
+		ASC->RemoveActiveGameplayEffect(DrainEffectHandle);
+		
+		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_OverClock, 0);
+	}
+}
+
+
+void UKOGA_OverClock::RestoreTimeDilation()
+{
+	// TODO: Cue로 이전 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 }
