@@ -30,6 +30,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_StaminaExhausted);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Stunned);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Invincible);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_HitReacting);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_NoStaminaRegen);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OnPlatform); // 보스 기믹용 태그 

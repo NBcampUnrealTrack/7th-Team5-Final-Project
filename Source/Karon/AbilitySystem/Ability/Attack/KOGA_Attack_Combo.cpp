@@ -12,6 +12,7 @@ UKOGA_Attack_Combo::UKOGA_Attack_Combo()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Heavy));
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_InAir);
 }
 
 void UKOGA_Attack_Combo::ActivateAbility(
@@ -135,7 +136,8 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 	if (CurrentMontageTask)
 	{
 		CurrentMontageTask->OnCompleted.RemoveDynamic(this, &ThisClass::OnMontageCompleted);
-		CurrentMontageTask->OnInterrupted.RemoveDynamic(this, &ThisClass::OnMontageCompleted);
+		CurrentMontageTask->OnInterrupted.RemoveDynamic(this, &ThisClass::OnMontageCancelled);
+		CurrentMontageTask->OnCancelled.RemoveDynamic(this, &ThisClass::OnMontageCancelled);
 		CurrentMontageTask->EndTask();
 		CurrentMontageTask = nullptr;
 	}
@@ -168,7 +170,8 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 	ResetHitActors();
 	
 	CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageInterrupted);
+	CurrentMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	CurrentMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
 	CurrentMontageTask->ReadyForActivation();
 }
 
@@ -179,7 +182,7 @@ void UKOGA_Attack_Combo::OnMontageCompleted()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true,false);
 }
 
-void UKOGA_Attack_Combo::OnMontageInterrupted()
+void UKOGA_Attack_Combo::OnMontageCancelled()
 {
 	bIsTransitioning = false;
     

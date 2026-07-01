@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "Utility/Log/KOLogManager.h"
 
+
+
 void UKOGameplayAbilityBase::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,

@@ -25,7 +25,8 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false;
 	
 	ACharacter* Character = GetAvatarCharacter();
-	if (!Character) return false;
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!Character || !ASC) return false;
 	
 	UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement(); 
 	if (!CharacterMovement) return false;
@@ -34,7 +35,7 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	if (CharacterMovement->IsFalling()) return false; 
 	
 	// 스테미나가 없는 경우 
-	const float Stamina = GetASC()->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
+	const float Stamina = ASC->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
 	if (Stamina <= 0.f) return false;
 	
 	// 움직이지 않는 경우 

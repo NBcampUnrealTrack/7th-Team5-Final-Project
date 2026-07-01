@@ -32,7 +32,6 @@ static const FDamageStatics& DamageStatics()
 	return Statics;
 }
 
-
 UKOExecCalc_Damage::UKOExecCalc_Damage()
 {
 	// Capture할 Attribute 등록
@@ -48,76 +47,6 @@ void UKOExecCalc_Damage::Execute_Implementation(
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput
 	) const
 {
-	/**
-	// UAbilitySystemComponent* InstigatorASC = ExecutionParams.GetSourceAbilitySystemComponent();
-	// UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
-	// if (!InstigatorASC || !TargetASC) return;
-	//
-	// const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
-	//
-	// float RawDamage = Spec.GetSetByCallerMagnitude(
-	// 	KOGameplayTags::Data_Damage, false, 0.0f);
-	//
-	// // 2. Attribute Capture 
-	// FAggregatorEvaluateParameters EvalParams;
-	// EvalParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
-	// EvalParams.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
-	//
-	// float Defense = 0.f;
-	// ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DefenseDef, EvalParams, Defense);
-	//
-	// float CritChance = 0.f;
-	// ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CritChanceDef, EvalParams, CritChance);
-	//
-	// float CritMultiplier = 1.f;
-	// ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CritMultiplierDef, EvalParams, CritMultiplier);
-	//
-	// // 3. Apply Defense
-	// float FinalDamage = FMath::Max(RawDamage / (1.f + Defense * 0.01f), 0.f);
-	//
-	// // 4. Judge Critical 
-	// bool bIsCritical = FMath::FRand() < CritChance;
-	// if (bIsCritical)
-	// {
-	// 	KO_LOG(Combat, Log, TEXT("Critical!!")); 
-	// 	FinalDamage *= CritMultiplier;
-	// }
-	//
-	// // 5. Cached Is Critical for GameplayCue 
-	// if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Spec.GetContext().Get()))
-	// {
-	// 	KOContext->SetIsCriticalHit(bIsCritical);
-	// }
-	//
-	// // 6. Final Result 
-	//
-	// if (FinalDamage > 0.f)
-	// {
-	// 	float HealthDamage = FinalDamage;
-	//
-	// 	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_Blocking))
-	// 	{
-	// 		float CurrentGuardHealth = 0.f;
-	// 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
-	// 			DamageStatics().GuardHealthDef, EvalParams, CurrentGuardHealth);
-	//
-	// 		const float GuardDamage = FMath::Min(FinalDamage, CurrentGuardHealth);
-	// 		HealthDamage -= GuardDamage;
-	//
-	// 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
-	// 			UKOGuardSet::GetGuardDamageAttribute(), EGameplayModOp::Additive, GuardDamage));
-	// 		
-	// 		KO_LOG(Combat, Log, TEXT("Block Damage : %f") , GuardDamage);
-	// 	}
-	// 	
-	// 	if (HealthDamage > 0.f)
-	// 	{
-	// 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
-	// 			UKOHealthSet::GetDamageAttribute(), EGameplayModOp::Additive, HealthDamage));
-	// 	}
-	// }
-	*/
-	
 	UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
 	UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	if (!TargetASC || !SourceASC) return;
@@ -152,7 +81,7 @@ float UKOExecCalc_Damage::CalculateFinalDamage(
 	float CritMultiplier = 1.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CritMultiplierDef, EvalParams, CritMultiplier);
 	
-	// 3. Calculate Final Damge
+	// 3. Calculate Final Damage
 	float FinalDamage = FMath::Max(RawDamage / (1.f + Defense * 0.01f), 0.f);
 
 	// 4. Judge Critical 
@@ -204,12 +133,16 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 
 			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 				UKOGuardSet::GetGuardDamageAttribute(), EGameplayModOp::Additive, GuardDamage));
+			
+			FGameplayEventData EventData;
+			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_Success, &EventData);
 		}
 		else
 		{
-			// 측/후면 → 가드 무효, Guard 어빌리티에 알림
 			FGameplayEventData EventData;
 			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_DirectionFail, &EventData);
+			
+			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
 		}
 	}
 

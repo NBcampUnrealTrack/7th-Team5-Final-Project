@@ -62,7 +62,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_End, "Event.Guard.End");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_Break, "Event.Guard.Break");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_DirectionFail, "Event.Guard.DirectionFail");
-	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Guard_Success, "Event.Guard.Success");
 	UE_DEFINE_GAMEPLAY_TAG(Event_PerfectGuard_Start, "Event.PerfectGuard.Start");
 	UE_DEFINE_GAMEPLAY_TAG(Event_PerfectGuard_End, "Event.PerfectGuard.End");
 	

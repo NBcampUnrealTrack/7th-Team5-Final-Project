@@ -13,6 +13,8 @@ UKOStaminaSet::UKOStaminaSet()
 	// MetaData는 전환 x
 	InitStaminaDrain(0.f);
 	InitStaminaRegen(0.f);
+	
+	MinLogThreshold = 5.f; 
 }
 
 // Base 값 변경 전 - Clamp 만 
@@ -68,10 +70,17 @@ void UKOStaminaSet::PostAttributeChange(const FGameplayAttribute& Attribute, flo
 		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 		
 		if (NewValue <= 0.f)
-			ASC->AddLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
+		{
+			ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_StaminaExhausted);
+			OnStaminaExhaustedChanged.Broadcast(true);
+		}
 		else if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_StaminaExhausted) &&
-		NewValue >= GetMaxStamina()) 
-			ASC->RemoveLooseGameplayTag(KOGameplayTags::Event_Stamina_Exhausted);
+			NewValue >= GetMaxStamina())
+		{
+			ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_StaminaExhausted, 0);
+			OnStaminaExhaustedChanged.Broadcast(false);
+		}
+		
 		
 		OnStaminaChanged.Broadcast(OldValue, NewValue);
 	}

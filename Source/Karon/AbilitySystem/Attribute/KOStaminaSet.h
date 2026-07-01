@@ -5,6 +5,8 @@
 #include "KOStaminaSet.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaExhaustedChanged, bool, bStaminaExhausted);
+
 UCLASS()
 class KARON_API UKOStaminaSet : public UKOAttributeSetBase
 {
@@ -50,4 +52,6 @@ public:
 	
 	FOnAttributeChanged OnMaxStaminaBaseChanged;
 	FOnAttributeChanged OnMaxStaminaChanged;
+	
+	FOnStaminaExhaustedChanged OnStaminaExhaustedChanged;
 };

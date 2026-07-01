@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"bAbortOnChannelInterrupt\\\\|bAbortOnSpellInterrupt\")",
+      "Bash(xargs grep -l \"GameplayEffectContext\")",
+      "Bash(xargs grep -l \"FGameplayEffectContext\")",
+      "Bash(find \"C:\\\\P4Repositories\\\\NBC_karon\" -type d -name \"*34*\" 2>/dev/null)",
+      "Bash(find \"C:\\\\P4Repositories\" -type d -name \"*34_SF*\" 2>/dev/null)",
+      "Bash(xargs grep -l \"SFGameplayEffectContext\")"
+    ]
+  }
+}

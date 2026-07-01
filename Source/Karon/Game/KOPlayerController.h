@@ -118,6 +118,13 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="KO|Map")
 	TObjectPtr<UKOMapUIComponent> MapUIComponent;
+	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
+	float LookUpDownRate = 1.25f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
+	float LookLeftRightRate = 1.25f;
 
 private:
 	bool bBuildIMCActive = false;

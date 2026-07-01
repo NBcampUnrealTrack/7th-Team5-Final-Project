@@ -17,6 +17,8 @@ UKOGA_Utility_SheatheWeapon::UKOGA_Utility_SheatheWeapon()
 
 	// 뽑혀 있을 때만 활성화 가능
 	ActivationRequiredTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Guard_Blocking);
 }
 
 void UKOGA_Utility_SheatheWeapon::ActivateAbility(

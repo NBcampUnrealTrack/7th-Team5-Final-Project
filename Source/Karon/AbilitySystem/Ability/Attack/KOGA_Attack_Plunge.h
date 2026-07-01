@@ -35,10 +35,7 @@ protected:
         const FGameplayAbilityActivationInfo ActivationInfo,
         bool bReplicateEndAbility,
         bool bWasCancelled) override;
-
     
-    
-
     // BP에서 설정: 칼 장착 상태 태그 (비워두면 항상 발동)
     UPROPERTY(EditDefaultsOnly, Category = "Plunge|Condition")
     FGameplayTag RequiredWeaponTag;

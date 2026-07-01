@@ -48,7 +48,7 @@ protected:
 	void OnMontageCompleted();
 	
 	UFUNCTION()
-	void OnMontageInterrupted();
+	void OnMontageCancelled();
 	
 	UFUNCTION()
 	void OnTraceStart(FGameplayEventData Payload);

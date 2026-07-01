@@ -2,9 +2,12 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "GameFramework/Character.h"
 #include "Utility/Log/KOLogManager.h"
 
 UKOGA_Guard::UKOGA_Guard()
@@ -12,9 +15,35 @@ UKOGA_Guard::UKOGA_Guard()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor; 
 	
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Combat_Guard));
+	
 	ActivationRequiredTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
+	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Guard);
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_NoStaminaRegen);
+	
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Guard_Break);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_StaminaExhausted);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_InAir);
+}
+
+bool UKOGA_Guard::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) 
+		return false; 
+	
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC) return false;
+	 
+	const float Stamina = ASC->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
+	if (Stamina <= 5.f) return false;
+	
+	return true; 
 }
 
 void UKOGA_Guard::ActivateAbility(
@@ -25,18 +54,39 @@ void UKOGA_Guard::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return; 
 	}
 	
+	// 1. Check Stamina Task 
+	UAbilityTask_WaitAttributeChange* CheckStaminaTask =
+		UAbilityTask_WaitAttributeChange::WaitForAttributeChange(
+			this,
+			UKOStaminaSet::GetStaminaAttribute(),
+			FGameplayTag::EmptyTag,
+			FGameplayTag::EmptyTag,
+			false
+		);
+	
+	CheckStaminaTask->OnChange.AddDynamic(this, &ThisClass::OnStaminaChanged);
+	CheckStaminaTask->ReadyForActivation(); 
+	
+	// 2. Guard Result Task (Success / Fail) 
+	UAbilityTask_WaitGameplayEvent* GuardSuccessEventTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Guard_Success);
+	
+	GuardSuccessEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGuardSuccess);
+	GuardSuccessEventTask->ReadyForActivation();
+	
 	UAbilityTask_WaitGameplayEvent* GuardFailEventTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Guard_DirectionFail);
 	
-	GuardFailEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGuardStart);
+	GuardFailEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGuardFailed);
 	GuardFailEventTask->ReadyForActivation();
 	
+	// 3. Guard Start/End Task 
 	UAbilityTask_WaitGameplayEvent* GuardStartEventTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Guard_Start);
 	
@@ -49,6 +99,7 @@ void UKOGA_Guard::ActivateAbility(
 	GuardEndEventTask->EventReceived.AddDynamic(this, &ThisClass::OnGuardEnd);
 	GuardEndEventTask->ReadyForActivation(); 
 	
+	// 4. Perfect Guard Start/End Task 
 	UAbilityTask_WaitGameplayEvent* PerfectGuardStartEvent =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_PerfectGuard_Start);
 	
@@ -61,7 +112,8 @@ void UKOGA_Guard::ActivateAbility(
 	PerfectGuardEndEvent->EventReceived.AddDynamic(this, &ThisClass::OnPerfectWindowEnd);
 	PerfectGuardEndEvent->ReadyForActivation();
 	
-	UAbilityTask_PlayMontageAndWait* MontageTask = 
+	// 5. Montage Task 
+	 UAbilityTask_PlayMontageAndWait* MontageTask = 
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, GuardMontage);
 	
 	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
@@ -87,6 +139,8 @@ void UKOGA_Guard::InputReleased(
 		}
 	}
 	
+	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 }
 
@@ -102,6 +156,10 @@ void UKOGA_Guard::EndAbility(
 		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Guard_Blocking, 0); 
 	}
 	
+	if (GE_Guard_Reset) ApplyEffectToSelf(GE_Guard_Reset); 
+	
+	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -115,13 +173,39 @@ void UKOGA_Guard::OnMontageCancelled()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
+void UKOGA_Guard::OnStaminaChanged()
+{
+	const float CurrentStamina = GetASC()->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
+	if (CurrentStamina <= 0.01f)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+}
+
+void UKOGA_Guard::OnGuardSuccess(FGameplayEventData Data)
+{
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC) return;
+	
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	
+	const FVector ForwardVector = Character->GetActorForwardVector();
+	Character->LaunchCharacter(ForwardVector * -100.f, true,false);
+	
+	if (ASC->GetCurrentMontage() == GuardMontage)
+		ASC->CurrentMontageJumpToSection(TEXT("GuardUp"));
+	
+	
+}
+
 void UKOGA_Guard::OnGuardFailed(FGameplayEventData Data)
 {
 	UAbilitySystemComponent* ASC = GetASC();
 	if (!ASC) return;
 	
 	ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_Guard_Blocking);
-	if (GE_Guard_Reset) ApplyEffectToSelf(GE_Guard_Reset); 
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
@@ -133,8 +217,6 @@ void UKOGA_Guard::OnGuardStart(FGameplayEventData Data)
 	
 	ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_Guard_Blocking);
 	if (GE_Guard_Init) ApplyEffectToSelf(GE_Guard_Init); 
-	
-	ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard);
 }
 
 void UKOGA_Guard::OnGuardEnd(FGameplayEventData Data)

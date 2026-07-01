@@ -32,6 +32,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_End);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_Break);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_DirectionFail);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_Success);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_PerfectGuard_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_PerfectGuard_End);

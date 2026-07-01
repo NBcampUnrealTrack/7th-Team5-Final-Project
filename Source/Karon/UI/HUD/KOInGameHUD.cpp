@@ -89,6 +89,7 @@ void UKOInGameHUD::NativeConstruct()
 
 		CachedStaminaSet->OnStaminaChanged.AddDynamic(this, &UKOInGameHUD::OnCurrentStaminaChanged);
 		CachedStaminaSet->OnMaxStaminaChanged.AddDynamic(this, &UKOInGameHUD::OnMaxStaminaChanged);
+		CachedStaminaSet->OnStaminaExhaustedChanged.AddDynamic(this, &UKOInGameHUD::OnStaminaExhausted);
 	}
 	else
 	{
@@ -111,6 +112,8 @@ void UKOInGameHUD::NativeDestruct()
 	{
 		CachedStaminaSet->OnStaminaChanged.RemoveDynamic(this, &UKOInGameHUD::OnCurrentStaminaChanged);
 		CachedStaminaSet->OnMaxStaminaChanged.RemoveDynamic(this, &UKOInGameHUD::OnMaxStaminaChanged);
+		
+		CachedStaminaSet->OnStaminaExhaustedChanged.RemoveDynamic(this, &UKOInGameHUD::OnStaminaExhausted);
 	}
 	
 	CachedHealthSet  = nullptr;
@@ -150,6 +153,20 @@ void UKOInGameHUD::OnMaxStaminaChanged(float OldValue, float NewValue)
 {
 	CachedMaxStamina = NewValue;
 	RefreshStaminaBar();
+}
+
+void UKOInGameHUD::OnStaminaExhausted(bool bStaminaExhausted)
+{
+	if (!StaminaBar) return;
+	
+	FLinearColor CurrentColor = StaminaBar->GetFillColorAndOpacity();
+	FLinearColor HSV = CurrentColor.LinearRGBToHSV();
+	HSV.B = bStaminaExhausted ? 0.07f : 1.f;
+	
+	FLinearColor Result = HSV.HSVToLinearRGB();
+	Result.A = bStaminaExhausted ? .8f : 1.f;
+	
+	StaminaBar->SetFillColorAndOpacity(Result);
 }
 
 void UKOInGameHUD::RefreshStaminaBar()

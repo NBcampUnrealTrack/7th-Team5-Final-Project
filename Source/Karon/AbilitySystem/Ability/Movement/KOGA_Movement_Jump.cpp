@@ -13,6 +13,8 @@ UKOGA_Movement_Jump::UKOGA_Movement_Jump()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	 SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Jump)); 
+	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 }
 
 bool UKOGA_Movement_Jump::CanActivateAbility(

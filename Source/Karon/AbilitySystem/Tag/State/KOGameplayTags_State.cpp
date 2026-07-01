@@ -20,6 +20,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_StaminaExhausted, "State.Character.StaminaExhausted"); 
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Stunned, "State.Character.Stunned");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Invincible, "State.Character.Invincible");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_HitReacting, "State.Character.HitReacting");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_LockOn, "State.Character.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_OnPlatform, "State.Character.OnPlatform");

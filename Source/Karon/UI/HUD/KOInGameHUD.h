@@ -66,6 +66,9 @@ private:
 	UFUNCTION()
 	void OnMaxStaminaChanged(float OldValue, float NewValue);
 	
+	UFUNCTION()
+	void OnStaminaExhausted(bool bStaminaExhausted);
+	
 	void RefreshHealthBar();
 	void RefreshStaminaBar();
 

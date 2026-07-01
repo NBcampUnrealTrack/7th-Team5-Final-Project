@@ -528,8 +528,8 @@ void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
 	const FVector2D LookValue = Value.Get<FVector2D>();
 
-	AddYawInput(LookValue.X);
-	AddPitchInput(LookValue.Y);
+	AddYawInput(LookValue.X * LookLeftRightRate);
+	AddPitchInput(LookValue.Y * LookUpDownRate);
 }
 
 void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
