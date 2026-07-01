@@ -4,6 +4,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Character/Enemy/KOBaseEnemy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -57,6 +58,11 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 	LockedTarget = BestTarget;
 	bIsLockedOn = true;
 	
+	// 에너미 락온 UI 활성화
+	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
+	{
+		Enemy->OnLockOnEvent.ExecuteIfBound(true);
+	}
  
 	if (UWorld* World = GetWorld())
 	{
@@ -146,6 +152,13 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 void UKOGA_Utility_LockOn::DeactivateLockOn()
 {
 	if (!bIsLockedOn) return;
+	
+	// 에너미 락온 UI 비활성화
+	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
+	{
+		Enemy->OnLockOnEvent.ExecuteIfBound(false);
+	}
+	
 	bIsLockedOn = false;
 	LockedTarget = nullptr;
  
@@ -165,6 +178,7 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 			SpringArm->TargetArmLength = DefaultArmLength;   // ← 추가: 거리 복구
 		}
 	}
+	
 	
 	ApplyLockOnGameplayTag(false);
 }
@@ -215,7 +229,7 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     	{
     		if (UAbilitySystemComponent* DeadASC = DeadIface->GetAbilitySystemComponent())
     		{
-    			if (DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Enemy_Dead) ||
+    			if (DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead) ||
 					DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Dead))
     			{
     				continue;
@@ -276,7 +290,7 @@ bool UKOGA_Utility_LockOn::IsTargetValid() const
 		UAbilitySystemComponent* TargetASC = ASCIface->GetAbilitySystemComponent();
 		if (TargetASC)
 		{
-			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Enemy_Dead) ||
+			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead) ||
 				TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Dead))
 			{
 				if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Red, TEXT("[Valid] Dead 태그 감지됨"));

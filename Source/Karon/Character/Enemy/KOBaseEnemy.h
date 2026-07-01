@@ -19,7 +19,7 @@ struct FOnAttributeChangeData;
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
-DECLARE_DELEGATE_OneParam(FOnUIBattleEvent,bool bIsBattle)
+DECLARE_DELEGATE_OneParam(FOnUIVisibleEvent,bool bIsBattle)
 DECLARE_DELEGATE_OneParam(FOnHitEvent,bool bIsHit)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 
@@ -35,6 +35,7 @@ public:
 	FVector GetSocketLocation();
 	float GetAttackPoint();
 	void OnBattleChanged(bool bIsBattle);
+	void ChangeLockOnGroggy(bool bIsGroggied);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -101,17 +102,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> EnemyHPBarWidgetComponent;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> EnemyLockOnWidgetComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> EnemyParriedWidgetComponent;
+	
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
 	
+	FVector LocalLockOnInitialLocation=FVector(0,0,100.f);;
+	FVector LocalLockOnOffset=FVector(0,40.f,-80.f);
 
 	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
 	FOnCharacterEvent OnCharacterReset;
 	FOnUIChangeEvent OnHPChangedEvent;
-	FOnUIBattleEvent OnBattleEvent;
+	FOnUIVisibleEvent OnBattleEvent;
+	FOnUIVisibleEvent OnLockOnEvent;
+	FOnUIVisibleEvent OnParriedEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;

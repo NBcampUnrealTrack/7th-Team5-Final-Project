@@ -47,10 +47,14 @@ void UKOGA_Parried::ActivateAbility(
 	}
 	
 	//Enemy일 경우 Hit 브로드캐스트
-	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
+	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(GetAvatarCharacter());
+	if (!Enemy)
 	{
-		Enemy->OnHitEvent.ExecuteIfBound(true);	
+		return;
 	}
+	
+	Enemy->OnHitEvent.ExecuteIfBound(true);	
+	
 	
 	UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -81,7 +85,7 @@ void UKOGA_Parried::ActivateAbility(
 void UKOGA_Parried::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	//Enemy일 경우 Hit 브로드캐스트
+	//Enemy일 경우 Hit false
 	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
 	{
 		Enemy->OnHitEvent.ExecuteIfBound(false);

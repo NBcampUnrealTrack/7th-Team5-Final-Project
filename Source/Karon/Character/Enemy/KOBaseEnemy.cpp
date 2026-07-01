@@ -9,10 +9,12 @@
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "Character/Hero/KOHeroCharacter.h"
 #include "Components/WidgetComponent.h"
 #include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
+#include "UI/Enemy/KOEnemyBaseUI.h"
 #include "UI/Enemy/KOEnemyHPBar.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
@@ -38,6 +40,16 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	EnemyHPBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
 	EnemyHPBarWidgetComponent->SetupAttachment(GetMesh());
 	EnemyHPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	
+	//Enemy LockOn 부착
+	EnemyLockOnWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockOnWidgetComponent"));
+	EnemyLockOnWidgetComponent->SetupAttachment(GetMesh());
+	EnemyLockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	
+	//Enemy Parried 부착
+	EnemyParriedWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ParriedWidgetComponent"));
+	EnemyParriedWidgetComponent->SetupAttachment(GetMesh());
+	EnemyParriedWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
@@ -86,6 +98,24 @@ void AKOBaseEnemy::BeginPlay()
 		}
 	}
 	
+	//LockOn InitLocation & Binding
+	if (EnemyLockOnWidgetComponent)
+	{
+		LocalLockOnInitialLocation=EnemyLockOnWidgetComponent->GetRelativeLocation();
+		if (UKOEnemyBaseUI* LockOn = Cast<UKOEnemyBaseUI>(EnemyLockOnWidgetComponent->GetWidget()))
+		{
+			OnLockOnEvent.BindUObject(LockOn, &UKOEnemyBaseUI::OnVisibilityChanged);
+		}
+	}
+	
+	//LockOn Binding
+	if (EnemyParriedWidgetComponent)
+	{
+		if (UKOEnemyBaseUI* Parried = Cast<UKOEnemyBaseUI>(EnemyParriedWidgetComponent->GetWidget()))
+		{
+			OnParriedEvent.BindUObject(Parried, &UKOEnemyBaseUI::OnVisibilityChanged);
+		}
+	}
 }
 
 void AKOBaseEnemy::InitializeAttributes()
@@ -103,7 +133,7 @@ void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 	Super::OnCharacterDead(DeathInstigator);
 	
 	OnEnemyDead.Broadcast();
-
+	
 	DropItem();
 }
 
@@ -151,8 +181,6 @@ void AKOBaseEnemy::DropItem()
 				KOGameplayTags::Event_DropItem,
 				FInstancedStruct::Make(ItemMessage));
 		}
-		
-		
 	}
 }
 
@@ -160,6 +188,18 @@ void AKOBaseEnemy::DropItem()
 void AKOBaseEnemy::OnBattleChanged(bool bIsBattle)
 {
 	OnBattleEvent.ExecuteIfBound(bIsBattle);
+}
+
+void AKOBaseEnemy::ChangeLockOnGroggy(bool bIsGroggied)
+{
+	if (bIsGroggied)
+	{
+		EnemyLockOnWidgetComponent->AddRelativeLocation(LocalLockOnOffset);
+	}
+	else
+	{
+		EnemyLockOnWidgetComponent->SetRelativeLocation(LocalLockOnInitialLocation);
+	}
 }
 
 FVector AKOBaseEnemy::GetSocketLocation()
