@@ -373,10 +373,25 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
 	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
 	{
-		const float DesiredArm = bTargetIsBoss
+		/*const float DesiredArm = bTargetIsBoss
 			? DefaultArmLength + BossLockOnExtraArmLength
 			: DefaultArmLength;
+*/
+		// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
+		const float DistToTarget = FVector::Dist(
+			OwnerChar->GetActorLocation(), GetTargetSocketLocation());
 
+		float CloseExtra = 0.f;
+		if (DistToTarget < CloseDistanceThreshold)
+		{
+			const float Alpha = 1.f - (DistToTarget / CloseDistanceThreshold); // 가까울수록 1에 가까움
+			CloseExtra = Alpha * MaxCloseExtraArmLength;
+		}
+
+		const float DesiredArm = DefaultArmLength
+			+ (bTargetIsBoss ? BossLockOnExtraArmLength : 0.f)
+			+ CloseExtra;
+		
 		SpringArm->TargetArmLength = FMath::FInterpTo(
 			SpringArm->TargetArmLength, DesiredArm,
 			GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
@@ -390,7 +405,6 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	);
 
 	PC->SetControlRotation(NewRot);
-	
 	
 }
  

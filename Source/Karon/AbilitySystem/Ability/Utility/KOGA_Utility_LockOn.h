@@ -104,11 +104,19 @@ private:
  
 	// 보스 타겟 락온 시 사용할 별도 카메라 Pitch (보스는 덩치가 크므로 더 위에서 봄)
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
-	float BossLockOnCameraPitch = 15.f;
+	float BossLockOnCameraPitch = 10.f;
 	
 	// 보스 락온 시 카메라를 추가로 뒤로 빼는 거리 (cm)
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
-	float BossLockOnExtraArmLength = 300.f;
+	float BossLockOnExtraArmLength = 350.f;
+	
+	// 이 거리보다 타겟이 가까워지면 카메라를 뒤로 빼기 시작 (cm)
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float CloseDistanceThreshold = 400.f;
+
+	// 가장 가까울 때 추가로 빼는 최대 거리 (cm)
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float MaxCloseExtraArmLength = 250.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	FVector LockOnCameraOffset = FVector(200.f, 0.f, 0.f); // Y=오른쪽, Z=위
