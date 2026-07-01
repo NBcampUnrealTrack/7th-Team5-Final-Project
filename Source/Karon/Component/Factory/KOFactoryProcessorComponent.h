@@ -79,6 +79,19 @@ public:
     // IKOItemSink (벨트가 입력 버퍼로 넣음)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
     virtual bool PushItem(const FKOConveyorItem& Item) override;
+    
+    // 세이브 로드
+    void LoadProcessorStateFromSave(
+        FName InSelectedRecipeId,
+        const TMap<FName, int32>& InInputBuffer,
+        const TMap<FName, int32>& InOutputBuffer,
+        FName InActiveRecipeId,
+        float InCurrentCycleSeconds,
+        float InProgress
+    );
+    
+    float GetCurrentCycleSecondsForSave() const { return CurrentCycleSeconds; }
+    float GetProgressSecondsForSave() const { return Progress; }
 
 protected:
     virtual void BeginPlay() override;

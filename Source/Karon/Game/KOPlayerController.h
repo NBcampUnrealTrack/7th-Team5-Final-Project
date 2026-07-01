@@ -67,6 +67,7 @@ protected:
 	void Input_SelectBuildQuickSlot5(const FInputActionValue& Value);
 	
 	void Input_BuildRotate(const FInputActionValue& Value);
+	void Input_BuildInventory(const FInputActionValue& Value);
 	
 	void Input_OpenPlayerMenu(const FInputActionValue& Value);
 

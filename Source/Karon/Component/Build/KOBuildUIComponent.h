@@ -61,11 +61,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	void CloseQuickSlotBar();
 	
-	// X 키
+	// 해제 모드
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void StartDestroyBuildMode();
 
-	// X 키 토글: DestroyMode이면 취소, 아니면 진입.
+	// 해재 모드 : DestroyMode이면 취소, 아니면 진입.
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void ToggleDestroyBuildMode();
 	// 좌클릭
@@ -80,6 +80,12 @@ public:
 	
 	void SetHUDKeyGuideMode(bool bBuildMode);
 	UKOInGameHUD* GetHUDWidget() const;
+	
+	// 세이브 로드
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void LoadBuildQuickSlotsFromSave(const TArray<FName>& InBuildQuickSlots);
+
+	const TArray<FName>& GetBuildQuickSlotsForSave() const { return BuildQuickSlots; }
 
 private:
 	APlayerController* GetOwningPlayerController() const;

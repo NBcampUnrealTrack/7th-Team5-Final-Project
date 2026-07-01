@@ -463,11 +463,7 @@ void UKOGridBuildComponent::RequestBuild()
 	NewBuilding->InitializeBuildingData(CurrentFactoryId);
 
 	// 그리드 점유처리
-	GridSub->OccupyArea(
-		CurrentAnchor,
-		CurrentBuildingSize,
-		NewBuilding
-	);
+	GridSub->OccupyArea(CurrentAnchor, CurrentBuildingSize, NewBuilding);
 	
 	const FName BuiltFactoryId = CurrentFactoryId;
 

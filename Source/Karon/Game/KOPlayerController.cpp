@@ -365,12 +365,12 @@ void AKOPlayerController::SetupInputComponent()
 		);
 
 		KOIC->BindNativeAction(
-		InputConfig,
-		KOGameplayTags::Input_Native_Look,
-		ETriggerEvent::Triggered,
-		this,
-		&ThisClass::Input_Look,
-		true
+			InputConfig,
+			KOGameplayTags::Input_Native_Look,
+			ETriggerEvent::Triggered,
+			this,
+			&ThisClass::Input_Look,
+			true
 		);
 
 		KOIC->BindNativeAction(
@@ -469,6 +469,15 @@ void AKOPlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ThisClass::Input_OpenPlayerMenu,
+			true
+		);
+		
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_BuildInventory,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildInventory,
 			true
 		);
 
@@ -666,6 +675,30 @@ void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
 	const int32 Direction = AxisValue > 0.0f ? -1 : 1;
 
 	BuildUIComponent->RotateBuildPreview(Direction);
+}
+
+void AKOPlayerController::Input_BuildInventory(const FInputActionValue& Value)
+{	
+	if (!GridBuildComponent)
+	{
+		return;
+	}
+
+	if (GridBuildComponent->GetCurrentMode() != EKOGridBuildMode::BuildMenu)
+	{
+		return;
+	}
+	
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_BuildInventory))
+		{
+			UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+			return;
+		}
+	}
+
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
 }
 
 void AKOPlayerController::Input_OpenPlayerMenu(const FInputActionValue& /*Value*/)

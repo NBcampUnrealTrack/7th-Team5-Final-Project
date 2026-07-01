@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Data/Character/KOGrantSet.h"
+#include "Data/KODataTableTypes.h"
 #include "KOEquipmentComponent.generated.h"
 
 class UKOWeaponDefinition;
@@ -56,21 +57,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	void ToggleWeaponDrawState();
 	
-	// 세이브 로드
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	FName CurrentWeaponItemId = NAME_None;
-
-	UFUNCTION(BlueprintPure, Category = "Equipment")
 	FName GetCurrentWeaponItemId() const { return CurrentWeaponItemId; }
-
-	UFUNCTION(BlueprintPure, Category = "Equipment")
 	EWeaponSlot GetCurrentWeaponSlot() const { return CurrentWeaponSlot; }
 
-	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	// 무기 장착
 	bool EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def);
+	
+	// 방어구 장착
+	bool EquipArmorFromItem(EKOEquipmentSlotType SlotType, FName ItemId);
 
-	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	// 방어구 장착 해제
+	void UnequipArmor(EKOEquipmentSlotType SlotType);
+
+	UFUNCTION(BlueprintPure, Category = "Equipment|Armor")
+	FName GetEquippedArmorItemId(EKOEquipmentSlotType SlotType) const;
+
+	int32 GetTotalArmorDefense() const { return TotalArmorDefense; }
+	const TMap<EKOEquipmentSlotType, FName>& GetEquippedArmorItemIds() const {return EquippedArmorItemIds;}
+
+	// 방어력 총합 계산
+	void RecalculateArmorDefense();
+	
+	// 세이브 로드
 	bool RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot);
+	void LoadArmorFromSave(const TMap<EKOEquipmentSlotType, FName>& SavedArmorItemIds);
 	
 protected:
 	void SetWeaponSlot(EWeaponSlot NewSlot);
@@ -86,6 +96,17 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EWeaponSlot CurrentWeaponSlot = EWeaponSlot::Holster;
+	
+	// 무기
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	FName CurrentWeaponItemId = NAME_None;
+	
+	// 방어구
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment|Armor")
+	TMap<EKOEquipmentSlotType, FName> EquippedArmorItemIds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment|Armor")
+	int32 TotalArmorDefense = 0;
 	
 protected: 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

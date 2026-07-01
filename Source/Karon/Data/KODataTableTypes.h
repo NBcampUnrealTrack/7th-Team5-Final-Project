@@ -198,6 +198,10 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     /** 장비 관련 데이터 에셋 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Weapon")
     TSoftObjectPtr<UKOWeaponDefinition> WeaponDefinition;
+    
+    /** 방어력 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor")
+    int32 Defense = 0;
 
     /** 제작에 필요한 재료 */
    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")

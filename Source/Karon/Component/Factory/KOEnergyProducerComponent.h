@@ -59,6 +59,11 @@ public:
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
     virtual bool PushItem(const FKOConveyorItem& Item) override;
 
+    // 세이브 로드
+    float GetFuelDebtForSave() const { return FuelDebt; }
+    
+    void LoadFuelFromSave(FName InFuelItemId, int32 InFuelCount, float InFuelDebt);
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;

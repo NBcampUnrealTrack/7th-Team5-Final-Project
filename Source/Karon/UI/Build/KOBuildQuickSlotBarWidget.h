@@ -2,14 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
-
+#include "UI/Build/KOBuildQuickSlotWidget.h"
 #include "GMRouterSubsystem.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "KOBuildQuickSlotBarWidget.generated.h"
 
 class UPanelWidget;
 class UImage;
-class UKOBuildQuickSlotWidget;
 class UKOBuildUIComponent;
 
 UCLASS()
@@ -33,6 +32,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Build|Mode")
 	void SetBuildModeFrame(EKOGridBuildMode InMode);
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode);
+
+	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
+	EKOQuickSlotBarDisplayMode GetDisplayMode() const { return DisplayMode; }
+
+	bool IsBuildModeVisualEnabled() const { return DisplayMode == EKOQuickSlotBarDisplayMode::BuildMode; }
 
 private:
 	UKOBuildUIComponent* GetBuildUIComponent() const;
@@ -40,12 +47,11 @@ private:
 	
 	void SetModeBorderColor(const FLinearColor& InColor);
 	void SetModeBorderVisible(bool bVisible);
+	
+	void ApplyDisplayMode();
 
 	UFUNCTION()
-	void HandleBuildModeChangedMessage(
-		FGameplayTag Channel,
-		const FInstancedStruct& Payload
-	);
+	void HandleBuildModeChangedMessage( FGameplayTag Channel, const FInstancedStruct& Payload);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -53,6 +59,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|QuickSlot")
 	TSubclassOf<UKOBuildQuickSlotWidget> QuickSlotWidgetClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|QuickSlot")
+	EKOQuickSlotBarDisplayMode DisplayMode = EKOQuickSlotBarDisplayMode::BuildMode;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> TopModeBorderImage;

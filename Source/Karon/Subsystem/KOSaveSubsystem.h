@@ -7,6 +7,7 @@
 class AKOPlayerController;
 class UKOInventoryComponent;
 class UKOEquipmentComponent;
+class UKOBuildUIComponent;
 
 UCLASS()
 class KARON_API UKOSaveSubsystem : public UGameInstanceSubsystem
@@ -35,4 +36,5 @@ private:
     AKOPlayerController* GetKOPlayerController() const;
     UKOInventoryComponent* GetPlayerInventory(AKOPlayerController* PC) const;
     UKOEquipmentComponent* GetPlayerEquipment(AKOPlayerController* PC) const;
+    UKOBuildUIComponent* GetPlayerBuildUI(AKOPlayerController* PC) const;
 };

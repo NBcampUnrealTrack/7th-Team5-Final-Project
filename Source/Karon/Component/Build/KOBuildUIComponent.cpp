@@ -306,6 +306,53 @@ FName UKOBuildUIComponent::GetBuildQuickSlot(int32 SlotIndex) const
 	return BuildQuickSlots[SlotIndex];
 }
 
+void UKOBuildUIComponent::LoadBuildQuickSlotsFromSave(const TArray<FName>& InBuildQuickSlots)
+{
+	QuickSlotCount = FMath::Max(1, QuickSlotCount);
+    BuildQuickSlots.SetNum(QuickSlotCount);
+    
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    
+    	for (int32 Index = 0; Index < BuildQuickSlots.Num(); ++Index)
+    	{
+    		FName LoadedFactoryId = NAME_None;
+    
+    		if (InBuildQuickSlots.IsValidIndex(Index))
+    		{
+    			LoadedFactoryId = InBuildQuickSlots[Index];
+    		}
+    
+    		if (!LoadedFactoryId.IsNone())
+    		{
+    			if (!LoadSub || !LoadSub->FindFactoryRow(LoadedFactoryId))
+    			{
+    				UE_LOG(
+    					LogKOBuildUI,
+    					Warning,
+    					TEXT("[BuildUI] 저장된 퀵슬롯 FactoryId가 유효하지 않습니다. Slot=%d, FactoryId=%s"),
+    					Index + 1,
+    					*LoadedFactoryId.ToString()
+    				);
+    
+    				LoadedFactoryId = NAME_None;
+    			}
+    		}
+    
+    		BuildQuickSlots[Index] = LoadedFactoryId;
+    
+    		FKOBuildQuickSlotChangedMessage Message;
+    		Message.SlotIndex = Index;
+    		Message.FactoryId = BuildQuickSlots[Index];
+    
+    		Broadcast(
+    			KOGameplayTags::Data_Message_Build_QuickSlotChanged,
+    			FInstancedStruct::Make(Message)
+    		);
+    	}
+    
+    	ClearSelectedBuildQuickSlot();
+}
+
 int32 UKOBuildUIComponent::GetQuickSlotCount() const
 {
 	return BuildQuickSlots.Num();
@@ -318,6 +365,12 @@ int32 UKOBuildUIComponent::GetSelectedBuildQuickSlotIndex() const
 
 void UKOBuildUIComponent::OpenQuickSlotBar()
 {
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
+	if (!UISubsystem)
+	{
+		return;
+	}
+	
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 

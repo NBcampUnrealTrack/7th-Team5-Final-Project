@@ -106,6 +106,35 @@ public:
     // IKOItemSink (head 기준 — 외부 push 대비, M1 pull 모델에선 보조)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
     virtual bool PushItem(const FKOConveyorItem& Item) override;
+    
+    // 세이브 로드
+    void GetConveyorStateForSave(
+        TArray<FName>& OutSlotItemIds,
+        float& OutMoveAccumulator,
+        bool& bOutCornerFlip,
+        bool& bOutStraightReverse
+    ) const;
+
+    void LoadConveyorStateFromSave(
+        const TArray<FName>& InSlotItemIds,
+        float InMoveAccumulator,
+        bool bInCornerFlip,
+        bool bInStraightReverse
+    );
+    
+    bool GetOutputPortBindingForSave(
+        FIntPoint& OutMachineGridAnchor,
+        int32& OutPortIndex,
+        FName& OutItemId,
+        bool& bOutHasSelectedOutputPort
+    ) const;
+
+    void LoadOutputPortBindingFromSave(
+        AKOBaseBuilding* InMachine,
+        int32 InPortIndex,
+        FName InItemId,
+        bool bInHasSelectedOutputPort
+    );
 
 protected:
     virtual void BeginPlay() override;

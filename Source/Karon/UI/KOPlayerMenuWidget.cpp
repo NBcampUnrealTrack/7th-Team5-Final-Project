@@ -73,12 +73,6 @@ void UKOPlayerMenuWidget::NativeOnDeactivated()
 	}
 }
 
-bool UKOPlayerMenuWidget::NativeOnHandleBackAction()
-{
-	DeactivateWidget();
-	return true;
-}
-
 void UKOPlayerMenuWidget::SetActiveTab(EKOPlayerMenuTab Tab)
 {
 	if (!ContentSwitcher)

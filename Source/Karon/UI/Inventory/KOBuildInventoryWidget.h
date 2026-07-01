@@ -2,35 +2,35 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
-#include "KOPlayerMenuWidget.generated.h"
+#include "KOBuildInventoryWidget.generated.h"
 
 class UButton;
 class UWidgetSwitcher;
+class UKOFactoryCraftWidget;
 
 UENUM(BlueprintType)
-enum class EKOPlayerMenuTab : uint8
+enum class EKOBuildInventoryTab : uint8
 {
 	Inventory,
-	FactoryCraft,
-	SkillTree,
-	Option
+	FactoryCraft
 };
 
-UCLASS()
-class KARON_API UKOPlayerMenuWidget : public UKOActivatableWidget
+UCLASS(Abstract, BlueprintType, Blueprintable)
+class KARON_API UKOBuildInventoryWidget : public UKOActivatableWidget
 {
 	GENERATED_BODY()
 
 public:
-	UKOPlayerMenuWidget();
+	UKOBuildInventoryWidget();
 	
 	UFUNCTION(BlueprintCallable)
-	void SetActiveTab(EKOPlayerMenuTab Tab);
+	void SetActiveTab(EKOBuildInventoryTab Tab);
 	
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
+	//virtual bool NativeOnHandleBackAction() override;
 	
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Player Menu")
@@ -41,12 +41,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Factory;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Skill;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Option;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UKOFactoryCraftWidget> FactoryCraftWidget;
 	
 private:
 	UFUNCTION()
@@ -54,13 +51,4 @@ private:
 
 	UFUNCTION()
 	void HandleFactoryClicked();
-
-	UFUNCTION()
-	void HandleSkillClicked();
-
-	UFUNCTION()
-	void HandleOptionClicked();
-	
-private:
-	bool bPausedGameByThisWidget = false;
 };

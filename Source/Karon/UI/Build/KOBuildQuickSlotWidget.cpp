@@ -225,6 +225,18 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 	}
 }
 
+void UKOBuildQuickSlotWidget::SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode)
+{
+	if (DisplayMode == InDisplayMode)
+	{
+		return;
+	}
+
+	DisplayMode = InDisplayMode;
+
+	RefreshSelectedVisual();
+}
+
 FReply UKOBuildQuickSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
@@ -399,7 +411,13 @@ void UKOBuildQuickSlotWidget::HandleInventoryChangedMessage(FGameplayTag Channel
 void UKOBuildQuickSlotWidget::HandleQuickSlotSelectionChangedMessage(FGameplayTag Channel,
 	const FInstancedStruct& Payload)
 {
-	const FKOBuildQuickSlotSelectionChangedMessage* Message =
+	if (!IsBuildModeVisualEnabled())
+	{
+		RefreshSelectedVisual();
+		return;
+	}
+	
+	const FKOBuildQuickSlotSelectionChangedMessage* Message = 
 		Payload.GetPtr<FKOBuildQuickSlotSelectionChangedMessage>();
 
 	if (!Message)
@@ -420,6 +438,12 @@ void UKOBuildQuickSlotWidget::RefreshSelectedVisual()
 {
 	if (!SelectedFrameBorder)
 	{
+		return;
+	}
+	
+	if (!IsBuildModeVisualEnabled())
+	{
+		SelectedFrameBorder->SetVisibility(ESlateVisibility::Collapsed);
 		return;
 	}
 

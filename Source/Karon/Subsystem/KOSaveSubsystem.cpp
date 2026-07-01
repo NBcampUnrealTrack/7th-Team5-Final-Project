@@ -5,8 +5,15 @@
 #include "Game/KOPlayerController.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
+#include "Component/Factory/KOEnergyProducerComponent.h"
+#include "Component/Build/KOBuildUIComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
+#include "EngineUtils.h"
+#include "KOGridSubsystem.h"
+#include "Building/KOBaseBuilding.h"
+#include "Building/Conveyor/KOConveyorBelt.h"
 
 const FString UKOSaveSubsystem::DefaultSlotName = TEXT("KaronSaveSlot");
 
@@ -70,6 +77,16 @@ UKOEquipmentComponent* UKOSaveSubsystem::GetPlayerEquipment(AKOPlayerController*
 	return Pawn->FindComponentByClass<UKOEquipmentComponent>();
 }
 
+UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	return PC->FindComponentByClass<UKOBuildUIComponent>();
+}
+
 bool UKOSaveSubsystem::SaveCurrentGame()
 {
 	UKOSaveGame* SaveData = Cast<UKOSaveGame>(
@@ -107,23 +124,116 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 
 		if (!WeaponItemId.IsNone())
 		{
-			SaveData->bHasEquippedWeapon = true;
 			SaveData->EquippedWeaponItemId = WeaponItemId;
 			SaveData->EquippedWeaponSlot = Equipment->GetCurrentWeaponSlot();
 		}
 		else
 		{
-			SaveData->bHasEquippedWeapon = false;
 			SaveData->EquippedWeaponItemId = NAME_None;
 			SaveData->EquippedWeaponSlot = EWeaponSlot::Holster;
 		}
+		
+		// 방어구 저장
+		SaveData->EquippedArmorItemIds = Equipment->GetEquippedArmorItemIds();
+	}
+	
+	// 건설 퀵슬롯 저장
+    if (UKOBuildUIComponent* BuildUI = GetPlayerBuildUI(PC))
+    {
+    	SaveData->BuildQuickSlots = BuildUI->GetBuildQuickSlotsForSave();
+    }
+	
+	// 설비 저장
+	SaveData->Buildings.Empty();
+
+	if (UWorld* World = GetWorld())
+	{
+		for (TActorIterator<AKOBaseBuilding> It(World); It; ++It)
+		{
+			AKOBaseBuilding* Building = *It;
+			if (!Building)
+			{
+				continue;
+			}
+
+			const FName FactoryId = Building->GetFactoryId();
+			if (FactoryId.IsNone())
+			{
+				continue;
+			}
+
+			FKOSavedBuilding SavedBuilding;
+			SavedBuilding.FactoryId = FactoryId;
+			SavedBuilding.Transform = Building->GetActorTransform();
+			
+			// 그리드 점유 정보 저장
+			if (UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>())
+			{
+				FIntPoint Anchor;
+				FIntPoint Size;
+
+				if (GridSub->TryGetOccupiedAreaForActor(Building, Anchor, Size))
+				{
+					SavedBuilding.GridAnchor = Anchor;
+					SavedBuilding.GridSize = Size;
+				}
+			}
+			
+			// input, output, 제작 진행도, 레시피 저장
+			if (UKOFactoryProcessorComponent* Processor = Building->FindComponentByClass<UKOFactoryProcessorComponent>())
+			{
+				SavedBuilding.ProcessorState.SelectedRecipeId = Processor->GetSelectedRecipe();
+				SavedBuilding.ProcessorState.InputBuffer = Processor->GetInputBuffer();
+				SavedBuilding.ProcessorState.OutputBuffer = Processor->GetOutputBuffer();
+				SavedBuilding.ProcessorState.ActiveRecipeId = Processor->GetActiveRecipeId();
+				SavedBuilding.ProcessorState.CurrentCycleSeconds = Processor->GetCurrentCycleSecondsForSave();
+				SavedBuilding.ProcessorState.Progress = Processor->GetProgressSecondsForSave();
+			}
+
+			// 압력 상태 저장
+			if (UKOEnergyProducerComponent* Producer = Building->FindComponentByClass<UKOEnergyProducerComponent>())
+			{
+				SavedBuilding.ProducerState.FuelItemId = Producer->GetFuelItemId();
+				SavedBuilding.ProducerState.FuelCount = Producer->GetFuelCount();
+				SavedBuilding.ProducerState.FuelDebt = Producer->GetFuelDebtForSave();
+			}
+			
+			// 컨베이어 상태 저장
+			if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(Building))
+			{
+				Belt->GetConveyorStateForSave(
+					SavedBuilding.ConveyorState.SlotItemIds,
+					SavedBuilding.ConveyorState.MoveAccumulator,
+					SavedBuilding.ConveyorState.bCornerFlip,
+					SavedBuilding.ConveyorState.bStraightReverse
+				);
+				
+				// Output 포트 바인딩 저장
+				FIntPoint BoundMachineGridAnchor;
+				int32 BoundOutputPortIndex = INDEX_NONE;
+				FName BoundOutputItemId = NAME_None;
+				bool bHasSelectedOutputPort = false;
+
+				if (Belt->GetOutputPortBindingForSave(
+					BoundMachineGridAnchor,
+					BoundOutputPortIndex,
+					BoundOutputItemId,
+					bHasSelectedOutputPort
+				))
+				{
+					SavedBuilding.ConveyorState.bHasOutputBinding = true;
+					SavedBuilding.ConveyorState.BoundOutputMachineGridAnchor = BoundMachineGridAnchor;
+					SavedBuilding.ConveyorState.BoundOutputPortIndex = BoundOutputPortIndex;
+					SavedBuilding.ConveyorState.BoundOutputItemId = BoundOutputItemId;
+					SavedBuilding.ConveyorState.bHasSelectedOutputPort = bHasSelectedOutputPort;
+				}
+			}
+
+			SaveData->Buildings.Add(SavedBuilding);
+		}
 	}
 
-	return UGameplayStatics::SaveGameToSlot(
-		SaveData,
-		DefaultSlotName,
-		DefaultUserIndex
-	);
+	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
 }
 
 bool UKOSaveSubsystem::LoadCurrentGame()
@@ -166,7 +276,7 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 	// 장착 무기 로드
 	if (UKOEquipmentComponent* Equipment = GetPlayerEquipment(PC))
 	{
-		if (!SaveData->bHasEquippedWeapon || SaveData->EquippedWeaponItemId.IsNone())
+		if (SaveData->EquippedWeaponItemId.IsNone())
 		{
 			Equipment->UnequipWeapon();
 		}
@@ -176,6 +286,10 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			if (!LoadSub)
 			{
 				Equipment->UnequipWeapon();
+				
+				// 무기는 실패했어도 방어구는 복원
+				Equipment->LoadArmorFromSave(SaveData->EquippedArmorItemIds);
+				
 				return true;
 			}
 
@@ -192,6 +306,10 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 				);
 
 				Equipment->UnequipWeapon();
+				
+				// 무기는 실패했어도 방어구는 복원
+				Equipment->LoadArmorFromSave(SaveData->EquippedArmorItemIds);
+				
 				return true;
 			}
 
@@ -200,6 +318,163 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 				WeaponDef,
 				SaveData->EquippedWeaponSlot
 			);
+		}
+		
+		// 방어구 로드
+		Equipment->LoadArmorFromSave(SaveData->EquippedArmorItemIds);
+	}
+	
+	// 건설 퀵슬롯 로드
+    if (UKOBuildUIComponent* BuildUI = GetPlayerBuildUI(PC))
+    {
+    	BuildUI->CloseBuildMenu();
+    
+    	BuildUI->LoadBuildQuickSlotsFromSave(SaveData->BuildQuickSlots);
+    }
+	
+	// 설비 로드
+	if (UWorld* World = GetWorld())
+	{
+		UKOGridSubsystem* GridSub = World->GetSubsystem<UKOGridSubsystem>();
+		
+		// 기존 설비 제거
+		for (TActorIterator<AKOBaseBuilding> It(World); It; ++It)
+		{
+			AKOBaseBuilding* Building = *It;
+			if (!Building)
+			{
+				continue;
+			}
+			
+			if (GridSub)
+			{
+				GridSub->FreeAreaByActor(Building);
+			}
+
+			Building->Destroy();
+		}
+
+		// 저장된 설비 다시 스폰
+		UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+		if (LoadSub)
+		{
+			TArray<AKOBaseBuilding*> SpawnedBuildings;
+			TArray<FKOSavedBuilding> SpawnedBuildingSaveData;
+			
+			for (const FKOSavedBuilding& SavedBuilding : SaveData->Buildings)
+			{
+				if (SavedBuilding.FactoryId.IsNone())
+				{
+					continue;
+				}
+
+				UClass* BuildingClass = LoadSub->ResolveBuildingClass(SavedBuilding.FactoryId);
+
+				if (!BuildingClass)
+				{
+					UE_LOG(
+						LogTemp,
+						Warning,
+						TEXT("[SaveLoad] BuildingClass 로드 실패: FactoryId=%s"),
+						*SavedBuilding.FactoryId.ToString()
+					);
+					continue;
+				}
+
+				AKOBaseBuilding* NewBuilding = World->SpawnActor<AKOBaseBuilding>(
+					BuildingClass,
+					SavedBuilding.Transform
+				);
+				
+				if (!NewBuilding)
+				{
+					continue;
+				}
+				
+				NewBuilding->InitializeBuildingData(SavedBuilding.FactoryId);
+				
+				// 그리드 점유 복원
+				if (GridSub)
+				{
+					GridSub->OccupyArea(SavedBuilding.GridAnchor, SavedBuilding.GridSize, NewBuilding);
+				}
+
+				// 설비 내부 상태 복원
+				if (UKOFactoryProcessorComponent* Processor =
+						NewBuilding->FindComponentByClass<UKOFactoryProcessorComponent>())
+				{
+					Processor->LoadProcessorStateFromSave(
+						SavedBuilding.ProcessorState.SelectedRecipeId,
+						SavedBuilding.ProcessorState.InputBuffer,
+						SavedBuilding.ProcessorState.OutputBuffer,
+						SavedBuilding.ProcessorState.ActiveRecipeId,
+						SavedBuilding.ProcessorState.CurrentCycleSeconds,
+						SavedBuilding.ProcessorState.Progress
+					);
+				}
+
+				if (UKOEnergyProducerComponent* Producer =
+						NewBuilding->FindComponentByClass<UKOEnergyProducerComponent>())
+				{
+					Producer->LoadFuelFromSave(
+						SavedBuilding.ProducerState.FuelItemId,
+						SavedBuilding.ProducerState.FuelCount,
+						SavedBuilding.ProducerState.FuelDebt
+					);
+				}
+				
+				// 컨베이어 이동 아이템 / 방향 복원
+				if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(NewBuilding))
+				{
+					Belt->LoadConveyorStateFromSave(
+						SavedBuilding.ConveyorState.SlotItemIds,
+						SavedBuilding.ConveyorState.MoveAccumulator,
+						SavedBuilding.ConveyorState.bCornerFlip,
+						SavedBuilding.ConveyorState.bStraightReverse
+					);
+				}
+				
+				SpawnedBuildings.Add(NewBuilding);
+				SpawnedBuildingSaveData.Add(SavedBuilding);
+			}
+			
+			// 모든 건물이 스폰되고 그리드 점유가 끝난 뒤 Output 포트 바인딩 복원
+			for (int32 i = 0; i < SpawnedBuildings.Num(); ++i)
+			{
+				AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(SpawnedBuildings[i]);
+				if (!Belt)
+				{
+					continue;
+				}
+
+				const FKOSavedConveyorState& ConveyorState =
+					SpawnedBuildingSaveData[i].ConveyorState;
+
+				if (!ConveyorState.bHasOutputBinding)
+				{
+					continue;
+				}
+
+				if (!GridSub)
+				{
+					continue;
+				}
+
+				AActor* MachineActor = GridSub->GetOccupyingActorAt(ConveyorState.BoundOutputMachineGridAnchor);
+
+				AKOBaseBuilding* BoundMachine = Cast<AKOBaseBuilding>(MachineActor);
+				if (!BoundMachine)
+				{
+					continue;
+				}
+
+				Belt->LoadOutputPortBindingFromSave(
+					BoundMachine,
+					ConveyorState.BoundOutputPortIndex,
+					ConveyorState.BoundOutputItemId,
+					ConveyorState.bHasSelectedOutputPort
+				);
+			}
 		}
 	}
 

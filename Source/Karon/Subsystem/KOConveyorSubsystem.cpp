@@ -92,6 +92,12 @@ void UKOConveyorSubsystem::ProcessPendingActions()
 
 void UKOConveyorSubsystem::Tick(float DeltaTime)
 {
+    UWorld* World = GetWorld();
+    if (!World || World->IsPaused())
+    {
+        return;
+    }
+    
     if (DeltaTime <= 0.f)
     {
         return;

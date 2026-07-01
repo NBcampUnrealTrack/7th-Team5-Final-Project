@@ -24,6 +24,21 @@ UKOBuildQuickSlotBarWidget::UKOBuildQuickSlotBarWidget()
 
 bool UKOBuildQuickSlotBarWidget::NativeOnHandleBackAction()
 {
+	if (!IsBuildModeVisualEnabled())
+	{
+		return false;
+	}
+	
+	// Tab으로 열린 건설 인벤토리가 있으면 먼저 닫는다.
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_BuildInventory))
+		{
+			UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+			return true;
+		}
+	}
+	
 	// 건설 메뉴가 열려 있으면 단순 Deactivate가 아니라 메뉴 전체를 닫는다.
 	if (UKOBuildUIComponent* BuildUI = GetBuildUIComponent())
 	{
@@ -52,15 +67,7 @@ void UKOBuildQuickSlotBarWidget::NativeConstruct()
 	);
 
 	RebuildSlots();
-	
-	if (UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent())
-	{
-		SetBuildModeFrame(GridBuildComponent->GetCurrentMode());
-	}
-	else
-	{
-		SetBuildModeFrame(EKOGridBuildMode::None);
-	}
+	ApplyDisplayMode();
 }
 
 void UKOBuildQuickSlotBarWidget::NativeDestruct()
@@ -119,6 +126,12 @@ void UKOBuildQuickSlotBarWidget::SetModeBorderColor(const FLinearColor& InColor)
 
 void UKOBuildQuickSlotBarWidget::HandleBuildModeChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
 {
+	if (!IsBuildModeVisualEnabled())
+	{
+		SetModeBorderVisible(false);
+		return;
+	}
+	
 	const FKOBuildModeChangedMessage* Message =
 		Payload.GetPtr<FKOBuildModeChangedMessage>();
 
@@ -154,6 +167,43 @@ void UKOBuildQuickSlotBarWidget::SetModeBorderVisible(bool bVisible)
 	if (RightModeBorderImage)
 	{
 		RightModeBorderImage->SetVisibility(NewVisibility);
+	}
+}
+
+void UKOBuildQuickSlotBarWidget::ApplyDisplayMode()
+{
+	if (!IsBuildModeVisualEnabled())
+	{
+		SetModeBorderVisible(false);
+	}
+	else
+	{
+		if (UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent())
+		{
+			SetBuildModeFrame(GridBuildComponent->GetCurrentMode());
+		}
+		else
+		{
+			SetBuildModeFrame(EKOGridBuildMode::None);
+		}
+	}
+
+	if (!SlotContainer)
+	{
+		return;
+	}
+
+	const int32 ChildCount = SlotContainer->GetChildrenCount();
+
+	for (int32 i = 0; i < ChildCount; ++i)
+	{
+		UKOBuildQuickSlotWidget* SlotWidget =
+			Cast<UKOBuildQuickSlotWidget>(SlotContainer->GetChildAt(i));
+
+		if (SlotWidget)
+		{
+			SlotWidget->SetDisplayMode(DisplayMode);
+		}
 	}
 }
 
@@ -196,6 +246,7 @@ void UKOBuildQuickSlotBarWidget::RebuildSlots()
 		}
 
 		SlotWidget->SetupSlot(SlotIndex);
+		SlotWidget->SetDisplayMode(DisplayMode);
 
 		SlotContainer->AddChild(SlotWidget);
 	}
@@ -203,6 +254,12 @@ void UKOBuildQuickSlotBarWidget::RebuildSlots()
 
 void UKOBuildQuickSlotBarWidget::SetBuildModeFrame(EKOGridBuildMode InMode)
 {
+	if (!IsBuildModeVisualEnabled())
+	{
+		SetModeBorderVisible(false);
+		return;
+	}
+	
 	switch (InMode)
 	{
 	case EKOGridBuildMode::Placing:
@@ -221,6 +278,17 @@ void UKOBuildQuickSlotBarWidget::SetBuildModeFrame(EKOGridBuildMode InMode)
 		SetModeBorderVisible(false);
 		break;
 	}
+}
+
+void UKOBuildQuickSlotBarWidget::SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode)
+{
+	if (DisplayMode == InDisplayMode)
+	{
+		return;
+	}
+
+	DisplayMode = InDisplayMode;
+	ApplyDisplayMode();
 }
 
 

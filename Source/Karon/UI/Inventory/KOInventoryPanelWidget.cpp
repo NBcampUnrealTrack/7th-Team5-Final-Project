@@ -55,6 +55,11 @@ void UKOInventoryPanelWidget::NativeConstruct()
         InventoryWidget->OnSlotClicked.AddDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
     }
     
+    if (BuildQuickSlotBar)
+    {
+        BuildQuickSlotBar->SetDisplayMode(EKOQuickSlotBarDisplayMode::Inventory);
+    }
+    
     SyncEquipmentSlotsFromEquipmentComponent();
 }
 

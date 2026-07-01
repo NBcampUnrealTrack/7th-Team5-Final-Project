@@ -117,6 +117,21 @@ void UKOFactoryCraftWidget::Refresh()
     RefreshCraftCountText();
 }
 
+void UKOFactoryCraftWidget::SetHideEquipmentCraftables(bool bInHide)
+{
+    if (bHideEquipmentCraftables == bInHide)
+    {
+        return;
+    }
+
+    bHideEquipmentCraftables = bInHide;
+    
+    SelectedTarget = FKOCraftTarget();
+    CraftCount = MinCraftCount;
+
+    RebuildFactoryList();
+}
+
 void UKOFactoryCraftWidget::RebuildFactoryList()
 {
     if (!FactoryListBox)
@@ -205,6 +220,11 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
     {
         const FKOEquipmentRow* Row = LoadSub->FindEquipmentRow(EquipmentId);
         if (!Row || !Row->bCraftable)
+        {
+            continue;
+        }
+        
+        if (bHideEquipmentCraftables)
         {
             continue;
         }

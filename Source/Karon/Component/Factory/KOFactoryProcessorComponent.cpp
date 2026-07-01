@@ -353,6 +353,56 @@ bool UKOFactoryProcessorComponent::PushItem(const FKOConveyorItem& Item)
     return TryInsertItem(Item.ItemId, 1) == 0;
 }
 
+void UKOFactoryProcessorComponent::LoadProcessorStateFromSave(
+    FName InSelectedRecipeId,
+    const TMap<FName, int32>& InInputBuffer,
+    const TMap<FName, int32>& InOutputBuffer,
+    FName InActiveRecipeId,
+    float InCurrentCycleSeconds,
+    float InProgress
+)
+{
+    SelectedRecipeId = InSelectedRecipeId;
+    InputBuffer = InInputBuffer;
+    OutputBuffer = InOutputBuffer;
+
+    for (auto It = InputBuffer.CreateIterator(); It; ++It)
+    {
+        if (It.Key().IsNone() || It.Value() <= 0)
+        {
+            It.RemoveCurrent();
+        }
+    }
+
+    for (auto It = OutputBuffer.CreateIterator(); It; ++It)
+    {
+        if (It.Key().IsNone() || It.Value() <= 0)
+        {
+            It.RemoveCurrent();
+        }
+    }
+
+    if (!InActiveRecipeId.IsNone() && InCurrentCycleSeconds > KINDA_SMALL_NUMBER)
+    {
+        ActiveRecipeId = InActiveRecipeId;
+        CurrentCycleSeconds = InCurrentCycleSeconds;
+        Progress = FMath::Clamp(InProgress, 0.f, CurrentCycleSeconds);
+        LastSupplyRatio = 0.f; // 로드 직후 압력/전력 공급을 다시 받을 때까지 진행 방지
+        SetState(EKOFactoryState::Running);
+    }
+    else
+    {
+        ActiveRecipeId = NAME_None;
+        CurrentCycleSeconds = 0.f;
+        Progress = 0.f;
+        LastSupplyRatio = 1.f;
+        SetState(EKOFactoryState::Idle);
+    }
+
+    BroadcastProcessorChanged();
+    BroadcastStateChanged();
+}
+
 // Internal Function
 FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
 {

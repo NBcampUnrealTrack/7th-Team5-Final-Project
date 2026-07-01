@@ -55,4 +55,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InGameHUD);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_PlayerMenu);
+	
+	/** 건설 모드 인벤토리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BuildInventory);
 }

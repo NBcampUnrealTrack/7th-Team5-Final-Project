@@ -60,6 +60,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "KO|FactoryCraft")
     void Refresh();
+    
+    void SetHideEquipmentCraftables(bool bInHide);
 
 protected:
     virtual void NativeConstruct() override;
@@ -131,6 +133,8 @@ private:
     
     UPROPERTY()
     int32 MaxCraftCountLimit = 999;
+    
+    bool bHideEquipmentCraftables = false;
 
 private:
     void RebuildFactoryList(); // 설비/장비 목록 만듦 (왼쪽)

@@ -59,6 +59,22 @@ void UKOEnergyProducerComponent::InitializeFromRecipe()
     }
 }
 
+void UKOEnergyProducerComponent::LoadFuelFromSave(FName InFuelItemId, int32 InFuelCount, float InFuelDebt)
+{
+    FuelItemId = InFuelItemId;
+    FuelInBuffer = FMath::Max(0, InFuelCount);
+    FuelDebt = FMath::Clamp(InFuelDebt, 0.f, 0.999f);
+
+    if (FuelInBuffer <= 0 || FuelItemId.IsNone())
+    {
+        FuelInBuffer = 0;
+        FuelDebt = 0.f;
+        FuelItemId = NAME_None;
+    }
+
+    BroadcastFuelChanged();
+}
+
 void UKOEnergyProducerComponent::BeginPlay()
 {
     Super::BeginPlay();

@@ -47,6 +47,7 @@ public:
     virtual bool IsTickable() const override { return !IsTemplate(); }
     virtual bool IsTickableInEditor() const override { return false; }
     virtual ETickableTickType GetTickableTickType() const override { return ETickableTickType::Conditional; }
+    virtual bool IsTickableWhenPaused() const override { return false; }
 
     // UWorldSubsystem
     virtual void Deinitialize() override;

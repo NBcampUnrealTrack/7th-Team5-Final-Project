@@ -151,6 +151,11 @@ void UKOEquipmentSlotWidget::SyncFromEquipmentComponent()
 	{
 		EquippedItemId = EquipmentComponent->GetCurrentWeaponItemId();
 	}
+	
+	else
+	{
+		EquippedItemId = EquipmentComponent->GetEquippedArmorItemId(SlotType);
+	}
 
 	RefreshVisual();
 }
@@ -164,6 +169,7 @@ bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
 		return false;
 	}
 
+	// 무기 슬롯
 	if (SlotType == EKOEquipmentSlotType::Weapon)
 	{
 		if (EquippedItemId.IsNone())
@@ -178,8 +184,7 @@ bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
 			return false;
 		}
 
-		UKOWeaponDefinition* WeaponDef =
-			LoadSub->ResolveWeaponDefinitionByItemId(EquippedItemId);
+		UKOWeaponDefinition* WeaponDef = LoadSub->ResolveWeaponDefinitionByItemId(EquippedItemId);
 
 		if (!WeaponDef)
 		{
@@ -203,9 +208,15 @@ bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
 
 		return true;
 	}
+	
+	// 방어구 슬롯
+	if (EquippedItemId.IsNone())
+	{
+		EquipmentComponent->UnequipArmor(SlotType);
+		return true;
+	}
 
-	// 방어구는 나중에 여기서 방어력/스탯 컴포넌트에 반영
-	return true;
+	return EquipmentComponent->EquipArmorFromItem(SlotType, EquippedItemId);
 }
 
 bool UKOEquipmentSlotWidget::NativeOnDrop(

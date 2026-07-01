@@ -535,6 +535,112 @@ bool AKOConveyorBelt::PushItem(const FKOConveyorItem& Item)
     return false;
 }
 
+void AKOConveyorBelt::GetConveyorStateForSave(TArray<FName>& OutSlotItemIds, float& OutMoveAccumulator,
+    bool& bOutCornerFlip, bool& bOutStraightReverse) const
+{
+    OutSlotItemIds.Reset();
+    OutSlotItemIds.Reserve(Slots.Num());
+
+    for (const FKOConveyorItem& Slot : Slots)
+    {
+        OutSlotItemIds.Add(Slot.IsValid() ? Slot.ItemId : NAME_None);
+    }
+
+    OutMoveAccumulator = MoveAccumulator;
+    bOutCornerFlip = bCornerFlip;
+    bOutStraightReverse = bStraightReverse;
+}
+
+void AKOConveyorBelt::LoadConveyorStateFromSave(const TArray<FName>& InSlotItemIds, float InMoveAccumulator,
+    bool bInCornerFlip, bool bInStraightReverse)
+{
+    bCornerFlip = bInCornerFlip;
+    bStraightReverse = bInStraightReverse;
+
+    RecomputePortDirections();
+    ApplyFlowToMaterial();
+
+    SlotCount = FMath::Max(1, SlotCount);
+    Slots.SetNum(SlotCount);
+
+    for (FKOConveyorItem& Slot : Slots)
+    {
+        Slot.Reset();
+    }
+
+    const int32 CopyCount = FMath::Min(Slots.Num(), InSlotItemIds.Num());
+    for (int32 i = 0; i < CopyCount; ++i)
+    {
+        const FName ItemId = InSlotItemIds[i];
+        if (!ItemId.IsNone())
+        {
+            Slots[i] = FKOConveyorItem(ItemId);
+        }
+    }
+
+    MoveAccumulator = FMath::Clamp(InMoveAccumulator, 0.f, 0.999f);
+
+    SetupItemVisual();
+    UpdateItemVisual();
+}
+
+bool AKOConveyorBelt::GetOutputPortBindingForSave(FIntPoint& OutMachineGridAnchor, int32& OutPortIndex,
+    FName& OutItemId, bool& bOutHasSelectedOutputPort) const
+{
+    OutMachineGridAnchor = FIntPoint::ZeroValue;
+    OutPortIndex = INDEX_NONE;
+    OutItemId = NAME_None;
+    bOutHasSelectedOutputPort = false;
+
+    AKOBaseBuilding* Machine = BoundOutputMachine.Get();
+    if (!Machine)
+    {
+        return false;
+    }
+
+    const UKOGridSubsystem* GridSub = GetWorld()
+        ? GetWorld()->GetSubsystem<UKOGridSubsystem>()
+        : nullptr;
+
+    if (!GridSub)
+    {
+        return false;
+    }
+
+    FIntPoint MachineAnchor;
+    FIntPoint MachineSize;
+
+    if (!GridSub->TryGetOccupiedAreaForActor(Machine, MachineAnchor, MachineSize))
+    {
+        return false;
+    }
+
+    OutMachineGridAnchor = MachineAnchor;
+    OutPortIndex = BoundOutputPortIndex;
+    OutItemId = BoundOutputItemId;
+    bOutHasSelectedOutputPort = bHasSelectedOutputPort;
+
+    return true;
+}
+
+void AKOConveyorBelt::LoadOutputPortBindingFromSave(AKOBaseBuilding* InMachine, int32 InPortIndex, FName InItemId,
+    bool bInHasSelectedOutputPort)
+{
+    if (!InMachine)
+    {
+        BoundOutputMachine.Reset();
+        BoundOutputPortIndex = INDEX_NONE;
+        BoundOutputItemId = NAME_None;
+        bHasSelectedOutputPort = false;
+        return;
+    }
+
+    BoundOutputMachine = InMachine;
+    BoundOutputPortIndex = InPortIndex;
+    BoundOutputItemId = InItemId;
+    bHasSelectedOutputPort = bInHasSelectedOutputPort && InPortIndex != INDEX_NONE && !InItemId.IsNone();
+}
+
 FVector AKOConveyorBelt::ComputeSlotWorldPos(float T) const
 {
     // 입구 모서리→중심→출구 모서리 경로. 코너면 중심에서 꺾이고, 직선이면 일직선.

@@ -16,6 +16,13 @@ class UKOBuildUIComponent;
 class UKOInventoryComponent;
 class UKOItemTooltipWidget;
 
+UENUM(BlueprintType)
+enum class EKOQuickSlotBarDisplayMode : uint8
+{
+	Inventory,
+	BuildMode
+};
+
 UCLASS()
 class KARON_API UKOBuildQuickSlotWidget : public UUserWidget, public IKOGMSInterface
 {
@@ -31,6 +38,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	void RefreshSlot();
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode);
+
+	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
+	EKOQuickSlotBarDisplayMode GetDisplayMode() const { return DisplayMode; }
+
+	bool IsBuildModeVisualEnabled() const{ return DisplayMode == EKOQuickSlotBarDisplayMode::BuildMode; }
 
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -50,6 +65,9 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot", meta = (ExposeOnSpawn = "true"))
 	int32 SlotIndex = 0;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
+	EKOQuickSlotBarDisplayMode DisplayMode = EKOQuickSlotBarDisplayMode::BuildMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
 	TObjectPtr<UTexture2D> EmptySlotIcon = nullptr;
