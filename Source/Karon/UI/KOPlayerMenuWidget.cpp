@@ -4,7 +4,10 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/ConfirmationPopup/KOConfirmationPopup.h"
 #include "UI/KOUISubsystem.h"
+
+#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -160,6 +163,18 @@ void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 
 void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 {
+	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
+	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
+	{
+		Popup->SetupPopup(
+			LOCTEXT("BackToTitleTitle", "타이틀로 돌아가기"),
+			LOCTEXT("BackToTitleDescription", "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"));
+		Popup->OnConfirmed.AddUniqueDynamic(this, &ThisClass::HandleBackToTitleConfirmed);
+	}
+}
+
+void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
+{
 	FName TargetLevelName = FName("L_MainMenu");
 	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
 
@@ -177,3 +192,5 @@ void UKOPlayerMenuWidget::HandleResumeClicked()
 {
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 }
+
+#undef LOCTEXT_NAMESPACE

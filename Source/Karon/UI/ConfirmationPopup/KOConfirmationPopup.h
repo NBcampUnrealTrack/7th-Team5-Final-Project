@@ -18,18 +18,29 @@ class KARON_API UKOConfirmationPopup : public UKOActivatableWidget
 	GENERATED_BODY()
 	
 public:
+	UKOConfirmationPopup();
+	
 	UPROPERTY()
 	FOnPopupClosedSignature OnConfirmed;
-	
-	virtual void NativeConstruct() override;
 	
 	void SetupPopup(const FText& Title, const FText& Description);
 	
 protected:
+	virtual void NativeConstruct() override;
+	
 	void HandleConfirm();
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonButtonBase> ConfirmButton;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> CloseButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonTextBlock> TitleText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonTextBlock> DescriptionText;
 	
 private:
 	void OnCloseButtonClicked();

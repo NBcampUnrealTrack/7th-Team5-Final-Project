@@ -61,4 +61,7 @@ namespace KOGameplayTags
 
 	/** 옵션 팝업 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Option);
+	
+	/** 재확인 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_ConfirmationPopup);
 }

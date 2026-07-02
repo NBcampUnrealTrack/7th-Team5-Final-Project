@@ -33,10 +33,12 @@ protected:
 
 private:
 	void OnStartGameClicked() const;
-	void OnQuitGameClicked() const;
+	void OnQuitGameClicked();
 	void OnOptionClicked() const;
-	void GameQuitConfirmation() const;
-	
+
+	UFUNCTION()
+	void GameQuitConfirmation();
+
 	UPROPERTY()
 	TObjectPtr<UKOUISubsystem> CachedUISubsystem;
 };

@@ -6,6 +6,8 @@
 #include "CommonButtonBase.h"
 #include "Kismet/GameplayStatics.h"
 
+#define LOCTEXT_NAMESPACE "KOTitleWidget"
+
 void UKOTitleWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -57,17 +59,18 @@ void UKOTitleWidget::OnStartGameClicked() const
 	}
 }
 
-void UKOTitleWidget::OnQuitGameClicked() const
+void UKOTitleWidget::OnQuitGameClicked()
 {
-	if (CachedUISubsystem)
+	if (!CachedUISubsystem)
 	{
-		//UKOConfirmationPopup* ConfirmationPopup = CachedUISubsystem->OpenWidget(GetWorld(), );
+		return;
 	}
-	APlayerController* PC = GetOwningPlayer();
-	if (PC)
+
+	UCommonActivatableWidget* Widget = CachedUISubsystem->OpenWidget(KOGameplayTags::UI_Widget_ConfirmationPopup);
+	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
-		// 가장 마지막 인자는 강제 종료 여부로 데스크탑/PIE외에도 동작하려면 true가 필요함
-		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
+		Popup->SetupPopup(LOCTEXT("QuitGameTitle", "게임 종료"), LOCTEXT("QuitGameDescription", "게임을 종료하시겠습니까?"));
+		Popup->OnConfirmed.AddUniqueDynamic(this, &UKOTitleWidget::GameQuitConfirmation);
 	}
 }
 
@@ -77,7 +80,7 @@ void UKOTitleWidget::OnOptionClicked() const
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
 }
 
-void UKOTitleWidget::GameQuitConfirmation() const
+void UKOTitleWidget::GameQuitConfirmation()
 {
 	if (APlayerController* PC = GetOwningPlayer())
 	{
@@ -85,3 +88,5 @@ void UKOTitleWidget::GameQuitConfirmation() const
 		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

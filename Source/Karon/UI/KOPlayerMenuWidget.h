@@ -77,7 +77,10 @@ private:
 	
 	UFUNCTION()
 	void HandleBackToTitleClicked();
-	
+
+	UFUNCTION()
+	void HandleBackToTitleConfirmed();
+
 	UFUNCTION()
 	void HandleResumeClicked();
 

@@ -12,7 +12,7 @@
 
 UKOOptionWidget::UKOOptionWidget()
 {
-	InputMode = EKOUIInputMode::All;
+	InputMode = EKOUIInputMode::Menu;
 	bIsBackHandler = true;
 }
 
