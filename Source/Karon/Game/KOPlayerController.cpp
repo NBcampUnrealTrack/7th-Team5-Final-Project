@@ -3,11 +3,13 @@
 #include "AbilitySystemInterface.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/KOAbilitySystemComponent.h"
+#include "Character/KOCharacterBase.h"
 #include "Component/Input/KOInputComponent.h"
 #include "Component/Interaction/KOInteractionComponent.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Component/Build/KOBuildUIComponent.h"
+#include "Component/Movement/KOCharacterMovementComponent.h"
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "Utility/Log/KOLogManager.h"
@@ -48,7 +50,7 @@ void AKOPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultIMC, 0);
 	}
-
+	
 	// 루트 레이아웃은 UISubsystem이 UKOUISettings::RootLayoutMap을 참조해 생성·소유한다.
 	// 컨트롤러는 위젯 클래스/인스턴스를 직접 들지 않고 컨텍스트 태그만 넘긴다.
 	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))

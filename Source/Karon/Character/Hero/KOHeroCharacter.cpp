@@ -13,6 +13,7 @@
 #include "Animation/KOAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Game/KOGameMode.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -20,6 +21,8 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
 	SpringArm->SetupAttachment(RootComponent);
