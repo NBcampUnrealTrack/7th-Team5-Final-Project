@@ -26,6 +26,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_BrakingDeceleration, "Data.Attribute.Movement.BrakingDeceleration");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_MaxWalkSpeedCrouch, "Data.Attribute.Movement.MaxWalkSpeedCrouch");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_JumpStrength, "Data.Attribute.Movement.JumpStrength");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_GravityScale, "Data.Attribute.Movement.GravityScale");
+	
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_AttackPower, "Data.Attribute.Combat.AttackPower");

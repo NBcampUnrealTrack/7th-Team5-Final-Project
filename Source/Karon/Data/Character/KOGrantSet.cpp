@@ -96,6 +96,7 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_BrakingDeceleration, Row->Movement.BrakingDecelerationWalking);
 				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_MaxWalkSpeedCrouch, Row->Movement.MaxWalkSpeedCrouched);
 				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_JumpStrength, Row->Movement.JumpStrength);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_GravityScale, Row->Movement.GravityScale);
 				
 				ASC->ApplyGameplayEffectSpecToSelf(*Handle.Data.Get());
 			}

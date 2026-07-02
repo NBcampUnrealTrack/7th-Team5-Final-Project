@@ -27,6 +27,9 @@ struct FKOMovementStatData
 
 	UPROPERTY(EditDefaultsOnly)
 	float JumpStrength = 600.f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float GravityScale = 1.5f;
 };
 
 USTRUCT(BlueprintType)

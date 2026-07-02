@@ -30,6 +30,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_BrakingDeceleration);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_MaxWalkSpeedCrouch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_JumpStrength);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Movement_GravityScale);
+	
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Combat_AttackPower);

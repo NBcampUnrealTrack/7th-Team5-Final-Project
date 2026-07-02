@@ -93,3 +93,8 @@ void AKOCharacterBase::OnJumpStrengthChanged(float OldValue, float NewValue)
 	GetCharacterMovement()->JumpZVelocity = NewValue;
 }
 
+void AKOCharacterBase::OnGravityScaleChanged(float OldValue, float NewValue)
+{
+	GetCharacterMovement()->GravityScale = NewValue;
+}
+

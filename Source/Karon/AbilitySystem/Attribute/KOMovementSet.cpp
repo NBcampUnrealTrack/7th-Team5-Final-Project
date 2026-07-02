@@ -32,6 +32,9 @@ void UKOMovementSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute,
 	
 	if (Attribute == GetJumpStrengthAttribute())
 		NewValue = FMath::Max(NewValue, 1.f);
+	
+	if (Attribute == GetGravityScaleAttribute())
+		NewValue = FMath::Max(NewValue, 0.1f);
 }
 
 void UKOMovementSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -55,6 +58,9 @@ void UKOMovementSet::PreAttributeChange(const FGameplayAttribute& Attribute, flo
 	
 	if (Attribute == GetJumpStrengthAttribute())
 		NewValue = FMath::Max(NewValue, 1.f);
+	
+	if (Attribute == GetGravityScaleAttribute())
+		NewValue = FMath::Max(NewValue, 0.1f);
 }
 
 void UKOMovementSet::PostAttributeBaseChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) const
@@ -86,6 +92,9 @@ void UKOMovementSet::PostAttributeChange(const FGameplayAttribute& Attribute, fl
 	
 	if (Attribute == GetJumpStrengthAttribute())
 		OnJumpStrengthChanged.Broadcast(OldValue, NewValue);
+	
+	if (Attribute == GetGravityScaleAttribute())
+		OnGravityScaleChanged.Broadcast(OldValue, NewValue);
 }
 
 void UKOMovementSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)

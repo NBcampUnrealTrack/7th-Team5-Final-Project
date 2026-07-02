@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "KOGA_AttackBase.h"
@@ -9,9 +7,7 @@
 class UKOGA_Parried;
 class AKOHeroCharacter;
 class AKOBaseEnemy;
-/**
- * 
- */
+
 UCLASS()
 class KARON_API UKOGA_ParryAttack : public UKOGA_AttackBase
 {

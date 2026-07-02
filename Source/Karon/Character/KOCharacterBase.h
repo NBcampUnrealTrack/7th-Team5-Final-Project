@@ -62,6 +62,9 @@ public:
 	UFUNCTION()
 	void OnJumpStrengthChanged(float OldValue, float NewValue);
 	
+	UFUNCTION()
+	void OnGravityScaleChanged(float OldValue, float NewValue);
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;

@@ -31,6 +31,7 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, MaxWalkSpeedCrouched)
 	
 	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, JumpStrength)
+	ATTRIBUTE_ACCESSORS_BASIC(UKOMovementSet, GravityScale)
 protected:
 	// ─── Attributes ────────────────────────────────────────────────────
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -51,6 +52,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FGameplayAttributeData JumpStrength;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FGameplayAttributeData GravityScale;
+	
 public:
 	// ─── Delegates ────────────────────────────────────────────────────
 	FOnAttributeChanged OnMaxWalkSpeedBaseChanged;
@@ -58,7 +62,8 @@ public:
 	
 	FOnAttributeChanged OnBrakingDecelerationWalkingChanged;
 	FOnAttributeChanged OnGroundFrictionChanged;
-
 	FOnAttributeChanged OnMaxWalkSpeedCrouchedChanged;
+	
 	FOnAttributeChanged OnJumpStrengthChanged;
+	FOnAttributeChanged OnGravityScaleChanged;
 };
