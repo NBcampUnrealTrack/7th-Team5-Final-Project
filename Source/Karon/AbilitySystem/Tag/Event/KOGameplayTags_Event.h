@@ -43,6 +43,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Light);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Input_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Plunge_Land);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_ParryAttack);
 	
 	// ── Event | OverClock ─────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_OverClock_Start);

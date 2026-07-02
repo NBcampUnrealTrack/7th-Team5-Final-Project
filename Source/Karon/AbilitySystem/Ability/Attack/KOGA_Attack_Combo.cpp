@@ -6,6 +6,8 @@
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Enemy/KOBaseEnemy.h"
+#include "Utility/FunctionLibrary/FunctionLibrary.h"
 #include "Utility/Log/KOLogManager.h"
 
 UKOGA_Attack_Combo::UKOGA_Attack_Combo()
@@ -23,6 +25,65 @@ void UKOGA_Attack_Combo::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	//근처에 그로기된 적이 있다면 패리어택 공격 실행
+	ACharacter* Character = GetAvatarCharacter();
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(Character);
+	TArray<TWeakObjectPtr<AActor>> DetectedActors;
+	FunctionLibrary::FindActorsWithGameplayTagInRange(
+		GetWorld(),
+		Character->GetActorLocation(),
+		GroggyRadius,
+		KOGameplayTags::State_Enemy_Parried,
+		IgnoredActors,
+		DetectedActors
+		);
+	
+	bool bCanGroggyAttack=false;
+	
+	//그로기된 적이 있는 경우 어빌리티 즉시종료 및 패리어택 어빌리티 실행
+	if (DetectedActors.Num() != 0)
+	{
+		//첫번째 액터가 그로기 루프 중인지 체크
+		if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(DetectedActors[0]))
+		{
+			if (UAnimInstance* AnimInstance = Enemy->GetMesh()? Enemy->GetMesh()->GetAnimInstance():nullptr)
+			{
+				//현재 실행중인 몽타주 섹션 이름을 반환
+				FName CurrentSectionName = AnimInstance->Montage_GetCurrentSection();
+				if (CurrentSectionName == GroggyLoopName)
+				{
+					bCanGroggyAttack=true;
+				}
+			}
+		}
+		
+		if (bCanGroggyAttack)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		
+			//다음 어빌리티에 감지된 데이터 전달
+			FGameplayAbilityTargetData_ActorArray* NewData = new FGameplayAbilityTargetData_ActorArray();
+			FGameplayAbilityTargetDataHandle TargetDataHandle;
+			NewData->TargetActorArray = DetectedActors;
+			TargetDataHandle.Add(NewData);
+		
+			//게임플레이 이벤트 데이터에 값 주입
+			FGameplayEventData EventData;
+			EventData.EventTag = KOGameplayTags::Event_ParryAttack;
+			EventData.TargetData = TargetDataHandle; 
+
+			// 게임플레이 이벤트를 통해 어빌리티 발동
+			if (UAbilitySystemComponent* ASC = GetASC())
+			{
+				ASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+			}
+			return;
+		}
+	}
+	
+	
+	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

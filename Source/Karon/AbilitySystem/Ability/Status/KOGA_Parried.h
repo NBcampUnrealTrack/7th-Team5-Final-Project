@@ -31,6 +31,8 @@ public:
 		bool bReplicateEndAbility, bool bWasCancelled
 	) override;
 	
+	void ClearRecoverTimer();
+	
 private:
 	UFUNCTION()
 	void OnMontageCompleted();
@@ -42,8 +44,8 @@ private:
 	void OnRecoverTimeEnd();
 	
 public:
-	FName ParriedSuccessSectionName = FName("ParriedSuccess");
 	FName ParriedStandUpSectionName = FName("ParriedStandUp");
+	FName ParriedSuccessSectionName = FName("ParriedSuccess");
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")

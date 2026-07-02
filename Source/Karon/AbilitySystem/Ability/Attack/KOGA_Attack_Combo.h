@@ -71,6 +71,8 @@ private:
 	bool bNextComboRequested = false;
 	bool bComboWindowOpen = false;
 	bool bIsTransitioning = false; 
+	float GroggyRadius=300.f;
+	FName GroggyLoopName=FName("ParriedLoop");
 	
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> CurrentMontageTask;

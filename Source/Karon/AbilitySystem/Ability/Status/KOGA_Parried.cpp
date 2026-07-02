@@ -90,9 +90,13 @@ void UKOGA_Parried::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	{
 		Enemy->OnHitEvent.ExecuteIfBound(false);
 	}
-	GetWorld()->GetTimerManager().ClearTimer(RecoverTimerHandle);
-	
+	ClearRecoverTimer();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UKOGA_Parried::ClearRecoverTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(RecoverTimerHandle);
 }
 
 void UKOGA_Parried::OnMontageCompleted()

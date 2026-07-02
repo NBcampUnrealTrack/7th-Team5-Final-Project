@@ -140,6 +140,14 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 			
 			FGameplayEventData EventData;
 			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_Success, &EventData);
+			
+			//방향이 맞는 상태에서 퍼펙트가드 성공시 해당 에너미 그로기
+			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard))
+			{
+				FGameplayEventData ParryEventData;
+				SourceASC->HandleGameplayEvent(KOGameplayTags::Event_Parried, &ParryEventData);
+			}
+			
 		}
 		else
 		{
