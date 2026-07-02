@@ -10,6 +10,7 @@
 #include "Perception/AISense_Prediction.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Team.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 
 AKOBaseEnemyAIController::AKOBaseEnemyAIController()
@@ -46,6 +47,8 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 		Enemy->EnemyAttackDelayTime);
 }
 
+
+
 ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
 	if (const AKOHeroCharacter* Player = Cast<AKOHeroCharacter>(&Other))
@@ -73,6 +76,12 @@ void AKOBaseEnemyAIController::DeadEvent()
 	if (BBComp != nullptr && !bIsDead)
 	{
 		bIsDead = true;
+		SetTargetActor(nullptr);
+		
+		if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+		{
+			SaveSubsystem->NotifyActorStoppedTargetingPlayer(IsValid(Enemy) ? Enemy : GetPawn());
+		}
 		
 		BBComp->SetValueAsBool(bIsDeadKey, true);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&AKOBaseEnemyAIController::StopBT,StopBTDelay,false);
@@ -83,10 +92,12 @@ void AKOBaseEnemyAIController::ResetEvent()
 {
 	if (BBComp!=nullptr)
 	{
+		SetTargetActor(nullptr);
 		BBComp->InitializeBlackboard(*EnemyBehaviorTree->BlackboardAsset);
 		//명시적 초기화
 		BBComp->SetValueAsBool(bIsDeadKey,false);
 		BBComp->SetValueAsBool(bIsHitKey,false);
+		bIsDead = false;
 		RunBehaviorTree(EnemyBehaviorTree);
 	}
 }
@@ -136,7 +147,7 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 		{
 			if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(Actor))
 			{
-				BBComp->SetValueAsObject(TEXT("TargetActor"), Player);
+				SetTargetActor(Player);
 				//팀에게도 전달
 				MakeAIPerceptionTeamEvent(Player);
 			}
@@ -220,6 +231,16 @@ void AKOBaseEnemyAIController::StopBT()
 
 void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 {
+	if (!BBComp)
+	{
+		return;
+	}
+
+	AActor* PreviousTarget = Cast<AActor>(BBComp->GetValueAsObject(TEXT("TargetActor")));
+
+	const bool bWasTargetingPlayer = Cast<AKOHeroCharacter>(PreviousTarget) != nullptr;
+	const bool bIsTargetingPlayer = Cast<AKOHeroCharacter>(TargetActor) != nullptr;
+	
 	if (TargetActor!=nullptr)
 	{
 		BBComp->SetValueAsObject(TEXT("TargetActor"), TargetActor);
@@ -236,6 +257,20 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 			Enemy->OnBattleChanged(false);
 		}
 	}
+	
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (!bWasTargetingPlayer && bIsTargetingPlayer)
+		{
+			SaveSubsystem->NotifyActorTargetingPlayer(GetPawn());
+		}
+		else if (bWasTargetingPlayer && !bIsTargetingPlayer)
+		{
+			SaveSubsystem->NotifyActorStoppedTargetingPlayer(GetPawn());
+		}
+	}
 }
+
+
 
 

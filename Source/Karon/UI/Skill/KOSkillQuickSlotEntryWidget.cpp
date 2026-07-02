@@ -5,6 +5,7 @@
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOSkillSubsystem.h"
 #include "Data/KODataTableTypes.h"
 
 #include "AbilitySystemComponent.h"
@@ -237,6 +238,12 @@ bool UKOSkillQuickSlotEntryWidget::NativeOnDrop(
 	{
 		return false;
 	}
+	
+	UKOSkillSubsystem* SkillSubsystem = UKOSkillSubsystem::Get(this);
+	if (!SkillSubsystem)
+	{
+		return false;
+	}
 
 	// ── 슬롯 간 스왑 ──────────────────────────────────────────────
 	if (UKOSkillQuickSlotEntryWidget* SrcSlot = SkillOp->SourceSlotWidget.Get())
@@ -246,25 +253,16 @@ bool UKOSkillQuickSlotEntryWidget::NativeOnDrop(
 			return false;
 		}
 
-		// 내 현재 데이터를 소스 슬롯으로 이전 (빈 슬롯이면 비움)
-		if (HasSkill())
-		{
-			SrcSlot->SetSlotContent(AssignedSkillName, AssignedSkillTag, AssignedIcon.Get());
-		}
-		else
-		{
-			SrcSlot->ClearSkill();
-		}
+		const FName TargetOldSkillName = AssignedSkillName;
 
-		// 소스 데이터를 내 슬롯에 적용
-		SetSlotContent(SkillOp->SkillName, SkillOp->SkillTag, SkillOp->Icon);
+		SkillSubsystem->SetSkillQuickSlot(SrcSlot->GetSlotKey(), TargetOldSkillName);
+		SkillSubsystem->SetSkillQuickSlot(SlotKey, SkillOp->SkillName);
 
 		return true;
 	}
 
 	// ── SkillNode에서 새로 배정 ───────────────────────────────────
-	SetSlotContent(SkillOp->SkillName, SkillOp->SkillTag, SkillOp->Icon);
-	return true;
+	return SkillSubsystem->SetSkillQuickSlot(SlotKey, SkillOp->SkillName);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -312,7 +310,6 @@ void UKOSkillQuickSlotEntryWidget::SetSlotContent(
 
 	ApplyIconToImage(InIcon);
 	BindCooldownTracking();
-	BroadcastChanged();
 }
 
 UAbilitySystemComponent* UKOSkillQuickSlotEntryWidget::GetOwnerASC() const

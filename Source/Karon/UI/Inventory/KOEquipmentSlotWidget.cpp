@@ -80,17 +80,7 @@ UKOEquipmentComponent* UKOEquipmentSlotWidget::ResolveEquipmentComponent() const
 		return nullptr;
 	}
 
-	UKOEquipmentComponent* EquipmentComponent =
-		Pawn->FindComponentByClass<UKOEquipmentComponent>();
-
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("[EquipmentSlotUI] ResolveEquipmentComponent PC=%s Pawn=%s Equipment=%s"),
-		*GetNameSafe(PC),
-		*GetNameSafe(Pawn),
-		*GetNameSafe(EquipmentComponent)
-	);
+	UKOEquipmentComponent* EquipmentComponent = Pawn->FindComponentByClass<UKOEquipmentComponent>();
 
 	return EquipmentComponent;
 }

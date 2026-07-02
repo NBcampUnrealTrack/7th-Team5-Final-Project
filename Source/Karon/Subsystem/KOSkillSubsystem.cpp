@@ -4,10 +4,14 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Utility/Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
+
 
 void UKOSkillSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -24,6 +28,8 @@ void UKOSkillSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UKOSkillSubsystem::Deinitialize()
 {
+	GrantedPassiveEffectHandles.Empty();
+	
 	CachedLoadSubsystem = nullptr;
 	CachedInventoryComponent = nullptr;
 	CachedASC = nullptr;
@@ -151,42 +157,12 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 				return false;
 			}
 		}
-	}		/** 아이템 소비는 실패처리 완료 후 진행 */
-	
-	if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
-	{
-		if (CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: [%s] 이미 부여된 어빌리티입니다."), *SkillName.ToString());
-			return false;
-		}
-
-		FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
-		if (ExRow->InputTag.IsValid())
-		{
-			NewSpec.GetDynamicSpecSourceTags().AddTag(ExRow->InputTag);
-		}
-
-		CachedASC->GiveAbility(NewSpec);
-		UE_LOG(LogTemp, Log, TEXT("SkillSubsystem: [%s] 어빌리티 부여 완료 (InputTag: %s)"),
-			*SkillName.ToString(), *ExRow->InputTag.ToString());
 	}
-	else if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
-	{
-		FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
-		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
-			ExRow->PassiveEffectClass, 1.f, EffectContext);
-		if (!SpecHandle.IsValid())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("TryUnlockSkill: [%s] Passive SpecHandle 생성 실패"), *SkillName.ToString());
-			return false;
-		}
-		CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 	
-		for (FGameplayAbilitySpec& AbilitySpec : CachedASC->GetActivatableAbilities())
-		{
-			CachedASC->MarkAbilitySpecDirty(AbilitySpec);
-		}
+	// 아이템 소비 전, 스킬 실행 부여 가능 여부 확인
+	if (!GrantSkillExecutionFromSaveOrUnlock(SkillName))
+	{
+		return false;
 	}
 	
 	if (!Row->UnlockCosts.IsEmpty())
@@ -258,6 +234,161 @@ void UKOSkillSubsystem::GetAllSkillNames(TArray<FName>& Out) const
 	SkillStates.GetKeys(Out);
 }
 
+void UKOSkillSubsystem::GetSkillStateForSave(TArray<FName>& OutUnlockedSkillIds) const
+{
+	OutUnlockedSkillIds.Reset();
+
+	for (const TPair<FName, ESkillState>& Pair : SkillStates)
+	{
+		if (Pair.Value == ESkillState::Unlocked)
+		{
+			OutUnlockedSkillIds.Add(Pair.Key);
+		}
+	}
+}
+
+void UKOSkillSubsystem::LoadSkillStateFromSave(const TArray<FName>& InUnlockedSkillIds)
+{
+	TryResolveCaches();
+
+	if (!CachedLoadSubsystem)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: 스킬 로드 실패 - LoadSubsystem 없음"));
+		return;
+	}
+
+	if (!CachedASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: 스킬 로드 실패 - ASC 없음"));
+		return;
+	}
+
+	// 기존에 부여된 스킬 효과/어빌리티를 정리한다.
+	// 로드 전 런타임에서 다른 스킬을 해금했다가 이전 세이브를 로드하는 경우를 방지.
+	RemoveAllGrantedSkillExecutions();
+
+	// DT 기준으로 전체 스킬 상태 초기화
+	InitializeSkillStates();
+
+	TSet<FName> UniqueUnlockedSkillIds;
+
+	for (const FName& SkillId : InUnlockedSkillIds)
+	{
+		if (SkillId.IsNone())
+		{
+			continue;
+		}
+
+		if (!CachedLoadSubsystem->FindSkillRow(SkillId))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: 저장된 스킬 ID가 DT_Skill에 없습니다. SkillId=%s"), *SkillId.ToString());
+			continue;
+		}
+
+		UniqueUnlockedSkillIds.Add(SkillId);
+	}
+
+	for (const FName& SkillId : UniqueUnlockedSkillIds)
+	{
+		ESkillState* State = SkillStates.Find(SkillId);
+		if (!State)
+		{
+			continue;
+		}
+
+		*State = ESkillState::Unlocked;
+		GrantSkillExecutionFromSaveOrUnlock(SkillId);
+	}
+
+	ReevaluateAllSkillStates();
+
+	UE_LOG(LogTemp, Log, TEXT("SkillSubsystem: 스킬 로드 완료. UnlockedCount=%d"), UniqueUnlockedSkillIds.Num());
+}
+
+bool UKOSkillSubsystem::SetSkillQuickSlot(ESkillQuickSlotKey SlotKey, FName SkillName)
+{
+	TryResolveCaches();
+
+	if (!SkillName.IsNone() && !CanAssignSkillToQuickSlot(SkillName))
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("SkillSubsystem: 퀵슬롯에 배정할 수 없는 스킬입니다. Skill=%s"),
+			*SkillName.ToString()
+		);
+		return false;
+	}
+
+	FName& CurrentSkillName = SkillQuickSlots.FindOrAdd(SlotKey);
+
+	if (CurrentSkillName == SkillName)
+	{
+		return true;
+	}
+
+	CurrentSkillName = SkillName;
+
+	BroadcastSkillQuickSlotChanged(SlotKey, SkillName);
+
+	return true;
+}
+
+void UKOSkillSubsystem::ClearSkillQuickSlot(ESkillQuickSlotKey SlotKey)
+{
+	SetSkillQuickSlot(SlotKey, NAME_None);
+}
+
+FName UKOSkillSubsystem::GetSkillQuickSlot(ESkillQuickSlotKey SlotKey) const
+{
+	const FName* FoundSkillName = SkillQuickSlots.Find(SlotKey);
+	return FoundSkillName ? *FoundSkillName : NAME_None;
+}
+
+void UKOSkillSubsystem::GetSkillQuickSlotsForSave(TMap<ESkillQuickSlotKey, FName>& OutQuickSlots) const
+{
+	OutQuickSlots = SkillQuickSlots;
+}
+
+void UKOSkillSubsystem::LoadSkillQuickSlotsFromSave(const TMap<ESkillQuickSlotKey, FName>& InQuickSlots)
+{
+	SkillQuickSlots.Empty();
+
+	const ESkillQuickSlotKey SlotKeys[] =
+	{
+		ESkillQuickSlotKey::Q,
+		ESkillQuickSlotKey::E,
+		ESkillQuickSlotKey::R,
+		ESkillQuickSlotKey::V
+	};
+
+	for (const ESkillQuickSlotKey SlotKey : SlotKeys)
+	{
+		FName SkillName = NAME_None;
+
+		if (const FName* SavedSkillName = InQuickSlots.Find(SlotKey))
+		{
+			SkillName = *SavedSkillName;
+		}
+
+		if (!SkillName.IsNone() && !CanAssignSkillToQuickSlot(SkillName))
+		{
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("SkillSubsystem: 저장된 퀵슬롯 스킬을 복원할 수 없습니다. Slot=%d, Skill=%s"),
+				static_cast<int32>(SlotKey),
+				*SkillName.ToString()
+			);
+
+			SkillName = NAME_None;
+		}
+
+		SkillQuickSlots.Add(SlotKey, SkillName);
+		BroadcastSkillQuickSlotChanged(SlotKey, SkillName);
+	}
+}
+
 void UKOSkillSubsystem::InitializeSkillStates()
 {
 	SkillStates.Empty();
@@ -316,4 +447,169 @@ bool UKOSkillSubsystem::ArePrerequisitesMet(const FKOSkillRow& Row) const
 const ESkillState* UKOSkillSubsystem::GetSkillInfo(FName SkillName) const
 {
 	return SkillStates.Find(SkillName);
+}
+
+bool UKOSkillSubsystem::GrantSkillExecutionFromSaveOrUnlock(const FName& SkillName)
+{
+	if (!CachedLoadSubsystem || !CachedASC)
+	{
+		return false;
+	}
+
+	const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(SkillName);
+	if (!ExRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: [%s] 스킬 실행 데이터를 찾을 수 없습니다."), *SkillName.ToString());
+		return false;
+	}
+
+	if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
+	{
+		if (CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass))
+		{
+			return true;
+		}
+
+		FGameplayAbilitySpec NewSpec(ExRow->AbilityClass, 1, -1);
+
+		if (ExRow->InputTag.IsValid())
+		{
+			NewSpec.GetDynamicSpecSourceTags().AddTag(ExRow->InputTag);
+		}
+
+		CachedASC->GiveAbility(NewSpec);
+
+		UE_LOG(LogTemp, Log, TEXT("SkillSubsystem: [%s] 어빌리티 부여 완료"), *SkillName.ToString());
+		return true;
+	}
+
+	if (ExRow->ExecutionType == ESkillExecutionType::PassiveStat && ExRow->PassiveEffectClass)
+	{
+		if (const FActiveGameplayEffectHandle* ExistingHandle = GrantedPassiveEffectHandles.Find(SkillName))
+		{
+			if (ExistingHandle->IsValid())
+			{
+				return true;
+			}
+		}
+
+		FGameplayEffectContextHandle EffectContext = CachedASC->MakeEffectContext();
+		FGameplayEffectSpecHandle SpecHandle = CachedASC->MakeOutgoingSpec(
+			ExRow->PassiveEffectClass,
+			1.f,
+			EffectContext
+		);
+
+		if (!SpecHandle.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: [%s] Passive SpecHandle 생성 실패"), *SkillName.ToString());
+			return false;
+		}
+
+		const FActiveGameplayEffectHandle EffectHandle =
+			CachedASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+
+		if (EffectHandle.IsValid())
+		{
+			GrantedPassiveEffectHandles.Add(SkillName, EffectHandle);
+		}
+
+		for (FGameplayAbilitySpec& AbilitySpec : CachedASC->GetActivatableAbilities())
+		{
+			CachedASC->MarkAbilitySpecDirty(AbilitySpec);
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("SkillSubsystem: [%s] 패시브 효과 부여 완료"), *SkillName.ToString());
+		return true;
+	}
+
+	return true;
+}
+
+void UKOSkillSubsystem::RemoveAllGrantedSkillExecutions()
+{
+	if (!CachedLoadSubsystem || !CachedASC)
+	{
+		GrantedPassiveEffectHandles.Empty();
+		return;
+	}
+
+	TArray<FName> AllSkillIds;
+	CachedLoadSubsystem->GetAllSkillIds(AllSkillIds);
+
+	for (const FName& SkillId : AllSkillIds)
+	{
+		const FKOSkillExecutionRow* ExRow = CachedLoadSubsystem->FindSkillExecutionRow(SkillId);
+		if (!ExRow)
+		{
+			continue;
+		}
+
+		if (ExRow->ExecutionType == ESkillExecutionType::Active && ExRow->AbilityClass)
+		{
+			if (FGameplayAbilitySpec* Spec = CachedASC->FindAbilitySpecFromClass(ExRow->AbilityClass))
+			{
+				CachedASC->ClearAbility(Spec->Handle);
+			}
+		}
+	}
+
+	for (const TPair<FName, FActiveGameplayEffectHandle>& Pair : GrantedPassiveEffectHandles)
+	{
+		if (Pair.Value.IsValid())
+		{
+			CachedASC->RemoveActiveGameplayEffect(Pair.Value);
+		}
+	}
+
+	GrantedPassiveEffectHandles.Empty();
+}
+
+bool UKOSkillSubsystem::CanAssignSkillToQuickSlot(FName SkillName) const
+{
+	if (SkillName.IsNone())
+	{
+		return true;
+	}
+
+	if (!IsUnlocked(SkillName))
+	{
+		return false;
+	}
+
+	if (!CachedLoadSubsystem)
+	{
+		return false;
+	}
+
+	const FKOSkillExecutionRow* ExRow =
+		CachedLoadSubsystem->FindSkillExecutionRow(SkillName);
+
+	if (!ExRow)
+	{
+		return false;
+	}
+
+	return ExRow->ExecutionType == ESkillExecutionType::Active;
+}
+
+void UKOSkillSubsystem::BroadcastSkillQuickSlotChanged(ESkillQuickSlotKey SlotKey, FName SkillName)
+{
+	FKOSkillQuickSlotChangedMessage Msg;
+	Msg.SlotKey = SlotKey;
+	Msg.SkillName = SkillName;
+	Msg.SkillTag = FGameplayTag::EmptyTag;
+
+	if (!SkillName.IsNone() && CachedLoadSubsystem)
+	{
+		if (const FKOSkillRow* SkillRow = CachedLoadSubsystem->FindSkillRow(SkillName))
+		{
+			Msg.SkillTag = SkillRow->SkillTag;
+		}
+	}
+
+	Broadcast(
+		KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
+		FInstancedStruct::Make<FKOSkillQuickSlotChangedMessage>(Msg)
+	);
 }

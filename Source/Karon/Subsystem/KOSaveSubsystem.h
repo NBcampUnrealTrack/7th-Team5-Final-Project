@@ -8,6 +8,7 @@ class AKOPlayerController;
 class UKOInventoryComponent;
 class UKOEquipmentComponent;
 class UKOBuildUIComponent;
+class UKOSkillSubsystem;
 
 UCLASS()
 class KARON_API UKOSaveSubsystem : public UGameInstanceSubsystem
@@ -28,6 +29,15 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool DeleteSave();
+    
+    UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
+    void NotifyActorTargetingPlayer(AActor* SourceActor);
+
+    UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
+    void NotifyActorStoppedTargetingPlayer(AActor* SourceActor);
+
+    UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
+    bool CanSaveOrLoad() const;
 
 private:
     static const FString DefaultSlotName;
@@ -37,4 +47,16 @@ private:
     UKOInventoryComponent* GetPlayerInventory(AKOPlayerController* PC) const;
     UKOEquipmentComponent* GetPlayerEquipment(AKOPlayerController* PC) const;
     UKOBuildUIComponent* GetPlayerBuildUI(AKOPlayerController* PC) const;
+    UKOSkillSubsystem* GetPlayerSkillSubsystem(AKOPlayerController* PC) const;
+    
+private:
+    UPROPERTY()
+    TSet<TWeakObjectPtr<AActor>> ActorsTargetingPlayer;
+
+    UPROPERTY(EditDefaultsOnly, Category = "SaveLoad|Combat")
+    float SaveLoadUnlockDelayAfterCombat = 5.0f;
+
+    FTimerHandle SaveLoadUnlockTimerHandle;
+
+    bool bSaveLoadBlockedByCombat = false;
 };

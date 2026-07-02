@@ -23,6 +23,10 @@ public:
 	// ── Interface ──
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
+	// 세이브 로드
+	float GetHealthForSave() const;
+	void LoadHealthFromSave(float SavedHealth);
+	
 	// ── Getter ──
 	UKOHealthSet*    GetHealthSet()    const { return HealthSet; }
 	UKOStaminaSet*   GetStaminaSet()   const { return StaminaSet; }

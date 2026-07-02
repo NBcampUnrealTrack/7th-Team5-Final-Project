@@ -25,6 +25,32 @@ UAbilitySystemComponent* AKOPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+float AKOPlayerState::GetHealthForSave() const
+{
+	const UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return 0.f;
+	}
+
+	return ASC->GetNumericAttribute(UKOHealthSet::GetHealthAttribute());
+}
+
+void AKOPlayerState::LoadHealthFromSave(float SavedHealth)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	const float MaxHealth = ASC->GetNumericAttribute(UKOHealthSet::GetMaxHealthAttribute());
+
+	const float ClampedHealth = FMath::Clamp(SavedHealth, 0.f, MaxHealth);
+
+	ASC->SetNumericAttributeBase(UKOHealthSet::GetHealthAttribute(), ClampedHealth);
+}
+
 void AKOPlayerState::BeginPlay()
 {
 	Super::BeginPlay();

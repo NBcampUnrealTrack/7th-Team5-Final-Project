@@ -3,12 +3,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "Game/Save/KOSaveGame.h"
 #include "Game/KOPlayerController.h"
+#include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "Component/Build/KOBuildUIComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOSkillSubsystem.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "EngineUtils.h"
 #include "KOGridSubsystem.h"
@@ -87,8 +89,33 @@ UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC)
 	return PC->FindComponentByClass<UKOBuildUIComponent>();
 }
 
+UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
+	{
+		return LocalPlayer->GetSubsystem<UKOSkillSubsystem>();
+	}
+
+	return UKOSkillSubsystem::Get(PC);
+}
+
 bool UKOSaveSubsystem::SaveCurrentGame()
 {
+	if (!CanSaveOrLoad())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 실패: 전투 중에는 저장할 수 없습니다."));
+
+		// 나중에 UI 메시지 띄우고 싶으면 여기서 토스트/알림 호출
+		// ShowSaveLoadBlockedMessage();
+
+		return false;
+	}
+	
 	UKOSaveGame* SaveData = Cast<UKOSaveGame>(
 		UGameplayStatics::CreateSaveGameObject(UKOSaveGame::StaticClass())
 	);
@@ -109,6 +136,13 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 	{
 		SaveData->bHasPlayerTransform = true;
 		SaveData->PlayerTransform = Pawn->GetActorTransform();
+	}
+	
+	// 플레이어 체력 저장
+	if (AKOPlayerState* PS = PC->GetPlayerState<AKOPlayerState>())
+	{
+		SaveData->PlayerStatus.bHasHealth = true;
+		SaveData->PlayerStatus.Health = PS->GetHealthForSave();
 	}
 
 	// 인벤토리 저장
@@ -231,6 +265,13 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 
 			SaveData->Buildings.Add(SavedBuilding);
 		}
+		
+		// 스킬 저장
+		if (UKOSkillSubsystem* SkillSubsystem = GetPlayerSkillSubsystem(PC))
+		{
+			SkillSubsystem->GetSkillStateForSave(SaveData->SkillState.UnlockedSkillIds);
+			SkillSubsystem->GetSkillQuickSlotsForSave(SaveData->SkillState.SkillQuickSlots);
+		}
 	}
 
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
@@ -238,6 +279,13 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 
 bool UKOSaveSubsystem::LoadCurrentGame()
 {
+	if (!CanSaveOrLoad())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 실패: 전투 중에는 로드할 수 없습니다."));
+
+		return false;
+	}
+	
 	if (!DoesSaveExist())
 	{
 		return false;
@@ -266,6 +314,14 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			Pawn->SetActorTransform(SaveData->PlayerTransform);
 		}
 	}
+	// 플레이어 체력 로드
+	if (SaveData->PlayerStatus.bHasHealth)
+	{
+		if (AKOPlayerState* PS = PC->GetPlayerState<AKOPlayerState>())
+		{
+			PS->LoadHealthFromSave(SaveData->PlayerStatus.Health);
+		}
+	}
 
 	// 인벤토리 로드
 	if (UKOInventoryComponent* Inventory = GetPlayerInventory(PC))
@@ -286,11 +342,6 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			if (!LoadSub)
 			{
 				Equipment->UnequipWeapon();
-				
-				// 무기는 실패했어도 방어구는 복원
-				Equipment->LoadArmorFromSave(SaveData->EquippedArmorItemIds);
-				
-				return true;
 			}
 
 			UKOWeaponDefinition* WeaponDef =
@@ -298,19 +349,7 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 
 			if (!WeaponDef)
 			{
-				UE_LOG(
-					LogTemp,
-					Warning,
-					TEXT("[SaveLoad] WeaponDefinition 로드 실패: ItemId=%s"),
-					*SaveData->EquippedWeaponItemId.ToString()
-				);
-
 				Equipment->UnequipWeapon();
-				
-				// 무기는 실패했어도 방어구는 복원
-				Equipment->LoadArmorFromSave(SaveData->EquippedArmorItemIds);
-				
-				return true;
 			}
 
 			Equipment->RestoreWeaponFromSave(
@@ -477,6 +516,13 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			}
 		}
 	}
+	
+	// 스킬 로드
+	if (UKOSkillSubsystem* SkillSubsystem = GetPlayerSkillSubsystem(PC))
+	{
+		SkillSubsystem->LoadSkillStateFromSave(SaveData->SkillState.UnlockedSkillIds);
+		SkillSubsystem->LoadSkillQuickSlotsFromSave(SaveData->SkillState.SkillQuickSlots);
+	}
 
 	return true;
 }
@@ -500,4 +546,78 @@ bool UKOSaveSubsystem::DeleteSave()
 		DefaultSlotName,
 		DefaultUserIndex
 	);
+}
+
+void UKOSaveSubsystem::NotifyActorTargetingPlayer(AActor* SourceActor)
+{
+	if (!IsValid(SourceActor))
+	{
+		return;
+	}
+
+	ActorsTargetingPlayer.Add(SourceActor);
+	bSaveLoadBlockedByCombat = true;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
+	}
+}
+
+void UKOSaveSubsystem::NotifyActorStoppedTargetingPlayer(AActor* SourceActor)
+{
+	if (IsValid(SourceActor))
+	{
+		ActorsTargetingPlayer.Remove(SourceActor);
+	}
+
+	// 죽었거나 Destroy된 액터 정리
+	for (auto It = ActorsTargetingPlayer.CreateIterator(); It; ++It)
+	{
+		if (!It->IsValid())
+		{
+			It.RemoveCurrent();
+		}
+	}
+
+	if (ActorsTargetingPlayer.Num() > 0)
+	{
+		return;
+	}
+
+	// 모든 몬스터/보스가 타겟을 해제한 뒤에도 바로 풀지 않고 몇 초 대기
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
+
+		World->GetTimerManager().SetTimer(
+			SaveLoadUnlockTimerHandle,
+			FTimerDelegate::CreateWeakLambda(this, [this]()
+			{
+				// 대기 시간 중 다시 타겟 지정된 적이 없을 때만 해제
+				if (ActorsTargetingPlayer.Num() == 0)
+				{
+					bSaveLoadBlockedByCombat = false;
+
+					UE_LOG(
+						LogTemp,
+						Warning,
+						TEXT("[SaveLoad] 전투 시간 끝")
+					);
+				}
+			}),
+			SaveLoadUnlockDelayAfterCombat,
+			false
+		);
+	}
+}
+
+bool UKOSaveSubsystem::CanSaveOrLoad() const
+{
+	if (bSaveLoadBlockedByCombat)
+	{
+		return false;
+	}
+
+	return ActorsTargetingPlayer.Num() == 0;
 }

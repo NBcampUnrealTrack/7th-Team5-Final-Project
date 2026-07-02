@@ -50,6 +50,7 @@ private:
 	void StopBT();
 	void SetTargetActor(AActor* TargetActor);
 	
+	
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;

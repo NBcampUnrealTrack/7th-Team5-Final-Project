@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "Items/KOItemSlot.h"
+#include "Data/Type/KOSkillTypes.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "KOSaveGame.generated.h"
 
@@ -84,7 +85,7 @@ struct FKOSavedConveyorState // 컨베이어 벨트
 };
 
 USTRUCT(BlueprintType)
-struct FKOSavedBuilding
+struct FKOSavedBuilding // 설비
 {
 	GENERATED_BODY()
 
@@ -111,6 +112,30 @@ struct FKOSavedBuilding
 	FKOSavedConveyorState ConveyorState;
 };
 
+USTRUCT(BlueprintType)
+struct FKOSavedSkillState // 스킬
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FName> UnlockedSkillIds;
+	
+	UPROPERTY()
+	TMap<ESkillQuickSlotKey, FName> SkillQuickSlots;
+};
+
+USTRUCT(BlueprintType)
+struct FKOSavedPlayerStatus // 플레이어 상태
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	bool bHasHealth = false;
+
+	UPROPERTY()
+	float Health = 0.f;
+};
+
 UCLASS()
 class KARON_API UKOSaveGame : public USaveGame
 {
@@ -123,6 +148,10 @@ public:
 
 	UPROPERTY()
 	FTransform PlayerTransform = FTransform::Identity;
+	
+	// 플레이어 상태
+	UPROPERTY()
+	FKOSavedPlayerStatus PlayerStatus;
 
 	// 인벤토리
 	UPROPERTY()
@@ -146,5 +175,9 @@ public:
 	// 설비
 	UPROPERTY()
 	TArray<FKOSavedBuilding> Buildings;
+	
+	// 스킬 해금 상태
+	UPROPERTY()
+	FKOSavedSkillState SkillState;
 	
 };

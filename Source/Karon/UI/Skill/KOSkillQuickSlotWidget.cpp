@@ -5,6 +5,7 @@
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOSkillSubsystem.h"
 
 #include "StructUtils/InstancedStruct.h"
 
@@ -23,6 +24,43 @@ void UKOSkillQuickSlotWidget::NativeConstruct()
 	SlotChangedHandle = Subscribe(
 		KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
 		SlotChangedCallback);
+	
+	if (UKOSkillSubsystem* SkillSubsystem = UKOSkillSubsystem::Get(this))
+	{
+		const ESkillQuickSlotKey SlotKeys[] =
+		{
+			ESkillQuickSlotKey::Q,
+			ESkillQuickSlotKey::E,
+			ESkillQuickSlotKey::R,
+			ESkillQuickSlotKey::V
+		};
+
+		for (const ESkillQuickSlotKey SlotKey : SlotKeys)
+		{
+			const FName SkillName = SkillSubsystem->GetSkillQuickSlot(SlotKey);
+
+			FKOSkillQuickSlotChangedMessage Msg;
+			Msg.SlotKey = SlotKey;
+			Msg.SkillName = SkillName;
+			Msg.SkillTag = FGameplayTag::EmptyTag;
+
+			if (!SkillName.IsNone())
+			{
+				if (UKOLoadSubsystem* LS = UKOLoadSubsystem::Get(this))
+				{
+					if (const FKOSkillRow* Row = LS->FindSkillRow(SkillName))
+					{
+						Msg.SkillTag = Row->SkillTag;
+					}
+				}
+			}
+
+			HandleSlotChangedMessage(
+				KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
+				FInstancedStruct::Make<FKOSkillQuickSlotChangedMessage>(Msg)
+			);
+		}
+	}
 }
 
 void UKOSkillQuickSlotWidget::NativeDestruct()

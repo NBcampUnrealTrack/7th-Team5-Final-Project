@@ -3,6 +3,8 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
+#include "Utility/Messaging/KOGMSInterface.h"
+#include "GameplayEffectTypes.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "KOSkillSubsystem.generated.h"
 
@@ -14,7 +16,7 @@ class UAbilitySystemComponent;
 class UGameplayAbility;
 
 UCLASS()
-class KARON_API UKOSkillSubsystem : public ULocalPlayerSubsystem
+class KARON_API UKOSkillSubsystem : public ULocalPlayerSubsystem, public IKOGMSInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +32,17 @@ public:
 	ESkillState GetSkillState(const FName& SkillName) const;
 	FGameplayTagContainer GetUnlockedSkillTags() const;
 	void GetAllSkillNames(TArray<FName>& Out) const;
+	
+	// 세이브 로드 시스템
+	void GetSkillStateForSave(TArray<FName>& OutUnlockedSkillIds) const;
+	void LoadSkillStateFromSave(const TArray<FName>& InUnlockedSkillIds);
+	
+	bool SetSkillQuickSlot(ESkillQuickSlotKey SlotKey, FName SkillName);
+	void ClearSkillQuickSlot(ESkillQuickSlotKey SlotKey);
+	FName GetSkillQuickSlot(ESkillQuickSlotKey SlotKey) const;
+
+	void GetSkillQuickSlotsForSave(TMap<ESkillQuickSlotKey, FName>& OutQuickSlots) const;
+	void LoadSkillQuickSlotsFromSave(const TMap<ESkillQuickSlotKey, FName>& InQuickSlots);
 
 private:
 	UPROPERTY()
@@ -46,4 +59,14 @@ private:
 	void ReevaluateAllSkillStates();
 	bool ArePrerequisitesMet(const FKOSkillRow& Row) const;
 	const ESkillState* GetSkillInfo(FName SkillId) const;
+	
+	TMap<FName, FActiveGameplayEffectHandle> GrantedPassiveEffectHandles;
+
+	bool GrantSkillExecutionFromSaveOrUnlock(const FName& SkillName);
+	void RemoveAllGrantedSkillExecutions();
+	
+	TMap<ESkillQuickSlotKey, FName> SkillQuickSlots;
+
+	bool CanAssignSkillToQuickSlot(FName SkillName) const;
+	void BroadcastSkillQuickSlotChanged(ESkillQuickSlotKey SlotKey, FName SkillName);
 };

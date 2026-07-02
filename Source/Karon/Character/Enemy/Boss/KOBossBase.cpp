@@ -15,6 +15,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -38,6 +39,12 @@ void AKOBossBase::NotifyPlayerDetected()
 	}
 
 	bPlayerDetected = true;
+	
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		SaveSubsystem->NotifyActorTargetingPlayer(this);
+	}
+	
 	OnBossDetectedPlayer.Broadcast(this);
 }
 
@@ -49,6 +56,11 @@ void AKOBossBase::NotifyDeathAnimEnd()
 void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 {
 	Super::OnCharacterDead(DeathInstigator);
+	
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		SaveSubsystem->NotifyActorStoppedTargetingPlayer(this);
+	}
 	
 	AAIController* AIC = Cast<AAIController>(GetController());
 	if (!AIC)
