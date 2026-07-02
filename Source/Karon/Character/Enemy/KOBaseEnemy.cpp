@@ -43,12 +43,12 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	
 	//Enemy LockOn 부착
 	EnemyLockOnWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockOnWidgetComponent"));
-	EnemyLockOnWidgetComponent->SetupAttachment(GetMesh());
+	EnemyLockOnWidgetComponent->SetupAttachment(GetMesh(),LockOnSocketName);
 	EnemyLockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	
 	//Enemy Parried 부착
 	EnemyParriedWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ParriedWidgetComponent"));
-	EnemyParriedWidgetComponent->SetupAttachment(GetMesh());
+	EnemyParriedWidgetComponent->SetupAttachment(GetMesh(),LockOnSocketName);
 	EnemyParriedWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 }
 

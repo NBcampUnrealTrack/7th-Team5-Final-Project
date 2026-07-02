@@ -26,7 +26,7 @@ void UKOEnemyParriedUIState::BranchingPointNotifyBegin(FBranchingPointNotifyPayl
 	}
 	// 에너미 그로기 UI 활성화
 	Enemy->OnParriedEvent.ExecuteIfBound(true);
-	Enemy->ChangeLockOnGroggy(true);
+	//Enemy->ChangeLockOnGroggy(true);
 }
 
 void UKOEnemyParriedUIState::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& BranchingPointPayload)
@@ -46,5 +46,5 @@ void UKOEnemyParriedUIState::BranchingPointNotifyEnd(FBranchingPointNotifyPayloa
 	}
 	// 에너미 그로기 UI 비활성화
 	Enemy->OnParriedEvent.ExecuteIfBound(false);
-	Enemy->ChangeLockOnGroggy(false);
+	//Enemy->ChangeLockOnGroggy(false);
 }

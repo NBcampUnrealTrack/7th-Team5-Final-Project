@@ -111,10 +111,11 @@ protected:
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
+	FName LockOnSocketName=FName("LockOnSocket");
 	
 	FVector LocalLockOnInitialLocation=FVector(0,0,100.f);;
 	FVector LocalLockOnOffset=FVector(0,40.f,-80.f);
-
+	
 	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
