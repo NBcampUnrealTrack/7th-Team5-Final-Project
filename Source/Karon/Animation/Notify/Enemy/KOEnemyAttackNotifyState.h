@@ -20,10 +20,7 @@ public:
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
 	float TraceRadius=50.0f;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
-	bool bShowDebug=true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	class UNiagaraSystem* ImpactEffect;
 

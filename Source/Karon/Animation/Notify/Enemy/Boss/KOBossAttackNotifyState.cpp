@@ -4,6 +4,7 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
 
 #include "Kismet/KismetSystemLibrary.h"
  
@@ -65,6 +66,8 @@ void UKOBossAttackNotifyState::NotifyTick(
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
  
+	//에디터 개인설정(Editor Preferences > Karon > Enemy Debug)에서 일괄 컨트롤
+	const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
  
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(

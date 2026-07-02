@@ -7,6 +7,7 @@
 #include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
+#include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
 
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -93,6 +94,8 @@ void UKOEnemyAttackNotifyState::NotifyTick(
 	FHitResult HitResult;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Enemy);
+	//에디터 개인설정(Editor Preferences > Karon > Enemy Debug)에서 일괄 컨트롤
+	const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
 
 	//ECC_Player 채널로 Single Trace, 플레이어만 콜리전 가능

@@ -38,11 +38,7 @@ protected:
 	// 트레이스 반경
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss|Attack")
 	float TraceRadius = 50.f;
- 
-	// 디버그 구체 표시 여부
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss|Attack")
-	bool bShowDebug = true;
- 
+
 private:
 	FVector PrevSocketLocation = FVector::ZeroVector;
 	
