@@ -5,7 +5,7 @@
 #include "KOGhostPreview.generated.h"
 
 class UStaticMesh;
-class UStaticMeshComponent;
+class USkeletalMeshComponent;
 class UMaterialInterface;
 
 UCLASS()
@@ -30,12 +30,12 @@ private:
 	void ClearPreviewMeshComponents();
 
 	void AddPreviewMeshComponentFromTemplate(
-		const UStaticMeshComponent* SourceMeshComponent
+		const USkeletalMeshComponent* SourceMeshComponent
 	);
 
 private:
 	UPROPERTY()
-	TArray<TObjectPtr<UStaticMeshComponent>> PreviewMeshComponents;
+	TArray<TObjectPtr<USkeletalMeshComponent>> PreviewMeshComponents;
 
 	// ─── 커버리지 오버레이(배치 프리뷰 전용) ──────────────────────────────
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Coverage")

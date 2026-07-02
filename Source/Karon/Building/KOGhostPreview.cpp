@@ -2,6 +2,8 @@
 
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/SCS_Node.h"
 #include "Engine/SimpleConstructionScript.h"
@@ -36,8 +38,7 @@ AKOGhostPreview::AKOGhostPreview()
 	CoverageMeshComponent->SetUsingAbsoluteScale(true);
 	CoverageMeshComponent->SetVisibility(false);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMeshFinder(
-		TEXT("/Engine/BasicShapes/Plane.Plane"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMeshFinder(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	if (PlaneMeshFinder.Succeeded())
 	{
 		CoveragePlaneMesh = PlaneMeshFinder.Object;
@@ -155,8 +156,8 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 				UActorComponent* ComponentTemplate =
 					Node->GetActualComponentTemplate(BlueprintClass);
 
-				UStaticMeshComponent* SourceMeshComponent =
-					Cast<UStaticMeshComponent>(ComponentTemplate);
+				USkeletalMeshComponent* SourceMeshComponent =
+					Cast<USkeletalMeshComponent>(ComponentTemplate);
 
 				if (!SourceMeshComponent)
 				{
@@ -172,7 +173,7 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 }
 
 void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
-	const UStaticMeshComponent* SourceMeshComponent
+	const USkeletalMeshComponent* SourceMeshComponent
 )
 {
 	if (!SourceMeshComponent)
@@ -180,22 +181,21 @@ void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
 		return;
 	}
 
-	UStaticMesh* SourceMesh = SourceMeshComponent->GetStaticMesh();
+	USkeletalMesh* SourceMesh = SourceMeshComponent->GetSkeletalMeshAsset();
 
 	if (!SourceMesh)
 	{
 		return;
 	}
 
-	UStaticMeshComponent* NewPreviewMeshComponent =
-		NewObject<UStaticMeshComponent>(this);
+	USkeletalMeshComponent* NewPreviewMeshComponent = NewObject<USkeletalMeshComponent>(this);
 
 	if (!NewPreviewMeshComponent)
 	{
 		return;
 	}
 
-	NewPreviewMeshComponent->SetStaticMesh(SourceMesh);
+	NewPreviewMeshComponent->SetSkeletalMesh(SourceMesh);
 
 	NewPreviewMeshComponent->SetRelativeTransform(
 		SourceMeshComponent->GetRelativeTransform()
@@ -225,7 +225,7 @@ void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
 
 void AKOGhostPreview::ClearPreviewMeshComponents()
 {
-    for (UStaticMeshComponent* MeshComponent : PreviewMeshComponents)
+    for (USkeletalMeshComponent* MeshComponent : PreviewMeshComponents)
     {
         if (MeshComponent)
         {
