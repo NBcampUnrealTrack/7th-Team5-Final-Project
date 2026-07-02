@@ -10,6 +10,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Healing, "Data.Healing");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Data_AttackCoefficient, "Data.AttackCoefficient"); 
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Current, "Data.Attribute.Stamina.Current");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Max, "Data.Attribute.Stamina.Max");

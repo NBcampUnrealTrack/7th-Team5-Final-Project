@@ -17,6 +17,10 @@ enum class EDodgeDirection : uint8
 	ForwardLeft,
 };
 
+// TODO: 
+// Montage Curve로 속도 조절
+
+
 UCLASS()
 class KARON_API UKOGA_Movement_Dodge : public UKOGameplayAbilityBase
 {

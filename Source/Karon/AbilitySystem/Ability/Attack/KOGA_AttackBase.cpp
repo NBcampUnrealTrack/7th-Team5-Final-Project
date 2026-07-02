@@ -38,7 +38,6 @@ void UKOGA_AttackBase::ActivateAbility(
 	
 	TraceData.bIsFirstTick = true;
 	TraceData.HitActors.Empty();
-	ApplySelfEffects();
 }
 
 void UKOGA_AttackBase::EndAbility(
@@ -118,21 +117,20 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	Context.AddSourceObject(GetAvatarCharacter());
 	
 	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 1.f;
-	for (const FKOHitEffectData& Effect : DamageEffects)
+	for (const FKODamageEffectData& Effect : DamageEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
 		if (!SpecHandle.IsValid()) continue;
 		
-		for (const auto& Pair : Effect.SetByCallerValues)
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value); 
-		}
+		SpecHandle.Data->SetSetByCallerMagnitude(
+			KOGameplayTags::Data_AttackCoefficient, Effect.AttackCoefficient); 
+		
 		
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	
-	for (const FKOHitEffectData& Effect : AdditionalEffects)
+	for (const FKOEffectData& Effect : AdditionalEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
@@ -148,31 +146,6 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	
 }
 
-void UKOGA_AttackBase::ApplySelfEffects()
-{
-	UAbilitySystemComponent* SourceASC = GetASC(); 
-	if (!SourceASC) return;
-	
-	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-	Context.AddSourceObject(GetAvatarCharacter());
-	
-	for (const FKOHitEffectData& Effect : SelfEffects)
-	{
-		FGameplayEffectSpecHandle SpecHandle = 
-		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
-		if (!SpecHandle.IsValid()) continue;
-		
-		for (const auto& Pair : Effect.SetByCallerValues)
-		{
-			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, Pair.Value); 
-		}
-		FActiveGameplayEffectHandle Handle=SourceASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		if (Handle.IsValid())
-		{
-			SelfEffectsHandles.Add(Handle);
-		}
-	}
-}
 
 UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 {

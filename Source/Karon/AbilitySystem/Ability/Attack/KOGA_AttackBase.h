@@ -8,25 +8,35 @@ class UKOCombatSet;
 class UAbilityTask_Tick;
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FKOHitEffectData
+struct FKODamageEffectData // 데미지 용 
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect>  EffectClass;
+	TSubclassOf<UGameplayEffect> EffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Level = 0.f; 
+	float Level = 1.f;
 	
-	UPROPERTY(EditDefaultsOnly)
-	float AttackCoefficient = 1.f; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AttackCoefficient = 1.f;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FKOEffectData // 추가 효과용 
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> EffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Level = 1.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, float> SetByCallerValues;
-	
-	UPROPERTY(BlueprintReadOnly)
-	FActiveGameplayEffectHandle Handle; 
 };
+
 
 USTRUCT(BlueprintType, Blueprintable)
 struct FKOAttackMontageData
@@ -139,8 +149,6 @@ public:
 	
 	virtual void ApplyHitEffects(AActor* TargetActor);
 	
-	virtual void ApplySelfEffects();
-	
 	UKOCombatSet* GetCombatSet();
 
 protected:
@@ -164,15 +172,11 @@ protected:
 	
 	// 데미지 GE
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
-	TArray<FKOHitEffectData> DamageEffects;
+	TArray<FKODamageEffectData> DamageEffects;
 	
 	// 추가 효과 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
-	TArray<FKOHitEffectData> AdditionalEffects;
-	
-	// 자신 효과 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
-	TArray<FKOHitEffectData> SelfEffects;
+	TArray<FKOEffectData> AdditionalEffects;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
 	FGameplayTagContainer AttackEventTags; 

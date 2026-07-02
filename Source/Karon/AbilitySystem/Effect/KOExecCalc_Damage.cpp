@@ -7,21 +7,27 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Utility/Log/KOLogManager.h"
 
+// 최종 데미지 = (공격력 × 스킬 계수 / (1 + 방어력 × 0.01)) × 크리티컬 배율
+
 
 struct FDamageStatics
 {
 	// Target의 Defensive를 Capture
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Defense);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower); 
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CritChance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CritMultiplier);
+	
 	DECLARE_ATTRIBUTE_CAPTUREDEF(GuardHealth);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Defense);
 	
 	FDamageStatics()
 	{
 		// UMyAttributeSet의 Defensive, Target에서, Snapshot 안 함 (실시간 값)
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, Defense,         Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, AttackPower,      Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, CritChance,      Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, CritMultiplier,  Source, false);
+		
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, Defense,         Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOGuardSet,  GuardHealth,     Target, false);
 	}
 };
@@ -35,10 +41,11 @@ static const FDamageStatics& DamageStatics()
 UKOExecCalc_Damage::UKOExecCalc_Damage()
 {
 	// Capture할 Attribute 등록
-	RelevantAttributesToCapture.Add(DamageStatics().DefenseDef);
-	
+	RelevantAttributesToCapture.Add(DamageStatics().AttackPowerDef);
 	RelevantAttributesToCapture.Add(DamageStatics().CritChanceDef);
 	RelevantAttributesToCapture.Add(DamageStatics().CritMultiplierDef);
+	
+	RelevantAttributesToCapture.Add(DamageStatics().DefenseDef);
 	RelevantAttributesToCapture.Add(DamageStatics().GuardHealthDef);
 }
 
@@ -71,8 +78,10 @@ float UKOExecCalc_Damage::CalculateFinalDamage(
 	const FAggregatorEvaluateParameters& EvalParams, 
 	const FGameplayEffectSpec& Spec) const
 {
-	// 1. Raw Damage From SetByCaller
-	const float RawDamage = Spec.GetSetByCallerMagnitude(KOGameplayTags::Data_Damage, false, 0.f);
+	// 1. BaseDamage = AttackPower * AttackCoefficient 
+	float BaseDamage = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvalParams, BaseDamage);
+	BaseDamage *= Spec.GetSetByCallerMagnitude(KOGameplayTags::Data_AttackCoefficient, false, 0.f);
 	
 	// 2. Get Attributes from Capture 
 	float Defense = 0.f;
@@ -85,7 +94,7 @@ float UKOExecCalc_Damage::CalculateFinalDamage(
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CritMultiplierDef, EvalParams, CritMultiplier);
 	
 	// 3. Calculate Final Damage
-	float FinalDamage = FMath::Max(RawDamage / (1.f + Defense * 0.01f), 0.f);
+	float FinalDamage = FMath::Max(BaseDamage / (1.f + Defense * 0.01f), 0.f);
 
 	// 4. Judge Critical 
 	const bool bIsCritical = FMath::FRand() < CritChance;
@@ -111,6 +120,13 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	float HealthDamage = FinalDamage;
+	
+	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard))
+	{
+		// TODO: 패링 로직 
+		
+		return;
+	}
 
 	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_Blocking))
 	{

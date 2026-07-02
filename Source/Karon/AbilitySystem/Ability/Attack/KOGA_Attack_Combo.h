@@ -35,13 +35,13 @@ protected:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo
 	) override;
+	
 
 protected:	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OverClock")
-	TSubclassOf<UGameplayEffect> OverClockGainEffectClass;
-	
 	void PlayComboMontage();
 	
+	
+protected:
 	UFUNCTION()
 	void OnMontageCompleted();
 	
@@ -71,6 +71,7 @@ private:
 	bool bNextComboRequested = false;
 	bool bComboWindowOpen = false;
 	bool bIsTransitioning = false; 
+	
 	float GroggyRadius=300.f;
 	FName GroggyLoopName=FName("ParriedLoop");
 	

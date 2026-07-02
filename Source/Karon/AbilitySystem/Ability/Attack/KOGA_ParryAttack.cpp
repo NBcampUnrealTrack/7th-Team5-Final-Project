@@ -19,6 +19,7 @@
 UKOGA_ParryAttack::UKOGA_ParryAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = KOGameplayTags::Event_ParryAttack; 
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
@@ -36,6 +37,7 @@ void UKOGA_ParryAttack::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	//이벤트데이터에서 감지된 에너미 액터를 가져온다.
 	if (TriggerEventData)
 	{
@@ -55,9 +57,11 @@ void UKOGA_ParryAttack::ActivateAbility(
 	}
 }
 
-void UKOGA_ParryAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-                                   const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
-                                   bool bWasCancelled)
+void UKOGA_ParryAttack::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, 
+	bool bReplicateEndAbility,bool bWasCancelled)
 {
 	// 플레이어 이동, 회전 입력 가능
 	if (APlayerController* PC = Cast<APlayerController>(CachedPlayer->GetController()))
@@ -177,16 +181,11 @@ void UKOGA_ParryAttack::ExecuteParryAttack(AKOBaseEnemy* Enemy)
 			NAME_None,
 			false
 		);
-
-	if (MontageTask)
-	{
-		MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-		MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-		MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-		MontageTask->ReadyForActivation();
-	}
 	
-	
+	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->ReadyForActivation();
 }
 
 void UKOGA_ParryAttack::CharacterRotateLock(bool bIsLocked)

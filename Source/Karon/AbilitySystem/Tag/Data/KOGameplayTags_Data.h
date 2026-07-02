@@ -14,6 +14,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Healing);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Damage);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_AttackCoefficient);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Current);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Attribute_Stamina_Max);
