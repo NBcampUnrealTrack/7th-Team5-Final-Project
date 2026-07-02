@@ -1,4 +1,7 @@
 ﻿#include "UI/Title/KOTitleWidget.h"
+#include "UI/KOUISubsystem.h"
+#include "UI/ConfirmationPopup/KOConfirmationPopup.h"
+#include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 
 #include "CommonButtonBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,6 +19,25 @@ void UKOTitleWidget::NativeConstruct()
 	{
 		QuitGameButton->OnClicked().AddUObject(this, &UKOTitleWidget::OnQuitGameClicked);
 	}
+
+	if (OptionButton)
+	{
+		OptionButton->OnClicked().AddUObject(this, &UKOTitleWidget::OnOptionClicked);
+	}
+
+	ULocalPlayer* LocalPlayer = GetOwningLocalPlayer();
+	if (LocalPlayer == nullptr)
+	{
+		return;
+	}
+	CachedUISubsystem = LocalPlayer->GetSubsystem<UKOUISubsystem>();
+}
+
+void UKOTitleWidget::NativeDestruct()
+{
+	CachedUISubsystem = nullptr;
+	
+	Super::NativeDestruct();
 }
 
 void UKOTitleWidget::OnStartGameClicked() const
@@ -37,8 +59,27 @@ void UKOTitleWidget::OnStartGameClicked() const
 
 void UKOTitleWidget::OnQuitGameClicked() const
 {
+	if (CachedUISubsystem)
+	{
+		//UKOConfirmationPopup* ConfirmationPopup = CachedUISubsystem->OpenWidget(GetWorld(), );
+	}
 	APlayerController* PC = GetOwningPlayer();
 	if (PC)
+	{
+		// 가장 마지막 인자는 강제 종료 여부로 데스크탑/PIE외에도 동작하려면 true가 필요함
+		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
+	}
+}
+
+void UKOTitleWidget::OnOptionClicked() const
+{
+	// KOOptionWidget은 PlayerMenu의 Option 팝업과 동일하게 UI.Widget.Option 태그로 연다.
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
+}
+
+void UKOTitleWidget::GameQuitConfirmation() const
+{
+	if (APlayerController* PC = GetOwningPlayer())
 	{
 		// 가장 마지막 인자는 강제 종료 여부로 데스크탑/PIE외에도 동작하려면 true가 필요함
 		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);

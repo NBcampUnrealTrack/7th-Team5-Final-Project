@@ -31,6 +31,7 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
+	virtual bool NativeOnHandleBackAction() override;
 	
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Player Menu")
@@ -47,7 +48,11 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Option;
-	
+
+	/** Option(System) 탭 하위에서 실제 설정 팝업(KOOptionWidget)을 여는 버튼 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_OpenOptionWidget;
+
 private:
 	UFUNCTION()
 	void HandleInventoryClicked();
@@ -60,7 +65,10 @@ private:
 
 	UFUNCTION()
 	void HandleOptionClicked();
-	
+
+	UFUNCTION()
+	void HandleOpenOptionWidgetClicked();
+
 private:
 	bool bPausedGameByThisWidget = false;
 };

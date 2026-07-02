@@ -53,9 +53,12 @@ namespace KOGameplayTags
 	
 	/** 메인 HUD */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InGameHUD);
-	
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_PlayerMenu);
 	
 	/** 건설 모드 인벤토리 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BuildInventory);
+
+	/** 옵션 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Option);
 }

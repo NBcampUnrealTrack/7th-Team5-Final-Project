@@ -27,4 +27,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_InGameHUD,         "UI.Widget.InGameHUD");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_PlayerMenu,		"UI.Widget.PlayerMenu");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_BuildInventory,	"UI.Widget.BuildInventory");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Option,            "UI.Widget.Option");
 }

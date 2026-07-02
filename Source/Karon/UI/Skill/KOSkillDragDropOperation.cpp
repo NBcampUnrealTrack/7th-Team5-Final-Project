@@ -33,7 +33,7 @@ UKOSkillDragDropOperation* UKOSkillDragDropOperation::Create(
 		if (DragVisualImage)
 		{
 			DragVisualImage->SetBrushFromTexture(InIcon);
-			DragVisualImage->SetBrushSize(InDragVisualSize);
+			DragVisualImage->SetDesiredSizeOverride(InDragVisualSize);
 			DragVisualImage->SetOpacity(InDragVisualOpacity);
 			Op->DefaultDragVisual = DragVisualImage;
 		}

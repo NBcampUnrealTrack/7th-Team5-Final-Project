@@ -1,8 +1,10 @@
 ﻿#include "KOPlayerMenuWidget.h"
 
+#include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/KOUISubsystem.h"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -37,7 +39,13 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 		Button_Option->IsFocusable = false;
 		Button_Option->OnClicked.AddDynamic(this, &ThisClass::HandleOptionClicked);
 	}
-	
+
+	if (Button_OpenOptionWidget)
+	{
+		Button_OpenOptionWidget->IsFocusable = false;
+		Button_OpenOptionWidget->OnClicked.AddDynamic(this, &ThisClass::HandleOpenOptionWidgetClicked);
+	}
+
 }
 
 void UKOPlayerMenuWidget::NativeOnActivated()
@@ -71,6 +79,12 @@ void UKOPlayerMenuWidget::NativeOnDeactivated()
 		UGameplayStatics::SetGamePaused(World, false);
 		bPausedGameByThisWidget = false;
 	}
+}
+
+bool UKOPlayerMenuWidget::NativeOnHandleBackAction()
+{
+	DeactivateWidget();
+	return true;
 }
 
 void UKOPlayerMenuWidget::SetActiveTab(EKOPlayerMenuTab Tab)
@@ -126,4 +140,11 @@ void UKOPlayerMenuWidget::HandleSkillClicked()
 void UKOPlayerMenuWidget::HandleOptionClicked()
 {
 	SetActiveTab(EKOPlayerMenuTab::Option);
+}
+
+void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
+{
+	// KOOptionWidget은 Option(System) 탭 하위의 별도 설정 팝업이다.
+	// UISubsystem을 통해 UI.Widget.Option 태그로 위에 팝업 형태로 띄운다.
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
 }
