@@ -53,6 +53,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_OpenOptionWidget;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_BackToTitle;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Resume;
+	
 private:
 	UFUNCTION()
 	void HandleInventoryClicked();
@@ -68,6 +74,12 @@ private:
 
 	UFUNCTION()
 	void HandleOpenOptionWidgetClicked();
+	
+	UFUNCTION()
+	void HandleBackToTitleClicked();
+	
+	UFUNCTION()
+	void HandleResumeClicked();
 
 private:
 	bool bPausedGameByThisWidget = false;

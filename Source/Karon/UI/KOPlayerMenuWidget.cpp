@@ -46,6 +46,17 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 		Button_OpenOptionWidget->OnClicked.AddDynamic(this, &ThisClass::HandleOpenOptionWidgetClicked);
 	}
 
+	if (Button_BackToTitle)
+	{
+		Button_BackToTitle->IsFocusable = false;
+		Button_BackToTitle->OnClicked.AddDynamic(this, &ThisClass::HandleBackToTitleClicked);
+	}
+	
+	if (Button_Resume)
+	{
+		Button_Resume->IsFocusable = false;
+		Button_Resume->OnClicked.AddDynamic(this, &ThisClass::HandleResumeClicked);
+	}
 }
 
 void UKOPlayerMenuWidget::NativeOnActivated()
@@ -144,7 +155,25 @@ void UKOPlayerMenuWidget::HandleOptionClicked()
 
 void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 {
-	// KOOptionWidget은 Option(System) 탭 하위의 별도 설정 팝업이다.
-	// UISubsystem을 통해 UI.Widget.Option 태그로 위에 팝업 형태로 띄운다.
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
+}
+
+void UKOPlayerMenuWidget::HandleBackToTitleClicked()
+{
+	FName TargetLevelName = FName("L_MainMenu");
+	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
+
+	if (FPackageName::DoesPackageExist(PackagePath))
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), TargetLevelName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("오류: '%s' 레벨을 찾을 수 없습니다! 경로나 이름을 확인하세요."), *PackagePath);
+	}
+}
+
+void UKOPlayerMenuWidget::HandleResumeClicked()
+{
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 }
