@@ -120,13 +120,6 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	float HealthDamage = FinalDamage;
-	
-	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard))
-	{
-		// TODO: 패링 로직 
-		
-		return;
-	}
 
 	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_Blocking))
 	{
