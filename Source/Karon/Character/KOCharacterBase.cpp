@@ -38,6 +38,11 @@ void AKOCharacterBase::InitializeAttributes()
 		MovementSet->OnGroundFrictionChanged.AddDynamic(this, &ThisClass::OnGroundFrictionChanged);
 		MovementSet->OnMaxWalkSpeedCrouchedChanged.AddDynamic(this, &ThisClass::OnMaxWalkSpeedChanged);
 		MovementSet->OnJumpStrengthChanged.AddDynamic(this, &ThisClass::OnJumpStrengthChanged);
+		MovementSet->OnGravityScaleChanged.AddDynamic(this, &ThisClass::OnGravityScaleChanged);
+	}
+	else
+	{
+		KO_LOGS(GAS,Attribute, Error, TEXT("%s has not MovementSet."), *GetName());
 	}
 }
 

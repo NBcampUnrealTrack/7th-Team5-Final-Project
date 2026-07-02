@@ -63,10 +63,10 @@ void AKOHeroCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent = Cast<UKOAbilitySystemComponent>(PS->GetAbilitySystemComponent());
 	if (!AbilitySystemComponent) return;
 	
-	AbilitySystemComponent->GiveGrantSet(); 
 	AbilitySystemComponent->InitAbilityActorInfo(PS,this);
-	
 	InitializeAttributes();
+	
+	AbilitySystemComponent->GiveGrantSet(); 
 }
 
 void AKOHeroCharacter::InitializeAttributes()
