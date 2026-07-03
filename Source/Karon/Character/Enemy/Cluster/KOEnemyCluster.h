@@ -26,6 +26,10 @@ protected:
 private:
 	void SpawnEnemies();
 	
+	UFUNCTION()
+	void OnDestroyedEnemy();
+
+	
 protected:
 	UPROPERTY(EditAnywhere,Category="Enemy|Map")
 	TMap<TSubclassOf<AKOBaseEnemy>,int32> EnemyMap;
@@ -48,8 +52,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
 	int32 MaxAttemptsPerPoint = 30;
 	
+	//에너미 전부 처치된 이후 재스폰 인터벌
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
+	int32 SpawnInterval = 15.f;
+
 
 private:
 	float ProjectionDistance=200.f;
 	float EnemyZOffset=90.f;
+	
+	FTimerHandle SpawnTimerHandle;
+	
+	int32 SpawnedEnemiesCount=0;
+	int32 DestroyedEnemyCnt=0;
 };

@@ -52,6 +52,20 @@ void UKOEnemyGameplayAbility::ActivateAbility(
 	PlayMontageTask->OnCancelled.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCancelled);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UKOEnemyGameplayAbility::OnMontageCancelled);
 	PlayMontageTask->ReadyForActivation();
+	
+	for ( auto SelfEffect: SelfEffects )
+	{
+		ApplyEffectToSelf(SelfEffect.EffectClass, GetAbilityLevel());
+	}
+}
+
+void UKOEnemyGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	ClearSelfEffects();
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UKOEnemyGameplayAbility::OnMontageCompleted()
@@ -111,4 +125,13 @@ void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEve
 	// 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	// }
 	
+}
+
+void UKOEnemyGameplayAbility::ClearSelfEffects()
+{
+	UAbilitySystemComponent* ASC = GetASC();
+	for ( auto SelfEffect: SelfEffects )
+	{
+		ASC->RemoveActiveGameplayEffectBySourceEffect(SelfEffect.EffectClass, ASC, 1);
+	}
 }

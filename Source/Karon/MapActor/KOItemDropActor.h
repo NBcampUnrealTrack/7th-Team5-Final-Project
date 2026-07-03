@@ -23,13 +23,15 @@ public:
 
 
 	virtual FText GetInteractionPrompt() const override;
-
+	
+	bool CheckCanGetItem();
 	
 protected:
 	bool bHasItem=true;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="ItemDrop")
 	FEnemyDropItemInfo ItemInfo;
 	
-
+	UPROPERTY(EditAnywhere, Category="ItemDrop")
+	float Percent=100.f;
 };

@@ -23,6 +23,12 @@ bool AKOItemDropActor::CanInteract(AActor* Interactor) const
 
 void AKOItemDropActor::OnInteract(AActor* Interactor)
 {
+	if (!CheckCanGetItem())
+	{
+		Destroy();
+		return;
+	}
+	
 	FKODropItemMessage ItemMessage;
 	ItemMessage.ItemId=ItemInfo.DropItemName;
 	ItemMessage.Count=ItemInfo.Count;
@@ -41,6 +47,17 @@ FText AKOItemDropActor::GetInteractionPrompt() const
 
 	
 	return CachedDisplayName;
+}
+
+bool AKOItemDropActor::CheckCanGetItem()
+{
+	float RandomValue=FMath::RandRange(0.f,100.f);
+	
+	if (RandomValue<=Percent)
+	{
+		return true;
+	}
+	return false;
 }
 
 

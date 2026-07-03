@@ -18,6 +18,14 @@ public:
 	   const FGameplayAbilityActivationInfo ActivationInfo,
 	   const FGameplayEventData* TriggerEventData
    ) override;
+	
+	virtual void EndAbility(
+			const FGameplayAbilitySpecHandle Handle,
+			const FGameplayAbilityActorInfo* ActorInfo,
+			const FGameplayAbilityActivationInfo ActivationInfo,
+			bool bReplicateEndAbility,
+			bool bWasCancelled
+		) override;
 
 private:
 	UFUNCTION()
@@ -28,6 +36,8 @@ private:
 	
 	UFUNCTION()
 	void OnNotifyHitEvent(FGameplayEventData HitGameplayEventData);
+	
+	void ClearSelfEffects();
 
 public:
 	 // 이전 Notify틱의 소켓의 위치
@@ -41,4 +51,9 @@ public:
 	 //현재 Notify에서 플레이어를 타격하였는지 여부(중복 타격 방지, 싱글플레이)
 	 UPROPERTY()
 	 bool bIsAttacked = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	TArray<FKODamageEffectData> SelfEffects;
+	
+
 };

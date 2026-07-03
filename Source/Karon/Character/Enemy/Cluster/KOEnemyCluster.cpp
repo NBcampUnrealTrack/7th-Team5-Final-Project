@@ -48,6 +48,9 @@ void AKOEnemyCluster::SpawnEnemies()
 	//이미 스폰된 위치를 저장
 	TArray<FVector> SpawnedLocations;
 	
+	SpawnedEnemiesCount=0;
+	DestroyedEnemyCnt=0;
+	
 	
 	for (auto EnemyPair : EnemyMap)
 	{
@@ -106,11 +109,26 @@ void AKOEnemyCluster::SpawnEnemies()
 				CandidatePoint=CandidatePoint+FVector(0,0,EnemyZOffset);
 				AKOBaseEnemy* Enemy=GetWorld()->SpawnActor<AKOBaseEnemy>(EnemyPair.Key, CandidatePoint, RandomRotation, SpawnParams);
 				Enemy->SetupEnemy(DataSubsystem,Level);
+				Enemy->OnEnemyDead.AddDynamic(this,&ThisClass::OnDestroyedEnemy);
+				SpawnedEnemiesCount++;
 			}
 		}
-		
-		
 	}
+}
+
+void AKOEnemyCluster::OnDestroyedEnemy()
+{
+	DestroyedEnemyCnt++;
 	
-	
+	//클러스터의 에너미가 전부 죽었다면, 해당 인터벌 후 재스폰
+	if (DestroyedEnemyCnt==SpawnedEnemiesCount)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			SpawnTimerHandle,
+			this,
+			&ThisClass::SpawnEnemies,
+			SpawnInterval,
+			false
+			);
+	}
 }
