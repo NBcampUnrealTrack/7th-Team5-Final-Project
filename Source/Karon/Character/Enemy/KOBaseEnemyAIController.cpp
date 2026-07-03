@@ -38,6 +38,9 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	//TeamId 설정
 	TeamId = FGenericTeamId(1);
 	
+	InitialLocation=InPawn->GetActorLocation();
+
+	
 	//임시 설정. 풀 관리시 사용
 	SetAI(EnemyBehaviorTree,
 		Enemy->EnemyAttackRadius,
@@ -45,6 +48,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 		Enemy->EnemySpeed,
 		Enemy->EnemyStrafeSpeed,
 		Enemy->EnemyAttackDelayTime);
+	
 }
 
 
@@ -122,6 +126,8 @@ void AKOBaseEnemyAIController::SetAI(
 		BBComp->SetValueAsFloat(SpeedKey, Speed);
 		BBComp->SetValueAsFloat(StrafeSpeedKey, StrafeSpeed);
 		BBComp->SetValueAsFloat(EnemyAttackDelayTimeKey, EnemyAttackDelay);
+		BBComp->SetValueAsVector(InitialLocationKey,InitialLocation);
+		BBComp->SetValueAsFloat(MaxDistanceKey, MaxDistanceFromInit);
 		
 		if (Enemy)
 		{

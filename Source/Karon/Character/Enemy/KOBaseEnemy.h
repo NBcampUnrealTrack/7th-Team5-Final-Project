@@ -124,9 +124,10 @@ public:
 	FOnUIVisibleEvent OnBattleEvent;
 	FOnUIVisibleEvent OnLockOnEvent;
 	FOnUIVisibleEvent OnParriedEvent;
+	FOnHitEvent OnHitEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;
-	FOnHitEvent OnHitEvent;
+
 	
 };

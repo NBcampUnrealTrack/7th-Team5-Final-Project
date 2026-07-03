@@ -69,6 +69,8 @@ protected:
 	const FName EnemyAttackDelayTimeKey = TEXT("EnemyAttackDelayTime");
 	const FName bCanAttackKey = TEXT("bCanAttack");
 	const FName bCanPatrolKey = TEXT("bCanPatrol");
+	const FName InitialLocationKey = TEXT("InitialLocation");
+	const FName MaxDistanceKey = TEXT("MaxDistance");
 	
 	
 	UPROPERTY()
@@ -84,10 +86,15 @@ protected:
 	//HP가 0이 된 이후 해당 딜레이 이후에 BT를 멈춥니다.
 	float StopBTDelay=1.f;
 	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float MaxDistanceFromInit= 3000.f; 
+	
 private:
 	FGenericTeamId TeamId;
 	FTimerHandle TimerHandle;
 	bool bIsDead=false;
+	
+	FVector InitialLocation=FVector::ZeroVector;
 	
 
 };

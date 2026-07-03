@@ -116,6 +116,7 @@ void AKOBaseEnemy::BeginPlay()
 			OnParriedEvent.BindUObject(Parried, &UKOEnemyBaseUI::OnVisibilityChanged);
 		}
 	}
+	
 }
 
 void AKOBaseEnemy::InitializeAttributes()
