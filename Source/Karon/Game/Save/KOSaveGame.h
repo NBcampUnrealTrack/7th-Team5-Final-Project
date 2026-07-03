@@ -136,6 +136,24 @@ struct FKOSavedPlayerStatus // 플레이어 상태
 	float Health = 0.f;
 };
 
+USTRUCT(BlueprintType)
+struct FKOSavedBoss // 보스 상태
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName BossSaveId = NAME_None;
+
+	UPROPERTY()
+	FSoftClassPath BossClassPath;
+
+	UPROPERTY()
+	FTransform Transform = FTransform::Identity;
+
+	UPROPERTY()
+	bool bWasAlive = true;
+};
+
 UCLASS()
 class KARON_API UKOSaveGame : public USaveGame
 {
@@ -179,5 +197,9 @@ public:
 	// 스킬 해금 상태
 	UPROPERTY()
 	FKOSavedSkillState SkillState;
+	
+	// 보스 상태
+	UPROPERTY()
+	TArray<FKOSavedBoss> Bosses;
 	
 };

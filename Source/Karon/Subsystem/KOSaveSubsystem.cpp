@@ -16,6 +16,7 @@
 #include "KOGridSubsystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 
 const FString UKOSaveSubsystem::DefaultSlotName = TEXT("KaronSaveSlot");
 
@@ -264,15 +265,41 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 			}
 
 			SaveData->Buildings.Add(SavedBuilding);
-		}
+			}
 		
-		// 스킬 저장
-		if (UKOSkillSubsystem* SkillSubsystem = GetPlayerSkillSubsystem(PC))
+		// 보스 상태 저장
+		SaveData->Bosses.Empty();
+
+		for (TActorIterator<AKOBossBase> It(World); It; ++It)
 		{
-			SkillSubsystem->GetSkillStateForSave(SaveData->SkillState.UnlockedSkillIds);
-			SkillSubsystem->GetSkillQuickSlotsForSave(SaveData->SkillState.SkillQuickSlots);
+			AKOBossBase* Boss = *It;
+			if (!Boss)
+			{
+				continue;
+			}
+
+			const FName BossSaveId = Boss->GetBossSaveId();
+			if (BossSaveId.IsNone())
+			{
+				continue;
+			}
+
+			FKOSavedBoss SavedBoss;
+			SavedBoss.BossSaveId = BossSaveId;
+			SavedBoss.BossClassPath = FSoftClassPath(Boss->GetClass());
+			SavedBoss.Transform = Boss->GetActorTransform();
+			SavedBoss.bWasAlive = !Boss->IsDeadForSave();
+
+			SaveData->Bosses.Add(SavedBoss);
 		}
 	}
+	// 스킬 저장
+	if (UKOSkillSubsystem* SkillSubsystem = GetPlayerSkillSubsystem(PC))
+	{
+		SkillSubsystem->GetSkillStateForSave(SaveData->SkillState.UnlockedSkillIds);
+		SkillSubsystem->GetSkillQuickSlotsForSave(SaveData->SkillState.SkillQuickSlots);
+	}
+	
 
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
 }
@@ -486,8 +513,7 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 					continue;
 				}
 
-				const FKOSavedConveyorState& ConveyorState =
-					SpawnedBuildingSaveData[i].ConveyorState;
+				const FKOSavedConveyorState& ConveyorState = SpawnedBuildingSaveData[i].ConveyorState;
 
 				if (!ConveyorState.bHasOutputBinding)
 				{
@@ -514,6 +540,59 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 					ConveyorState.bHasSelectedOutputPort
 				);
 			}
+		}
+		
+		// 보스 상태 로드
+		for (const FKOSavedBoss& SavedBoss : SaveData->Bosses)
+		{
+			if (SavedBoss.BossSaveId.IsNone())
+			{
+				continue;
+			}
+
+			AKOBossBase* TargetBoss = nullptr;
+
+			for (TActorIterator<AKOBossBase> It(World); It; ++It)
+			{
+				AKOBossBase* Boss = *It;
+				if (!Boss)
+				{
+					continue;
+				}
+
+				if (Boss->GetBossSaveId() == SavedBoss.BossSaveId)
+				{
+					TargetBoss = Boss;
+					break;
+				}
+			}
+
+			// 보스가 Destroy되어 월드에 없으면 다시 스폰
+			if (!TargetBoss)
+			{
+				UClass* BossClass = SavedBoss.BossClassPath.TryLoadClass<AKOBossBase>();
+				if (!BossClass)
+				{
+					UE_LOG(
+						LogTemp,
+						Warning,
+						TEXT("[SaveLoad] BossClass 로드 실패: BossSaveId=%s"),
+						*SavedBoss.BossSaveId.ToString()
+					);
+					continue;
+				}
+
+				TargetBoss = World->SpawnActor<AKOBossBase>(BossClass, SavedBoss.Transform);
+
+				if (!TargetBoss)
+				{
+					continue;
+				}
+
+				TargetBoss->SetBossSaveIdForLoad(SavedBoss.BossSaveId);
+			}
+
+			TargetBoss->RestoreBossFromSave(SavedBoss.Transform, SavedBoss.bWasAlive);
 		}
 	}
 	
