@@ -3,6 +3,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/MeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/SCS_Node.h"
@@ -153,13 +154,17 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 					continue;
 				}
 
-				UActorComponent* ComponentTemplate =
-					Node->GetActualComponentTemplate(BlueprintClass);
+				UActorComponent* ComponentTemplate = Node->GetActualComponentTemplate(BlueprintClass);
 
-				USkeletalMeshComponent* SourceMeshComponent =
-					Cast<USkeletalMeshComponent>(ComponentTemplate);
+				UMeshComponent* SourceMeshComponent = Cast<UMeshComponent>(ComponentTemplate);
 
 				if (!SourceMeshComponent)
+				{
+					continue;
+				}
+				
+				if (!SourceMeshComponent->IsA<UStaticMeshComponent>() &&
+					!SourceMeshComponent->IsA<USkeletalMeshComponent>())
 				{
 					continue;
 				}
@@ -172,51 +177,77 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 	}
 }
 
-void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
-	const USkeletalMeshComponent* SourceMeshComponent
-)
+void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(const UMeshComponent* SourceMeshComponent)
 {
 	if (!SourceMeshComponent)
 	{
 		return;
 	}
 
-	USkeletalMesh* SourceMesh = SourceMeshComponent->GetSkeletalMeshAsset();
+	UMeshComponent* NewPreviewMeshComponent = nullptr;
 
-	if (!SourceMesh)
+	if (const UStaticMeshComponent* SourceStaticMeshComponent =
+		Cast<UStaticMeshComponent>(SourceMeshComponent))
 	{
-		return;
+		UStaticMesh* SourceMesh = SourceStaticMeshComponent->GetStaticMesh();
+		
+		if (!SourceMesh)
+		{
+			return;
+		}
+
+		UStaticMeshComponent* NewStaticMeshComponent = NewObject<UStaticMeshComponent>(this);
+
+		if (!NewStaticMeshComponent)
+		{
+			return;
+		}
+
+		NewStaticMeshComponent->SetStaticMesh(SourceMesh);
+	
+		NewPreviewMeshComponent = NewStaticMeshComponent;
 	}
+	
+	else if (const USkeletalMeshComponent* SourceSkeletalMeshComponent =
+		Cast<USkeletalMeshComponent>(SourceMeshComponent))
+	{
+		USkeletalMesh* SourceMesh = SourceSkeletalMeshComponent->GetSkeletalMeshAsset();
 
-	USkeletalMeshComponent* NewPreviewMeshComponent = NewObject<USkeletalMeshComponent>(this);
+		if (!SourceMesh)
+		{
+			return;
+		}
 
+		USkeletalMeshComponent* NewSkeletalMeshComponent = NewObject<USkeletalMeshComponent>(this);
+
+		if (!NewSkeletalMeshComponent)
+		{
+			return;
+		}
+
+		NewSkeletalMeshComponent->SetSkeletalMesh(SourceMesh);
+
+		NewPreviewMeshComponent = NewSkeletalMeshComponent;
+	}
+	
 	if (!NewPreviewMeshComponent)
 	{
 		return;
 	}
-
-	NewPreviewMeshComponent->SetSkeletalMesh(SourceMesh);
-
-	NewPreviewMeshComponent->SetRelativeTransform(
-		SourceMeshComponent->GetRelativeTransform()
-	);
+	
+	NewPreviewMeshComponent->SetRelativeTransform(SourceMeshComponent->GetRelativeTransform());
 
 	NewPreviewMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	NewPreviewMeshComponent->SetGenerateOverlapEvents(false);
+	NewPreviewMeshComponent->SetCastShadow(false);
 
 	const int32 MaterialCount = SourceMeshComponent->GetNumMaterials();
 	for (int32 Index = 0; Index < MaterialCount; ++Index)
 	{
-		NewPreviewMeshComponent->SetMaterial(
-			Index,
-			SourceMeshComponent->GetMaterial(Index)
-		);
+		NewPreviewMeshComponent->SetMaterial(Index, SourceMeshComponent->GetMaterial(Index));
 	}
 
-	NewPreviewMeshComponent->AttachToComponent(
-		RootComponent,
-		FAttachmentTransformRules::KeepRelativeTransform
-	);
+	NewPreviewMeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 	NewPreviewMeshComponent->RegisterComponent();
 
@@ -225,7 +256,7 @@ void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
 
 void AKOGhostPreview::ClearPreviewMeshComponents()
 {
-    for (USkeletalMeshComponent* MeshComponent : PreviewMeshComponents)
+    for (UMeshComponent* MeshComponent : PreviewMeshComponents)
     {
         if (MeshComponent)
         {
