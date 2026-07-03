@@ -1,3 +1,5 @@
+// Copyright Karon Team 5. All Rights Reserved.
+
 #include "KOOptionWidget.h"
 
 #include "Components/Button.h"
@@ -84,7 +86,7 @@ void UKOOptionWidget::NativeOnActivated()
 
 void UKOOptionWidget::SetActiveTab(EKOOptionTab Tab)
 {
-	if (!ContentSwitcher)
+	if (ContentSwitcher == nullptr)
 	{
 		return;
 	}

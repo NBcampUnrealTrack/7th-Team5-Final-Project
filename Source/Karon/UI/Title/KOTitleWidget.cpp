@@ -1,12 +1,12 @@
-﻿#include "UI/Title/KOTitleWidget.h"
+﻿// Copyright Karon Team 5. All Rights Reserved.
+
+#include "UI/Title/KOTitleWidget.h"
 #include "UI/KOUISubsystem.h"
 #include "UI/ConfirmationPopup/KOConfirmationPopup.h"
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 
 #include "CommonButtonBase.h"
 #include "Kismet/GameplayStatics.h"
-
-#define LOCTEXT_NAMESPACE "KOTitleWidget"
 
 void UKOTitleWidget::NativeConstruct()
 {
@@ -38,7 +38,7 @@ void UKOTitleWidget::NativeConstruct()
 void UKOTitleWidget::NativeDestruct()
 {
 	CachedUISubsystem = nullptr;
-	
+
 	Super::NativeDestruct();
 }
 
@@ -59,6 +59,8 @@ void UKOTitleWidget::OnStartGameClicked() const
 	}
 }
 
+#define LOCTEXT_NAMESPACE "KOTitleWidget"
+
 void UKOTitleWidget::OnQuitGameClicked()
 {
 	if (!CachedUISubsystem)
@@ -69,10 +71,13 @@ void UKOTitleWidget::OnQuitGameClicked()
 	UCommonActivatableWidget* Widget = CachedUISubsystem->OpenWidget(KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
-		Popup->SetupPopup(LOCTEXT("QuitGameTitle", "게임 종료"), LOCTEXT("QuitGameDescription", "게임을 종료하시겠습니까?"));
+		Popup->SetupPopup(LOCTEXT("QuitGameTitle", "게임 종료"),
+		                  LOCTEXT("QuitGameDescription", "게임을 종료하시겠습니까?"));
 		Popup->OnConfirmed.AddUniqueDynamic(this, &UKOTitleWidget::GameQuitConfirmation);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
 
 void UKOTitleWidget::OnOptionClicked() const
 {
@@ -88,5 +93,3 @@ void UKOTitleWidget::GameQuitConfirmation()
 		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
 	}
 }
-
-#undef LOCTEXT_NAMESPACE

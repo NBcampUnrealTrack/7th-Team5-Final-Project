@@ -50,6 +50,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_DrawWeapon);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_SheatheWeapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_UsePotion);
 	
     // ── Input | Ability | CoreSkill ───────────────────────────────
     // ── Input | Ability | Skill ───────────────────────────────────

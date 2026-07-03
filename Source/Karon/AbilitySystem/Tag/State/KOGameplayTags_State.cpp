@@ -24,6 +24,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_NoStaminaRegen, "State.Character.NoStaminaRegen");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_LockOn, "State.Character.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_OnPlatform, "State.Character.OnPlatform");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_PotionCoolDown, "State.Character.PotionCoolDown");
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard, "State.Character.Guard");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Guard_Blocking, "State.Character.Guard.Blocking");

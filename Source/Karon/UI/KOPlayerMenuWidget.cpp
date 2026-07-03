@@ -7,8 +7,6 @@
 #include "UI/ConfirmationPopup/KOConfirmationPopup.h"
 #include "UI/KOUISubsystem.h"
 
-#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
-
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
 	InputMode = EKOUIInputMode::All;
@@ -161,17 +159,21 @@ void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
 }
 
+#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
+
 void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 {
 	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
 		Popup->SetupPopup(
-			LOCTEXT("BackToTitleTitle", "타이틀로 돌아가기"),
-			LOCTEXT("BackToTitleDescription", "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"));
+			LOCTEXT("Back To Title", "타이틀로 돌아가기"),
+			LOCTEXT("Back To Title Description", "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"));
 		Popup->OnConfirmed.AddUniqueDynamic(this, &ThisClass::HandleBackToTitleConfirmed);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
 
 void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
 {
@@ -192,5 +194,3 @@ void UKOPlayerMenuWidget::HandleResumeClicked()
 {
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 }
-
-#undef LOCTEXT_NAMESPACE

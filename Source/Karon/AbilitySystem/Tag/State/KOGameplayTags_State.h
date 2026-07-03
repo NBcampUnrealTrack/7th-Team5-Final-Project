@@ -34,6 +34,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_NoStaminaRegen);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OnPlatform); // 보스 기믹용 태그 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_PotionCoolDown)
 	
 	// ── State | Character | Guard ───────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Guard)

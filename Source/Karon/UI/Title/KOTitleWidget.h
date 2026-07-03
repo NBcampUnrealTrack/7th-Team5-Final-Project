@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// Copyright Karon Team 5. All Rights Reserved.
+#pragma once
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
