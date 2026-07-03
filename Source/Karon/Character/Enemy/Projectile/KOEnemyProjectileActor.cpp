@@ -98,7 +98,7 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(Enemy->ProjectileDamageEffectClass, 1.0f, Context);
 	if (SpecHandle.IsValid() )
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage, ProjectileDamage);
+		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_AttackCoefficient, ProjectileDamage);
 		CharacterASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
 	ReturnToPool();
@@ -113,7 +113,7 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 	TrailEffectComponent->SetAsset(InEnemy->ImpactEffect);
 	TrailEffectComponent->Activate(true);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
-	ProjectileDamage=AttackPoint*DamageMultiplier;
+	ProjectileDamage=DamageMultiplier;
 }
 
 void AKOEnemyProjectileActor::SetActiveAndCollision(bool InActive)
