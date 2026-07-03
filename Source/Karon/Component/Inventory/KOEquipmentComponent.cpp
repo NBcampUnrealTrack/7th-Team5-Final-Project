@@ -8,6 +8,7 @@
 #include "GameplayTagContainer.h"
 #include "Data/KODataTableTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 
 
 UKOEquipmentComponent::UKOEquipmentComponent()
@@ -307,6 +308,48 @@ void UKOEquipmentComponent::RecalculateArmorDefense()
 
 		TotalArmorDefense += EquipmentRow->Defense;
 	}
+
+	ApplyArmorDefenseEffect();
+}
+
+void UKOEquipmentComponent::ApplyArmorDefenseEffect()
+{
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		return;
+	}
+
+	// 기존에 적용된 방어구 방어력 GE는 제거하고, 새 총합으로 다시 적용한다.
+	if (ArmorDefenseEffectHandle.IsValid())
+	{
+		ASC->RemoveActiveGameplayEffect(ArmorDefenseEffectHandle);
+		ArmorDefenseEffectHandle = FActiveGameplayEffectHandle();
+	}
+
+	if (ArmorDefenseEffectClass == nullptr || TotalArmorDefense <= 0)
+	{
+		return;
+	}
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	Context.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(ArmorDefenseEffectClass, 1.f, Context);
+	if (!Spec.IsValid())
+	{
+		return;
+	}
+
+	Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_Defense, TotalArmorDefense);
+
+	ArmorDefenseEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data);
 }
 
 void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)

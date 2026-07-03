@@ -10,17 +10,38 @@
 
 
 AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer.SetDefaultSubobjectClass<UKOCharacterMovementComponent>(
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UKOCharacterMovementComponent>(
 		ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	EquipmentComponent = CreateDefaultSubobject<UKOEquipmentComponent>(TEXT("EquipmentComponent"));
+
+	// 기본값은 기존과 동일한 C++ 클래스. 자식 Blueprint에서 EquipmentComponentClass를
+	// BP_EquipmentComponent 등으로 교체하면 그 클래스로 생성된다 (PostInitializeComponents 참고).
+	EquipmentComponentClass = UKOEquipmentComponent::StaticClass();
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AKOCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!EquipmentComponent)
+	{
+		const TSubclassOf<UKOEquipmentComponent> ClassToUse =
+			EquipmentComponentClass
+				? EquipmentComponentClass
+				: TSubclassOf<UKOEquipmentComponent>(UKOEquipmentComponent::StaticClass());
+
+		EquipmentComponent = NewObject<UKOEquipmentComponent>(this, ClassToUse, TEXT("EquipmentComponent"));
+		if (EquipmentComponent)
+		{
+			EquipmentComponent->RegisterComponent();
+		}
+	}
 }
 
 void AKOCharacterBase::BeginPlay()
@@ -42,29 +63,29 @@ void AKOCharacterBase::InitializeAttributes()
 	}
 	else
 	{
-		KO_LOGS(GAS,Attribute, Error, TEXT("%s has not MovementSet."), *GetName());
+		KO_LOGS(GAS, Attribute, Error, TEXT("%s has not MovementSet."), *GetName());
 	}
 }
 
 void AKOCharacterBase::OnCharacterDead(AActor* DeathInstigator)
 {
 	KO_LOG(Combat, Warning, TEXT("[%s] is Dead.      Instigator : [%s]"),
-		*GetName(),
-		DeathInstigator ? *DeathInstigator->GetName() : TEXT("Unknown")
+	       *GetName(),
+	       DeathInstigator ? *DeathInstigator->GetName() : TEXT("Unknown")
 	);
-	
-	bIsDead = true; 
-	
+
+	bIsDead = true;
+
 	// TODO: 임시 코드 
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(KOGameplayTags::State_Character_Dead);
 	}
-	
+
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
 		CMC->DisableMovement();
-		CMC->StopMovementImmediately(); 
+		CMC->StopMovementImmediately();
 	}
 }
 
@@ -102,4 +123,3 @@ void AKOCharacterBase::OnGravityScaleChanged(float OldValue, float NewValue)
 {
 	GetCharacterMovement()->GravityScale = NewValue;
 }
-

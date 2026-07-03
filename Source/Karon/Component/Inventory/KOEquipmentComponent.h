@@ -8,6 +8,7 @@
 
 class UKOWeaponDefinition;
 class AKOWeaponBase;
+class UGameplayEffect;
 
 UENUM(BlueprintType)
 enum class EWeaponSlot : uint8
@@ -18,7 +19,7 @@ enum class EWeaponSlot : uint8
 
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -107,8 +108,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment|Armor")
 	int32 TotalArmorDefense = 0;
-	
-protected: 
+
+	// 장착 방어구 총합을 Defense 어트리뷰트(Data.Attribute.Combat.Defense, SetByCaller)에 반영하는 GE.
+	// 무한 지속 + Add 방식이어야 하며, 방어구가 바뀔 때마다 제거 후 새 총합으로 재적용된다.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor")
+	TSubclassOf<UGameplayEffect> ArmorDefenseEffectClass;
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	
@@ -120,4 +126,9 @@ protected:
 	
 private:
 	void SyncWeaponDrawnTagToASC();
+
+	// TotalArmorDefense를 ArmorDefenseEffectClass GE로 ASC에 반영 (기존 적용분은 제거 후 재적용).
+	void ApplyArmorDefenseEffect();
+
+	FActiveGameplayEffectHandle ArmorDefenseEffectHandle;
 };

@@ -37,7 +37,9 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+
+	virtual void PostInitializeComponents() override;
+
 	virtual void InitializeAttributes();
 
 public:
@@ -83,7 +85,12 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;
- 
+
+	// EquipmentComponent로 사용할 실제 클래스. BP_EquipmentComponent 등 자식 Blueprint로 교체 가능.
+	// 미지정 시 UKOEquipmentComponent(C++ 기본 클래스)를 사용한다.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
+	TSubclassOf<UKOEquipmentComponent> EquipmentComponentClass;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsDead = false; 
