@@ -78,7 +78,11 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 	// 2. Effect 적용 
 	if (SprintEffect)
 	{
-		SprintEffectHandle = ApplyEffectToSelf(SprintEffect);
+		SprintEffectHandle = ApplyEffectSetByCallerToSelf(
+			SprintEffect,
+			KOGameplayTags::Data_Attribute_Movement_WalkSpeed,
+			SprintSpeed
+			);
 	}
 	
 	CachedCharacter->UpdateGait(EGait::Sprint);

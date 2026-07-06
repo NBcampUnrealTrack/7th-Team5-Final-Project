@@ -26,6 +26,7 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Montage_Finish, "Event.Montage.Finish");
 	UE_DEFINE_GAMEPLAY_TAG(Event_SwapSocket, "Event.SwapSocket");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Stamina_Full, "Event.Stamina.Full");
 	
 	// ── Event | Attack ────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Event_Input_Light, "Event.Input.Light");

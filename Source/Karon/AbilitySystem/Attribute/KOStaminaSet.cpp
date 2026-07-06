@@ -95,6 +95,9 @@ void UKOStaminaSet::PostGameplayEffectExecute(const struct FGameplayEffectModCal
 {
 	Super::PostGameplayEffectExecute(Data);
 	
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent(); 
+	if (!ASC) return; 
+	
 	auto Context = CacheEffectContext(Data);
 	
 	// Handle Stamina Drain 
@@ -107,6 +110,15 @@ void UKOStaminaSet::PostGameplayEffectExecute(const struct FGameplayEffectModCal
 		
 		SetStamina(NewStamina);
 		SetStaminaDrain(0.f);
+		
+		if (NewStamina <= 0.f)
+		{
+			FGameplayEventData EventData;
+			EventData.Target = ASC->GetAvatarActor();
+			EventData.Instigator = ASC->GetAvatarActor();
+		
+			ASC->HandleGameplayEvent(KOGameplayTags::Event_Stamina_Exhausted, &EventData);
+		}
 	}
 	
 	// Handle Regen Stamina 
@@ -118,6 +130,15 @@ void UKOStaminaSet::PostGameplayEffectExecute(const struct FGameplayEffectModCal
 		);
 		SetStamina(NewStamina);
 		SetStaminaRegen(0.f);
+		
+		if (GetStamina() >= GetMaxStamina())
+		{
+			FGameplayEventData EventData;
+			EventData.Target = ASC->GetAvatarActor();
+			EventData.Instigator = ASC->GetAvatarActor();
+			
+			ASC->HandleGameplayEvent(KOGameplayTags::Event_Stamina_Full, &EventData);
+		}
 	}
 }
 

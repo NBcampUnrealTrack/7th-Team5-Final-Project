@@ -27,11 +27,15 @@ public:
 
 private:
 	UFUNCTION()
-	void OnExhaustedTagRemoved();
+	void OnStaminaFull(FGameplayEventData Data);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Exhausted")
 	TSubclassOf<UGameplayEffect> ExhaustedEffect;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Exhausted")
+	float ExhaustedSpeed = 100.f; 
+	
 
 	FActiveGameplayEffectHandle ExhaustedEffectHandle;
 };

@@ -78,7 +78,6 @@ void UKOGA_Death::ActivateAbility(
 	if (TriggerEventData)
 		CachedInstigator = const_cast<AActor*>(TriggerEventData->Instigator.Get());
 	
-	
 	if (!DeathMontage)
 	{
 		KO_LOGS(GAS, Ability, Warning, TEXT("Death Ability has no Montage."));

@@ -27,6 +27,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Montage_Finish);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_SwapSocket);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Stamina_Full);
+	
 	// ── Event | Guard ─────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_Start);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Guard_End);

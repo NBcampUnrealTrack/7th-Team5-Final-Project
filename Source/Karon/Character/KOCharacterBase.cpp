@@ -57,7 +57,7 @@ void AKOCharacterBase::InitializeAttributes()
 		MovementSet->OnMaxAccelerationChanged.AddDynamic(this, &ThisClass::OnMaxAccelerationChanged);
 		MovementSet->OnBrakingDecelerationWalkingChanged.AddDynamic(this, &ThisClass::OnBrakingDecelerationChanged);
 		MovementSet->OnGroundFrictionChanged.AddDynamic(this, &ThisClass::OnGroundFrictionChanged);
-		MovementSet->OnMaxWalkSpeedCrouchedChanged.AddDynamic(this, &ThisClass::OnMaxWalkSpeedChanged);
+		MovementSet->OnMaxWalkSpeedCrouchedChanged.AddDynamic(this, &ThisClass::OnMaxWalkSpeedCrouchedChanged);
 		MovementSet->OnJumpStrengthChanged.AddDynamic(this, &ThisClass::OnJumpStrengthChanged);
 		MovementSet->OnGravityScaleChanged.AddDynamic(this, &ThisClass::OnGravityScaleChanged);
 	}

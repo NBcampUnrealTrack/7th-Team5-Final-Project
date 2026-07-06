@@ -143,6 +143,7 @@ void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 	// );
 	
 	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return; 
 	
 	FVector LaunchDir = FVector::ZeroVector;
 	

@@ -55,6 +55,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UGameplayEffect> SprintEffect;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	float SprintSpeed = 370.f;
+	
 	FActiveGameplayEffectHandle SprintEffectHandle; 
 
 protected:

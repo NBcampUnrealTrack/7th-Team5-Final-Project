@@ -1,19 +1,22 @@
 ﻿#include "KOGA_StaminaExhausted.h"
+
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Animation/KOAnimationTypes.h"
+#include "Character/Hero/KOHeroCharacter.h"
 
 UKOGA_StaminaExhausted::UKOGA_StaminaExhausted()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_StaminaExhausted);
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_StaminaExhausted);
 	
 	// 트리거 설정 
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = KOGameplayTags::Event_Stamina_Exhausted;
-	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::OwnedTagAdded;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
 }
 
@@ -25,7 +28,6 @@ void UKOGA_StaminaExhausted::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -35,21 +37,23 @@ void UKOGA_StaminaExhausted::ActivateAbility(
 	// 탈진 GE 적용 
 	if (ExhaustedEffect)
 	{
-		FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(ExhaustedEffect);
-		ExhaustedEffectHandle = ApplyGameplayEffectSpecToOwner(
-			Handle, ActorInfo, ActivationInfo, Spec);
+		ExhaustedEffectHandle = ApplyEffectSetByCallerToSelf(
+			ExhaustedEffect,
+			KOGameplayTags::Data_Attribute_Movement_WalkSpeed,
+			ExhaustedSpeed
+		);
 	}
 	
-	UAbilityTask_WaitGameplayTagRemoved* WaitTask =
-		UAbilityTask_WaitGameplayTagRemoved::WaitGameplayTagRemove(
-		this,
-		KOGameplayTags::Event_Stamina_Exhausted
-	);
+	AKOHeroCharacter* Character = Cast<AKOHeroCharacter>(GetAvatarCharacter());
+	if (Character) Character->UpdateGait(EGait::Walk);
 	
-	if (WaitTask)
+	UAbilityTask_WaitGameplayEvent* WaitStaminaFull =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Stamina_Full);
+	
+	if (WaitStaminaFull)
 	{
-		WaitTask->Removed.AddDynamic(this, &ThisClass::OnExhaustedTagRemoved);
-		WaitTask->ReadyForActivation();
+		WaitStaminaFull->EventReceived.AddDynamic(this, &ThisClass::OnStaminaFull);
+		WaitStaminaFull->ReadyForActivation();
 	}
 }
 
@@ -65,10 +69,13 @@ void UKOGA_StaminaExhausted::EndAbility(
 	if (ExhaustedEffectHandle.IsValid())
 		BP_RemoveGameplayEffectFromOwnerWithHandle(ExhaustedEffectHandle);
 	
+	if (AKOHeroCharacter* Character = Cast<AKOHeroCharacter>(GetAvatarCharacter()))
+			Character->UpdateGait(EGait::Run);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UKOGA_StaminaExhausted::OnExhaustedTagRemoved()
+void UKOGA_StaminaExhausted::OnStaminaFull(FGameplayEventData Data)
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
