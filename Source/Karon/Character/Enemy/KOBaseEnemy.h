@@ -38,6 +38,16 @@ public:
 	void OnBattleChanged(bool bIsBattle);
 	void ChangeLockOnGroggy(bool bIsGroggied);
 	
+	// 세이브 로드
+	FName GetMonsterSaveId() const { return MonsterSaveId; }
+	bool IsDeadForSave() const { return bDeadForSave; }
+	
+	FName GetClusterSaveIdForSave() const { return ClusterSaveId; }
+	int32 GetEnemyLevelForSave() const { return EnemyLevel; }
+
+	void SetMonsterSaveInfoForLoad(FName InClusterSaveId, FName InMonsterSaveId);
+	void RestoreMonsterFromSave(const FTransform& SavedTransform);
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -75,8 +85,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	class UNiagaraSystem* ImpactEffect;
-	
-	
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackRadius=150.f;
@@ -126,6 +134,14 @@ protected:
 	FVector LocalLockOnInitialLocation=FVector(0,0,100.f);;
 	FVector LocalLockOnOffset=FVector(0,40.f,-80.f);
 	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName ClusterSaveId = NAME_None;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName MonsterSaveId = NAME_None;
+
+	UPROPERTY()
+	bool bDeadForSave = false;
 	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
@@ -136,7 +152,6 @@ public:
 	FOnUIVisibleEvent OnParriedEvent;
 	FOnTriggerEvent OnHitEvent;
 	FOnTriggerEvent OnCounterAttackEvent;
-	
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;

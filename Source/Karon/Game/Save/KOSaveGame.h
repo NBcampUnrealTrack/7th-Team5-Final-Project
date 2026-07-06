@@ -137,6 +137,27 @@ struct FKOSavedPlayerStatus // 플레이어 상태
 };
 
 USTRUCT(BlueprintType)
+struct FKOSavedMonster // 몬스터 상태
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName MonsterSaveId = NAME_None;
+
+	UPROPERTY()
+	FName ClusterSaveId = NAME_None;
+
+	UPROPERTY()
+	FSoftClassPath MonsterClassPath;
+
+	UPROPERTY()
+	FTransform Transform = FTransform::Identity;
+
+	UPROPERTY()
+	int32 Level = 1;
+};
+
+USTRUCT(BlueprintType)
 struct FKOSavedBoss // 보스 상태
 {
 	GENERATED_BODY()
@@ -198,8 +219,18 @@ public:
 	UPROPERTY()
 	FKOSavedSkillState SkillState;
 	
+	// 몬스터 상태
+	UPROPERTY()
+	TArray<FKOSavedMonster> Monsters;
+
+	UPROPERTY()
+	TArray<FName> DeadMonsterIds;
+	
 	// 보스 상태
 	UPROPERTY()
 	TArray<FKOSavedBoss> Bosses;
 	
+	// 이미 채집된 맵 채집물 ID
+	UPROPERTY()
+	TArray<FName> CollectedItemDropIds;	
 };

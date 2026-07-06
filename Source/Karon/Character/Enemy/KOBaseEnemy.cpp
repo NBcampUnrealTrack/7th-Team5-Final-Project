@@ -12,12 +12,13 @@
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Components/WidgetComponent.h"
-#include "Data/Character/Enemy/KOEnemyDataAsset.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
+#include "Subsystem/KOSaveSubsystem.h"
 #include "UI/Enemy/KOEnemyBaseUI.h"
 #include "UI/Enemy/KOEnemyHPBar.h"
 #include "Utility/Messaging/KOMessageTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -84,6 +85,59 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 	}
 }
 
+void AKOBaseEnemy::SetMonsterSaveInfoForLoad(FName InClusterSaveId, FName InMonsterSaveId)
+{
+	ClusterSaveId = InClusterSaveId;
+	MonsterSaveId = InMonsterSaveId;
+}
+
+void AKOBaseEnemy::RestoreMonsterFromSave(const FTransform& SavedTransform)
+{
+	bDeadForSave = false;
+
+	SetActorTransform(SavedTransform, false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetCanBeDamaged(true);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		if (HealthSet)
+		{
+			AbilitySystemComponent->ApplyModToAttributeUnsafe(
+				UKOHealthSet::GetHealthAttribute(),
+				EGameplayModOp::Override,
+				HealthSet->GetMaxHealth()
+			);
+		}
+	}
+
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->SetComponentTickEnabled(true);
+		MoveComp->SetMovementMode(MOVE_Walking);
+		MoveComp->StopMovementImmediately();
+	}
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		MeshComp->SetHiddenInGame(false);
+		MeshComp->SetVisibility(true, true);
+		MeshComp->SetComponentTickEnabled(true);
+		MeshComp->bPauseAnims = false;
+		MeshComp->SetSimulatePhysics(false);
+
+		if (UAnimInstance* AnimInstance = MeshComp->GetAnimInstance())
+		{
+			AnimInstance->Montage_Stop(0.0f);
+		}
+	}
+
+	OnCharacterReset.ExecuteIfBound();
+}
+
 void AKOBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -146,6 +200,13 @@ void AKOBaseEnemy::InitializeAttributes()
 void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 {
 	Super::OnCharacterDead(DeathInstigator);
+	
+	bDeadForSave = true;
+
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		SaveSubsystem->MarkMonsterDead(MonsterSaveId);
+	}
 	
 	OnEnemyDead.Broadcast();
 	

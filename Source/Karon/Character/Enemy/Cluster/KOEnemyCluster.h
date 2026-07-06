@@ -17,19 +17,23 @@ class KARON_API AKOEnemyCluster : public AActor
 public:
 	// Sets default values for this actor's properties
 	AKOEnemyCluster();
+	
+	FName GetClusterSaveId() const { return ClusterSaveId; }
+
+	// 세이브 로드
+	void ResetClusterForLoad();
+	void RegisterSpawnedEnemyForLoad(AKOBaseEnemy* Enemy);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	
+
 private:
 	void SpawnEnemies();
 	
 	UFUNCTION()
 	void OnDestroyedEnemy();
 
-	
 protected:
 	UPROPERTY(EditAnywhere,Category="Enemy|Map")
 	TMap<TSubclassOf<AKOBaseEnemy>,int32> EnemyMap;
@@ -56,6 +60,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Settings")
 	int32 SpawnInterval = 15.f;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName ClusterSaveId = NAME_None;
 
 private:
 	float ProjectionDistance=200.f;
@@ -65,4 +71,6 @@ private:
 	
 	int32 SpawnedEnemiesCount=0;
 	int32 DestroyedEnemyCnt=0;
+	
+	int32 SpawnWaveIndex = 0;
 };

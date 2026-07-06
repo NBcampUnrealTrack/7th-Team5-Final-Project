@@ -108,12 +108,21 @@ void AKOEnemyCluster::SpawnEnemies()
 				//Z오프셋을 더해 Enemy가 바닥에 끼는 현상 방지
 				CandidatePoint=CandidatePoint+FVector(0,0,EnemyZOffset);
 				AKOBaseEnemy* Enemy=GetWorld()->SpawnActor<AKOBaseEnemy>(EnemyPair.Key, CandidatePoint, RandomRotation, SpawnParams);
+				if (!Enemy) { continue; }
+				const FName MonsterSaveId = FName(*FString::Printf(
+					TEXT("%s_Wave%d_%d"),
+					*ClusterSaveId.ToString(),
+					SpawnWaveIndex,
+					SpawnedEnemiesCount
+				));
+				Enemy->SetMonsterSaveInfoForLoad(ClusterSaveId, MonsterSaveId);
 				Enemy->SetupEnemy(DataSubsystem,Level);
 				Enemy->OnEnemyDead.AddDynamic(this,&ThisClass::OnDestroyedEnemy);
 				SpawnedEnemiesCount++;
 			}
 		}
 	}
+	SpawnWaveIndex++;
 }
 
 void AKOEnemyCluster::OnDestroyedEnemy()
@@ -131,4 +140,23 @@ void AKOEnemyCluster::OnDestroyedEnemy()
 			false
 			);
 	}
+}
+
+void AKOEnemyCluster::ResetClusterForLoad()
+{
+	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+
+	SpawnedEnemiesCount = 0;
+	DestroyedEnemyCnt = 0;
+}
+
+void AKOEnemyCluster::RegisterSpawnedEnemyForLoad(AKOBaseEnemy* Enemy)
+{
+	if (!Enemy)
+	{
+		return;
+	}
+
+	Enemy->OnEnemyDead.AddUniqueDynamic(this, &ThisClass::OnDestroyedEnemy);
+	SpawnedEnemiesCount++;
 }

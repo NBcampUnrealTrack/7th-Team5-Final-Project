@@ -38,6 +38,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
     bool CanSaveOrLoad() const;
+    
+    // 채집한 채집물 목록
+    void MarkItemDropCollected(FName DropSaveId);
+    
+    // 죽은 몬스터 목록
+    void MarkMonsterDead(FName MonsterSaveId);
 
 private:
     static const FString DefaultSlotName;
@@ -59,4 +65,9 @@ private:
     FTimerHandle SaveLoadUnlockTimerHandle;
 
     bool bSaveLoadBlockedByCombat = false;
+    
+    // 채집물
+    TSet<FName> CollectedItemDropIds;
+    // 몬스터
+    TSet<FName> DeadMonsterIds;
 };

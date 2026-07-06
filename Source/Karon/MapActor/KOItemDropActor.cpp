@@ -6,6 +6,7 @@
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
+#include "Subsystem/KOSaveSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 
@@ -23,42 +24,83 @@ bool AKOItemDropActor::CanInteract(AActor* Interactor) const
 
 void AKOItemDropActor::OnInteract(AActor* Interactor)
 {
-	if (!CheckCanGetItem())
+	if (!bHasItem)
 	{
-		Destroy();
 		return;
 	}
+
+	bHasItem = false;
+	MarkCollectedForSave();
 	
-	FKODropItemMessage ItemMessage;
-	ItemMessage.ItemId=ItemInfo.DropItemName;
-	ItemMessage.Count=ItemInfo.Count;
-			
-	UGMRouterSubsystem::BroadcastMessage(GetWorld(),
-		KOGameplayTags::Event_DropItem,
-		FInstancedStruct::Make(ItemMessage));
+	for (const FEnemyDropItemInfo& DropItem : DropItems)
+	{
+		if (!CheckCanGetItem(DropItem.DropPercent))
+		{
+			continue;
+		}
+
+		FKODropItemMessage ItemMessage;
+		ItemMessage.ItemId = DropItem.DropItemName;
+		ItemMessage.Count = DropItem.Count;
+
+		UGMRouterSubsystem::BroadcastMessage(
+			GetWorld(),
+			KOGameplayTags::Event_DropItem,
+			FInstancedStruct::Make(ItemMessage)
+		);
+	}
 	
-	bHasItem=false;
-	Destroy();
+	ApplyCollectedFromSave();
 }
 
 FText AKOItemDropActor::GetInteractionPrompt() const
 {
-	FText CachedDisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, ItemInfo.DropItemName);
+	if (DropItems.Num() <= 0)
+	{
+		return FText::FromString(TEXT("채집"));
+	}
 
-	
-	return CachedDisplayName;
+	return UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, DropItems[0].DropItemName);
 }
 
-bool AKOItemDropActor::CheckCanGetItem()
+bool AKOItemDropActor::CheckCanGetItem(float DropPercent)
 {
 	float RandomValue=FMath::RandRange(0.f,100.f);
 	
-	if (RandomValue<=Percent)
-	{
-		return true;
-	}
-	return false;
+	return RandomValue <= DropPercent;
 }
+
+void AKOItemDropActor::ApplyCollectedFromSave()
+{
+	bHasItem = false;
+	
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	SetActorTickEnabled(false);
+}
+
+void AKOItemDropActor::ApplyAvailableFromSave()
+{
+	bHasItem = true;
+
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorTickEnabled(true);
+}
+
+void AKOItemDropActor::MarkCollectedForSave()
+{
+	if (DropSaveId.IsNone())
+	{
+		return;
+	}
+
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		SaveSubsystem->MarkItemDropCollected(DropSaveId);
+	}
+}
+
 
 
 
