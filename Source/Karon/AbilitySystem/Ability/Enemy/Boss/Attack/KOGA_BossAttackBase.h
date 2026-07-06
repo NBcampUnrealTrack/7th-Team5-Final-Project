@@ -20,9 +20,7 @@ public:
 	) override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Damage")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Montage")
 	TObjectPtr<UAnimMontage> AttackMontage;
  
@@ -34,8 +32,4 @@ protected:
  
 	UFUNCTION()
 	virtual void OnMontageCancelled();
-	
-	// 공통 데미지 적용 함수
-	void ApplyDamageToTarget(AActor* TargetActor);
-	
 };

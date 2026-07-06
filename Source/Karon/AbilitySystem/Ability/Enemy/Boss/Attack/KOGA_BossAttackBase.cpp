@@ -6,8 +6,6 @@
 
 UKOGA_BossAttackBase::UKOGA_BossAttackBase()
 {
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
-	
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
 }
  
@@ -30,8 +28,7 @@ void UKOGA_BossAttackBase::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
- 
-	// 몽타주 재생 태스크 생성
+	
 	UAbilityTask_PlayMontageAndWait* MontageTask = 
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
