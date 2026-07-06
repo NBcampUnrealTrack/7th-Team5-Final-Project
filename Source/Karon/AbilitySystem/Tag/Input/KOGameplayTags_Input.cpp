@@ -21,7 +21,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleMap,  "Input.Native.ToggleMap");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_OpenPlayerMenu,      "Input.Native.OpenPlayerMenu");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Native_BuildInventory,      "Input.Native.BuildInventory");
-	
+	UE_DEFINE_GAMEPLAY_TAG(Input_Native_ToggleESC,           "Input.Native.ToggleESC");
 	
 	// ── Input | Ability | Movement ────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Movement_Jump, "Input.Ability.Movement.Jump");

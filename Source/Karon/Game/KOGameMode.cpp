@@ -4,6 +4,7 @@
 
 AKOGameMode::AKOGameMode()
 {
+	bUseSeamlessTravel = true;
 }
 
 void AKOGameMode::HandlePlayerDeath(AActor* DeathInstigator)

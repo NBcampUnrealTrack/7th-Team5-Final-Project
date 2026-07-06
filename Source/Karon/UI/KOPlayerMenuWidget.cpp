@@ -1,11 +1,12 @@
 ﻿#include "KOPlayerMenuWidget.h"
-
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
+#include "UI/ConfirmationPopup/KOConfirmationPopup.h"
+#include "UI/KOUISubsystem.h"
+#include "UI/Loading/KOLoadingUiSubsystem.h"
+
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
-#include "UI/ConfirmationPopup/KOConfirmationPopup.h"
-#include "UI/KOUISubsystem.h"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -57,6 +58,12 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 	{
 		Button_Resume->IsFocusable = false;
 		Button_Resume->OnClicked.AddDynamic(this, &ThisClass::HandleResumeClicked);
+	}
+	
+	if (Button_QuitGame)
+	{
+		Button_QuitGame->IsFocusable = false;
+		Button_QuitGame->OnClicked.AddDynamic(this, &ThisClass::HandleQuitGameClicked);
 	}
 }
 
@@ -166,10 +173,24 @@ void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
+		Popup->OnConfirmed.Clear();
 		Popup->SetupPopup(
 			LOCTEXT("Back To Title", "타이틀로 돌아가기"),
 			LOCTEXT("Back To Title Description", "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"));
 		Popup->OnConfirmed.AddUniqueDynamic(this, &ThisClass::HandleBackToTitleConfirmed);
+	}
+}
+
+void UKOPlayerMenuWidget::HandleQuitGameClicked()
+{
+	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
+	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
+	{
+		Popup->OnConfirmed.Clear();
+		Popup->SetupPopup(
+		LOCTEXT("Quit Game", "게임 종료"),	
+		LOCTEXT("Quit Game Description", "저장하지 않은 진행 상황은 사라집니다. 정말 게임을 종료하시겠습니까?"));
+		Popup->OnConfirmed.AddUniqueDynamic(this, &ThisClass::HandleQuitGameConfirmed);
 	}
 }
 
@@ -178,19 +199,22 @@ void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
 {
 	FName TargetLevelName = FName("L_MainMenu");
-	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
-
-	if (FPackageName::DoesPackageExist(PackagePath))
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), TargetLevelName);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("오류: '%s' 레벨을 찾을 수 없습니다! 경로나 이름을 확인하세요."), *PackagePath);
+		LoadingSubsystem->TransitionToLevel(TargetLevelName, DefaultLoadingWidget);
 	}
 }
 
 void UKOPlayerMenuWidget::HandleResumeClicked()
 {
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+}
+
+void UKOPlayerMenuWidget::HandleQuitGameConfirmed()
+{
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		// 가장 마지막 인자는 강제 종료 여부로 데스크탑/PIE외에도 동작하려면 true가 필요함
+		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
+	}
 }

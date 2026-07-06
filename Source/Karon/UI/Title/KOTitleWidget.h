@@ -7,6 +7,7 @@
 
 class UCommonButtonBase;
 class UKOUISubsystem;
+class UCommonActivatableWidget;
 struct FGameplayTag;
 /**
  * 타이틀 화면상의 버튼 총괄 위젯
@@ -31,6 +32,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widget Tag")
 	FGameplayTag ConfirmationPopupTag;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Loading Widget")
+	TSubclassOf<UCommonActivatableWidget> LoadingWidget;
 
 private:
 	void OnStartGameClicked() const;

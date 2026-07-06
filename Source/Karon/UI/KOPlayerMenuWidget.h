@@ -6,6 +6,7 @@
 
 class UButton;
 class UWidgetSwitcher;
+class UCommonActivatableWidget;
 
 UENUM(BlueprintType)
 enum class EKOPlayerMenuTab : uint8
@@ -59,6 +60,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Resume;
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_QuitGame;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Loading Widget")
+	TSubclassOf<UCommonActivatableWidget> DefaultLoadingWidget;
+	
 private:
 	UFUNCTION()
 	void HandleInventoryClicked();
@@ -83,6 +90,12 @@ private:
 
 	UFUNCTION()
 	void HandleResumeClicked();
+	
+	UFUNCTION()
+	void HandleQuitGameClicked();
+	
+	UFUNCTION()
+	void HandleQuitGameConfirmed();
 
 private:
 	bool bPausedGameByThisWidget = false;

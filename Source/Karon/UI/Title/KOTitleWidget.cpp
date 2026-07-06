@@ -3,6 +3,7 @@
 #include "UI/Title/KOTitleWidget.h"
 #include "UI/KOUISubsystem.h"
 #include "UI/ConfirmationPopup/KOConfirmationPopup.h"
+#include "UI/Loading/KOLoadingUiSubsystem.h"
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 
 #include "CommonButtonBase.h"
@@ -44,18 +45,12 @@ void UKOTitleWidget::NativeDestruct()
 
 void UKOTitleWidget::OnStartGameClicked() const
 {
-	//TODO_CSH 메인 레벨 추가시 이름 등록
+	//메인 레벨 변경 시 이름 변경
 	FName TargetLevelName = FName("L_MainLevel");
-	//아래 경로를 확인해 레벨오픈
-	FString PackagePath = FString::Printf(TEXT("/Game/Karon/Map/%s"), *TargetLevelName.ToString());
-
-	if (FPackageName::DoesPackageExist(PackagePath))
+	
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), TargetLevelName);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("오류: '%s' 레벨을 찾을 수 없습니다! 경로나 이름을 확인하세요."), *PackagePath);
+		LoadingSubsystem->TransitionToLevel(TargetLevelName, LoadingWidget);
 	}
 }
 
@@ -71,6 +66,7 @@ void UKOTitleWidget::OnQuitGameClicked()
 	UCommonActivatableWidget* Widget = CachedUISubsystem->OpenWidget(KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
+		Popup->OnConfirmed.Clear();
 		Popup->SetupPopup(LOCTEXT("QuitGameTitle", "게임 종료"),
 		                  LOCTEXT("QuitGameDescription", "게임을 종료하시겠습니까?"));
 		Popup->OnConfirmed.AddUniqueDynamic(this, &UKOTitleWidget::GameQuitConfirmation);

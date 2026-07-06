@@ -32,8 +32,6 @@ public:
 	
 	UFUNCTION()
 	void OnItemReceived(FGameplayTag Channel, const FInstancedStruct& Payload);
-	
-	
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,6 +39,8 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void SetupInputComponent() override;
+	
+	virtual void OnPossess(APawn* InPawn) override;
 
 protected:
 	// 기본 입력
@@ -70,6 +70,10 @@ protected:
 	void Input_BuildInventory(const FInputActionValue& Value);
 	
 	void Input_OpenPlayerMenu(const FInputActionValue& Value);
+
+	// 모든 위젯이 닫혀 있을 때 ESC → PlayerMenu의 Option 탭 열기.
+	// (위젯이 열려 있는 상태의 ESC는 CommonUI Back이 처리한다.)
+	void Input_OpenOptionMenu();
 
 	void Input_ToggleMap(const FInputActionValue& Value);
 	void Input_Weapon(const FInputActionValue& Value);

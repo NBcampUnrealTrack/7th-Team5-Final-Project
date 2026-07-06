@@ -57,6 +57,12 @@ public:
     void CloseWidget(FGameplayTag WidgetTag);
     UCommonActivatableWidget* FindActiveWidget(FGameplayTag WidgetTag) const;
 
+    /**
+     * GameMenu/Menu/Modal 레이어에 활성 위젯이 하나도 없으면 true.
+     * HUD 등 상시 표시 UI가 있는 Game 레이어는 제외한다.
+     */
+    bool AreAllMenusClosed() const;
+
 private:
     UCommonActivatableWidget* PushToLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass);
 

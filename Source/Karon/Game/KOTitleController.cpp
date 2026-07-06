@@ -1,6 +1,7 @@
 #include "KOTitleController.h"
 
 #include "UI/KOUISubsystem.h"
+#include "UI/Loading/KOLoadingUiSubsystem.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
 void AKOTitleController::BeginPlay()
@@ -19,4 +20,9 @@ void AKOTitleController::BeginPlay()
 
 	// 타이틀 메뉴 위젯 열기.
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_TitleMenu);
+	
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->HideLoadingScreen();
+	}
 }

@@ -25,6 +25,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleMap);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_OpenPlayerMenu);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_BuildInventory);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleESC);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
