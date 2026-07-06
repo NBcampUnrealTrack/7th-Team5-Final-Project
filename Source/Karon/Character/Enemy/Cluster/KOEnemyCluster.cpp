@@ -160,3 +160,21 @@ void AKOEnemyCluster::RegisterSpawnedEnemyForLoad(AKOBaseEnemy* Enemy)
 	Enemy->OnEnemyDead.AddUniqueDynamic(this, &ThisClass::OnDestroyedEnemy);
 	SpawnedEnemiesCount++;
 }
+
+void AKOEnemyCluster::ScheduleRespawnForLoad()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		SpawnTimerHandle,
+		this,
+		&ThisClass::SpawnEnemies,
+		SpawnInterval,
+		false
+	);
+}

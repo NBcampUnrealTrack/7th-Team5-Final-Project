@@ -19,10 +19,12 @@ public:
 	AKOEnemyCluster();
 	
 	FName GetClusterSaveId() const { return ClusterSaveId; }
+	int32 GetSpawnedEnemiesCountForLoad() const { return SpawnedEnemiesCount; }
 
 	// 세이브 로드
 	void ResetClusterForLoad();
 	void RegisterSpawnedEnemyForLoad(AKOBaseEnemy* Enemy);
+	void ScheduleRespawnForLoad();
 
 protected:
 	// Called when the game starts or when spawned

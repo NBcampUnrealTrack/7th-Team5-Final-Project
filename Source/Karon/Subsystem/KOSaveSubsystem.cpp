@@ -664,6 +664,25 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		}
 	}
 	
+	for (TActorIterator<AKOEnemyCluster> It(World); It; ++It)
+	{
+		AKOEnemyCluster* Cluster = *It;
+		if (!Cluster)
+		{
+			continue;
+		}
+
+		if (Cluster->GetClusterSaveId().IsNone())
+		{
+			continue;
+		}
+
+		if (Cluster->GetSpawnedEnemiesCountForLoad() <= 0)
+		{
+			Cluster->ScheduleRespawnForLoad();
+		}
+	}
+	
 	// 보스 상태 로드
 	for (const FKOSavedBoss& SavedBoss : SaveData->Bosses)
 	{
