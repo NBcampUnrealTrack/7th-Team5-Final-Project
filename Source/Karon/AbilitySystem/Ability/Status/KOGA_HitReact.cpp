@@ -103,30 +103,100 @@ void UKOGA_HitReact::EndAbility(
 
 void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 {
-	FVector LaunchDir =
-		EventData.ContextHandle.GetHitResult() ? EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
-		GetAvatarCharacter() ? GetAvatarCharacter()->GetActorForwardVector() *-1 : 
-		FVector(0, 0, 0);
+	// FVector LaunchDir =
+	// 	EventData.ContextHandle.GetHitResult() ? EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
+	// 	GetAvatarCharacter() ? GetAvatarCharacter()->GetActorForwardVector() *-1 : 
+	// 	FVector(0, 0, 0);
+	//
+	//
+	// const bool bIsLaunch = 
+	// 	EventData.InstigatorTags.HasTag(KOGameplayTags::Event_HitReact_KnockBack_Launch);
+	// if (bIsLaunch) LaunchDir.Z = 0.8f;
+	//
+	// LaunchDir.Normalize();
+	//
+	// ACharacter* Character = GetAvatarCharacter();
+	// if (!Character) return;
+	//
+	// Character->LaunchCharacter(
+	// 	LaunchDir * EventData.EventMagnitude,
+	// 	true,
+	// 	bIsLaunch
+	// );
 	
+	ACharacter* Character = GetAvatarCharacter();
 	
-	const bool bIsLaunch = 
-		EventData.InstigatorTags.HasTag(KOGameplayTags::Event_HitReact_KnockBack_Launch);
-	if (bIsLaunch) LaunchDir.Z = 0.8f;
+	FVector LaunchDir = FVector::ZeroVector;
+	
+	if (const AActor* Attacker = EventData.Instigator.Get())
+	{
+		LaunchDir = Character->GetActorLocation() - Attacker->GetActorLocation();
+		LaunchDir.Z = 0.0f;
+	}
+	else if (EventData.ContextHandle.GetHitResult())
+	{
+		LaunchDir = EventData.ContextHandle.GetHitResult()->ImpactPoint * -1.0f;
+		LaunchDir.Z = 0.0f;
+	}
+	else
+	{
+		LaunchDir = Character->GetActorForwardVector() * -1.0f;
+	}
 	
 	LaunchDir.Normalize();
 	
-	ACharacter* Character = GetAvatarCharacter();
-	if (!Character) return;
+	// 기존 공중으로 뛰우는 공격 로직
+	const bool bIsLaunch = EventData.InstigatorTags.HasTag(KOGameplayTags::Event_HitReact_KnockBack_Launch);
+	
+	if (bIsLaunch)
+	{
+		LaunchDir.Z = 0.0f;
+		LaunchDir.Normalize();
+	}
+	
+	float ActualKnockBack = (KnockBackAmount > 0.f) ? KnockBackAmount : EventData.EventMagnitude;
 	
 	Character->LaunchCharacter(
-		LaunchDir * EventData.EventMagnitude,
+		LaunchDir * ActualKnockBack,
 		true,
 		bIsLaunch
 	);
 }
 
+void UKOGA_HitReact::RotateTowardsAttacker(const FGameplayEventData& EventData)
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	
+	FVector TargetLocation = FVector::ZeroVector;
+	
+	if (const AActor* Attacker = EventData.Instigator.Get())
+	{
+		TargetLocation = Attacker->GetActorLocation();
+	}
+	else if (EventData.ContextHandle.GetHitResult())
+	{
+		FVector ImpactNormal = EventData.ContextHandle.GetHitResult()->ImpactNormal;
+		TargetLocation = Character->GetActorLocation() + (ImpactNormal * 100.0f);
+	}
+	else
+	{
+		return;
+	}
+	
+	FVector DirectionToTarget = TargetLocation - Character->GetActorLocation();
+	DirectionToTarget.Z = 0.0f;
+	
+	if (!DirectionToTarget.IsNearlyZero())
+	{
+		FRotator NewRotation = DirectionToTarget.Rotation();
+		Character->SetActorRotation(NewRotation);
+	}
+}
+
 void UKOGA_HitReact::OnHitStopFinished()
 {
+	RotateTowardsAttacker(CachedTriggerEventData);
 	ExecuteKnockBack(CachedTriggerEventData);
 	
 	UAnimMontage* Montage = DirectionalMontage.FindRef(HitDirection);
