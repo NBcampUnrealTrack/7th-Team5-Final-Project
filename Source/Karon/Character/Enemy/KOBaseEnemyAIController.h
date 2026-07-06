@@ -29,6 +29,9 @@ private:
 	void HitEvent(bool bIsHit);
 	
 	UFUNCTION()
+	void CounterAttackEvent(bool bIsTriggered);
+	
+	UFUNCTION()
 	void DeadEvent();
 	
 	UFUNCTION()
@@ -71,6 +74,8 @@ protected:
 	const FName bCanPatrolKey = TEXT("bCanPatrol");
 	const FName InitialLocationKey = TEXT("InitialLocation");
 	const FName MaxDistanceKey = TEXT("MaxDistance");
+	const FName bIsCounterAttackKey = TEXT("bIsCounterAttack");
+
 	
 	
 	UPROPERTY()

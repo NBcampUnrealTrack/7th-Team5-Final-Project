@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "GMRouterSubsystem.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "AbilitySystem/Attribute/KOGuardSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
@@ -30,6 +31,8 @@ AKOBaseEnemy::AKOBaseEnemy(const FObjectInitializer& ObjectInitializer):Super(Ob
 	MovementSet = CreateDefaultSubobject<UKOMovementSet>(TEXT("MovementSet"));
 	CombatSet = CreateDefaultSubobject<UKOCombatSet>(TEXT("CombatSet"));
 	GuardSet = CreateDefaultSubobject<UKOGuardSet>(TEXT("GuardSet"));
+	GroggySet = CreateDefaultSubobject<UKOGroggySet>("GroggySet");
+
 	
 	//WeaponSkeletalMeshComponent 생성 및 부착
 	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
@@ -67,11 +70,17 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 	if (FEnemyInfo* EnemyInfo=DataSubsystem->GetEnemyData(NameLevelInfo))
 	{
 		HealthSet->InitMaxHealth(EnemyInfo->Health);
-		HealthSet->InitHealth(EnemyInfo->Health);
-		CombatSet->InitAttackPower(EnemyInfo->AttackPower);
-		CombatSet->InitDefense(EnemyInfo->Defense);
-		CombatSet->InitAttackSpeed(EnemyInfo->AttackSpeed);
+		HealthSet->SetHealth(EnemyInfo->Health);
+		CombatSet->SetAttackPower(EnemyInfo->AttackPower);
+		CombatSet->SetDefense(EnemyInfo->Defense);
+		CombatSet->SetAttackSpeed(EnemyInfo->AttackSpeed);
+		
+		//그로기는 현재는 생성자에서 설정
+		GroggySet->InitMaxGroggyHealth(MaxGroggyHealth);
+		GroggySet->SetGroggyHealth(MaxGroggyHealth);
 		UE_LOG(LogTemp,Warning,TEXT("%f"),EnemyInfo->AttackPower);
+		
+		AbilitySystemComponent->ForceReplication();
 	}
 }
 
@@ -86,6 +95,11 @@ void AKOBaseEnemy::BeginPlay()
 		
 		// Bind Attributes Changed Functions 
 		InitializeAttributes(); 
+	}
+	
+	if (GroggySet)
+	{
+		GroggySet->OnGroggyTriggered.AddUObject(this, &ThisClass::OnGroggyBegin);
 	}
 	
 	//HPBar Binding
@@ -183,6 +197,12 @@ void AKOBaseEnemy::DropItem()
 				FInstancedStruct::Make(ItemMessage));
 		}
 	}
+}
+
+void AKOBaseEnemy::OnGroggyBegin()
+{
+	FGameplayEventData EventData;
+	AbilitySystemComponent->HandleGameplayEvent(KOGameplayTags::Event_CounterAttack, &EventData);
 }
 
 

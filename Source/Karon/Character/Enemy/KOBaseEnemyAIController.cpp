@@ -30,6 +30,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	
 	//Bindings
 	Enemy->OnHitEvent.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
+	Enemy->OnCounterAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CounterAttackEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
 	
@@ -75,6 +76,14 @@ void AKOBaseEnemyAIController::HitEvent(bool bIsHit)
 	}
 }
 
+void AKOBaseEnemyAIController::CounterAttackEvent(bool bIsTriggered)
+{
+	if (BBComp != nullptr)
+	{
+		BBComp->SetValueAsBool(bIsCounterAttackKey,bIsTriggered);
+	}
+}
+
 void AKOBaseEnemyAIController::DeadEvent()
 {
 	if (BBComp != nullptr && !bIsDead)
@@ -110,8 +119,7 @@ void AKOBaseEnemyAIController::SetAI(
 	UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
 	float StrafeSpeed, float EnemyAttackDelay)
 {
-	//TODO: 비동기 로드시 AIController세팅
-	
+
 	EnemyBehaviorTree = ParamBT;
 	
 	if (UseBlackboard(EnemyBehaviorTree->GetBlackboardAsset(), BBComp))

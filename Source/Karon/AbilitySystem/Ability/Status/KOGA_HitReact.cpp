@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_HitStop.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "GameFramework/Character.h"
@@ -40,6 +41,23 @@ void UKOGA_HitReact::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	
+	// 에너미가 Groggy가 0이면 즉시 종료
+	UAbilitySystemComponent* ASC=GetAbilitySystemComponentFromActorInfo();
+	if (!ASC)
+	{
+		return;
+	}
+	
+	if (const UKOGroggySet* GroggySet=ASC->GetSet<UKOGroggySet>())
+	{
+		if (GroggySet->GetGroggyHealth()==0.f)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
+		}
+	}
+	
 	
 	// 2. Caching 
 	if (TriggerEventData) CachedTriggerEventData = *TriggerEventData;

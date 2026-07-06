@@ -7,6 +7,7 @@
 #include "KOBaseEnemy.generated.h"
 
 
+class UKOGroggySet;
 class UKOEnemyDataSubsystem;
 class UGameplayEffect;
 class UWidgetComponent;
@@ -20,7 +21,7 @@ DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
 DECLARE_DELEGATE_OneParam(FOnUIVisibleEvent,bool bIsBattle)
-DECLARE_DELEGATE_OneParam(FOnHitEvent,bool bIsHit)
+DECLARE_DELEGATE_OneParam(FOnTriggerEvent,bool bIsTriggered)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 
 UCLASS()
@@ -49,6 +50,9 @@ private:
 	void OnHealthChanged(float OldValue, float NewValue);
 	
 	void DropItem();
+	
+	UFUNCTION()
+	void OnGroggyBegin();
 
 	
 public:
@@ -94,6 +98,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	int32 EnemyLevel=1;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float MaxGroggyHealth=50.f;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -107,6 +114,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> EnemyParriedWidgetComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Groggy")
+	TObjectPtr<UKOGroggySet> GroggySet;
 	
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
@@ -124,7 +134,9 @@ public:
 	FOnUIVisibleEvent OnBattleEvent;
 	FOnUIVisibleEvent OnLockOnEvent;
 	FOnUIVisibleEvent OnParriedEvent;
-	FOnHitEvent OnHitEvent;
+	FOnTriggerEvent OnHitEvent;
+	FOnTriggerEvent OnCounterAttackEvent;
+	
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;

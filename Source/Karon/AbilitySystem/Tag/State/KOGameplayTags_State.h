@@ -49,6 +49,8 @@ namespace KOGameplayTags
 	// ─── Enemy Attack ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_FirstSkill);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_CounterAttack);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Hit_Normal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Dead);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Parried);
