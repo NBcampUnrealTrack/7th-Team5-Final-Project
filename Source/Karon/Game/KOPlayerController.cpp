@@ -744,7 +744,7 @@ void AKOPlayerController::Input_OpenPlayerMenu(const FInputActionValue& /*Value*
 void AKOPlayerController::Input_OpenOptionMenu()
 {
 	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
-	if (!UISubsystem)
+	if (UISubsystem == nullptr)
 	{
 		return;
 	}

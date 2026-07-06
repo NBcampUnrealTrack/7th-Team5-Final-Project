@@ -64,4 +64,7 @@ namespace KOGameplayTags
 	
 	/** 재확인 팝업 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_ConfirmationPopup);
+	
+	/** 사망 시 분기 선택 위젯*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_GameOverMenu);
 }
