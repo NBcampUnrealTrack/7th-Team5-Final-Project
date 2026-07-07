@@ -47,13 +47,13 @@ public:
 
 	void SetMonsterSaveInfoForLoad(FName InClusterSaveId, FName InMonsterSaveId);
 	void RestoreMonsterFromSave(const FTransform& SavedTransform);
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+
 	
 protected:
 	virtual void BeginPlay() override;
-	
 	virtual void InitializeAttributes() override;
 	
-	virtual void OnCharacterDead(AActor* DeathInstigator) override;
 	
 private:
 	UFUNCTION()
@@ -66,8 +66,6 @@ private:
 
 	
 public:
-	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
-	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
 	
 	UPROPERTY(EditAnywhere)
@@ -109,6 +107,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float MaxGroggyHealth=50.f;
+	
+	UPROPERTY()
+	AActor* TargetActor=nullptr;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -152,6 +153,7 @@ public:
 	FOnUIVisibleEvent OnParriedEvent;
 	FOnTriggerEvent OnHitEvent;
 	FOnTriggerEvent OnCounterAttackEvent;
+	FOnTriggerEvent OnCanAttackEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;

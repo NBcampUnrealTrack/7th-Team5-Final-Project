@@ -32,6 +32,9 @@ private:
 	void CounterAttackEvent(bool bIsTriggered);
 	
 	UFUNCTION()
+	void CanAttackEvent(bool bIsTriggered);
+	
+	UFUNCTION()
 	void DeadEvent();
 	
 	UFUNCTION()
@@ -75,8 +78,6 @@ protected:
 	const FName InitialLocationKey = TEXT("InitialLocation");
 	const FName MaxDistanceKey = TEXT("MaxDistance");
 	const FName bIsCounterAttackKey = TEXT("bIsCounterAttack");
-
-	
 	
 	UPROPERTY()
 	TObjectPtr<AKOBaseEnemy> Enemy;

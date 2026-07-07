@@ -31,6 +31,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	//Bindings
 	Enemy->OnHitEvent.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
 	Enemy->OnCounterAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CounterAttackEvent);
+	Enemy->OnCanAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CanAttackEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
 	
@@ -81,6 +82,15 @@ void AKOBaseEnemyAIController::CounterAttackEvent(bool bIsTriggered)
 	if (BBComp != nullptr)
 	{
 		BBComp->SetValueAsBool(bIsCounterAttackKey,bIsTriggered);
+	}
+}
+
+void AKOBaseEnemyAIController::CanAttackEvent(bool bIsTriggered)
+{
+	if (BBComp != nullptr)
+	{
+		BBComp->SetValueAsBool(bCanAttackKey,bIsTriggered);
+		Enemy->bCanAttack=bIsTriggered;
 	}
 }
 
@@ -260,6 +270,7 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 		BBComp->SetValueAsObject(TEXT("TargetActor"), TargetActor);
 		if (IsValid(Enemy))
 		{
+			Enemy->TargetActor=TargetActor;
 			Enemy->OnBattleChanged(true);
 		}
 	}
@@ -268,6 +279,7 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 		BBComp->ClearValue(TEXT("TargetActor"));
 		if (IsValid(Enemy))
 		{
+			Enemy->TargetActor=nullptr;
 			Enemy->OnBattleChanged(false);
 		}
 	}
