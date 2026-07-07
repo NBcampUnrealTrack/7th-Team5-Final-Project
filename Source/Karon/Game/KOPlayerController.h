@@ -41,6 +41,8 @@ protected:
 	virtual void SetupInputComponent() override;
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	virtual void UpdateRotation(float DeltaTime) override;
 
 protected:
 	// 기본 입력
@@ -96,6 +98,10 @@ private:
 	void GiveStarterItems();
 	
 public:
+	UFUNCTION(BlueprintCallable)
+	float GetTimeSinceLastLookInput() const;
+	
+public:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputAction> IAWeapon; 
 	
@@ -141,4 +147,7 @@ private:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FWeaponCreate OnWeaponCreate;
+	
+private:
+	float LastLookInputTime = -1000.f;
 };

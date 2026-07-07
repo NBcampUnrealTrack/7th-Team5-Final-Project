@@ -2,15 +2,15 @@
 #include "AbilitySystem/KOAbilitySystemComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
-#include "Camera/CameraComponent.h"
 #include "Component/Movement/KOPreCMCTickComponent.h"
 #include "Game/KOPlayerState.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Animation/KOAnimInstance.h"
+#include "Component/Camera/KOCameraComponent.h"
+#include "Component/Camera/KOSpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Game/KOGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,19 +24,23 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 	
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SprintArm"));
+	SpringArm = CreateDefaultSubobject<UKOSpringArmComponent>(TEXT("SprintArm"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->bUsePawnControlRotation = true;
-	SpringArm->TargetArmLength = 300.f; 
+	// SpringArm->TargetArmLength = 300.f; 
 	
-	SpringArm->bEnableCameraLag = true;
-	SpringArm->bEnableCameraRotationLag = true;
+	// SpringArm->bEnableCameraLag = true;
+	//SpringArm->bEnableCameraRotationLag = true;
+	
+	SpringArm->bEnableCameraLag = false;
+	SpringArm->bEnableCameraRotationLag = false;
 	
 	SpringArm->CameraLagSpeed = 20.f; 
 	SpringArm->CameraRotationLagSpeed = 50.f; 
 	
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera = CreateDefaultSubobject<UKOCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+	Camera->BaseFOV = 90.f; 
 	
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));

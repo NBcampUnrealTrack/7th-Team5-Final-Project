@@ -9,7 +9,7 @@
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Component/Build/KOBuildUIComponent.h"
-#include "Component/Movement/KOCharacterMovementComponent.h"
+#include "Component/Camera/KOCameraManager.h"
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
 #include "UI/KOPlayerMenuWidget.h"
@@ -350,6 +350,11 @@ void AKOPlayerController::GiveStarterItems()
 #endif
 }
 
+float AKOPlayerController::GetTimeSinceLastLookInput() const
+{
+	return GetWorld()->GetTimeSeconds() - LastLookInputTime;
+}
+
 void AKOPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -542,6 +547,27 @@ void AKOPlayerController::OnPossess(APawn* InPawn)
 	{
 		LoadingSubsystem->HideLoadingScreen();
 	}
+	
+	if (AKOCameraManager* CameraManager = Cast<AKOCameraManager>(PlayerCameraManager))
+	{
+		if (ACharacter* MyChar = Cast<ACharacter>(InPawn))
+		{
+			CameraManager->InitModifiersWithCharacter(MyChar);
+		}
+	}
+}
+
+void AKOPlayerController::UpdateRotation(float DeltaTime)
+{
+	Super::UpdateRotation(DeltaTime);
+	
+	if (AKOCameraManager* Manager = Cast<AKOCameraManager>(PlayerCameraManager))
+	{
+		FRotator BaseRotation = GetControlRotation();
+		FRotator ModifiedRotation = Manager->GetModifiedControlRotation(DeltaTime, BaseRotation);
+		
+		SetControlRotation(ModifiedRotation);
+	}
 }
 
 void AKOPlayerController::Input_Move(const FInputActionValue& Value)
@@ -562,6 +588,11 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
 	const FVector2D LookValue = Value.Get<FVector2D>();
+	
+	if (LookValue.SizeSquared() > 0.01f)
+	{
+		LastLookInputTime = GetWorld()->GetTimeSeconds();
+	}
 
 	AddYawInput(LookValue.X * LookLeftRightRate);
 	AddPitchInput(LookValue.Y * LookUpDownRate);

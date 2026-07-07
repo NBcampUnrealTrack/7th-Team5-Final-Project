@@ -7,8 +7,8 @@
 
 class UMotionWarpingComponent;
 class UKOLockOnComponent;
-class USpringArmComponent;
-class UCameraComponent;
+class UKOSpringArmComponent;
+class UKOCameraComponent;
 class UKOPreCMCTickComponent;
 class UCharacterTrajectoryComponent;
 class UKOStaminaSet; 
@@ -76,10 +76,10 @@ public:
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<USpringArmComponent> SpringArm;
+	TObjectPtr<UKOSpringArmComponent> SpringArm;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<UCameraComponent> Camera;
+	TObjectPtr<UKOCameraComponent> Camera;
 		
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOPreCMCTickComponent> PreCMCTick;
