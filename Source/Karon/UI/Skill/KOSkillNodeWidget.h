@@ -7,10 +7,11 @@
 #include "KOSkillNodeWidget.generated.h"
 
 class UImage;
+class UCommonButtonBase;
 class UKOSkillSubsystem;
+class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeClicked, UKOSkillNodeWidget*)
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnSkillNodeHovered, UKOSkillNodeWidget*)
 
 /**
  * 스킬창에서 스킬 한 칸을 담당하는 클래스
@@ -22,12 +23,14 @@ class KARON_API UKOSkillNodeWidget : public UCommonButtonBase
 
 public:
 	FOnSkillNodeClicked OnSkillNodeClicked;
-	FOnSkillNodeHovered OnSkillNodeHovered;
-	FOnSkillNodeHovered OnSkillNodeUnhovered;
 	// 외부(팝업)에서 노드를 초기화할 때 호출할 함수
 	UFUNCTION(BlueprintCallable, Category = "Skill")
 	void InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
-	                    TArray<FSkillCost> InCost, ESkillState InState);
+	                    TArray<FSkillCost> InCost, ESkillState InState, UTexture2D* InIcon);
+
+	// Tooltip의 ConfirmButton이 눌렸을 때 팝업에서 호출하여 실제 해금 시도를 수행하는 함수
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	void ExecuteUnlock();
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -37,8 +40,6 @@ public:
 
 protected:
 	virtual void NativeOnClicked() override;
-	virtual void NativeOnHovered() override;
-	virtual void NativeOnUnhovered() override;
 
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
@@ -53,7 +54,11 @@ protected:
 	float DragVisualOpacity = 0.85f;
 
 	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UImage> SkillIcon;
+	
+	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> OverlayImage;
+	
 	// 상태에 따른 색상 변경용 노출 변수
 	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
 	FLinearColor LockedColor = FLinearColor(0.2f, 0.2f, 0.2f, 0.8f);

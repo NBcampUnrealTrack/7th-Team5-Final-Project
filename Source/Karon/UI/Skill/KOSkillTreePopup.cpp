@@ -7,7 +7,6 @@
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "Components/CanvasPanelSlot.h"
 #include "Components/ScrollBox.h"
 
 namespace
@@ -37,24 +36,36 @@ void UKOSkillTreePopup::NativeConstruct()
 
 	SetupAndBindSkillNodes();
 	ScrollBox->ScrollToEnd();
+
+	if (SkillTooltipWidget)
+	{
+		SkillTooltipWidget->OnConfirmed.AddDynamic(this, &UKOSkillTreePopup::HandleTooltipConfirmed);
+	}
+
+	if (CachedSkillNodes.IsValidIndex(InitialSkillNodeIndex))
+	{
+		ShowSkillTooltip(CachedSkillNodes[InitialSkillNodeIndex]);
+	}
 }
 
 void UKOSkillTreePopup::NativeDestruct()
 {
 	SkillSubsystem = nullptr;
 
+	if (SkillTooltipWidget)
+	{
+		SkillTooltipWidget->OnConfirmed.RemoveAll(this);
+	}
+
 	for (UKOSkillNodeWidget* Node : CachedSkillNodes)
 	{
 		if (IsValid(Node))
 		{
 			Node->OnSkillNodeClicked.RemoveAll(this);
-			Node->OnSkillNodeHovered.RemoveAll(this);
-			Node->OnSkillNodeUnhovered.RemoveAll(this);
 		}
 	}
 	CachedSkillNodes.Empty();
-
-	HideSkillTooltip();
+	ActiveTooltipNode = nullptr;
 
 	Super::NativeDestruct();
 }
@@ -90,7 +101,8 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 				(void)CachedLoadSubsystem->ResolveSkillIcon(Node->GetSkillName());
 			}
 			ESkillState CurrentState = SkillSubsystem->GetSkillState(Node->GetSkillName());
-			Node->InitializeNode(Node->GetSkillName(), SkillRow->SkillTag, SkillRow->UnlockCosts, CurrentState);
+			Node->InitializeNode(Node->GetSkillName(), SkillRow->SkillTag, SkillRow->UnlockCosts,
+			                     CurrentState, SkillRow->Icon.Get());
 		}
 		else
 		{
@@ -135,8 +147,6 @@ void UKOSkillTreePopup::SetupAndBindSkillNodes()
 		if (IsValid(Node))
 		{
 			Node->OnSkillNodeClicked.RemoveAll(this);
-			Node->OnSkillNodeHovered.RemoveAll(this);
-			Node->OnSkillNodeUnhovered.RemoveAll(this);
 		}
 	}
 	CachedSkillNodes.Empty();
@@ -149,8 +159,6 @@ void UKOSkillTreePopup::SetupAndBindSkillNodes()
 			CachedSkillNodes.Add(Node);
 
 			Node->OnSkillNodeClicked.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeClicked);
-			Node->OnSkillNodeHovered.AddUObject(this, &UKOSkillTreePopup::ShowSkillTooltip);
-			Node->OnSkillNodeUnhovered.AddUObject(this, &UKOSkillTreePopup::HandleSkillNodeUnhovered);
 		}
 	}
 	RefreshAllSkillNodes();
@@ -162,8 +170,21 @@ void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
 	{
 		return;
 	}
+
+	ShowSkillTooltip(ClickedNode);
+}
+
+void UKOSkillTreePopup::HandleTooltipConfirmed()
+{
+	if (!IsValid(ActiveTooltipNode))
+	{
+		return;
+	}
+
+	ActiveTooltipNode->ExecuteUnlock();
+
 	RefreshAllSkillNodes();
-	RefreshActiveTooltip(ClickedNode);
+	RefreshActiveTooltip(ActiveTooltipNode);
 }
 
 void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
@@ -206,40 +227,8 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 
 	ESkillState SkillState = Node->GetCurrentState();
 
+	ActiveTooltipNode = Node;
+
 	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, SkillState, ExecutionTypeText, CostItemRows);
 	SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-
-	// 노드 버튼 오른쪽에 툴팁 배치
-	if (UCanvasPanelSlot* TooltipSlot = Cast<UCanvasPanelSlot>(SkillTooltipWidget->Slot))
-	{
-		if (UCanvasPanelSlot* NodeSlot = Cast<UCanvasPanelSlot>(Node->Slot))
-		{
-			TooltipSlot->SetAlignment(FVector2D(0.f, 0.5f));
-
-			const FVector2D NodePos = NodeSlot->GetPosition();
-			const FVector2D NodeSize = NodeSlot->GetSize();
-			const FVector2D NodeAlignment = NodeSlot->GetAlignment();
-
-			FVector2D NodeRelativeTopLeft = NodePos - (NodeSize * NodeAlignment);
-
-			FVector2D NewPosition;
-			NewPosition.X = NodeRelativeTopLeft.X + NodeSize.X + TooltipInterval;
-			NewPosition.Y = NodeRelativeTopLeft.Y + (NodeSize.Y * 0.5f);
-
-			TooltipSlot->SetPosition(NewPosition);
-		}
-	}
-}
-
-void UKOSkillTreePopup::HandleSkillNodeUnhovered(UKOSkillNodeWidget* /*Node*/)
-{
-	HideSkillTooltip();
-}
-
-void UKOSkillTreePopup::HideSkillTooltip()
-{
-	if (SkillTooltipWidget)
-	{
-		SkillTooltipWidget->SetVisibility(ESlateVisibility::Collapsed);
-	}
 }

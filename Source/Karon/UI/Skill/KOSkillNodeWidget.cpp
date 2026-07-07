@@ -10,12 +10,17 @@
 #include "InputCoreTypes.h"
 
 void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
-                                        TArray<FSkillCost> InCost, ESkillState InState)
+                                        TArray<FSkillCost> InCost, ESkillState InState, UTexture2D* InIcon)
 {
 	SkillName = InSkillName;
 	SkillTag = InSkillTag;
 	SkillCosts = InCost;
 	CurrentState = InState;
+	
+	if (InIcon && SkillIcon)
+	{
+		SkillIcon->SetBrushFromTexture(InIcon);
+	}
 
 	RefreshNode();
 }
@@ -39,45 +44,26 @@ void UKOSkillNodeWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UKOSkillNodeWidget::NativeOnHovered()
-{
-	Super::NativeOnHovered();
-
-	if (OnSkillNodeHovered.IsBound())
-	{
-		OnSkillNodeHovered.Broadcast(this);
-	}
-}
-
-void UKOSkillNodeWidget::NativeOnUnhovered()
-{
-	Super::NativeOnUnhovered();
-
-	if (OnSkillNodeUnhovered.IsBound())
-	{
-		OnSkillNodeUnhovered.Broadcast(this);
-	}
-}
-
 void UKOSkillNodeWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
 
-	if (!CachedSkillSubsystem.IsValid())
+	if (OnSkillNodeClicked.IsBound())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillSubsystem이 없습니다."));
-		return;
+		OnSkillNodeClicked.Broadcast(this);
 	}
+}
 
+void UKOSkillNodeWidget::ExecuteUnlock()
+{
 	if (CachedSkillSubsystem.IsValid())
 	{
 		CachedSkillSubsystem->TryUnlockSkill(SkillName);
 		RefreshNode();
 	}
-
-	if (OnSkillNodeClicked.IsBound())
+	else
 	{
-		OnSkillNodeClicked.Broadcast(this);
+		UE_LOG(LogTemp, Warning, TEXT("Skill Node: 저장된 SkillSubsystem이 없습니다."));
 	}
 }
 

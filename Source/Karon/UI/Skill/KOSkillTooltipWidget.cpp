@@ -5,6 +5,7 @@
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 
+#include "CommonButtonBase.h"
 #include "CommonTextBlock.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
@@ -22,6 +23,11 @@ void UKOSkillTooltipWidget::NativeConstruct()
 			CachedInventoryComp = InventoryComponent;
 		}
 	}
+
+	if (ConfirmButton)
+	{
+		ConfirmButton->OnClicked().AddUObject(this, &UKOSkillTooltipWidget::HandleConfirmButtonClicked);
+	}
 }
 
 void UKOSkillTooltipWidget::NativeDestruct()
@@ -29,6 +35,11 @@ void UKOSkillTooltipWidget::NativeDestruct()
 	CachedInventoryComp = nullptr;
 
 	Super::NativeDestruct();
+}
+
+void UKOSkillTooltipWidget::HandleConfirmButtonClicked()
+{
+	OnConfirmed.Broadcast();
 }
 
 void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& SkillRow, ESkillState CurrentState,

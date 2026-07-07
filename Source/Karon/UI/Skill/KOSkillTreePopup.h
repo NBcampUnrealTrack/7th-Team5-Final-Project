@@ -29,9 +29,10 @@ protected:
 	void RefreshActiveTooltip(UKOSkillNodeWidget* Node);
 	void HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode);
 	void ShowSkillTooltip(UKOSkillNodeWidget* Node);
-	void HandleSkillNodeUnhovered(UKOSkillNodeWidget* Node);
-	void HideSkillTooltip();
-	
+
+	UFUNCTION()
+	void HandleTooltipConfirmed();
+
 	UFUNCTION(BlueprintPure, Category="Skill Tree")
 	UKOSkillSubsystem* GetSkillSubsystem() const { return SkillSubsystem; }
 
@@ -52,7 +53,14 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly , Category="Skill Tree")
 	float TooltipInterval = 20.f;
-	
+
+	// 팝업이 처음 생성될 때 SkillTooltipWidget을 갱신할 기준 노드의 인덱스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Skill Tree")
+	int32 InitialSkillNodeIndex = 0;
+
+	UPROPERTY()
+	TObjectPtr<UKOSkillNodeWidget> ActiveTooltipNode;
+
 private:
 	UPROPERTY()
 	TObjectPtr<UKOLoadSubsystem> CachedLoadSubsystem;
