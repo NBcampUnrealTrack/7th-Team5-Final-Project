@@ -1,5 +1,6 @@
 #include "Character/Enemy/Boss/Projectile/KOBossProjectileBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -26,9 +27,6 @@ AKOBossProjectileBase::AKOBossProjectileBase()
 	ProjectileMovement->bShouldBounce = false;
 }
 
-// ─── 수정 : DamageEffectClass 파라미터 제거 ─────────────────
-// DamageEffects 배열은 BP에서 직접 설정
-// AttackPower만 런타임에 주입
 void AKOBossProjectileBase::SetProjectile(AActor* InOwner, float InAttackPower)
 {
 	SetOwner(InOwner);
@@ -37,19 +35,34 @@ void AKOBossProjectileBase::SetProjectile(AActor* InOwner, float InAttackPower)
 
 void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
 {
-	if (!TargetActor) { return; }
+	if (!TargetActor)
+	{
+		return;
+	}
  
 	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(TargetActor);
-	if (!TargetASI) { return; }
+	if (!TargetASI)
+	{
+		return;
+	}
  
 	UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
-	if (!TargetASC) { return; }
+	if (!TargetASC)
+	{
+		return;
+	}
  
 	IAbilitySystemInterface* OwnerASI = Cast<IAbilitySystemInterface>(GetOwner());
-	if (!OwnerASI) { return; }
+	if (!OwnerASI)
+	{
+		return;
+	}
  
 	UAbilitySystemComponent* OwnerASC = OwnerASI->GetAbilitySystemComponent();
-	if (!OwnerASC) { return; }
+	if (!OwnerASC)
+	{
+		return;
+	}
  
 	const UKOCombatSet* CombatSet = OwnerASC->GetSet<UKOCombatSet>();
 	const float FinalAttackPower = (AttackPower > 0.f) ? AttackPower :
@@ -57,17 +70,30 @@ void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
  
 	FGameplayEffectContextHandle Context = OwnerASC->MakeEffectContext();
 	Context.AddSourceObject(GetOwner());
+	
+	FGameplayEventData HitReactData;
+	HitReactData.Instigator = GetOwner();
+	HitReactData.Target = TargetActor;
 
-	// ─── 수정 : 단일 GE → 배열로 변경 ───────────────────────
-	// BP에서 설정한 DamageEffects 배열 순회
-	// AttackCoefficient로 공격별 배율 조정 가능
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		TargetActor,
+		KOGameplayTags::Event_HitReact,
+		HitReactData
+	);
+
 	for (const FKOBossDamageEffectData& Effect : DamageEffects)
 	{
-		if (!Effect.EffectClass) { continue; }
+		if (!Effect.EffectClass)
+		{
+			continue;
+		}
 
 		FGameplayEffectSpecHandle Spec =
 			OwnerASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
-		if (!Spec.IsValid()) { continue; }
+		if (!Spec.IsValid())
+		{
+			continue;
+		}
 
 		Spec.Data->SetSetByCallerMagnitude(
 			KOGameplayTags::Data_AttackCoefficient,
