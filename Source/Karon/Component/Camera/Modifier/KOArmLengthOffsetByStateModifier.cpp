@@ -15,8 +15,6 @@ void UKOArmLengthOffsetByStateModifier::ProcessArmLength_Implementation(float De
 	}
 
 	InOutArmLength = FMath::FInterpTo(InOutArmLength, TargetArmLength, DeltaTime, InterpSpeed);
-	
-	UE_LOG(LogTemp, Error, TEXT("ArmLength %.1f -> %.1f (Target: %.1f)"), Before, InOutArmLength, TargetArmLength);
 }
 
 void UKOArmLengthOffsetByStateModifier::ProcessBoomOffset_Implementation(float DeltaTime, FVector& InOutOffset)
@@ -54,9 +52,6 @@ const FKOArmFramingPreset* UKOArmLengthOffsetByStateModifier::FindActivePreset()
 
 	for (const FKOArmFramingPreset& Preset : Presets)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Checking tag %s -> Match: %d"),
-			*Preset.StateTag.ToString(), ASC->HasMatchingGameplayTag(Preset.StateTag));
-		
 		if (ASC->HasMatchingGameplayTag(Preset.StateTag))
 		{
 			if (!BestMatch || Preset.Priority > BestMatch->Priority)
@@ -65,8 +60,6 @@ const FKOArmFramingPreset* UKOArmLengthOffsetByStateModifier::FindActivePreset()
 			}
 		}
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("FindActivePreset result: %s"), BestMatch ? TEXT("FOUND") : TEXT("NULL"));
 	
 	return BestMatch;
 }
