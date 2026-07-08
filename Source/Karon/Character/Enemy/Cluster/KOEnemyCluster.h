@@ -81,7 +81,7 @@ protected:
 	
 	// 에너미를 평가하는 인터벌
 	UPROPERTY(EditAnywhere, Category="Combat") 
-	float EvalInterval = 0.15f;
+	float EvalInterval = 1.f;
 
 private:
 	float ProjectionDistance=200.f;
