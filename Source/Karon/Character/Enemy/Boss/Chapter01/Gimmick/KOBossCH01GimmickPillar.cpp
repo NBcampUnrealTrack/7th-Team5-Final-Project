@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/Gimmick/KOBossCH01GimmickPillar.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 
 #include "Karon/AbilitySystem/Tag/KOGameplayTags.h"
 

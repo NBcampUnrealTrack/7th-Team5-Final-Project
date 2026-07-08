@@ -2,7 +2,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 
 void UKOANS_TrackingRotation::NotifyTick(
 	USkeletalMeshComponent* MeshComp,
@@ -33,7 +33,7 @@ void UKOANS_TrackingRotation::NotifyTick(
 		return; 
 	}
  
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossController::TargetActorKey));
 	if (!Target) 
 	{ 
 		return; 

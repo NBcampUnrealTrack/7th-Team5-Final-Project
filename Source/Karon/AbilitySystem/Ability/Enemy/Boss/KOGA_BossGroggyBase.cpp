@@ -4,7 +4,7 @@
 #include "AIController.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 
 UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
@@ -94,7 +94,7 @@ void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
 		{
 			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, false);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, false);
 			}
 		}
 	}

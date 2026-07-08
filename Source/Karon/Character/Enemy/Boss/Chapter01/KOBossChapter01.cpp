@@ -1,10 +1,10 @@
 #include "KOBossChapter01.h"
 
 #include "AIController.h"
-#include "KOAIC_BossChapter01.h"
 #include "TimerManager.h"
 #include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Utility/Log/KOLogManager.h"
 
@@ -42,7 +42,7 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 		{
 			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsPhase2Key, true);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsPhase2Key, true);
 			}
 		}
 	}
@@ -62,7 +62,7 @@ void AKOBossChapter01::OnGroggyBegin()
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
-			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
+			BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, true);
 		}
 	}
  
@@ -93,7 +93,7 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
-			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, false);
+			BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, false);
 		}
 	}
 	
@@ -121,7 +121,7 @@ void AKOBossChapter01::OnBossDeath()
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
-			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsDeadKey, true);
+			BB->SetValueAsBool(AKOAIC_BossController::bIsDeadKey, true);
 		}
 	}
 }
@@ -134,7 +134,7 @@ void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
-			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsDeadKey, true);
+			BB->SetValueAsBool(AKOAIC_BossController::bIsDeadKey, true);
 			
 			KO_LOG(GAS, Warning, TEXT("bISDeadKey is Changed")); 
 		}
@@ -147,7 +147,7 @@ void AKOBossChapter01::NotifyGimmickDashEnd()
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
-			BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, false);
+			BB->SetValueAsBool(AKOAIC_BossController::bIsGimmickReadyKey, false);
 		}
 	}
 }

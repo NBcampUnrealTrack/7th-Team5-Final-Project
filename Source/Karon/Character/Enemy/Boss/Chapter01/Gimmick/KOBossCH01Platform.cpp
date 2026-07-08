@@ -1,4 +1,4 @@
-#include "Character/Enemy/Boss/Gimmick/KOBossCH01Platform.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01Platform.h"
 
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"

@@ -1,7 +1,7 @@
 #include "Character/Enemy/Boss/BehaviorTree/KOBTTask_WaitAndFace.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 
 UKOBTTask_WaitAndFace::UKOBTTask_WaitAndFace()
 {

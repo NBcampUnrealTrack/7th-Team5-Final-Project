@@ -4,7 +4,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
@@ -52,7 +52,7 @@ EBTNodeResult::Type UBTTask_BossActiveAbility::ExecuteTask(
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
 			Boss->CurrentTarget = Cast<AActor>(
-				BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+				BB->GetValueAsObject(AKOAIC_BossController::TargetActorKey));
 
 			if (AbilityTag == KOGameplayTags::State_BossCH01_Attack_Jump)
 			{

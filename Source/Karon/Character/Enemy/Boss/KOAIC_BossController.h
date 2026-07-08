@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "KOAIC_BossChapter01.generated.h"
+#include "KOAIC_BossController.generated.h"
 
 UCLASS()
-class KARON_API AKOAIC_BossChapter01 : public AAIController
+class KARON_API AKOAIC_BossController : public AAIController
 {
 	GENERATED_BODY()
 	
 public:
-	AKOAIC_BossChapter01();
+	AKOAIC_BossController();
  
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;

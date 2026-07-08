@@ -5,7 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Boss/KOBossDataAsset.h"
 #include "GameFramework/Character.h"
@@ -71,7 +71,7 @@ void UBTService_BossCh01_AttackCheck::TickNode(
 	
 	if (bIsAttacking)
 	{
-		BB->SetValueAsBool(AKOAIC_BossChapter01::bIsAttackingKey, true);
+		BB->SetValueAsBool(AKOAIC_BossController::bIsAttackingKey, true);
 		return;
 	}
 
@@ -86,12 +86,12 @@ void UBTService_BossCh01_AttackCheck::TickNode(
 		BB->SetValueAsBool(Info.BBKey, bResult);
 	}
 
-	BB->SetValueAsBool(AKOAIC_BossChapter01::bIsAttackingKey, bIsAttacking);
+	BB->SetValueAsBool(AKOAIC_BossController::bIsAttackingKey, bIsAttacking);
 	
 	// 플레이어 방향 판별
 	const FVector ToPlayer = (PlayerCharacter->GetActorLocation() - BossPawn->GetActorLocation()).GetSafeNormal();
  
 	const float DotRight = FVector::DotProduct(BossPawn->GetActorRightVector(), ToPlayer);
 	
-	BB->SetValueAsBool(AKOAIC_BossChapter01::GroundHitDirCheckKey, DotRight < 0.f);
+	BB->SetValueAsBool(AKOAIC_BossController::GroundHitDirCheckKey, DotRight < 0.f);
 }

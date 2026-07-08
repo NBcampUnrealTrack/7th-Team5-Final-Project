@@ -4,7 +4,6 @@
 #include "BTService_LeashCheck.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
 
 UBTService_LeashCheck::UBTService_LeashCheck()
 {

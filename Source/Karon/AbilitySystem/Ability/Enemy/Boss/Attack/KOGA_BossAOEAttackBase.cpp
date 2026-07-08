@@ -6,7 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Engine/OverlapResult.h"
 
 UKOGA_BossAOEAttackBase::UKOGA_BossAOEAttackBase()
@@ -142,7 +142,7 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 		{
 			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, true);
 			}
 		}
 		

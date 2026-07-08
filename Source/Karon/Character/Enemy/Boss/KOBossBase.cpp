@@ -2,8 +2,8 @@
  
 #include "AbilitySystemComponent.h"
 #include "AIController.h"
-#include "KOAIC_BossChapter01.h"
 #include "BrainComponent.h"
+#include "KOAIC_BossController.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h" 
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
@@ -17,7 +17,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Subsystem/KOSaveSubsystem.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
@@ -290,10 +289,10 @@ void AKOBossBase::OnHealthChangedCallback(float OldVal, float NewVal)
 
 			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 			{
-				if (!BB->GetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey))
+				if (!BB->GetValueAsBool(AKOAIC_BossController::bIsGimmickReadyKey))
 				{
 					FiredGimmickRatios.Add(GimmickRatio);
-					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, true);
+					BB->SetValueAsBool(AKOAIC_BossController::bIsGimmickReadyKey, true);
 
 					break;
 				}
