@@ -1,4 +1,6 @@
 ﻿#include "KOPlayerMenuWidget.h"
+
+#include "KOToastMessageWidget.h"
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 #include "UI/ConfirmationPopup/KOConfirmationPopup.h"
 #include "UI/KOUISubsystem.h"
@@ -7,6 +9,7 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -41,11 +44,28 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 		Button_Option->IsFocusable = false;
 		Button_Option->OnClicked.AddDynamic(this, &ThisClass::HandleOptionClicked);
 	}
+	
+	if (ToastMessageWidget)
+	{
+		ToastMessageWidget->OnToastFinished.AddUniqueDynamic(this, &ThisClass::HandleToastFinished);
+	}
 
 	if (Button_OpenOptionWidget)
 	{
 		Button_OpenOptionWidget->IsFocusable = false;
 		Button_OpenOptionWidget->OnClicked.AddDynamic(this, &ThisClass::HandleOpenOptionWidgetClicked);
+	}
+	
+	if (Button_Save)
+	{
+		Button_Save->IsFocusable = false;
+		Button_Save->OnClicked.AddDynamic(this, &ThisClass::HandleSaveClicked);
+	}
+
+	if (Button_Load)
+	{
+		Button_Load->IsFocusable = false;
+		Button_Load->OnClicked.AddDynamic(this, &ThisClass::HandleLoadClicked);
 	}
 
 	if (Button_BackToTitle)
@@ -166,6 +186,30 @@ void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Option);
 }
 
+void UKOPlayerMenuWidget::HandleSaveClicked()
+{
+	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+
+	const bool bSaved =	SaveSubsystem && SaveSubsystem->SaveCurrentGame();
+
+	ShowLocalMessage(bSaved ? FText::FromString(TEXT("저장 완료")) : FText::FromString(TEXT("저장 실패")));
+}
+
+void UKOPlayerMenuWidget::HandleLoadClicked()
+{
+	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+
+	const bool bLoaded = SaveSubsystem && SaveSubsystem->LoadCurrentGame();
+	
+	if (!bLoaded)
+	{
+		ShowLocalMessage(FText::FromString(TEXT("로드 실패")));
+		return;
+	}
+
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+}
+
 #define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 void UKOPlayerMenuWidget::HandleBackToTitleClicked()
@@ -216,5 +260,32 @@ void UKOPlayerMenuWidget::HandleQuitGameConfirmed()
 	{
 		// 가장 마지막 인자는 강제 종료 여부로 데스크탑/PIE외에도 동작하려면 true가 필요함
 		UKismetSystemLibrary::QuitGame(this, PC, EQuitPreference::Quit, false);
+	}
+}
+
+void UKOPlayerMenuWidget::HandleToastFinished()
+{
+	if (!bCloseMenuAfterToast)
+	{
+		return;
+	}
+
+	bCloseMenuAfterToast = false;
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+}
+
+void UKOPlayerMenuWidget::ShowLocalMessage(const FText& Message, bool bCloseAfterMessage)
+{
+	bCloseMenuAfterToast = bCloseAfterMessage;
+
+	if (ToastMessageWidget)
+	{
+		ToastMessageWidget->ShowMessage(Message, 2.0f);
+	}
+	
+	if (bCloseAfterMessage)
+	{
+		bCloseMenuAfterToast = false;
+		UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 	}
 }

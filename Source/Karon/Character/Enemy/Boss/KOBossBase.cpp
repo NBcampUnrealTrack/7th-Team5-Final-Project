@@ -17,6 +17,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Subsystem/KOSaveSubsystem.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Components/SkeletalMeshComponent.h"
 
 AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
@@ -80,6 +81,18 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	}
 	
 	OnBossDied.Broadcast();
+	
+	// 퀘스트
+	FName BossId = BossSaveId;
+	if (BossId.IsNone())
+	{
+		BossId = GetClass()->GetFName();
+	}
+
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBossDefeated(BossId);
+	}
 }
 
 

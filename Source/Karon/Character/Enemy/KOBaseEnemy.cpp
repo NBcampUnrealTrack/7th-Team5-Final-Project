@@ -19,6 +19,7 @@
 #include "UI/Enemy/KOEnemyHPBar.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 
 // Sets default values
@@ -205,12 +206,19 @@ void AKOBaseEnemy::OnCharacterDead(AActor* DeathInstigator)
 
 	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
 	{
+		SaveSubsystem->NotifyActorStoppedTargetingPlayer(this);
 		SaveSubsystem->MarkMonsterDead(MonsterSaveId);
 	}
 	
 	OnEnemyDead.Broadcast();
 	
 	DropItem();
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyMonsterKilled(MonsterSaveId);
+	}
 }
 
 

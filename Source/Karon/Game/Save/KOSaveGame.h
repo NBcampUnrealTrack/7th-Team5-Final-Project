@@ -125,6 +125,21 @@ struct FKOSavedSkillState // 스킬
 };
 
 USTRUCT(BlueprintType)
+struct FKOSavedQuestGuideState // 퀘스트 진행도
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName CurrentQuestId = NAME_None;
+
+	UPROPERTY()
+	int32 CurrentProgress = 0;
+
+	UPROPERTY()
+	TArray<FName> CompletedQuestIds;
+};
+
+USTRUCT(BlueprintType)
 struct FKOSavedPlayerStatus // 플레이어 상태
 {
 	GENERATED_BODY()
@@ -218,6 +233,10 @@ public:
 	// 스킬 해금 상태
 	UPROPERTY()
 	FKOSavedSkillState SkillState;
+	
+	// 퀘스트 진행도
+	UPROPERTY()
+	FKOSavedQuestGuideState QuestGuideState;
 	
 	// 몬스터 상태
 	UPROPERTY()

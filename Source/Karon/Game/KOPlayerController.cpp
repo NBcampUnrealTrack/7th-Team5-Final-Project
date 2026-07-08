@@ -20,6 +20,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/GameInstance.h"
 #include "Items/KOItemSlot.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 class AKOMapUIComponent;
@@ -859,11 +860,21 @@ void AKOPlayerController::TryAddItemWithUI(FName ItemId, int32 Count)
 {
 	if (UKOInventoryComponent* FoundInventoryComponent = FindComponentByClass<UKOInventoryComponent>())
 	{
-		FoundInventoryComponent->TryAddItem(
+		const int32 Rejected = FoundInventoryComponent->TryAddItem(
 			EKOSlotKind::Item,
 			ItemId,
 			Count
 		);
+		
+		const int32 Added = Count - Rejected;
+
+		if (Added > 0)
+		{
+			if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+			{
+				QuestGuide->NotifyItemCollected(ItemId, Added);
+			}
+		}
 	}
 }
 

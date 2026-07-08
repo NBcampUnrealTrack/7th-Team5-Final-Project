@@ -11,6 +11,7 @@
 #include "Data/KODataTableTypes.h"
 #include "Items/KOItemLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "UI/Craft/KOFactoryCraftCostEntryWidget.h"
 #include "UI/Craft/KOFactoryCraftEntryWidget.h"
 
@@ -607,6 +608,15 @@ bool UKOFactoryCraftWidget::CraftSelectedTarget()
         UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedTarget.Id.ToString());
         Refresh();
         return false;
+    }
+    
+    // 퀘스트
+    const FName CraftedItemId = SelectedTarget.Id;
+    const int32 CraftedCount = CraftCount;
+    
+    if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+    {
+        QuestGuide->NotifyItemCrafted(CraftedItemId, CraftedCount);
     }
 
     CraftCount = MinCraftCount;

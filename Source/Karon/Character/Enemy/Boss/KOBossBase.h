@@ -62,7 +62,7 @@ public:
 	UPROPERTY()
 	FVector JumpTargetLocation = FVector::ZeroVector;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|Save")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
 	FName BossSaveId = NAME_None;
 	
 	// 세이브 로드

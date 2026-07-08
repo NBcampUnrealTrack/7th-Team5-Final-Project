@@ -14,6 +14,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
@@ -114,6 +115,12 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
         FuelInBuffer += ToAdd;
         FuelItemId    = ItemId;
         BroadcastFuelChanged();
+        
+        // 퀘스트
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyFuelInserted(ItemId, ToAdd);
+        }
     }
     return Count - ToAdd;
 }

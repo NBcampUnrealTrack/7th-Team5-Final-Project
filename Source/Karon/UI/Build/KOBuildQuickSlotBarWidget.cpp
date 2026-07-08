@@ -5,7 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UI/Build/KOBuildQuickSlotWidget.h"
 #include "Component/Build/KOBuildUIComponent.h"
-
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
@@ -56,15 +56,9 @@ void UKOBuildQuickSlotBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	BuildModeChangedCallback.BindDynamic(
-		this,
-		&UKOBuildQuickSlotBarWidget::HandleBuildModeChangedMessage
-	);
+	BuildModeChangedCallback.BindDynamic(this, &UKOBuildQuickSlotBarWidget::HandleBuildModeChangedMessage);
 
-	BuildModeChangedHandle = Subscribe(
-		KOGameplayTags::Data_Message_Build_ModeChanged,
-		BuildModeChangedCallback
-	);
+	BuildModeChangedHandle = Subscribe(KOGameplayTags::Data_Message_Build_ModeChanged, BuildModeChangedCallback);
 
 	RebuildSlots();
 	ApplyDisplayMode();
@@ -72,6 +66,7 @@ void UKOBuildQuickSlotBarWidget::NativeConstruct()
 
 void UKOBuildQuickSlotBarWidget::NativeDestruct()
 {
+	
 	Unsubscribe(BuildModeChangedHandle);
 	BuildModeChangedHandle = FGameplayMessageHandle();
 	BuildModeChangedCallback.Clear();

@@ -12,6 +12,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOFactoryProcessorComponent::UKOFactoryProcessorComponent()
@@ -82,6 +83,11 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
     {
         BroadcastProcessorChanged();
         EvaluateAutoStart();
+        
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyProcessorInputInserted(ItemId, ToAdd);
+        }
     }
     return Remaining;
 }
@@ -124,6 +130,15 @@ void UKOFactoryProcessorComponent::SetSelectedRecipe(FName RecipeId)
     SelectedRecipeId = RecipeId;
     BroadcastProcessorChanged();
     EvaluateAutoStart();
+    
+    // 퀘스트
+    if (!SelectedRecipeId.IsNone())
+    {
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyRecipeSelected(SelectedRecipeId);
+        }
+    }
 }
 
 void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count)

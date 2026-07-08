@@ -15,6 +15,7 @@
 #include "UI/Inventory/KOItemDragSource.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 void UKOEquipmentSlotWidget::NativeConstruct()
 {
@@ -285,6 +286,15 @@ bool UKOEquipmentSlotWidget::NativeOnDrop(
 		return false;
 	}
 	RefreshVisual();
+	
+	// 퀘스트
+	if (SlotType == EKOEquipmentSlotType::Weapon)
+	{
+		if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+		{
+			QuestGuide->NotifyWeaponEquipped(EquippedItemId);
+		}
+	}
 
 	return true;
 }

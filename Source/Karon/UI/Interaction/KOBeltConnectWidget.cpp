@@ -2,6 +2,7 @@
 #include "UI/Interaction/KOBeltConnectWidget.h"
 
 #include "UI/Interaction/KOBeltConnectEntryWidget.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
 #include "Components/PanelWidget.h"
@@ -119,6 +120,15 @@ void UKOBeltConnectWidget::HandleSlotClicked(FKOFactoryPortSlot ClickedSlot)
     if (Belt && Building)
     {
         Belt->BindToMachinePort(Building, ClickedSlot);
+        
+        // 퀘스트
+        if (ClickedSlot.Kind == EKOPortKind::Output)
+        {
+            if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+            {
+                QuestGuide->NotifyConveyorOutputBound(ClickedSlot.ItemId);
+            }
+        }
     }
 
     DeactivateWidget();

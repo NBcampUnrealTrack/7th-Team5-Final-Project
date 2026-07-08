@@ -22,30 +22,6 @@ void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InCom
     }
 }
 
-void UKOInventoryPanelWidget::SyncEquipmentSlotsFromEquipmentComponent()
-{
-    if (!WidgetTree)
-    {
-        return;
-    }
-
-    TArray<UWidget*> Widgets;
-    WidgetTree->GetAllWidgets(Widgets);
-
-    for (UWidget* Widget : Widgets)
-    {
-        UKOEquipmentSlotWidget* EquipmentSlot =
-            Cast<UKOEquipmentSlotWidget>(Widget);
-
-        if (!EquipmentSlot)
-        {
-            continue;
-        }
-
-        EquipmentSlot->SyncFromEquipmentComponent();
-    }
-}
-
 void UKOInventoryPanelWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -59,8 +35,6 @@ void UKOInventoryPanelWidget::NativeConstruct()
     {
         BuildQuickSlotBar->SetDisplayMode(EKOQuickSlotBarDisplayMode::Inventory);
     }
-    
-    SyncEquipmentSlotsFromEquipmentComponent();
 }
 
 void UKOInventoryPanelWidget::NativeDestruct()

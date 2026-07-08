@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
@@ -82,10 +83,24 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 {
 	TryResolveCaches();
 
+	LastUnlockFailureReason = FText::GetEmpty();
+	
 	if (SkillName.IsNone())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: 스킬명이 없습니다."));
 		return false;
+	}
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		if (!QuestGuide->CanUnlockSkillByQuest())
+		{
+			LastUnlockFailureReason = FText::FromString(
+				TEXT("아직 스킬을 해금할 수 없습니다.\n튜토리얼을 먼저 진행하세요.")
+			);
+			
+			UE_LOG(LogTemp, Warning, TEXT("SkillSubsystem: 아직 스킬 해금이 허용된 튜토리얼 단계가 아닙니다."));
+			return false;
+		}
 	}
 	if (IsUnlocked(SkillName))
 	{
@@ -175,6 +190,13 @@ bool UKOSkillSubsystem::TryUnlockSkill(const FName& SkillName)
 
 	*State = ESkillState::Unlocked;
 	ReevaluateAllSkillStates();
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifySkillUnlocked(SkillName);
+	}
+	
 	return true;
 }
 
@@ -331,6 +353,15 @@ bool UKOSkillSubsystem::SetSkillQuickSlot(ESkillQuickSlotKey SlotKey, FName Skil
 
 	BroadcastSkillQuickSlotChanged(SlotKey, SkillName);
 
+	// 퀘스트
+	if (!SkillName.IsNone())
+	{
+		if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+		{
+			QuestGuide->NotifySkillAssigned(SkillName);
+		}
+	}
+	
 	return true;
 }
 

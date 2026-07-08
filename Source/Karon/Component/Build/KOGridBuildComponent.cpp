@@ -28,6 +28,7 @@
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "CommonActivatableWidget.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuild, Log, All);
 
@@ -464,6 +465,12 @@ void UKOGridBuildComponent::RequestBuild()
 
 	// 그리드 점유처리
 	GridSub->OccupyArea(CurrentAnchor, CurrentBuildingSize, NewBuilding);
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBuildingPlaced(CurrentFactoryId);
+	}
 	
 	const FName BuiltFactoryId = CurrentFactoryId;
 

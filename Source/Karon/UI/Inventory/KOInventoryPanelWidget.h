@@ -30,9 +30,6 @@ public:
     void SetInventoryComponent(UKOInventoryComponent* InComponent);
 
     UKOInventoryWidget* GetInventoryWidget() const { return InventoryWidget; }
-    
-    UFUNCTION(BlueprintCallable, Category = "KO|UI|Inventory")
-    void SyncEquipmentSlotsFromEquipmentComponent();
 
 protected:
     virtual void NativeConstruct() override;

@@ -3,6 +3,7 @@
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
 #include "UI/Skill/KOSkillTooltipWidget.h"
+#include "UI/KOToastMessageWidget.h"
 #include "Subsystem/KOSkillSubsystem.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
@@ -49,7 +50,7 @@ void UKOSkillTreePopup::NativeConstruct()
 }
 
 void UKOSkillTreePopup::NativeDestruct()
-{
+{		
 	SkillSubsystem = nullptr;
 
 	if (SkillTooltipWidget)
@@ -181,7 +182,31 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 		return;
 	}
 
-	ActiveTooltipNode->ExecuteUnlock();
+	if (SkillSubsystem == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillSubsystem이 없습니다."));
+		return;
+	}
+
+	const FName SkillName = ActiveTooltipNode->GetSkillName();
+	if (SkillName.IsNone())
+	{
+		return;
+	}
+
+	const bool bUnlocked = SkillSubsystem->TryUnlockSkill(SkillName);
+
+	if (!bUnlocked)
+	{
+		const FText& ReasonText = SkillSubsystem->GetLastUnlockFailureReason();
+
+		if (!ReasonText.IsEmpty() && ToastMessageWidget)
+		{
+			ToastMessageWidget->ShowMessage(ReasonText, 2.0f);
+		}
+
+		return;
+	}
 
 	RefreshAllSkillNodes();
 	RefreshActiveTooltip(ActiveTooltipNode);

@@ -98,6 +98,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
 	TSubclassOf<UKOItemTooltipWidget> TooltipClass;
 	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UBorder> QuestHighlightBorder;
+	
 private:
 	UKOBuildUIComponent* GetBuildUIComponent() const;
 	UKOInventoryComponent* GetInventoryComponent() const;

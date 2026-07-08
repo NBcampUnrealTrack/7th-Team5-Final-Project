@@ -7,6 +7,7 @@
 class UButton;
 class UWidgetSwitcher;
 class UCommonActivatableWidget;
+class UKOToastMessageWidget;
 
 UENUM(BlueprintType)
 enum class EKOPlayerMenuTab : uint8
@@ -49,10 +50,19 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Option;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UKOToastMessageWidget> ToastMessageWidget;
 
 	/** Option(System) 탭 하위에서 실제 설정 팝업(KOOptionWidget)을 여는 버튼 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_OpenOptionWidget;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> Button_Save;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UButton> Button_Load;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_BackToTitle;
@@ -83,6 +93,12 @@ private:
 	void HandleOpenOptionWidgetClicked();
 	
 	UFUNCTION()
+	void HandleSaveClicked();
+
+	UFUNCTION()
+	void HandleLoadClicked();
+	
+	UFUNCTION()
 	void HandleBackToTitleClicked();
 
 	UFUNCTION()
@@ -96,6 +112,13 @@ private:
 	
 	UFUNCTION()
 	void HandleQuitGameConfirmed();
+	
+	UFUNCTION()
+	void HandleToastFinished();
+
+	void ShowLocalMessage(const FText& Message, bool bCloseAfterMessage = false);
+
+	bool bCloseMenuAfterToast = false;
 
 private:
 	bool bPausedGameByThisWidget = false;

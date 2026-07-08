@@ -27,6 +27,7 @@ public:
 	static UKOSkillSubsystem* Get(const UObject* WorldContext);
 
 	bool TryUnlockSkill(const FName& SkillName);
+	const FText& GetLastUnlockFailureReason() const { return LastUnlockFailureReason; }
 	bool IsUnlocked(const FName& SkillName) const;
 	bool HasActiveAbilityInASC(TSubclassOf<UGameplayAbility> AbilityClass) const;
 	ESkillState GetSkillState(const FName& SkillName) const;
@@ -45,6 +46,8 @@ public:
 	void LoadSkillQuickSlotsFromSave(const TMap<ESkillQuickSlotKey, FName>& InQuickSlots);
 
 private:
+	UPROPERTY(Transient)
+	FText LastUnlockFailureReason;
 	UPROPERTY()
 	TObjectPtr<UKOLoadSubsystem> CachedLoadSubsystem;
 	UPROPERTY()

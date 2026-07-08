@@ -15,6 +15,7 @@
 #include "EngineUtils.h"
 #include "KOEnemyDataSubsystem.h"
 #include "KOGridSubsystem.h"
+#include "KOQuestGuideSubsystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
 #include "Character/Enemy/KOBaseEnemy.h"
@@ -107,6 +108,11 @@ UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController
 	}
 
 	return UKOSkillSubsystem::Get(PC);
+}
+
+UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
+{
+	return UKOQuestGuideSubsystem::Get(this);
 }
 
 bool UKOSaveSubsystem::SaveCurrentGame()
@@ -325,9 +331,20 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 		SkillSubsystem->GetSkillQuickSlotsForSave(SaveData->SkillState.SkillQuickSlots);
 	}
 	
+	// 퀘스트 진행도 저장
+	if (UKOQuestGuideSubsystem* QuestGuide = GetQuestGuideSubsystem())
+	{
+		QuestGuide->GetQuestGuideStateForSave(
+			SaveData->QuestGuideState.CurrentQuestId,
+			SaveData->QuestGuideState.CurrentProgress,
+			SaveData->QuestGuideState.CompletedQuestIds
+		);
+	}
+	
 	// 채집물 저장
 	SaveData->CollectedItemDropIds = CollectedItemDropIds.Array();
 	
+	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
 }
 
@@ -743,6 +760,16 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		SkillSubsystem->LoadSkillQuickSlotsFromSave(SaveData->SkillState.SkillQuickSlots);
 	}
 	
+	// 퀘스트 진행도 로드
+	if (UKOQuestGuideSubsystem* QuestGuide = GetQuestGuideSubsystem())
+	{
+		QuestGuide->LoadQuestGuideStateFromSave(
+			SaveData->QuestGuideState.CurrentQuestId,
+			SaveData->QuestGuideState.CurrentProgress,
+			SaveData->QuestGuideState.CompletedQuestIds
+		);
+	}
+	
 	// 채집물 로드
 	CollectedItemDropIds.Reset();
 
@@ -774,6 +801,7 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		}
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 성공"));
 	return true;
 }
 

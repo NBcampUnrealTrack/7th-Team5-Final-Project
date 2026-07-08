@@ -8,6 +8,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/WrapBox.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 void UKOInventoryWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
 {
@@ -81,6 +82,18 @@ bool UKOInventoryWidget::NativeOnDrop(
     if (Rejected > 0)
     {
         Source->Restore(ItemId, Rejected);
+    }
+    
+    // 퀘스트
+    const bool bFromProcessorOutput = Source->IsA<UKOProcessorOutputItemSource>();
+    const int32 Accepted = Extracted - Rejected;
+
+    if (Accepted > 0 && bFromProcessorOutput)
+    {
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyProcessorOutputCollected(ItemId, Accepted);
+        }
     }
     return true;
 }

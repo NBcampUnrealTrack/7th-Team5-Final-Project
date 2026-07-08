@@ -8,6 +8,7 @@
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "UI/HUD/KOInGameHUD.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
@@ -214,6 +215,12 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 	if (bMovedSelectedSlot)
 	{
 		SetSelectedBuildQuickSlot(SlotIndex);
+	}
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBuildQuickSlotAssigned(FactoryId);
 	}
 
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 퀵슬롯 %d 등록: %s"),

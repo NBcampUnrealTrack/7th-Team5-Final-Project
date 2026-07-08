@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
 #include "UI/Build/KOBuildQuickSlotWidget.h"
+#include "Data/Type/KOQuestGuideTypes.h"
 #include "GMRouterSubsystem.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "KOBuildQuickSlotBarWidget.generated.h"
@@ -10,6 +11,7 @@
 class UPanelWidget;
 class UImage;
 class UKOBuildUIComponent;
+class UKOQuestGuideSubsystem;
 
 UCLASS()
 class KARON_API UKOBuildQuickSlotBarWidget : public UKOActivatableWidget
@@ -52,6 +54,9 @@ private:
 
 	UFUNCTION()
 	void HandleBuildModeChangedMessage( FGameplayTag Channel, const FInstancedStruct& Payload);
+
+	UPROPERTY()
+	TObjectPtr<UKOQuestGuideSubsystem> CachedQuestGuide;
 
 protected:
 	UPROPERTY(meta = (BindWidget))

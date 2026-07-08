@@ -9,6 +9,7 @@ class UKOInventoryComponent;
 class UKOEquipmentComponent;
 class UKOBuildUIComponent;
 class UKOSkillSubsystem;
+class UKOQuestGuideSubsystem;
 
 UCLASS()
 class KARON_API UKOSaveSubsystem : public UGameInstanceSubsystem
@@ -54,6 +55,7 @@ private:
     UKOEquipmentComponent* GetPlayerEquipment(AKOPlayerController* PC) const;
     UKOBuildUIComponent* GetPlayerBuildUI(AKOPlayerController* PC) const;
     UKOSkillSubsystem* GetPlayerSkillSubsystem(AKOPlayerController* PC) const;
+    UKOQuestGuideSubsystem* GetQuestGuideSubsystem() const;
     
 private:
     UPROPERTY()

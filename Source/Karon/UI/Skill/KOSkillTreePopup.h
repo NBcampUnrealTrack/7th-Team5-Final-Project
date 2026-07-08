@@ -10,6 +10,8 @@ class UKOSkillSubsystem;
 class UKOSkillTooltipWidget;
 class UKOLoadSubsystem;
 class UScrollBox;
+class UTextBlock;
+class UKOToastMessageWidget;
 
 /**
  * 팝업시킬 스킬창 모체
@@ -60,6 +62,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UKOSkillNodeWidget> ActiveTooltipNode;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UKOToastMessageWidget> ToastMessageWidget;
 
 private:
 	UPROPERTY()
