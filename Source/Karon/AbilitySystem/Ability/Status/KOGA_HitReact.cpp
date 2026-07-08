@@ -11,7 +11,7 @@
 UKOGA_HitReact::UKOGA_HitReact()
 {
 	InstancingPolicy  = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
+	bRetriggerInstancedAbility = true;
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = KOGameplayTags::Event_HitReact; 
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
@@ -63,30 +63,81 @@ void UKOGA_HitReact::ActivateAbility(
 	if (TriggerEventData) CachedTriggerEventData = *TriggerEventData;
 	
 	// 3. Select Direction For Montage 
-	const FGameplayTagContainer& Tags = CachedTriggerEventData.InstigatorTags;
-	if (Tags.HasTag(KOGameplayTags::Event_HitReact_Backward)) HitDirection = EHitDirection::Backward;
-	else if (Tags.HasTag(KOGameplayTags::Event_HitReact_Left)) HitDirection = EHitDirection::Left;
-	else if (Tags.HasTag(KOGameplayTags::Event_HitReact_Right)) HitDirection = EHitDirection::Right;	
-	else HitDirection = EHitDirection::Forward;
+	HitDirection = EHitDirection::Forward; // 기본값
+  
+	if (ACharacter* Defender = Cast<ACharacter>(GetAvatarCharacter()))
+	{
+		FVector DefenderLoc = Defender->GetActorLocation();
+		DefenderLoc.Z = 0.0f;
+    
+		FVector HitOrigin = FVector::ZeroVector;
+		bool bFoundOrigin = false;
+
+		if (CachedTriggerEventData.ContextHandle.IsValid() && CachedTriggerEventData.ContextHandle.GetHitResult())
+		{
+			HitOrigin = CachedTriggerEventData.ContextHandle.GetHitResult()->ImpactPoint;
+			bFoundOrigin = true;
+		}
+		else if (CachedTriggerEventData.ContextHandle.IsValid() && CachedTriggerEventData.ContextHandle.GetEffectCauser())
+		{
+			HitOrigin = CachedTriggerEventData.ContextHandle.GetEffectCauser()->GetActorLocation();
+			bFoundOrigin = true;
+		}
+		else if (const AActor* Attacker = CachedTriggerEventData.Instigator.Get())
+		{
+			HitOrigin = Attacker->GetActorLocation();
+			bFoundOrigin = true;
+		}
+		
+		if (bFoundOrigin)
+		{
+			HitOrigin.Z = 0.0f;
+			FVector DirToHit = (HitOrigin - DefenderLoc).GetSafeNormal();
+
+			FVector DefForward = Defender->GetActorForwardVector();
+			FVector DefRight = Defender->GetActorRightVector();
+			DefForward.Z = 0.0f; 
+			DefRight.Z = 0.0f; 
+			DefForward.Normalize();
+			DefRight.Normalize();
+        
+			float ForwardDot = FVector::DotProduct(DirToHit, DefForward);
+			float RightDot = FVector::DotProduct(DirToHit, DefRight);
+        
+			if (FMath::Abs(ForwardDot) >= FMath::Abs(RightDot))
+			{
+				HitDirection = (ForwardDot > 0.0f) ? EHitDirection::Forward : EHitDirection::Backward;
+			}
+			else
+			{
+				HitDirection = (RightDot > 0.0f) ? EHitDirection::Right : EHitDirection::Left;
+			}
+		}
+	}
 	
+	bool bRequireRotation = false;
+	
+	UAnimMontage* Montage = DirectionalMontage.FindRef(HitDirection);
+
+	if (!Montage || DirectionalMontage.Num() <= 1)
+	{
+		HitDirection = EHitDirection::Forward;
+		Montage = DirectionalMontage.FindRef(EHitDirection::Forward);
+		
+		bRequireRotation = true;
+	}
+	
+	if (!Montage)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
 	//Enemy일 경우 Hit 브로드캐스트
 	if (AKOBaseEnemy* Enemy= Cast<AKOBaseEnemy>(GetAvatarCharacter()))
 	{
 		Enemy->OnHitEvent.ExecuteIfBound(true);	
 	}
-	
-	// 4. Hit Stop Task  
-	UAbilityTask_HitStop* HitStopTask = 
-		UAbilityTask_HitStop::HitStop(
-			this, 
-			 HitStopDuration,
-			 HitStopTimeDilation,
-			 bAffectInstigator
-		);
-	
-	HitStopTask->OnFinished.AddDynamic(this, &ThisClass::OnHitStopFinished);
-	HitStopTask->ReadyForActivation();
-	
 	
 	// 5. Gameplay Cue 
 	FGameplayCueParameters CueParams; 
@@ -102,6 +153,31 @@ void UKOGA_HitReact::ActivateAbility(
 	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(
 		KOGameplayTags::GameplayCue_HitImpact, CueParams);
 	
+	
+	if (bRequireRotation)
+	{
+		RotateTowardsAttacker(CachedTriggerEventData);	
+	}
+	
+	UAbilityTask_PlayMontageAndWait* MontageTask =
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			Montage,
+			1.0f,
+			NAME_None,
+			false
+		);
+	
+	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->ReadyForActivation();
+    
+	// 몽타주 재생 시작
+	MontageTask->ReadyForActivation();
+	
+	ExecuteKnockBack(CachedTriggerEventData);
 }
 
 void UKOGA_HitReact::EndAbility(
@@ -121,27 +197,6 @@ void UKOGA_HitReact::EndAbility(
 
 void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 {
-	// FVector LaunchDir =
-	// 	EventData.ContextHandle.GetHitResult() ? EventData.ContextHandle.GetHitResult()->ImpactNormal* -1.f :
-	// 	GetAvatarCharacter() ? GetAvatarCharacter()->GetActorForwardVector() *-1 : 
-	// 	FVector(0, 0, 0);
-	//
-	//
-	// const bool bIsLaunch = 
-	// 	EventData.InstigatorTags.HasTag(KOGameplayTags::Event_HitReact_KnockBack_Launch);
-	// if (bIsLaunch) LaunchDir.Z = 0.8f;
-	//
-	// LaunchDir.Normalize();
-	//
-	// ACharacter* Character = GetAvatarCharacter();
-	// if (!Character) return;
-	//
-	// Character->LaunchCharacter(
-	// 	LaunchDir * EventData.EventMagnitude,
-	// 	true,
-	// 	bIsLaunch
-	// );
-	
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return; 
 	
@@ -212,35 +267,6 @@ void UKOGA_HitReact::RotateTowardsAttacker(const FGameplayEventData& EventData)
 		Character->SetActorRotation(NewRotation);
 	}
 }
-
-void UKOGA_HitReact::OnHitStopFinished()
-{
-	RotateTowardsAttacker(CachedTriggerEventData);
-	ExecuteKnockBack(CachedTriggerEventData);
-	
-	UAnimMontage* Montage = DirectionalMontage.FindRef(HitDirection);
-	if (!Montage)
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
-	}
-	
-	UAbilityTask_PlayMontageAndWait* MontageTask =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.0f,
-			NAME_None,
-			false
-		);
-	
-	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	MontageTask->ReadyForActivation();
-	
-} 
 
 void UKOGA_HitReact::OnMontageCompleted()
 {

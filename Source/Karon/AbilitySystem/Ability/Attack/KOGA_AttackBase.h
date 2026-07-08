@@ -164,6 +164,17 @@ protected:
 	virtual void OnTargetHit(const FHitResult& Hit);
 	
 protected:	
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ToolTip = "타격 성공 시 역경직 지속시간(초)"))
+	float HitStopDuration = 0.08f;
+    
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ClampMin = "0.0", ClampMax = "1.0", ToolTip="0에 가까울수록 완전 정지"))
+	float HitStopTimeDilation = 0.01f;
+	
+	// 역경직 사용 여부
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop")
+	bool bUseHitStop = true;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace")
 	FKOTraceData TraceData; 
 	

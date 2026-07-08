@@ -1,6 +1,7 @@
 #include "KOGA_AttackBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Ability/AbilityTask/AbilityTask_HitStop.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -308,6 +309,23 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 	TraceData.HitActors.Add(HitActor);
 	
 	SendAttackEventsToTarget(HitActor);
+	
 	ApplyHitEffects(HitActor);
+	
+	if (bUseHitStop)
+	{
+		UAbilityTask_HitStop* HitStopTask = UAbilityTask_HitStop::HitStop(
+			this,
+			HitActor,
+			HitStopDuration,
+			HitStopTimeDilation,
+			true
+		);
+		
+		if (HitStopTask)
+		{
+			HitStopTask->ReadyForActivation();
+		}
+	}
 }
 

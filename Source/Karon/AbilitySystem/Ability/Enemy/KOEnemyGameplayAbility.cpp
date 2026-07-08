@@ -3,6 +3,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Ability/AbilityTask/AbilityTask_HitStop.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -84,6 +85,26 @@ void UKOEnemyGameplayAbility::OnNotifyHitEvent(FGameplayEventData HitGameplayEve
 	
 	ApplyHitEffects(&HitGameplayEventData);
 	SendAttackEventsToTarget(&HitGameplayEventData);
+	
+	if (bUseHitStop)
+	{
+		AActor* TargetActor = const_cast<AActor*>(HitGameplayEventData.Target.Get());
+		if (TargetActor)
+		{
+			UAbilityTask_HitStop* HitStopTask = UAbilityTask_HitStop::HitStop(
+				this,
+				TargetActor,
+				HitStopDuration,
+				HitStopTimeDilation,
+				true 
+			);
+            
+			if (HitStopTask)
+			{
+				HitStopTask->ReadyForActivation();
+			}
+		}
+	}
 	
 	// const UObject* RawTarget = HitGameplayEventData.Target;
 	// AActor* TargetActor = Cast<AActor>(const_cast<UObject*>(RawTarget));

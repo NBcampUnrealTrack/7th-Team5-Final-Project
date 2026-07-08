@@ -52,9 +52,6 @@ protected:
 	
 private:
 	UFUNCTION()
-	void OnHitStopFinished();
-
-	UFUNCTION()
 	void OnMontageCompleted();
 
 	UFUNCTION()

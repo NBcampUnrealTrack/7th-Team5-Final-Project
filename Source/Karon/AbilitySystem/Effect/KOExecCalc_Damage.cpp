@@ -121,12 +121,14 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 {
 	float HealthDamage = FinalDamage;
 
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FGameplayEffectContextHandle Context = Spec.GetContext();
+	AActor* TargetActor = TargetASC->GetAvatarActor();
+	AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor();
+
 	if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_Blocking))
 	{
 		// 방향 체크
-		AActor* TargetActor = TargetASC->GetAvatarActor();
-		AActor* SourceActor = ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor();
-
 		const FVector ToAttacker = 
 			(SourceActor->GetActorLocation() - TargetActor->GetActorLocation()).GetSafeNormal();
 		
@@ -148,12 +150,18 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 				UKOGuardSet::GetGuardDamageAttribute(), EGameplayModOp::Additive, GuardDamage));
 			
 			FGameplayEventData EventData;
+			EventData.Instigator = SourceActor;
+			EventData.Target = TargetActor;
+			EventData.ContextHandle = Context;
+			
 			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_Success, &EventData);
 			
 			//방향이 맞는 상태에서 퍼펙트가드 성공시 해당 에너미 그로기
 			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard))
 			{
 				FGameplayEventData ParryEventData;
+				ParryEventData.Instigator = TargetActor;
+				ParryEventData.Target = SourceActor;
 				SourceASC->HandleGameplayEvent(KOGameplayTags::Event_Parried, &ParryEventData);
 			}
 			
@@ -161,6 +169,9 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 		else
 		{
 			FGameplayEventData EventData;
+			EventData.Instigator = SourceActor;
+			EventData.Target = TargetActor;
+			EventData.ContextHandle = Context;
 			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_DirectionFail, &EventData);
 		}
 	}
@@ -172,6 +183,9 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 		
 		FGameplayEventData EventData;
 		EventData.EventMagnitude = HealthDamage;
+		EventData.Instigator = SourceActor;
+		EventData.Target = TargetActor;
+		EventData.ContextHandle = Context;
 		
 		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
 		SourceASC->HandleGameplayEvent(KOGameplayTags::Event_Clock_Gain, &EventData);
