@@ -5,6 +5,7 @@
 #include "AbilitySystem/Attribute/KOGuardSet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/KO_HitData.h"
 #include "Utility/Log/KOLogManager.h"
 
 // 최종 데미지 = (공격력 × 스킬 계수 / (1 + 방어력 × 0.01)) × 크리티컬 배율
@@ -186,6 +187,11 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 		EventData.Instigator = SourceActor;
 		EventData.Target = TargetActor;
 		EventData.ContextHandle = Context;
+		
+		if (const FKOGameplayEffectContext* KOContext = static_cast<const FKOGameplayEffectContext*>(Context.Get()))
+		{
+			EventData.OptionalObject = KOContext->GetHitData();
+		}
 		
 		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
 		SourceASC->HandleGameplayEvent(KOGameplayTags::Event_Clock_Gain, &EventData);

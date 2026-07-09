@@ -1,12 +1,15 @@
 #include "KOGA_AttackBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_HitStop.h"
 #include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
+#include "AbilitySystem/Effect/KOGameplayEffectContext.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
+#include "Data/KO_HitData.h"
 #include "GameFramework/Character.h"
 #include "Items/Equipment/KOWeaponBase.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -35,6 +38,17 @@ void UKOGA_AttackBase::ActivateAbility(
 		KO_LOG(Combat, Error, TEXT("TraceMesh 없음"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
+	}
+	
+	UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this, 
+			KOGameplayTags::Event_Trace_Start
+		);
+    
+	if (WaitEventTask)
+	{
+		WaitEventTask->EventReceived.AddDynamic(this, &ThisClass::OnHitDataEventReceived);
+		WaitEventTask->ReadyForActivation();
 	}
 	
 	TraceData.bIsFirstTick = true;
@@ -90,6 +104,7 @@ void UKOGA_AttackBase::SendAttackEventsToTarget(AActor* TargetActor)
 		FGameplayEventData EventData;
 		EventData.Instigator = Cast<const AActor>(GetAvatarCharacter());
 		EventData.Target = TargetActor; 
+		EventData.OptionalObject = CachedHitData;
 		
 		TargetASC->HandleGameplayEvent(EventTag, &EventData);
 	}
@@ -116,6 +131,11 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	
 	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarCharacter());
+	
+	if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Context.Get()))
+	{
+		KOContext->SetHitData(CachedHitData.Get());
+	}
 	
 	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 1.f;
 	for (const FKODamageEffectData& Effect : DamageEffects)
@@ -252,6 +272,18 @@ void UKOGA_AttackBase::PerformWeaponTrace(float DeltaTime)
 	
 	TraceData.PrevStartLocation = CurrentStart;
 	TraceData.PrevEndLocation = CurrentEnd;
+}
+
+void UKOGA_AttackBase::OnHitDataEventReceived(FGameplayEventData Payload)
+{
+	if (const UKO_HitData* ReceivedData = Cast<UKO_HitData>(Payload.OptionalObject))
+	{
+		CachedHitData = ReceivedData;
+		HitStopDuration = ReceivedData->HitData.HitStopDuration;
+		HitStopTimeDilation = ReceivedData->HitData.HitStopTimeDilation;
+        
+		KO_LOG(Combat, Warning, TEXT("[ Hit Data ] KnockBackAmount: %f"), ReceivedData->HitData.KnockBackAmount);
+	}
 }
 
 void UKOGA_AttackBase::ResetHitActors()

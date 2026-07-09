@@ -10,6 +10,7 @@
 #include "Data/Type/KOEnemyType.h"
 #include "Game/KOProjectilePoolSubsystem.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
+#include "Data/KO_HitData.h"
 
 UKOEnemyProjectileAttackNotify::UKOEnemyProjectileAttackNotify()
 {
@@ -57,6 +58,15 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 		{
 			EnemyProjectile->SetActorTransform(ProjectileTransform);
 			UE_LOG(LogTemp,Warning,TEXT("%s"),*ProjectileTransform.GetLocation().ToString());
+			
+			if (HitData)
+			{
+				EnemyProjectile->SetHitData(HitData.Get());
+			}
+			else
+			{
+				EnemyProjectile->SetHitData(nullptr);	
+			}
 			
 			//현재 활성화된 GA를 가져온다,
 			UAbilitySystemComponent* AbilitySystemComponent = Enemy->GetAbilitySystemComponent();

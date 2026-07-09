@@ -8,7 +8,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
-
+#include "Data/KO_HitData.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -139,6 +139,12 @@ void UKOEnemyAttackNotifyState::NotifyTick(
 	//Event_SkillHit 태그로 전달
 	FGameplayEventData HitGameplayEventData;
 	HitGameplayEventData.Target = HittedActor;
+	
+	if (HitData)
+	{
+		HitGameplayEventData.OptionalObject = HitData.Get();
+	}
+	
 	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_Hit, &HitGameplayEventData);
 	//재타격 방지
 	CachedAbilities[MeshComp]->bIsAttacked=true;

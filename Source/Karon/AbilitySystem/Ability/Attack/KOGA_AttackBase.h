@@ -6,6 +6,7 @@
 
 class UKOCombatSet;
 class UAbilityTask_Tick;
+class UKO_HitData;
 
 USTRUCT(BlueprintType, Blueprintable)
 struct FKODamageEffectData // 데미지 용 
@@ -156,6 +157,9 @@ protected:
 	virtual void PerformWeaponTrace(float DeltaTime);
 	
 	UFUNCTION()
+	void OnHitDataEventReceived(FGameplayEventData Payload);
+	
+	UFUNCTION()
 	virtual void ResetHitActors();
 	
 	UMeshComponent* FindTraceMesh(); 
@@ -164,6 +168,8 @@ protected:
 	virtual void OnTargetHit(const FHitResult& Hit);
 	
 protected:	
+	UPROPERTY()
+	TObjectPtr<const UKO_HitData> CachedHitData;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ToolTip = "타격 성공 시 역경직 지속시간(초)"))
 	float HitStopDuration = 0.08f;

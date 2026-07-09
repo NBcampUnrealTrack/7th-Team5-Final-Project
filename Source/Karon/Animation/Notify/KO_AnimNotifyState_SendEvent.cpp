@@ -1,4 +1,5 @@
 ﻿#include "KO_AnimNotifyState_SendEvent.h"
+#include "Data/KO_HitData.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
 
@@ -20,6 +21,7 @@ void UKO_AnimNotifyState_SendEvent::BranchingPointNotifyBegin(FBranchingPointNot
 	FGameplayEventData Payload;
 	Payload.Instigator = OwnerActor;
 	Payload.Target = OwnerActor;
+	Payload.OptionalObject = HitData.Get();
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerActor, StartTag, Payload);
 }

@@ -6,6 +6,8 @@
 #include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
+#include "Data/KO_HitData.h"
+#include "Utility/Log/KOLogManager.h"
 #include "GameFramework/Character.h"
 
 UKOGA_HitReact::UKOGA_HitReact()
@@ -200,6 +202,18 @@ void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return; 
 	
+	float FinalKnockBack = KnockBackAmount; 
+
+	if (const UKO_HitData* ReceivedData = Cast<UKO_HitData>(EventData.OptionalObject))
+	{
+		FinalKnockBack = ReceivedData->HitData.KnockBackAmount;
+		KO_LOG(Combat, Log, TEXT("Apply KnockBack Amount: %f"), FinalKnockBack);
+	}
+	else if (EventData.EventMagnitude > 0.f)
+	{
+		FinalKnockBack = EventData.EventMagnitude;
+	}
+	
 	FVector LaunchDir = FVector::ZeroVector;
 	
 	if (const AActor* Attacker = EventData.Instigator.Get())
@@ -224,14 +238,17 @@ void UKOGA_HitReact::ExecuteKnockBack(const FGameplayEventData& EventData)
 	
 	if (bIsLaunch)
 	{
+		LaunchDir.Z = 1.5f;
+	}
+	else
+	{
 		LaunchDir.Z = 0.0f;
-		LaunchDir.Normalize();
 	}
 	
-	float ActualKnockBack = (KnockBackAmount > 0.f) ? KnockBackAmount : EventData.EventMagnitude;
+	LaunchDir.Normalize();
 	
 	Character->LaunchCharacter(
-		LaunchDir * ActualKnockBack,
+		LaunchDir * FinalKnockBack,
 		true,
 		bIsLaunch
 	);

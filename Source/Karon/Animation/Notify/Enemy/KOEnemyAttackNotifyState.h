@@ -5,6 +5,7 @@
 #include "KOEnemyAttackNotifyState.generated.h"
 
 class UKOEnemyGameplayAbility;
+class UKO_HitData;
 
 UCLASS()
 class KARON_API UKOEnemyAttackNotifyState : public UAnimNotifyState
@@ -24,6 +25,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	class UNiagaraSystem* ImpactEffect;
 
+	UPROPERTY(EditAnywhere, Instanced, Category = "HitData")
+	TObjectPtr<UKO_HitData> HitData;
+	
 private:
 	//소켓이름
 	FName SocketName=FName("Socket");

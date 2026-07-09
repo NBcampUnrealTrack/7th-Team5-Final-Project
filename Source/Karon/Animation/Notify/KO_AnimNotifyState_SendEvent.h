@@ -6,6 +6,8 @@
 #include "KO_AnimNotifyState_SendEvent.generated.h"
 
 
+class UKO_HitData;
+
 UCLASS()
 class KARON_API UKO_AnimNotifyState_SendEvent : public UAnimNotifyState
 {
@@ -18,6 +20,9 @@ public:
 	virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& BranchingPointPayload) override;
 	
 protected:
+	UPROPERTY(EditAnywhere, Instanced, Category = "HitData")
+	TObjectPtr<UKO_HitData> HitData; 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag StartTag;
 	

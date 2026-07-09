@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
 #include "NiagaraComponent.h"
+#include "AbilitySystem/Effect/KOGameplayEffectContext.h"
+#include "Data/KO_HitData.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Hero/KOHeroCharacter.h"
@@ -94,6 +96,13 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	FGameplayEffectContextHandle Context = CharacterASC->MakeEffectContext();
 	Context.AddSourceObject(AttackedCharacter); // 소스 오브젝트는 현재 캐릭터(Avatar)
 	
+	if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Context.Get()))
+	{
+		if (CachedHitData)
+		{
+			KOContext->SetHitData(CachedHitData);
+		}
+	}
 	
 	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(Enemy->ProjectileDamageEffectClass, 1.0f, Context);
 	if (SpecHandle.IsValid() )
@@ -164,6 +173,7 @@ void AKOEnemyProjectileActor::ReturnToPool()
 		TrailEffectComponent->SetAsset(nullptr);
 		TrailEffectComponent->Activate(false);
 		SphereComponent->IgnoreActorWhenMoving(Enemy,false);
+		CachedHitData = nullptr;
 		GetWorld()->GetSubsystem<UKOProjectilePoolSubsystem>()->ReturnToPool(this);
 	}
 }
