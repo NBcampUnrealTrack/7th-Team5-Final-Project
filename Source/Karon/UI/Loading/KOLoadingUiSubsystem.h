@@ -29,6 +29,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	/** 레벨 전환 시 호출 */
+	UFUNCTION(BlueprintCallable, Category = "Loading Subsystem")
 	void TransitionToLevel(const FName& TargetLevelName, TSubclassOf<UCommonActivatableWidget> LoadingWidgetClass);
 	
 	/** 직접 로딩화면만 띄우면 호출*/
