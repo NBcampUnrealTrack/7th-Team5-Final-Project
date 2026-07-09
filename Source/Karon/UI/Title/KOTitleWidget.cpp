@@ -46,7 +46,7 @@ void UKOTitleWidget::NativeDestruct()
 void UKOTitleWidget::OnStartGameClicked() const
 {
 	//메인 레벨 변경 시 이름 변경
-	FName TargetLevelName = FName("L_MainLevel");
+	FName TargetLevelName = FName("LV_OutfitSelect");
 	
 	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
 	{
