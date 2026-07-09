@@ -7,6 +7,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "KOPlayerController.generated.h"
 
+class USoundMix;
 class UInputAction;
 struct FInputActionValue;
 
@@ -115,6 +116,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> BuildIMC;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Autio Settings")
+	TObjectPtr<USoundMix> DefaultSoundMix;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
 	TObjectPtr<UKOInteractionComponent> InteractionComponent;
 

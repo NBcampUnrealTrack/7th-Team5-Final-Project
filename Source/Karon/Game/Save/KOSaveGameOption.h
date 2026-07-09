@@ -10,19 +10,19 @@ struct FKOSoundOptions
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	float Master = 1.0f;
+	float Master = 0.8f;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	float BGM = 1.0f;
+	float BGM = 0.8f;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	float SE = 1.0f;
+	float SE = 0.8f;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	float UI = 1.0f;
+	float UI = 0.8f;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	float Environment = 1.0f;
+	float Environment = 0.8f;
 };
 
 USTRUCT(BlueprintType)

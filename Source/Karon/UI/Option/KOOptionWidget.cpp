@@ -161,6 +161,10 @@ void UKOOptionWidget::LoadAndRefreshUI()
 
 	RefreshSoundUI(Data->Sound);
 	RefreshGraphicsUI(Data->Graphics);
+
+	// UI(슬라이더)만 갱신하고 끝내면 실제 오디오 출력은 저장된 값과 어긋난 채로 남는다.
+	// (Apply를 눌러야만 SoundMix에 반영되던 문제) 로드 시점에도 곧바로 실제 사운드에 적용한다.
+	ApplySoundOptions(Data->Sound);
 }
 
 void UKOOptionWidget::RefreshSoundUI(const FKOSoundOptions& Sound)

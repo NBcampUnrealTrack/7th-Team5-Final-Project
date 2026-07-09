@@ -22,6 +22,7 @@
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
+#include "AudioDevice.h"
 
 class AKOMapUIComponent;
 struct FKOBuildModeChangedMessage;
@@ -90,6 +91,17 @@ void AKOPlayerController::BeginPlay()
 	FGameplayMessageCallback Callback;
 	Callback.BindDynamic(this, &AKOPlayerController::OnItemReceived);
 	FGameplayMessageHandle MessageHandle = UGMRouterSubsystem::Subscribe(GetWorld(), Channel, Callback);
+	
+	if (IsLocalController() && DefaultSoundMix)
+	{
+		if (FAudioDevice* AudioDevice = GetWorld()->GetAudioDeviceRaw())
+		{
+			AudioDevice->PushSoundMixModifier(DefaultSoundMix);
+			
+			UE_LOG(LogTemp, Log, TEXT("Default Sound Mix (%s) successfully pushed"),
+				*DefaultSoundMix->GetName());
+		}
+	}
 }
 
 void AKOPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
