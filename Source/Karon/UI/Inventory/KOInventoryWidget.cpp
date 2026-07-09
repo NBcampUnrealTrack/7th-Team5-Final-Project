@@ -21,6 +21,11 @@ void UKOInventoryWidget::NotifySlotClicked(int32 SlotIndex, const FKOItemSlot& I
     OnSlotClicked.Broadcast(SlotIndex, InSlot);
 }
 
+void UKOInventoryWidget::NotifySlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    OnSlotRightClicked.Broadcast(SlotIndex, InSlot);
+}
+
 void UKOInventoryWidget::NativeConstruct()
 {
     Super::NativeConstruct();

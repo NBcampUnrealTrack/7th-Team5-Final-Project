@@ -9,6 +9,7 @@ class UKOInventoryComponent;
 class UKOFactoryProcessorComponent;
 class UKOEnergyProducerComponent;
 class UKOBuildUIComponent;
+class UKOEquipmentSlotWidget;
 
 /**
  * 드래그가 시작된 출발지를 추상화. 드롭 핸들러는 종류를 알 필요 없이
@@ -50,6 +51,20 @@ public:
     virtual bool  IsInventorySource() const override { return true; }
 
     UKOInventoryComponent* GetInventory() const { return Inventory.Get(); }
+};
+
+/** 장비 슬롯에서 출발 (드래그로 장착 해제). */
+UCLASS()
+class KARON_API UKOEquipmentSlotItemSource : public UKOItemDragSource
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY()
+    TWeakObjectPtr<UKOEquipmentSlotWidget> EquipmentSlot;
+
+    virtual int32 Extract(FName ItemId, int32 Count) override;
+    virtual void  Restore(FName ItemId, int32 Count) override;
 };
 
 /** Processor의 InputBuffer에서 출발. */

@@ -1,6 +1,7 @@
 ﻿#include "KOEquipmentSlotWidget.h"
 
 #include "Blueprint/DragDropOperation.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Image.h"
 #include "InputCoreTypes.h"
 
@@ -217,8 +218,7 @@ bool UKOEquipmentSlotWidget::NativeOnDrop(
 {
     ResolveInventoryComponentIfNeeded();
 
-    UKOInventoryComponent* Inventory = InventoryComponent;
-    if (!Inventory)
+    if (!InventoryComponent)
     {
         return false;
     }
@@ -250,53 +250,120 @@ bool UKOEquipmentSlotWidget::NativeOnDrop(
         return false;
     }
 
-    if (!CanAcceptItem(DraggedItemId))
+    return TryEquipFromSource(DraggedItemId, ItemDragOperation->Source);
+}
+
+bool UKOEquipmentSlotWidget::TryEquipFromSource(FName ItemId, UKOItemDragSource* Source)
+{
+    ResolveInventoryComponentIfNeeded();
+
+    UKOInventoryComponent* Inventory = InventoryComponent;
+    if (!Inventory || !Source || ItemId.IsNone())
     {
         return false;
     }
 
-    const int32 Extracted = ItemDragOperation->Source->Extract(DraggedItemId, 1);
+    if (!CanAcceptItem(ItemId))
+    {
+        return false;
+    }
+
+    const int32 Extracted = Source->Extract(ItemId, 1);
     if (Extracted <= 0)
     {
         return false;
     }
-	
-	const FName PreviousEquippedItemId = EquippedItemId;
 
-	// 아이템 교체
+    const FName PreviousEquippedItemId = EquippedItemId;
+
+    // 아이템 교체
     if (!EquippedItemId.IsNone())
     {
         const int32 Remaining = Inventory->TryAddItem(EKOSlotKind::Item, EquippedItemId, 1);
 
         if (Remaining > 0)
         {
-            ItemDragOperation->Source->Restore(DraggedItemId, Extracted);
+            Source->Restore(ItemId, Extracted);
             return false;
         }
 
         EquippedItemId = NAME_None;
     }
-	
-	EquippedItemId = DraggedItemId;
 
-	if (!ApplyEquipmentToComponent())
-	{
-		EquippedItemId = PreviousEquippedItemId;
-		ItemDragOperation->Source->Restore(DraggedItemId, Extracted);
-		return false;
-	}
-	RefreshVisual();
-	
-	// 퀘스트
-	if (SlotType == EKOEquipmentSlotType::Weapon)
-	{
-		if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
-		{
-			QuestGuide->NotifyWeaponEquipped(EquippedItemId);
-		}
-	}
+    EquippedItemId = ItemId;
 
-	return true;
+    if (!ApplyEquipmentToComponent())
+    {
+        EquippedItemId = PreviousEquippedItemId;
+        Source->Restore(ItemId, Extracted);
+        return false;
+    }
+    RefreshVisual();
+
+    // 퀘스트
+    if (SlotType == EKOEquipmentSlotType::Weapon)
+    {
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyWeaponEquipped(EquippedItemId);
+        }
+    }
+
+    return true;
+}
+
+bool UKOEquipmentSlotWidget::TryEquipItemFromInventorySlot(int32 InventorySlotIndex, FName ItemId)
+{
+    ResolveInventoryComponentIfNeeded();
+
+    if (!InventoryComponent || ItemId.IsNone())
+    {
+        return false;
+    }
+
+    UKOInventorySlotItemSource* Source = NewObject<UKOInventorySlotItemSource>(this);
+    Source->Inventory  = InventoryComponent;
+    Source->SlotIndex  = InventorySlotIndex;
+
+    return TryEquipFromSource(ItemId, Source);
+}
+
+int32 UKOEquipmentSlotWidget::ExtractEquippedItem(FName ItemId, int32 Count)
+{
+    if (EquippedItemId.IsNone() || EquippedItemId != ItemId || Count <= 0)
+    {
+        return 0;
+    }
+
+    const FName PreviousEquippedItemId = EquippedItemId;
+    EquippedItemId = NAME_None;
+
+    if (!ApplyEquipmentToComponent())
+    {
+        EquippedItemId = PreviousEquippedItemId;
+        return 0;
+    }
+
+    RefreshVisual();
+    return 1;
+}
+
+void UKOEquipmentSlotWidget::RestoreEquippedItem(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+
+    EquippedItemId = ItemId;
+
+    if (!ApplyEquipmentToComponent())
+    {
+        EquippedItemId = NAME_None;
+        return;
+    }
+
+    RefreshVisual();
 }
 
 FReply UKOEquipmentSlotWidget::NativeOnMouseButtonDown(
@@ -310,8 +377,58 @@ FReply UKOEquipmentSlotWidget::NativeOnMouseButtonDown(
             return FReply::Handled();
         }
     }
+    else if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && !EquippedItemId.IsNone())
+    {
+        FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
+            InMouseEvent,
+            this,
+            EKeys::LeftMouseButton
+        );
+
+        return Reply.NativeReply;
+    }
 
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
+void UKOEquipmentSlotWidget::NativeOnDragDetected(
+    const FGeometry& InGeometry,
+    const FPointerEvent& InMouseEvent,
+    UDragDropOperation*& OutOperation)
+{
+    Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+    if (EquippedItemId.IsNone())
+    {
+        return;
+    }
+
+    FKOItemSlot DragSlot;
+    DragSlot.Kind    = EKOSlotKind::Item;
+    DragSlot.ItemId  = EquippedItemId;
+    DragSlot.Count   = 1;
+
+    const FText ItemDisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, EquippedItemId);
+    UTexture2D* ItemIcon        = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, EquippedItemId);
+
+    UKOItemDragDropOperation* DragOp = UKOItemDragDropOperation::CreateItemDragOperation(
+        this,
+        DragSlot,
+        ItemDisplayName,
+        ItemIcon,
+        DragVisualSize,
+        DragVisualOpacity,
+        nullptr
+    );
+
+    if (DragOp)
+    {
+        UKOEquipmentSlotItemSource* Src = NewObject<UKOEquipmentSlotItemSource>(DragOp);
+        Src->EquipmentSlot = this;
+        DragOp->Source = Src;
+    }
+
+    OutOperation = DragOp;
 }
 
 bool UKOEquipmentSlotWidget::UnequipItem()

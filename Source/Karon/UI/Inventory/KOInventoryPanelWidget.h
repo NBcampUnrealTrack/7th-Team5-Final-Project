@@ -50,4 +50,16 @@ protected:
 private:
     UFUNCTION()
     void HandleSlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    UFUNCTION()
+    void HandleSlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    /** WidgetTree 내의 모든 EquipmentSlot을 캐싱. */
+    void CacheEquipmentSlotWidgets();
+
+    /** 우클릭된 인벤토리 아이템을 받아줄 수 있는 EquipmentSlot을 찾아 장착 시도. */
+    bool TryEquipItemToMatchingSlot(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UKOEquipmentSlotWidget>> EquipmentSlotWidgets;
 };

@@ -110,6 +110,20 @@ FReply UKOInventorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
         return Reply.NativeReply;
     }
 
+    if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+    {
+        if (SlotData.HasItem())
+        {
+            if (UKOInventoryWidget* Owner = OwningInventory.Get())
+            {
+                // 우클릭 장착: 패널(부모)이 알맞은 EquipmentSlot을 찾아 장착을 시도한다.
+                Owner->NotifySlotRightClicked(SlotIndex, SlotData);
+            }
+        }
+
+        return FReply::Handled();
+    }
+
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 

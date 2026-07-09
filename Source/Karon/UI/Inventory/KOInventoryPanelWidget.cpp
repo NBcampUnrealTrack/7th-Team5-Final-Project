@@ -29,12 +29,15 @@ void UKOInventoryPanelWidget::NativeConstruct()
     if (InventoryWidget)
     {
         InventoryWidget->OnSlotClicked.AddDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
+        InventoryWidget->OnSlotRightClicked.AddDynamic(this, &UKOInventoryPanelWidget::HandleSlotRightClicked);
     }
-    
+
     if (BuildQuickSlotBar)
     {
         BuildQuickSlotBar->SetDisplayMode(EKOQuickSlotBarDisplayMode::Inventory);
     }
+
+    CacheEquipmentSlotWidgets();
 }
 
 void UKOInventoryPanelWidget::NativeDestruct()
@@ -42,6 +45,7 @@ void UKOInventoryPanelWidget::NativeDestruct()
     if (InventoryWidget)
     {
         InventoryWidget->OnSlotClicked.RemoveDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
+        InventoryWidget->OnSlotRightClicked.RemoveDynamic(this, &UKOInventoryPanelWidget::HandleSlotRightClicked);
     }
 
     Super::NativeDestruct();
@@ -50,6 +54,52 @@ void UKOInventoryPanelWidget::NativeDestruct()
 void UKOInventoryPanelWidget::HandleSlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
 {
     OnSlotClicked(SlotIndex, InSlot);
+}
+
+void UKOInventoryPanelWidget::HandleSlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    TryEquipItemToMatchingSlot(SlotIndex, InSlot);
+}
+
+void UKOInventoryPanelWidget::CacheEquipmentSlotWidgets()
+{
+    EquipmentSlotWidgets.Reset();
+
+    if (!WidgetTree)
+    {
+        return;
+    }
+
+    WidgetTree->ForEachWidget([this](UWidget* Widget)
+    {
+        if (UKOEquipmentSlotWidget* EquipmentSlot = Cast<UKOEquipmentSlotWidget>(Widget))
+        {
+            EquipmentSlotWidgets.Add(EquipmentSlot);
+        }
+    });
+}
+
+bool UKOInventoryPanelWidget::TryEquipItemToMatchingSlot(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    if (InSlot.Kind != EKOSlotKind::Item || InSlot.ItemId.IsNone())
+    {
+        return false;
+    }
+
+    for (UKOEquipmentSlotWidget* EquipmentSlot : EquipmentSlotWidgets)
+    {
+        if (!EquipmentSlot)
+        {
+            continue;
+        }
+
+        if (EquipmentSlot->TryEquipItemFromInventorySlot(SlotIndex, InSlot.ItemId))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void UKOInventoryPanelWidget::OnSlotClicked_Implementation(int32 SlotIndex, const FKOItemSlot& InSlot)
