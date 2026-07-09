@@ -20,6 +20,10 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "HAL/IConsoleManager.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
@@ -32,14 +36,13 @@ static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
 
 AKOConveyorBelt::AKOConveyorBelt()
 {
-    PrimaryActorTick.bCanEverTick = false; // 서브시스템이 구동.
+    PrimaryActorTick.bCanEverTick = true;
 
-    // AKOBaseBuilding 은 루트를 만들지 않는다. 전용 씬 루트를 둬서 런타임에 생성하는
-    // 아이템 ISM 들의 부착 부모를 보장한다(루트가 없으면 첫 씬 컴포넌트가 루트로 승격됨).
     USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
     SetRootComponent(SceneRoot);
-
-    // 아이템 비주얼은 메시별 ISM 으로 BeginPlay 시 지연 생성(GetOrCreateISMForMesh).
+    
+    OutputSelectionWarningWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OutputSelectionWarningWidget"));
+    OutputSelectionWarningWidget->SetupAttachment(SceneRoot);
 }
 
 void AKOConveyorBelt::BeginPlay()
@@ -67,6 +70,63 @@ void AKOConveyorBelt::EndPlay(const EEndPlayReason::Type Reason)
         Subsystem->UnregisterBelt(this);
     }
     Super::EndPlay(Reason);
+}
+
+void AKOConveyorBelt::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    
+    RefreshOutputSelectionWarning();
+    UpdateOutputSelectionWarningFacingCamera();
+}
+
+void AKOConveyorBelt::RefreshOutputSelectionWarning()
+{
+    if (!OutputSelectionWarningWidget)
+    {
+        return;
+    }
+
+    OutputSelectionWarningWidget->SetHiddenInGame(!ShouldShowOutputSelectionWarning());
+}
+
+void AKOConveyorBelt::UpdateOutputSelectionWarningFacingCamera()
+{
+    if (!OutputSelectionWarningWidget)
+    {
+        return;
+    }
+
+    if (OutputSelectionWarningWidget->bHiddenInGame)
+    {
+        return;
+    }
+
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        return;
+    }
+
+    APlayerController* PC = World->GetFirstPlayerController();
+    if (!PC || !PC->PlayerCameraManager)
+    {
+        return;
+    }
+
+    const FVector WidgetLocation = OutputSelectionWarningWidget->GetComponentLocation();
+    const FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
+
+    const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+
+    OutputSelectionWarningWidget->SetWorldRotation(LookAtRotation);
+}
+
+bool AKOConveyorBelt::ShouldShowOutputSelectionWarning() const
+{
+    return bShowOutputSelectionWarning
+        && BoundOutputMachine.IsValid()
+        && (!bHasSelectedOutputPort || BoundOutputItemId.IsNone());
 }
 
 void AKOConveyorBelt::BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot)
@@ -145,11 +205,32 @@ void AKOConveyorBelt::BeginOutputPortSelection(AKOBaseBuilding* Machine)
     {
         return;
     }
+    
+    if (bHasSelectedOutputPort && BoundOutputMachine.IsValid())
+    {
+        return;
+    }
 
     BoundOutputMachine = Machine;
     BoundOutputPortIndex = INDEX_NONE;
     BoundOutputItemId = NAME_None;
     bHasSelectedOutputPort = false;
+}
+
+bool AKOConveyorBelt::CanInteract(AActor* Interactor) const
+{
+    if (!Super::CanInteract(Interactor))
+    {
+        return false;
+    }
+
+    APawn* Pawn = Cast<APawn>(Interactor);
+    AController* Controller = Pawn ? Pawn->GetController() : Cast<AController>(Interactor);
+
+    UKOGridBuildComponent* BuildComp =
+        Controller ? Controller->FindComponentByClass<UKOGridBuildComponent>() : nullptr;
+
+    return BuildComp && BuildComp->CanOpenBeltConnectFor(const_cast<AKOConveyorBelt*>(this));
 }
 
 void AKOConveyorBelt::OnInteract(AActor* Interactor)

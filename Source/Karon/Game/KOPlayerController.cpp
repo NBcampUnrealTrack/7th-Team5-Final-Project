@@ -637,6 +637,11 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 
 void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 {
+	if (BuildUIComponent)
+	{
+		BuildUIComponent->CancelDestroyModeForInteract();
+	}
+	
 	if (InteractionComponent)
 	{
 		InteractionComponent->TryInteract();

@@ -32,7 +32,7 @@ public:
     FName GetFuelItemId() const { return FuelItemId; }
 
     /** 현재 연료 1단위의 소모 진행도(0~1). 연료 없으면 0. 전력이 실제 소비될 때만 진행. UI ProgressBar 용. */
-    float GetBurnProgress() const { return (FuelInBuffer > 0) ? FMath::Clamp(FuelDebt, 0.f, 1.f) : 0.f; }
+    float GetBurnProgress() const { return bHasActiveFuel ? FMath::Clamp(FuelDebt, 0.f, 1.f) : 0.f; }
     FName GetRecipeId() const { return RecipeId; }
     FName GetAcceptedFuelItemId() const { return AcceptedFuelItemId; }
     float GetPowerPerFuelUnit() const { return PowerPerFuelUnit; }
@@ -47,7 +47,7 @@ public:
     /** 연료가 있을 때 낼 수 있는 최대 초당 출력(BurnRate × PowerPerFuel). 연료 없으면 0. */
     float GetMaxOutputPerSecond() const
     {
-        return (FuelInBuffer > 0) ? (BurnRatePerSecond * PowerPerFuelUnit) : 0.f;
+        return bHasActiveFuel ? BurnRatePerSecond * PowerPerFuelUnit : 0.f;
     }
 
     // IKOEnergyProducer
@@ -61,8 +61,9 @@ public:
 
     // 세이브 로드
     float GetFuelDebtForSave() const { return FuelDebt; }
+    bool HasActiveFuelForSave() const { return bHasActiveFuel; }
     
-    void LoadFuelFromSave(FName InFuelItemId, int32 InFuelCount, float InFuelDebt);
+    void LoadFuelFromSave(FName InFuelItemId, int32 InFuelCount, float InFuelDebt, bool bInHasActiveFuel);
 
 protected:
     virtual void BeginPlay() override;
@@ -73,17 +74,21 @@ public:
 
 private:
     void BroadcastFuelChanged() const;
-
+    void StartNextFuelIfNeeded();
+    
     FName RecipeId = NAME_None;
     float PowerPerFuelUnit = 0.f;
     float BurnRatePerSecond = 0.f;
     FName AcceptedFuelItemId = NAME_None;
 
-    /** 정수 단위 연료 보유량. */
+    /** 대기 중인 연료 개수. */
     int32 FuelInBuffer = 0;
 
-    /** 소수 단위 연료 보유량 */
+    /** 현재 타는 중인 연료의 연소 진행도 */
     float FuelDebt = 0.f;
+    
+    /** 현재 타는 중인 연료가 있는지 */
+    bool bHasActiveFuel = false;
 
     /** 직전 틱 실제 공급 에너지의 초당 환산(UI 표시용). 미공급 시 0. */
     float LastOutputRate = 0.f;

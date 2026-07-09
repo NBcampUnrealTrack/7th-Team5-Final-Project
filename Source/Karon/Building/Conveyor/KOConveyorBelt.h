@@ -9,6 +9,7 @@
 class UInstancedStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UStaticMesh;
+class UWidgetComponent;
 
 /**
  * 벨트 기하 형태. BP/DT 가 지정.
@@ -86,7 +87,10 @@ public:
     /** Output 선택 위젯이 열린 상태. 아직 슬롯은 선택하지 않은 상태로 기록한다. */
     void BeginOutputPortSelection(AKOBaseBuilding* Machine);
 
-    // ─── IKOInteractableInterface (재편집) ───────────────────────────────────
+    // ─── IKOInteractableInterface (재편집) ───────────────────────────────────    
+    /** 설치된 벨트와 상호작용 가능 여부. 연결 가능한 Output 설비가 있을 때만 true. */
+    virtual bool CanInteract(AActor* Interactor) const override;
+    
     /** 설치된 벨트와 상호작용 시 연결 팝업을 다시 연다(플레이어 빌드 컴포넌트 경유). */
     virtual void OnInteract(AActor* Interactor) override;
 
@@ -139,6 +143,7 @@ public:
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+    virtual void Tick(float DeltaSeconds) override;
 
     /** 벨트 기하 형태(직선/코너). BP/DT 에서 지정. */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor")
@@ -171,6 +176,13 @@ protected:
     /** 벨트 표면에서 아이템을 띄울 높이(uu). */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual")
     float ItemZOffset = 10.f;
+    
+    /** 벨트 슬롯 할당 여부 시각적 요소 */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Warning")
+    TObjectPtr<UWidgetComponent> OutputSelectionWarningWidget;
+
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Warning")
+    bool bShowOutputSelectionWarning = true;
 
 private:
     void StepOnce();
@@ -214,6 +226,11 @@ private:
     /** 액터 본체 또는 컴포넌트에서 포트 인터페이스 해결. */
     IKOItemSource* ResolveSource(AActor* Actor) const;
     IKOItemSink*   ResolveSink(AActor* Actor) const;
+    
+    /** 벨트 위 노란색 느낌표 */
+    void RefreshOutputSelectionWarning(); // 표시, 숨김
+    void UpdateOutputSelectionWarningFacingCamera(); // 카메라 바라보게
+    bool ShouldShowOutputSelectionWarning() const; // 표시 조건
 
     /** 슬롯 큐. index0=head(입구), Last=tail(출구). */
     TArray<FKOConveyorItem> Slots;

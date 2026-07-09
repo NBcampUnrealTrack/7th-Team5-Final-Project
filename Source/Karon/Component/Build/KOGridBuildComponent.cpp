@@ -502,7 +502,7 @@ void UKOGridBuildComponent::RequestBuild()
 	// (CurrentAnchor/Size 가 아래 분기에서 리셋되기 전에 스냅샷 사용)
 	if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(NewBuilding))
 	{
-		TryQueueBeltConnect(Belt, CurrentAnchor, CurrentBuildingSize);
+		TryQueueBeltConnect(Belt);
 	}
 
 	const bool bFactoryDepleted = InventoryComponent->GetCountOf(BuiltFactoryId) <= 0;
@@ -524,97 +524,14 @@ void UKOGridBuildComponent::OpenBeltConnectFor(AKOConveyorBelt* Belt)
 		return;
 	}
 
-	UWorld* World = GetWorld();
-	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
-	if (!GridSub)
-	{
-		return;
-	}
-
-	// 이미 설치된 벨트라 그리드에서 점유 영역을 역조회해 배치 때와 동일 경로로 재사용.
-	FIntPoint Anchor = FIntPoint::ZeroValue;
-	FIntPoint Size   = FIntPoint(1, 1);
-	if (!GridSub->TryGetOccupiedAreaForActor(Belt, Anchor, Size))
-	{
-		return;
-	}
-
-	TryQueueBeltConnect(Belt, Anchor, Size);
+	TryQueueBeltConnect(Belt);
 }
 
-void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size)
+void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt)
 {
-	if (!Belt)
-	{
-		return;
-	}
-
-	UWorld* World = GetWorld();
-	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
-	if (!GridSub)
-	{
-		return;
-	}
-
-	// 결정적 스캔 순서(+X, -X, +Y, -Y). 다수 인접 공장은 이 순서대로 팝업 큐에 쌓인다.
-	static const FIntPoint Dirs[4] = { FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1) };
-
 	TArray<AKOBaseBuilding*> Factories;
-	TSet<AActor*> Seen;
 
-	for (int32 X = 0; X < Size.X; ++X)
-	{
-		for (int32 Y = 0; Y < Size.Y; ++Y)
-		{
-			const FIntPoint Cell = Anchor + FIntPoint(X, Y);
-			for (const FIntPoint& Dir : Dirs)
-			{
-				const FIntPoint Neighbor = Cell + Dir;
-
-				// 벨트 자신의 점유 영역 안쪽이면 스킵.
-				const bool bInsideSelf =
-					Neighbor.X >= Anchor.X && Neighbor.X < Anchor.X + Size.X &&
-					Neighbor.Y >= Anchor.Y && Neighbor.Y < Anchor.Y + Size.Y;
-				if (bInsideSelf)
-				{
-					continue;
-				}
-
-				AActor* Actor = GridSub->GetOccupyingActorAt(Neighbor);
-				if (!Actor || Seen.Contains(Actor))
-				{
-					continue;
-				}
-				Seen.Add(Actor);
-
-				// 공장이어야 하고, 벨트는 제외.
-				AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Actor);
-				if (!Building || Cast<AKOConveyorBelt>(Building))
-				{
-					continue;
-				}
-
-				// Processor 머신만 벨트 연결 팝업 대상. 레시피 미선택이어도 팝업은 띄움(빈 포트 표시).
-				// Energy Producer 는 제외: 에너지 출력이라 포트 바인딩이 무의미하고, 연료 입력은
-				// 기하 인접 시 tail-push 로 자동 공급되므로 명시적 바인딩 UI 가 불필요.
-				const bool bIsProcessor =
-					Building->FindComponentByClass<UKOFactoryProcessorComponent>() != nullptr;
-
-				// 벨트 흐름축이 이 머신에 닿는 경우(설치 방향이 머신 입/출력과 맞는 경우)만 후보.
-				// 수직 배치(흐름이 머신을 안 향함)는 연결 의미가 없어 제외.
-				EKOPortKind ConnectKind;
-				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
-				{
-					if (ConnectKind == EKOPortKind::Output)
-					{
-						Factories.Add(Building);
-					}
-				}
-			}
-		}
-	}
-
-	if (Factories.Num() == 0)
+	if (!FindConnectableOutputFactoriesForBelt(Belt, Factories))
 	{
 		return;
 	}
@@ -724,6 +641,92 @@ AKOGridVisual* UKOGridBuildComponent::FindGridVisualActor()
 	}
 
 	return nullptr;
+}
+
+bool UKOGridBuildComponent::FindConnectableOutputFactoriesForBelt(AKOConveyorBelt* Belt,
+	TArray<AKOBaseBuilding*>& OutFactories) const
+{
+	OutFactories.Reset();
+
+	if (!Belt)
+	{
+		return false;
+	}
+
+	UWorld* World = GetWorld();
+	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
+	if (!GridSub)
+	{
+		return false;
+	}
+
+	FIntPoint Anchor = FIntPoint::ZeroValue;
+	FIntPoint Size = FIntPoint(1, 1);
+
+	if (!GridSub->TryGetOccupiedAreaForActor(Belt, Anchor, Size))
+	{
+		return false;
+	}
+
+	static const FIntPoint Dirs[4] =
+	{
+		FIntPoint(1, 0),
+		FIntPoint(-1, 0),
+		FIntPoint(0, 1),
+		FIntPoint(0, -1)
+	};
+
+	TSet<AActor*> Seen;
+
+	for (int32 X = 0; X < Size.X; ++X)
+	{
+		for (int32 Y = 0; Y < Size.Y; ++Y)
+		{
+			const FIntPoint Cell = Anchor + FIntPoint(X, Y);
+
+			for (const FIntPoint& Dir : Dirs)
+			{
+				const FIntPoint Neighbor = Cell + Dir;
+
+				const bool bInsideSelf =
+					Neighbor.X >= Anchor.X && Neighbor.X < Anchor.X + Size.X &&
+					Neighbor.Y >= Anchor.Y && Neighbor.Y < Anchor.Y + Size.Y;
+
+				if (bInsideSelf)
+				{
+					continue;
+				}
+
+				AActor* Actor = GridSub->GetOccupyingActorAt(Neighbor);
+				if (!Actor || Seen.Contains(Actor))
+				{
+					continue;
+				}
+
+				Seen.Add(Actor);
+
+				AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Actor);
+				if (!Building || Cast<AKOConveyorBelt>(Building))
+				{
+					continue;
+				}
+
+				const bool bIsProcessor =
+					Building->FindComponentByClass<UKOFactoryProcessorComponent>() != nullptr;
+
+				EKOPortKind ConnectKind;
+				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
+				{
+					if (ConnectKind == EKOPortKind::Output)
+					{
+						OutFactories.Add(Building);
+					}
+				}
+			}
+		}
+	}
+
+	return OutFactories.Num() > 0;
 }
 
 float UKOGridBuildComponent::GetPreviewConveyorArrowYaw() const
@@ -913,6 +916,12 @@ void UKOGridBuildComponent::RotatePlacementPreview(int32 Direction)
 	}
 
 	UpdateGhostPreview();
+}
+
+bool UKOGridBuildComponent::CanOpenBeltConnectFor(AKOConveyorBelt* Belt) const
+{
+	TArray<AKOBaseBuilding*> Factories;
+	return FindConnectableOutputFactoriesForBelt(Belt, Factories);
 }
 
 void UKOGridBuildComponent::RequestDestroy()

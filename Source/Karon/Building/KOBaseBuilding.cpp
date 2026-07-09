@@ -29,7 +29,17 @@ void AKOBaseBuilding::BeginPlay()
 	
 	CachedProcessor = FindComponentByClass<UKOFactoryProcessorComponent>();
 
-	PressureWarningWidget = FindComponentByClass<UWidgetComponent>();
+	TArray<UWidgetComponent*> WidgetComponents;
+	GetComponents<UWidgetComponent>(WidgetComponents);
+
+	for (UWidgetComponent* WidgetComponent : WidgetComponents)
+	{
+		if (WidgetComponent && WidgetComponent->GetName() == TEXT("PressureWidget"))
+		{
+			PressureWarningWidget = WidgetComponent;
+			break;
+		}
+	}
 
 	if (PressureWarningWidget)
 	{
@@ -46,7 +56,7 @@ void AKOBaseBuilding::Tick(float DeltaSeconds)
 }
 
 void AKOBaseBuilding::RefreshPressureWarning()
-{
+{	
 	if (!PressureWarningWidget)
 	{
 		return;
@@ -71,7 +81,6 @@ void AKOBaseBuilding::RefreshPressureWarning()
 	}
 
 	const bool bPressureAvailable = IsPressureAvailable();
-
 	PressureWarningWidget->SetHiddenInGame(bPressureAvailable);
 }
 

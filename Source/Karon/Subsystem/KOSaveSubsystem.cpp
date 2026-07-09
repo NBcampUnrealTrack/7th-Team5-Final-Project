@@ -241,6 +241,7 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 			SavedBuilding.ProducerState.FuelItemId = Producer->GetFuelItemId();
 			SavedBuilding.ProducerState.FuelCount = Producer->GetFuelCount();
 			SavedBuilding.ProducerState.FuelDebt = Producer->GetFuelDebtForSave();
+			SavedBuilding.ProducerState.bHasActiveFuel = Producer->HasActiveFuelForSave();
 		}
 		
 		// 컨베이어 상태 저장
@@ -533,7 +534,8 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 				Producer->LoadFuelFromSave(
 					SavedBuilding.ProducerState.FuelItemId,
 					SavedBuilding.ProducerState.FuelCount,
-					SavedBuilding.ProducerState.FuelDebt
+					SavedBuilding.ProducerState.FuelDebt,
+					SavedBuilding.ProducerState.bHasActiveFuel
 				);
 			}
 			

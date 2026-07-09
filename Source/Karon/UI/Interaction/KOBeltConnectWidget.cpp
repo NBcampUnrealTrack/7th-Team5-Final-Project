@@ -67,6 +67,16 @@ void UKOBeltConnectWidget::BuildSlotEntries()
             Hints.Add(PortSlot.ItemId);
         }
     }
+    
+    if (EmptyText)
+    {
+        EmptyText->SetVisibility(Hints.Num() == 0 ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+        if (Hints.Num() == 0)
+        {
+            EmptyText->SetText(FText::FromString(TEXT("선택된 레시피가 없어 출력 아이템이 없습니다.")));
+        }
+    }
 
     BuildGroupEntries(EKOPortKind::Output, Hints, OutputSlotsPanel.Get(), Building);
 }
@@ -135,15 +145,7 @@ void UKOBeltConnectWidget::HandleSlotClicked(FKOFactoryPortSlot ClickedSlot)
 }
 
 void UKOBeltConnectWidget::NativeOnDeactivated()
-{
-    if (AKOConveyorBelt* Belt = TargetBelt.Get())
-    {
-        if (!Belt->HasSelectedOutputPort())
-        {
-            Belt->CancelOutputPortSelection();
-        }
-    }
-    
+{    
     for (UKOBeltConnectEntryWidget* Entry : EntryWidgets)
     {
         if (Entry)

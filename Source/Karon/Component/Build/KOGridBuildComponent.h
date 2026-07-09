@@ -109,6 +109,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Build|Placement")
 	void RotatePlacementPreview(int32 Direction);
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|Conveyor")
+	bool CanOpenBeltConnectFor(AKOConveyorBelt* Belt) const;
 
 protected:
 	bool TraceFromScreenCenter(
@@ -152,7 +155,12 @@ private:
 
 	// ─── 벨트-공장 연결 팝업 트리거 ──────────────────────────────────────────
 	/** 방금 설치한 벨트의 인접 4셀에서 포트 슬롯 보유 공장을 수집해 연결 팝업 큐를 시작. */
-	void TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size);
+	void TryQueueBeltConnect(AKOConveyorBelt* Belt);
+	
+	bool FindConnectableOutputFactoriesForBelt(
+		AKOConveyorBelt* Belt,
+		TArray<AKOBaseBuilding*>& OutFactories
+	) const;
 
 	/** 큐의 다음 공장에 대해 BeltConnect 팝업을 오픈. 팝업 닫힘(OnDeactivated)마다 재귀 호출. */
 	void OpenNextBeltConnectPopup();

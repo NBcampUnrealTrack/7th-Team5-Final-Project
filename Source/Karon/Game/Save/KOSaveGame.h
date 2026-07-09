@@ -45,6 +45,9 @@ struct FKOSavedProducerState // 압력
 
 	UPROPERTY()
 	float FuelDebt = 0.f;
+	
+	UPROPERTY()
+	bool bHasActiveFuel = false;
 };
 
 USTRUCT(BlueprintType)

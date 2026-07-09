@@ -480,6 +480,31 @@ void UKOBuildUIComponent::CancelBuildAction()
 	}
 }
 
+bool UKOBuildUIComponent::CancelDestroyModeForInteract()
+{
+	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
+	if (!GridBuildComponent)
+	{
+		return false;
+	}
+
+	if (GridBuildComponent->IsDestroyMode())
+	{
+		GridBuildComponent->CancelDestroyMode();
+		ClearSelectedBuildQuickSlot();
+		return true;
+	}
+
+	if (GridBuildComponent->IsBuildMode())
+	{
+		GridBuildComponent->CancelBuildMode();
+		ClearSelectedBuildQuickSlot();
+		return true;
+	}
+
+	return false;
+}
+
 void UKOBuildUIComponent::RotateBuildPreview(int32 Direction)
 {
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();

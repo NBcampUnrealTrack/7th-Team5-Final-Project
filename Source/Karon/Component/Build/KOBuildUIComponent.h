@@ -74,6 +74,9 @@ public:
 	// 우클릭
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void CancelBuildAction();
+	// F키 상호작용 여부
+	UFUNCTION(BlueprintCallable, Category = "Build|Action")
+	bool CancelDestroyModeForInteract();
 	// 회전
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void RotateBuildPreview(int32 Direction);

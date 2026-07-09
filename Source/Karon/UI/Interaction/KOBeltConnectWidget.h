@@ -50,6 +50,9 @@ protected:
     /** 제목/안내 텍스트(선택). */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> TitleText;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> EmptyText;
 
     /** 슬롯 엔트리 위젯 클래스(BP 에서 지정). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|BeltConnect")
