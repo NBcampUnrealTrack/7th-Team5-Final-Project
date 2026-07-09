@@ -41,6 +41,9 @@ private:
 	void ResetEvent();
 	
 	UFUNCTION()
+	void LevelUpEvent(bool bIsTriggered);
+	
+	UFUNCTION()
 	void SetAI(
 		UBehaviorTree* ParamBT,
 		float AttackRadius,
@@ -78,6 +81,7 @@ protected:
 	const FName InitialLocationKey = TEXT("InitialLocation");
 	const FName MaxDistanceKey = TEXT("MaxDistance");
 	const FName bIsCounterAttackKey = TEXT("bIsCounterAttack");
+	const FName LevelKey = TEXT("Level");
 	
 	UPROPERTY()
 	TObjectPtr<AKOBaseEnemy> Enemy;

@@ -7,6 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "GameFramework/Character.h"
 
@@ -15,6 +16,7 @@ UBTTask_ActivateAbility::UBTTask_ActivateAbility()
 {
 	bNotifyTick = false;
 	DeathTag = KOGameplayTags::State_Enemy_Dead;
+	LevelBBKey.AddIntFilter(this,GET_MEMBER_NAME_CHECKED(UBTTask_ActivateAbility,LevelBBKey));
 }
 
 EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -57,10 +59,48 @@ EBTNodeResult::Type UBTTask_ActivateAbility::ExecuteTask(UBehaviorTreeComponent&
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	int32 RandomIndex = FMath::RandRange(0, ActivatableAbilities.Num() - 1);
+	// 현재 레벨의 어빌리티
+	TArray<FGameplayAbilitySpec*> MatchLevelAbilities;
+	// 1레벨 어빌리티
+	TArray<FGameplayAbilitySpec*> BaseLevelAbilities; 
 	
-	if (!ASC->TryActivateAbility(ActivatableAbilities[RandomIndex]->Handle))
+	
+	UBlackboardComponent* BBComp= OwnerComp.GetBlackboardComponent();
+	if (BBComp == nullptr)
+	{
+		return EBTNodeResult::Failed;
+	}
+	int32 CurrentLevel = BBComp->GetValueAsInt(LevelBBKey.SelectedKeyName);
+	
+	for (FGameplayAbilitySpec* Spec : ActivatableAbilities)
+	{
+		if (!Spec)
+		{
+			continue;
+		}
+
+		if (Spec->Level == CurrentLevel)
+		{
+			MatchLevelAbilities.Add(Spec);
+		}
+		else if (Spec->Level == 1)
+		{
+			BaseLevelAbilities.Add(Spec);
+		}
+	}
+
+	// 실행할 최종 후보군 결정
+	TArray<FGameplayAbilitySpec*>& FinalCandidates = MatchLevelAbilities.IsEmpty() ? BaseLevelAbilities : MatchLevelAbilities;
+
+	// 만약 목표 레벨도 없고, 레벨 1짜리 기본 어빌리티도 없다면 실패 처리
+	if (FinalCandidates.IsEmpty())
+	{
+		return EBTNodeResult::Failed;
+	}
+	
+	int32 RandomIndex = FMath::RandRange(0, FinalCandidates.Num() - 1);
+	
+	if (!ASC->TryActivateAbility(FinalCandidates[RandomIndex]->Handle))
 	{
 		return EBTNodeResult::Failed;
 	}

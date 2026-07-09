@@ -34,6 +34,7 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	Enemy->OnCanAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CanAttackEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
+	Enemy->OnHalfHealthEvent.BindUObject(this,&AKOBaseEnemyAIController::LevelUpEvent);
 	
 	AIPerceptionComp->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AKOBaseEnemyAIController::OnTargetPerceptionUpdated);
 
@@ -125,6 +126,14 @@ void AKOBaseEnemyAIController::ResetEvent()
 	}
 }
 
+void AKOBaseEnemyAIController::LevelUpEvent(bool bIsTriggered)
+{
+	if (bIsTriggered)
+	{
+		BBComp->SetValueAsInt(LevelKey,BBComp->GetValueAsInt(LevelKey)+1);
+	}
+}
+
 void AKOBaseEnemyAIController::SetAI(
 	UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
 	float StrafeSpeed, float EnemyAttackDelay)
@@ -146,6 +155,9 @@ void AKOBaseEnemyAIController::SetAI(
 		BBComp->SetValueAsFloat(EnemyAttackDelayTimeKey, EnemyAttackDelay);
 		BBComp->SetValueAsVector(InitialLocationKey,InitialLocation);
 		BBComp->SetValueAsFloat(MaxDistanceKey, MaxDistanceFromInit);
+		
+		// 초기 시작 레벨은 1
+		BBComp->SetValueAsInt(LevelKey,1);
 		
 		if (Enemy)
 		{

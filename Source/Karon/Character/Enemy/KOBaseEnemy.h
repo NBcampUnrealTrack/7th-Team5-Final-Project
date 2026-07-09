@@ -144,6 +144,9 @@ protected:
 	UPROPERTY()
 	bool bDeadForSave = false;
 	
+private:
+	bool bHadSendEvent=false;
+	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
 	FOnCharacterEvent OnCharacterReset;
@@ -154,6 +157,7 @@ public:
 	FOnTriggerEvent OnHitEvent;
 	FOnTriggerEvent OnCounterAttackEvent;
 	FOnTriggerEvent OnCanAttackEvent;
+	FOnTriggerEvent OnHalfHealthEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;

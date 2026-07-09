@@ -12,14 +12,11 @@ UBTTask_SetBoolBBKey::UBTTask_SetBoolBBKey()
 
 EBTNodeResult::Type UBTTask_SetBoolBBKey::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {	
-	UBlackboardComponent* BBComp= OwnerComp.GetBlackboardComponent();;
-	
-	if (BBComp!=nullptr)
+	if (UBlackboardComponent* BBComp= OwnerComp.GetBlackboardComponent())
 	{
 		BBComp->SetValueAsBool(BoolKey.SelectedKeyName, bMakeBoolTrue);
 		return EBTNodeResult::Succeeded;
 	}
-	
 	
 	return EBTNodeResult::Failed;
 }

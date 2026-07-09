@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AnimationMontage")
 	FGameplayTag ActivateTagName;
 	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="BehaviorTree")
+	FBlackboardKeySelector LevelBBKey;
+	
 	//명시적으로 죽음 GA는 어보트되지 않도록 한다.
 	UPROPERTY()
 	FGameplayTag DeathTag;
