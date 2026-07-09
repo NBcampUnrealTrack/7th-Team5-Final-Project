@@ -114,7 +114,22 @@ FReply UKOInventorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
     {
         if (SlotData.HasItem())
         {
-            if (UKOInventoryWidget* Owner = OwningInventory.Get())
+            if (InMouseEvent.IsShiftDown())
+            {
+                // Shift+우클릭: 스택을 절반으로 나눠 빈 슬롯에 배치.
+                if (SlotData.Count > 1)
+                {
+                    if (UKOInventoryWidget* Owner = OwningInventory.Get())
+                    {
+                        if (UKOInventoryComponent* Inventory = Owner->GetInventoryComponent())
+                        {
+                            const int32 SplitCount = SlotData.Count / 2;
+                            Inventory->SplitStack(SlotIndex, SplitCount);
+                        }
+                    }
+                }
+            }
+            else if (UKOInventoryWidget* Owner = OwningInventory.Get())
             {
                 // 우클릭 장착: 패널(부모)이 알맞은 EquipmentSlot을 찾아 장착을 시도한다.
                 Owner->NotifySlotRightClicked(SlotIndex, SlotData);
