@@ -94,6 +94,15 @@ void UKOInventorySlotWidget::ApplyVisuals()
 
 FReply UKOInventorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+    {
+        if (UKOInventoryWidget* Owner = OwningInventory.Get())
+        {
+            Owner->NotifySlotRightClicked(SlotIndex, SlotData);
+            return FReply::Handled();
+        }
+    }
+    
     if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
     {
         if (UKOInventoryWidget* Owner = OwningInventory.Get())

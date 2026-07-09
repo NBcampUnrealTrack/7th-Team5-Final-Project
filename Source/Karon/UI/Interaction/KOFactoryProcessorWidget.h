@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
+#include "Items/KOItemSlot.h"
 #include "GMRouterSubsystem.h"
 #include "KOFactoryProcessorWidget.generated.h"
 
@@ -160,4 +161,7 @@ private:
     
     void RefreshRecipeButtonState();
     bool IsPressureAvailable() const;
+    
+    UFUNCTION()
+    void HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
 };

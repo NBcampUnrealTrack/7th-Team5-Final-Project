@@ -13,9 +13,12 @@
 #include "Items/KOItemLibrary.h"
 #include "Items/KOItemSlot.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 
 void UKOFactorySlotWidget::SetupFuelSlot(UKOEnergyProducerComponent* InProducer)
 {
@@ -84,6 +87,86 @@ void UKOFactorySlotWidget::RefreshFromComponent()
 
     CachedCount = DisplayCount;
     ApplyVisual(DisplayItemId, DisplayCount);
+}
+
+bool UKOFactorySlotWidget::TryMoveInventorySlotToThis(UKOInventoryComponent* Inventory, int32 SlotIndex,
+    const FKOItemSlot& InSlot)
+{
+    if (!Inventory)
+    {
+        return false;
+    }
+
+    if (!InSlot.HasItem() || InSlot.Kind != EKOSlotKind::Item)
+    {
+        return false;
+    }
+
+    const FName ItemId = InSlot.ItemId;
+    const int32 Count = InSlot.Count;
+
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return false;
+    }
+
+    if (Mode == EKOFactorySlotMode::Fuel)
+    {
+        UKOEnergyProducerComponent* Prod = Producer.Get();
+        if (!Prod)
+        {
+            return false;
+        }
+
+        if (Prod->GetAcceptedFuelItemId().IsNone() || ItemId != Prod->GetAcceptedFuelItemId())
+        {
+            return false;
+        }
+    }
+    else if (Mode == EKOFactorySlotMode::ProcessorInput)
+    {
+        if (!SlotItemId.IsNone() && ItemId != SlotItemId)
+        {
+            return false;
+        }
+
+        if (!Processor.IsValid())
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    const int32 Removed = Inventory->RemoveAtSlot(SlotIndex, Count);
+    if (Removed <= 0)
+    {
+        return false;
+    }
+
+    int32 Rejected = Removed;
+
+    if (Mode == EKOFactorySlotMode::Fuel)
+    {
+        UKOEnergyProducerComponent* Prod = Producer.Get();
+        Rejected = Prod ? Prod->TryInsertFuel(ItemId, Removed) : Removed;
+    }
+    else if (Mode == EKOFactorySlotMode::ProcessorInput)
+    {
+        UKOFactoryProcessorComponent* Proc = Processor.Get();
+        Rejected = Proc ? Proc->TryInsertItem(ItemId, Removed) : Removed;
+    }
+
+    if (Rejected > 0)
+    {
+        Inventory->TryAddItem(EKOSlotKind::Item, ItemId, Rejected);
+    }
+
+    RefreshFromComponent();
+
+    return Removed - Rejected > 0;
 }
 
 void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
@@ -184,8 +267,174 @@ void UKOFactorySlotWidget::ApplyVisual(FName ItemId, int32 Count)
     }
 }
 
+bool UKOFactorySlotWidget::MoveCurrentSlotItemToInventory()
+{
+    UKOInventoryComponent* Inventory = ResolvePlayerInventory();
+    if (!Inventory)
+    {
+        return false;
+    }
+
+    FName ItemId = NAME_None;
+    const int32 Extracted = ExtractCurrentSlotItem(ItemId);
+
+    if (ItemId.IsNone() || Extracted <= 0)
+    {
+        return false;
+    }
+
+    const int32 Rejected = Inventory->TryAddItem(EKOSlotKind::Item, ItemId, Extracted);
+
+    if (Rejected > 0)
+    {
+        RestoreCurrentSlotItem(ItemId, Rejected);
+    }
+
+    const int32 Accepted = Extracted - Rejected;
+
+    if (Accepted > 0 && Mode == EKOFactorySlotMode::ProcessorOutput)
+    {
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyProcessorOutputCollected(ItemId, Accepted);
+        }
+    }
+
+    RefreshFromComponent();
+
+    return Accepted > 0;
+}
+
+int32 UKOFactorySlotWidget::ExtractCurrentSlotItem(FName& OutItemId)
+{
+    OutItemId = NAME_None;
+
+    if (CachedCount <= 0)
+    {
+        return 0;
+    }
+
+    switch (Mode)
+    {
+    case EKOFactorySlotMode::Fuel:
+        {
+            UKOEnergyProducerComponent* Prod = Producer.Get();
+            if (!Prod)
+            {
+                return 0;
+            }
+
+            OutItemId = Prod->GetFuelItemId();
+
+            if (OutItemId.IsNone())
+            {
+                return 0;
+            }
+
+            return Prod->TryExtractFuel(CachedCount);
+        }
+
+    case EKOFactorySlotMode::ProcessorInput:
+        {
+            UKOFactoryProcessorComponent* Proc = Processor.Get();
+            if (!Proc || SlotItemId.IsNone())
+            {
+                return 0;
+            }
+
+            OutItemId = SlotItemId;
+            return Proc->TryExtractInputItem(SlotItemId, CachedCount);
+        }
+
+    case EKOFactorySlotMode::ProcessorOutput:
+        {
+            UKOFactoryProcessorComponent* Proc = Processor.Get();
+            if (!Proc || SlotItemId.IsNone())
+            {
+                return 0;
+            }
+
+            OutItemId = SlotItemId;
+            return Proc->TryExtractItem(SlotItemId, CachedCount);
+        }
+
+    default:
+        return 0;
+    }
+}
+
+void UKOFactorySlotWidget::RestoreCurrentSlotItem(FName ItemId, int32 Count)
+{
+    if (ItemId.IsNone() || Count <= 0)
+    {
+        return;
+    }
+
+    switch (Mode)
+    {
+    case EKOFactorySlotMode::Fuel:
+        {
+            if (UKOEnergyProducerComponent* Prod = Producer.Get())
+            {
+                Prod->RestoreFuelBuffer(ItemId, Count);
+            }
+            break;
+        }
+
+    case EKOFactorySlotMode::ProcessorInput:
+        {
+            if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+            {
+                Proc->RestoreInputBuffer(ItemId, Count);
+            }
+            break;
+        }
+
+    case EKOFactorySlotMode::ProcessorOutput:
+        {
+            if (UKOFactoryProcessorComponent* Proc = Processor.Get())
+            {
+                Proc->RestoreOutputBuffer(ItemId, Count);
+            }
+            break;
+        }
+
+    default:
+        break;
+    }
+}
+
+UKOInventoryComponent* UKOFactorySlotWidget::ResolvePlayerInventory() const
+{
+    APlayerController* PC = GetOwningPlayer();
+    if (!PC)
+    {
+        return nullptr;
+    }
+
+    if (UKOInventoryComponent* Inventory = PC->FindComponentByClass<UKOInventoryComponent>())
+    {
+        return Inventory;
+    }
+
+    if (APawn* Pawn = PC->GetPawn())
+    {
+        return Pawn->FindComponentByClass<UKOInventoryComponent>();
+    }
+
+    return nullptr;
+}
+
 FReply UKOFactorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+    {
+        if (MoveCurrentSlotItemToInventory())
+        {
+            return FReply::Handled();
+        }
+    }
+    
     const bool bDragSourceMode =
         Mode == EKOFactorySlotMode::ProcessorOutput ||
         Mode == EKOFactorySlotMode::ProcessorInput  ||

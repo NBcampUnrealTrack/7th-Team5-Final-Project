@@ -100,6 +100,17 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
                 InventoryWidget->SetInventoryComponent(PlayerInv);
             }
         }
+        
+        if (!InventoryWidget->OnSlotRightClicked.IsAlreadyBound(
+            this,
+            &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+        ))
+            {
+                InventoryWidget->OnSlotRightClicked.AddDynamic(
+                    this,
+                    &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+                );
+            }
     }
 
     BuildIOSlots();
@@ -157,6 +168,14 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
         }
     }
     RecipeEntryWidgets.Reset();
+    
+    if (InventoryWidget)
+    {
+        InventoryWidget->OnSlotRightClicked.RemoveDynamic(
+            this,
+            &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+        );
+    }
 
     Unsubscribe(ProcessorChangedHandle);
     ProcessorChangedHandle = FGameplayMessageHandle();
@@ -497,6 +516,34 @@ bool UKOFactoryProcessorWidget::IsPressureAvailable() const
     }
 
     return Energy->GetConsumerNetworkProductionRate(Proc) > KINDA_SMALL_NUMBER;
+}
+
+void UKOFactoryProcessorWidget::HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    if (!InventoryWidget)
+    {
+        return;
+    }
+
+    UKOInventoryComponent* Inventory = InventoryWidget->GetInventoryComponent();
+    if (!Inventory)
+    {
+        return;
+    }
+
+    for (UKOFactorySlotWidget* InputSlotWidget : InputSlotWidgets)
+    {
+        if (!InputSlotWidget)
+        {
+            continue;
+        }
+
+        if (InputSlotWidget->TryMoveInventorySlotToThis(Inventory, SlotIndex, InSlot))
+        {
+            RefreshIOSlots();
+            return;
+        }
+    }
 }
 
 #undef LOCTEXT_NAMESPACE

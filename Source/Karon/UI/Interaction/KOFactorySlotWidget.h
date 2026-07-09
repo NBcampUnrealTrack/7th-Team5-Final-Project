@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Items/KOItemSlot.h"
 #include "KOFactorySlotWidget.generated.h"
 
 class UImage;
@@ -12,6 +13,7 @@ class UDragDropOperation;
 class UKOEnergyProducerComponent;
 class UKOFactoryProcessorComponent;
 class UKOItemTooltipWidget;
+class UKOInventoryComponent;
 
 UENUM(BlueprintType)
 enum class EKOFactorySlotMode : uint8
@@ -32,6 +34,8 @@ public:
     void SetupOutputSlot(UKOFactoryProcessorComponent* InProcessor, FName InItemId);
 
     void RefreshFromComponent();
+    
+    bool TryMoveInventorySlotToThis(UKOInventoryComponent* Inventory, int32 SlotIndex, const FKOItemSlot& InSlot);
 
 protected:
     virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -76,4 +80,11 @@ private:
 
     /** 마지막 갱신 시점의 카운트 (드래그 페이로드 구성용 캐시) */
     int32 CachedCount = 0;
+    
+    bool MoveCurrentSlotItemToInventory();
+
+    int32 ExtractCurrentSlotItem(FName& OutItemId);
+    void RestoreCurrentSlotItem(FName ItemId, int32 Count);
+    
+    UKOInventoryComponent* ResolvePlayerInventory() const;
 };
