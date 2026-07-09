@@ -200,6 +200,23 @@ protected:
 	
 	UAbilityTask_Tick* TickTask;
 	
+// 모션 워핑
+protected:
+	AActor* GetMotionWarpTarget() const;
+
+	void UpdateMotionWarpTarget();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp")
+	bool bUseMotionWarping = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp", meta = (EditCondition = "bUseMotionWarping"))
+	float LungeOffset = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp", meta = (EditCondition = "bUseMotionWarping"))
+	float MaxWarpRange = 400.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp")
+	FName WarpTargetName = TEXT("AttackTarget");
 private:
 	//자신 효과 핸들
 	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;

@@ -189,6 +189,11 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 		return;
 	}
 
+	if (bUseMotionWarping)
+	{
+		UpdateMotionWarpTarget();
+	}
+	
 	KO_LOG(Combat, Warning, TEXT("Current ComboIndex : %d"), ComboIndex);
 	const FName TaskName = FName(*FString::Printf(TEXT("MontageTask_%d"), ComboIndex));
 	
