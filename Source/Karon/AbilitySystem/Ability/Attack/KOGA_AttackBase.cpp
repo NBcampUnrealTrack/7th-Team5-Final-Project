@@ -136,6 +136,8 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	
 	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
 	Context.AddSourceObject(GetAvatarCharacter());
+	Context.SetAbility(this);
+	Context.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
 	
 	if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Context.Get()))
 	{

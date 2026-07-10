@@ -94,6 +94,7 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	}
 
 	FGameplayEffectContextHandle Context = CharacterASC->MakeEffectContext();
+	Context.AddInstigator(AttackedCharacter,this);
 	Context.AddSourceObject(AttackedCharacter); // 소스 오브젝트는 현재 캐릭터(Avatar)
 	
 	if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Context.Get()))
@@ -123,6 +124,7 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 	TrailEffectComponent->Activate(true);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
 	ProjectileDamage=DamageMultiplier;
+	ProjectileTag=InEnemy->ProjectileTag;
 }
 
 void AKOEnemyProjectileActor::SetActiveAndCollision(bool InActive)

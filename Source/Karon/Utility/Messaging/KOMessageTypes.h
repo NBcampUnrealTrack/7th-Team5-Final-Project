@@ -152,7 +152,13 @@ USTRUCT()
 struct FKODropItemMessage
 {
     GENERATED_BODY()
-
+    
+    UPROPERTY()
+    FName    EnemyTag;
+    
+    UPROPERTY()
+    int32    EnemyLevel = 0;
+    
     UPROPERTY()
     FName ItemId;
     
@@ -207,4 +213,32 @@ struct FKOOverclockProgressBarMessage
 
     UPROPERTY()
     float Ratio = 0.f;
+};
+
+/**
+ * Telemetry 전투 수집용 메세지
+ * 채널: KOGameplayTags::Event_Telemetry_Combat
+ */
+USTRUCT()
+struct FKOTelemetryCombatMessage
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FName    EnemyTag;
+    
+    UPROPERTY()
+    int32    EnemyLevel = 0;
+    
+    UPROPERTY()
+    FString  AbilityName;
+    
+    UPROPERTY()
+    float	 Value = 0.f;
+    
+    UPROPERTY()
+    float	 HealthPercentAfter=0.f;
+    
+    UPROPERTY()
+    FVector  Position = FVector::ZeroVector;
 };

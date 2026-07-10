@@ -263,6 +263,8 @@ void AKOBaseEnemy::DropItem()
 		for (auto MessagePair : ItemMessageMap)
 		{
 			FKODropItemMessage ItemMessage;
+			ItemMessage.EnemyTag=EnemyNameTag.GetTagName();
+			ItemMessage.EnemyLevel=EnemyLevel;
 			ItemMessage.ItemId=MessagePair.Key;
 			ItemMessage.Count=MessagePair.Value;
 			

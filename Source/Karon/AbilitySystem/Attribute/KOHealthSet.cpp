@@ -3,6 +3,9 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Character/Enemy/KOBaseEnemy.h"
+#include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 
 UKOHealthSet::UKOHealthSet()
@@ -112,6 +115,40 @@ void UKOHealthSet::HandleDamage(const FGameplayEffectModCallbackData& Data)
 	if (NewHealth <= 0.f)
 	{
 		HandleDeath(Data); 
+	}
+	
+	
+	const AActor* InstigatorActor = Data.EffectSpec.GetContext().GetInstigator();
+	if (const AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(InstigatorActor))
+	{
+		const float MaxHP = GetMaxHealth();
+		const float HealthPctAfter = (MaxHP > 0.f) ? (NewHealth / MaxHP) : 0.f;
+		
+		//Telemetry로 전송
+		FKOTelemetryCombatMessage CombatMessage;
+		const AKOEnemyProjectileActor* ProjectileActor =Cast<AKOEnemyProjectileActor>(Data.EffectSpec.GetContext().GetEffectCauser());
+		if (ProjectileActor)
+		{
+			CombatMessage.EnemyTag           = ProjectileActor->GetProjectileTag().GetTagName();
+		}
+		else
+		{
+			CombatMessage.EnemyTag           = Enemy->EnemyNameTag.GetTagName();
+		}
+		
+		CombatMessage.EnemyLevel         = Enemy->EnemyLevel;
+		CombatMessage.Value				  = DamageAmount;     
+		CombatMessage.HealthPercentAfter = HealthPctAfter;
+		CombatMessage.Position			= Context.TargetCharacter->GetActorLocation();
+		
+		if (const UGameplayAbility* Ability =Data.EffectSpec.GetContext().GetAbilityInstance_NotReplicated())
+		{
+			CombatMessage.AbilityName = Ability->GetClass()->GetName();
+		}
+		
+		UGMRouterSubsystem::BroadcastMessage(GetWorld(),
+			KOGameplayTags::Event_Telemetry_Combat,
+			FInstancedStruct::Make(CombatMessage));
 	}
 }
 

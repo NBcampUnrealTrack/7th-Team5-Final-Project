@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "KOEnemyProjectileActor.generated.h"
+class UGameplayAbility;
 class UNiagaraComponent;
 class UGameplayEffect;
 class UProjectileMovementComponent;
@@ -25,9 +27,14 @@ public:
 	void SetActiveAndCollision(bool InActive);
 	void SetProjectile(AKOBaseEnemy* InEnemy,float AttackPoint,float DamageMultiplier);
 	
-	void SetHitData(const UKO_HitData* InHitData) 
+	FORCEINLINE void SetHitData(const UKO_HitData* InHitData) 
 	{ 
 		CachedHitData = InHitData; 
+	}
+	
+	FORCEINLINE FGameplayTag GetProjectileTag() const
+	{
+		return ProjectileTag;
 	}
 	
 protected:
@@ -73,6 +80,9 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UNiagaraComponent> TrailEffectComponent;
+	
+	UPROPERTY()
+	FGameplayTag ProjectileTag;
 	
 	float ProjectileDamage=0.0f;	
 };

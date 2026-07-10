@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
@@ -48,7 +49,9 @@ public:
 	void SetMonsterSaveInfoForLoad(FName InClusterSaveId, FName InMonsterSaveId);
 	void RestoreMonsterFromSave(const FTransform& SavedTransform);
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
-
+	
+	FORCEINLINE float GetAttackPower() const
+	{if (CombatSet){return CombatSet->GetAttackPower();} return 0.f;}
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,14 +75,17 @@ public:
 	bool bCanPatrol=true;
 	
 	//Projectile
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	TObjectPtr<UStaticMesh> ProjectileMesh;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Projectile")
 	TSubclassOf<UGameplayEffect> ProjectileDamageEffectClass;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Projectile")
 	FVector ProjectileScale=FVector(1.f,1.f,1.f);
+	
+	UPROPERTY(EditAnywhere, Category="Projectile")
+	FGameplayTag ProjectileTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	class UNiagaraSystem* ImpactEffect;

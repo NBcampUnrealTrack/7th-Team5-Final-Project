@@ -7,4 +7,6 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Name_Enemy_Drone, "Name.Enemy.Drone");
 	UE_DEFINE_GAMEPLAY_TAG(Name_Enemy_Tanker, "Name.Enemy.Tanker");
 	UE_DEFINE_GAMEPLAY_TAG(Name_Enemy_Elite, "Name.Enemy.Elite");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Name_Enemy_Drone_Gear, "Name.Enemy.Drone.Gear");
 }

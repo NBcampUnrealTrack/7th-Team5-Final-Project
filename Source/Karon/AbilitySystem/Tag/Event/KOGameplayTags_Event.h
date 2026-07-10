@@ -82,6 +82,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Damaged);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Parried);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CounterAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Telemetry_Combat);
+
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Attack_Air_GroundImpact);
 	
