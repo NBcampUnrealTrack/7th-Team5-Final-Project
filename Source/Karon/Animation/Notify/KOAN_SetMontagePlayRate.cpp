@@ -7,19 +7,29 @@ void UKOAN_SetMontagePlayRate::Notify(
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
-	if (!MeshComp || !MeshComp->GetOwner()) { return; }
+	if (!MeshComp || !MeshComp->GetOwner())
+	{
+		return;
+	}
  
 	ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner());
-	if (!Character) { return; }
+	if (!Character)
+	{
+		return;
+	}
  
 	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	if (!AnimInstance) { return; }
+	if (!AnimInstance)
+	{
+		return;
+	}
  
 	// 현재 재생 중인 몽타주 속도 변경
 	UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
-	if (!CurrentMontage) { return; }
+	if (!CurrentMontage)
+	{
+		return;
+	}
  
 	AnimInstance->Montage_SetPlayRate(CurrentMontage, PlayRate);
- 
-	UE_LOG(LogTemp, Log, TEXT("[%s] | PlayRate : %.2f"),*CurrentMontage->GetName() , PlayRate);
 }

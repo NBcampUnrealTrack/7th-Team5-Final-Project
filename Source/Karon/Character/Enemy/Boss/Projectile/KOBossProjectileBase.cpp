@@ -6,6 +6,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "Components/SphereComponent.h"
+#include "Data/KO_HitData.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AKOBossProjectileBase::AKOBossProjectileBase()
@@ -71,16 +72,6 @@ void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
 	FGameplayEffectContextHandle Context = OwnerASC->MakeEffectContext();
 	Context.AddSourceObject(GetOwner());
 	
-	FGameplayEventData HitReactData;
-	HitReactData.Instigator = GetOwner();
-	HitReactData.Target = TargetActor;
-
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-		TargetActor,
-		KOGameplayTags::Event_HitReact,
-		HitReactData
-	);
-
 	for (const FKOBossDamageEffectData& Effect : DamageEffects)
 	{
 		if (!Effect.EffectClass)
@@ -101,4 +92,18 @@ void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
 
 		OwnerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
+
+	FGameplayEventData HitReactData;
+	HitReactData.Instigator = GetOwner();
+	HitReactData.Target = TargetActor;
+	if (HitData)
+	{
+		HitReactData.OptionalObject = HitData.Get();
+	}
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		TargetActor,
+		KOGameplayTags::Event_HitReact,
+		HitReactData
+		);
 }

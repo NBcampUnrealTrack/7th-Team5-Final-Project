@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	bool bIsGimmickDash = false;
  
+	UPROPERTY(EditAnywhere, Instanced, Category = "Dash")
+	TObjectPtr<UKO_HitData> HitData;
+	
 private:
 	FVector DashDirection = FVector::ZeroVector;
  

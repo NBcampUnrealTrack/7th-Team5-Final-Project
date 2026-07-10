@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "KOBossProjectileBase.generated.h"
 
+class UKO_HitData;
 class UGameplayEffect;
 class UProjectileMovementComponent;
 class USphereComponent;
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile | Damage")
 	TArray<FKOBossDamageEffectData> DamageEffects;
+	
+	UPROPERTY(EditAnywhere, Instanced, Category = "Projectile | Damage")
+	TObjectPtr<UKO_HitData> HitData;
  
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile | Debug")
 	bool bShowDebug = true;

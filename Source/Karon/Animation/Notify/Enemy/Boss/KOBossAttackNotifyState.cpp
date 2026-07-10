@@ -8,6 +8,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
 
+#include "Data/KO_HitData.h"
 #include "Kismet/KismetSystemLibrary.h"
  
 void UKOBossAttackNotifyState::NotifyBegin(
@@ -69,8 +70,7 @@ void UKOBossAttackNotifyState::NotifyTick(
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
- 
-	//에디터 개인설정(Editor Preferences > Karon > Enemy Debug)에서 일괄 컨트롤
+	
 	const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
  
@@ -131,18 +131,20 @@ void UKOBossAttackNotifyState::NotifyTick(
 		{
 			continue;
 		}
-
-		// ─── 수정 : Event_SkillHit 전송 제거 ─────────────────
-		// GA 의존 없이 노티파이스테이트에서 직접 데미지 적용
-		// 보스 ASC의 AttackPower × AttackCoefficient로 계산
+		
 		ApplyDamageToTarget(ASC, TargetActor);
-
-		// Event_HitReact는 타겟 ASC로 전송 (히트스톱 등 반응용)
+		
 		UAbilitySystemComponent* TargetASC =
 			TargetASCInterface->GetAbilitySystemComponent();
 		FGameplayEventData HitReactData;
 		HitReactData.Instigator = Owner;
 		HitReactData.Target = TargetActor;
+		
+		if (HitData)
+		{
+			HitReactData.OptionalObject = HitData.Get();
+		}
+		
 		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &HitReactData);
 	}
 }
@@ -156,7 +158,6 @@ void UKOBossAttackNotifyState::NotifyEnd(
 	HittedActors.Empty();
 }
 
-// ─── 추가 : 보스 AttackPower × AttackCoefficient로 데미지 적용 ──
 void UKOBossAttackNotifyState::ApplyDamageToTarget(
 	UAbilitySystemComponent* OwnerASC,
 	AActor* TargetActor)
@@ -166,8 +167,7 @@ void UKOBossAttackNotifyState::ApplyDamageToTarget(
 	UAbilitySystemComponent* TargetASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC) return;
-
-	// 보스 CombatSet에서 AttackPower 읽기
+	
 	const UKOCombatSet* CombatSet = OwnerASC->GetSet<UKOCombatSet>();
 	const float AttackPower = CombatSet ? CombatSet->GetAttackPower() : 1.f;
 

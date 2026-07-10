@@ -1,9 +1,12 @@
 #include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossDashAttack.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "Data/KO_HitData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UKOGA_BossDashAttack::UKOGA_BossDashAttack()
@@ -107,8 +110,19 @@ void UKOGA_BossDashAttack::OnDashHit(
 		if (!bAlreadyHit)
 		{
 			DashedActors.Add(OtherActor);
-			SendAttackEventsToTarget(OtherActor);
 			ApplyHitEffects(OtherActor);
+
+			UAbilitySystemComponent* TargetASC =
+				TargetASI->GetAbilitySystemComponent();
+			FGameplayEventData EventData;
+			EventData.Instigator = GetAvatarCharacter();
+			EventData.Target = OtherActor;
+			if (HitData)
+			{
+				EventData.OptionalObject = HitData.Get();
+			}
+
+			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
 		}
 		return; // 돌진 계속
 	}

@@ -53,6 +53,13 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_Dash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_Jump);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_Smash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_SmashSlam);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_GroundExplosion);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_GroundFall);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_ScatterFlame);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH02_Jump);
+	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	/** 인벤토리 변경 메시지 채널 (FKOInventoryChangedMessage 페이로드) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Message_Inventory_Changed);

@@ -15,7 +15,7 @@ void UKOGA_BossAttackBase::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	UGameplayAbility::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
 	{

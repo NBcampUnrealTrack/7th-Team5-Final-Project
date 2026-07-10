@@ -52,6 +52,13 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_GimmickDash, "State.BossCH01.Attack.GimmickDash");
 	UE_DEFINE_GAMEPLAY_TAG(State_BossCH01_Attack_Jump, "State.BossCH01.Attack.Jump");
 	
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_Smash, "State.BossCH02.Attack.Smash");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_SmashSlam, "State.BossCH02.Attack.SmashSlam");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_GroundExplosion, "State.BossCH02.Attack.GroundExplosion");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_GroundFall, "State.BossCH02.Attack.GroundFall");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_ScatterFlame, "State.BossCH02.Attack.ScatterFlame");
+	UE_DEFINE_GAMEPLAY_TAG(State_BossCH02_Attack_Jump, "State.BossCH02.Attack.Jump");
+	
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Attacking, "State.Boss.Attacking");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dashing, "State.Boss.Dashing");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Dead, "State.Boss.Dead");
