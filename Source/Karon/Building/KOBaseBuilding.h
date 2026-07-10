@@ -36,6 +36,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	
+	// 거리 안일 시 설비 경고 위젯 갱신
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Optimization")
+	float WarningWidgetActivationDistance = 1000.f;
+
+	// 위젯 활성 거리 안에 있는지 확인
+	bool IsPlayerWithinWarningWidgetDistance() const;
+	
+	bool bWarningWidgetRangeActive = false;
+	bool IsWarningWidgetRangeActive() const { return bWarningWidgetRangeActive; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Energy")
 	bool bShowPressureWarning = true; // 압력 부족 표시 사용 여부

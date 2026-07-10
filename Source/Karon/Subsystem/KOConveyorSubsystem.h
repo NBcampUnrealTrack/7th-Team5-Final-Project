@@ -10,6 +10,7 @@
 
 class AKOConveyorBelt;
 class AKOBaseBuilding;
+class APawn;
 
 /**
  * 등록된 모든 컨베이어 벨트를 매 프레임 일괄 틱하는 중앙 서브시스템.
@@ -44,7 +45,7 @@ public:
     // FTickableGameObject
     virtual void Tick(float DeltaTime) override;
     virtual TStatId GetStatId() const override;
-    virtual bool IsTickable() const override { return !IsTemplate(); }
+    virtual bool IsTickable() const override;
     virtual bool IsTickableInEditor() const override { return false; }
     virtual ETickableTickType GetTickableTickType() const override { return ETickableTickType::Conditional; }
     virtual bool IsTickableWhenPaused() const override { return false; }
@@ -54,6 +55,20 @@ public:
 
 private:
     void ProcessPendingActions();
+    
+    /** 일정 주기마다 플레이어와 벨트의 거리를 검사한다. */
+    void RefreshBeltVisualActivation();
+
+    /** 이 거리 이내의 벨트 아이템 비주얼만 활성화한다. (2000 = 20m)*/
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Optimization")
+    float ItemVisualActivationDistance = 1000.f;
+
+    /** 거리 검사 간격. */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Optimization")
+    float VisualDistanceCheckInterval = 0.5f;
+
+    /** 거리 검사 누적 시간. */
+    float VisualDistanceCheckAccumulator = 0.f;
 
     UPROPERTY()
     TArray<TWeakObjectPtr<AKOConveyorBelt>> Belts;

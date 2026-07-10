@@ -18,7 +18,7 @@
 UKOFactoryProcessorComponent::UKOFactoryProcessorComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
-    PrimaryComponentTick.bStartWithTickEnabled = true;
+    PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
 void UKOFactoryProcessorComponent::BeginPlay()
@@ -671,9 +671,12 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
 {
     if (State == NewState)
     {
+        SetComponentTickEnabled(State == EKOFactoryState::Running);
         return;
     }
     State = NewState;
+    // 제작 중에만 Tick 활성화
+    SetComponentTickEnabled(State == EKOFactoryState::Running);
     BroadcastStateChanged();
     BroadcastProcessorChanged();
 }

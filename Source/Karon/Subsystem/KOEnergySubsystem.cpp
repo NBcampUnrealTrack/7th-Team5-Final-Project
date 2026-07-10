@@ -43,6 +43,7 @@ void UKOEnergySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     bNetworkDirty = true;
+    EnergyUpdateAccumulator = 0.f;
 }
 
 void UKOEnergySubsystem::Deinitialize()
@@ -52,6 +53,8 @@ void UKOEnergySubsystem::Deinitialize()
     Networks.Reset();
     UncoveredConsumers.Reset();
     ConsumerToNetwork.Reset();
+    EnergyUpdateAccumulator = 0.f;
+    bNetworkDirty = true;
     Super::Deinitialize();
 }
 
@@ -110,6 +113,16 @@ void UKOEnergySubsystem::UnregisterConsumer(IKOEnergyConsumer* Consumer)
 TStatId UKOEnergySubsystem::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(UKOEnergySubsystem, STATGROUP_Tickables);
+}
+
+bool UKOEnergySubsystem::IsTickable() const
+{
+    if (IsTemplate())
+    {
+        return false;
+    }
+
+    return bNetworkDirty || !Producers.IsEmpty() || !Consumers.IsEmpty();
 }
 
 void UKOEnergySubsystem::RebuildNetworks()
@@ -236,19 +249,13 @@ void UKOEnergySubsystem::RebuildNetworks()
     }
 }
 
-void UKOEnergySubsystem::Tick(float DeltaTime)
+void UKOEnergySubsystem::UpdateEnergyNetworks(float DeltaTime)
 {
     if (DeltaTime <= 0.f)
     {
         return;
     }
-
-    if (bNetworkDirty)
-    {
-        RebuildNetworks();
-        bNetworkDirty = false;
-    }
-
+    
     // 각 망은 독립 정산: 배터리 없이 그 틱의 생산 가능량과 수요만으로 비율 분배.
     for (FEnergyNetwork& Network : Networks)
     {
@@ -306,4 +313,30 @@ void UKOEnergySubsystem::Tick(float DeltaTime)
         const float Demand = FMath::Max(0.f, Consumer->GetPowerDemand(DeltaTime));
         Consumer->OnPowerSupplied(0.f, Demand);
     }
+}
+
+void UKOEnergySubsystem::Tick(float DeltaTime)
+{
+    if (DeltaTime <= 0.f)
+    {
+        return;
+    }
+
+    if (bNetworkDirty)
+    {
+        RebuildNetworks();
+        bNetworkDirty = false;
+    }
+    
+    EnergyUpdateAccumulator += DeltaTime;
+
+    if (EnergyUpdateAccumulator < EnergyUpdateInterval)
+    {
+        return;
+    }
+    
+    const float StepDeltaTime = EnergyUpdateAccumulator;
+    EnergyUpdateAccumulator = 0.f;
+
+    UpdateEnergyNetworks(StepDeltaTime);
 }

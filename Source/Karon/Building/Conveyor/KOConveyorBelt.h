@@ -37,8 +37,11 @@ class KARON_API AKOConveyorBelt : public AKOBaseBuilding, public IKOItemSource, 
 public:
     AKOConveyorBelt();
 
-    /** 서브시스템이 매 프레임 호출. 누적 후 정수 step 만큼 StepOnce. */
+    /** 서브시스템이 호출. 누적 후 정수 step 만큼 이동. */
     void AdvanceBelt(float DeltaTime);
+    
+    /** 벨트 아이템의 화면상 위치만 갱신 */
+    void RefreshBeltVisual();
 
     /**
      * 코너 흐름 반전(좌/우 코너 전환)을 직접 지정. 변경 시 입구/출구 방향 즉시 재계산.
@@ -139,6 +142,12 @@ public:
         FName InItemId,
         bool bInHasSelectedOutputPort
     );
+    
+    /** 벨트 위 아이템 비주얼을 표시하거나 숨긴다. */
+    void SetItemVisualEnabled(bool bEnabled);
+
+    /** 현재 아이템 비주얼 활성화 여부. */
+    bool IsItemVisualEnabled() const { return bItemVisualEnabled; }
 
 protected:
     virtual void BeginPlay() override;
@@ -278,4 +287,7 @@ private:
     /** 벨트 표면 메시의 DMI 캐시. 흐름 방향 파라미터 설정용. */
     UPROPERTY(Transient)
     TArray<TObjectPtr<UMaterialInstanceDynamic>> BeltDMIs;
+    
+    /** 플레이어 거리 등에 따라 아이템 ISM을 표시할지 여부. */
+    bool bItemVisualEnabled = true;
 };

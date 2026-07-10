@@ -5,6 +5,8 @@
 #include "Building/Conveyor/KOConveyorBelt.h"
 #include "Engine/World.h"
 #include "HAL/IConsoleManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOConveyor, Log, All);
 
@@ -42,6 +44,7 @@ void UKOConveyorSubsystem::Deinitialize()
 {
     Belts.Reset();
     PendingActions.Empty();
+    VisualDistanceCheckAccumulator = 0.f;
     Super::Deinitialize();
 }
 
@@ -90,6 +93,45 @@ void UKOConveyorSubsystem::ProcessPendingActions()
     }
 }
 
+void UKOConveyorSubsystem::RefreshBeltVisualActivation()
+{
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        return;
+    }
+
+    APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(World, 0);
+    if (!PlayerPawn)
+    {
+        return;
+    }
+
+    const FVector PlayerLocation = PlayerPawn->GetActorLocation();
+
+    const float ActivationDistanceSquared =
+        FMath::Square(ItemVisualActivationDistance);
+
+    for (const TWeakObjectPtr<AKOConveyorBelt>& WeakBelt : Belts)
+    {
+        AKOConveyorBelt* Belt = WeakBelt.Get();
+        if (!Belt)
+        {
+            continue;
+        }
+
+        const float DistanceSquared = FVector::DistSquared(
+            PlayerLocation,
+            Belt->GetActorLocation()
+        );
+
+        const bool bShouldEnableVisual =
+            DistanceSquared <= ActivationDistanceSquared;
+
+        Belt->SetItemVisualEnabled(bShouldEnableVisual);
+    }
+}
+
 void UKOConveyorSubsystem::Tick(float DeltaTime)
 {
     UWorld* World = GetWorld();
@@ -97,18 +139,27 @@ void UKOConveyorSubsystem::Tick(float DeltaTime)
     {
         return;
     }
+
+    // 등록/해제 등 큐잉된 작업을 먼저 반영(이후 순회 중 Belts 변형 없음).
+    ProcessPendingActions();
     
-    if (DeltaTime <= 0.f)
+    if (World->IsPaused() || DeltaTime <= 0.f)
     {
         return;
     }
-
+    
     SCOPE_CYCLE_COUNTER(STAT_KOConveyorTick);
 
-    // ① 등록/해제 등 큐잉된 작업을 먼저 반영(이후 순회 중 Belts 변형 없음).
-    ProcessPendingActions();
+    // 거리 검사
+    VisualDistanceCheckAccumulator += DeltaTime;
 
-    // ② 모든 벨트 일괄 전진. 무효화된 약참조는 건너뛰고 모아서 정리.
+    if (VisualDistanceCheckAccumulator >= VisualDistanceCheckInterval)
+    {
+        VisualDistanceCheckAccumulator = 0.f;
+        RefreshBeltVisualActivation();
+    }
+    
+    // 모든 벨트 일괄 전진. 무효화된 약참조는 건너뛰고 모아서 정리.
     bool bHasStale = false;
     int32 ItemCount = 0;
     for (const TWeakObjectPtr<AKOConveyorBelt>& WeakBelt : Belts)
@@ -116,6 +167,12 @@ void UKOConveyorSubsystem::Tick(float DeltaTime)
         if (AKOConveyorBelt* Belt = WeakBelt.Get())
         {
             Belt->AdvanceBelt(DeltaTime);
+            
+            if (Belt->IsItemVisualEnabled())
+            {
+                Belt->RefreshBeltVisual();
+            }
+
             ItemCount += Belt->GetOccupiedSlotCount();
         }
         else
@@ -180,4 +237,14 @@ bool UKOConveyorSubsystem::IsSlotBound(const AKOBaseBuilding* Machine, EKOPortKi
 TStatId UKOConveyorSubsystem::GetStatId() const
 {
     RETURN_QUICK_DECLARE_CYCLE_STAT(UKOConveyorSubsystem, STATGROUP_Tickables);
+}
+
+bool UKOConveyorSubsystem::IsTickable() const
+{
+    if (IsTemplate())
+    {
+        return false;
+    }
+
+    return !Belts.IsEmpty() || !PendingActions.IsEmpty();
 }

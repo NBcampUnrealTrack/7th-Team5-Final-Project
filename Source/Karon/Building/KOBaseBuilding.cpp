@@ -21,6 +21,8 @@
 AKOBaseBuilding::AKOBaseBuilding()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.TickInterval = 0.2f;
 }
 
 void AKOBaseBuilding::BeginPlay()
@@ -51,8 +53,45 @@ void AKOBaseBuilding::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
+	bWarningWidgetRangeActive = IsPlayerWithinWarningWidgetDistance();
+	
+	if (!IsPlayerWithinWarningWidgetDistance())
+	{
+		if (PressureWarningWidget)
+		{
+			PressureWarningWidget->SetHiddenInGame(true);
+		}
+
+		return;
+	}
+	
 	RefreshPressureWarning();
 	UpdatePressureWarningFacingCamera();
+}
+
+bool AKOBaseBuilding::IsPlayerWithinWarningWidgetDistance() const
+{
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	const APawn* PlayerPawn = World->GetFirstPlayerController()
+		? World->GetFirstPlayerController()->GetPawn()
+		: nullptr;
+
+	if (!PlayerPawn)
+	{
+		return false;
+	}
+
+	const float DistanceSquared = FVector::DistSquared(
+		GetActorLocation(),
+		PlayerPawn->GetActorLocation()
+	);
+
+	return DistanceSquared <= FMath::Square(WarningWidgetActivationDistance);
 }
 
 void AKOBaseBuilding::RefreshPressureWarning()

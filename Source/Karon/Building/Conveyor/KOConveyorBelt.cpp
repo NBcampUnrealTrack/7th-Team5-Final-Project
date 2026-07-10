@@ -76,6 +76,16 @@ void AKOConveyorBelt::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     
+    if (!IsWarningWidgetRangeActive())
+    {
+        if (OutputSelectionWarningWidget)
+        {
+            OutputSelectionWarningWidget->SetHiddenInGame(true);
+        }
+
+        return;
+    }
+    
     RefreshOutputSelectionWarning();
     UpdateOutputSelectionWarningFacingCamera();
 }
@@ -427,19 +437,35 @@ bool AKOConveyorBelt::TryResolveStraightFlowFromNeighbors(bool& OutReverse) cons
 
 void AKOConveyorBelt::AdvanceBelt(float DeltaTime)
 {
-    if (SlotsPerSecond > 0.f)
+    if (DeltaTime <= 0.f || SlotsPerSecond <= 0.f)
     {
-        MoveAccumulator += SlotsPerSecond * DeltaTime;
-
-        // 한 프레임에 여러 칸 전진할 수 있으나 슬롯 수를 넘지 않게 가드.
-        int32 GuardSteps = SlotCount + 1;
-        while (MoveAccumulator >= 1.f && GuardSteps-- > 0)
-        {
-            StepOnce();
-            MoveAccumulator -= 1.f;
-        }
+        return;
     }
 
+    MoveAccumulator += SlotsPerSecond * DeltaTime;
+
+    // 한 프레임에 여러 칸 전진할 수 있으나 슬롯 수를 넘지 않게 가드.
+    int32 GuardSteps = SlotCount + 1;
+    while (MoveAccumulator >= 1.f && GuardSteps-- > 0)
+    {
+        StepOnce();
+        MoveAccumulator -= 1.f;
+    }
+    
+    // 매우 큰 DeltaTime이 들어왔을 때 누적값이 1 이상 남는 것을 방지
+    if (MoveAccumulator >= 1.f)
+    {
+        MoveAccumulator = FMath::Fmod(MoveAccumulator, 1.f);
+    }
+}
+
+void AKOConveyorBelt::RefreshBeltVisual()
+{
+    if (!bItemVisualEnabled)
+    {
+        return;
+    }
+    
     // 기본 비주얼: ISM 인스턴스 갱신.
     UpdateItemVisual();
 
@@ -722,6 +748,30 @@ void AKOConveyorBelt::LoadOutputPortBindingFromSave(AKOBaseBuilding* InMachine, 
     bHasSelectedOutputPort = bInHasSelectedOutputPort && InPortIndex != INDEX_NONE && !InItemId.IsNone();
 }
 
+void AKOConveyorBelt::SetItemVisualEnabled(bool bEnabled)
+{
+    if (bItemVisualEnabled == bEnabled)
+    {
+        return;
+    }
+
+    bItemVisualEnabled = bEnabled;
+
+    for (const TPair<TObjectPtr<UStaticMesh>, TObjectPtr<UInstancedStaticMeshComponent>>& Pair : MeshToISM)
+    {
+        if (UInstancedStaticMeshComponent* ISM = Pair.Value)
+        {
+            ISM->SetVisibility(bItemVisualEnabled, true);
+        }
+    }
+    
+    // 활성화
+    if (bItemVisualEnabled)
+    {
+        RefreshBeltVisual();
+    }
+}
+
 FVector AKOConveyorBelt::ComputeSlotWorldPos(float T) const
 {
     // 입구 모서리→중심→출구 모서리 경로. 코너면 중심에서 꺾이고, 직선이면 일직선.
@@ -814,6 +864,7 @@ UInstancedStaticMeshComponent* AKOConveyorBelt::GetOrCreateISMForMesh(UStaticMes
         ISM->AttachToComponent(Root, FAttachmentTransformRules::KeepWorldTransform);
     }
     ISM->SetStaticMesh(Mesh);
+    ISM->SetVisibility(bItemVisualEnabled, true);
 
     // 메시 바운드로 균일 스케일 산출(슬롯 간격 비례).
     const float MeshExtent  = FMath::Max(Mesh->GetBounds().BoxExtent.GetMax(), 1.f);

@@ -32,7 +32,7 @@ public:
     
     virtual void Tick(float DeltaTime) override;
     virtual TStatId GetStatId() const override;
-    virtual bool IsTickable() const override { return !IsTemplate(); }
+    virtual bool IsTickable() const override;
     virtual bool IsTickableInEditor() const override { return false; }
     virtual ETickableTickType GetTickableTickType() const override { return ETickableTickType::Conditional; }
 
@@ -49,6 +49,9 @@ private:
 
     /** Producers/Consumers 의 현재 커버리지로 전력망(연결성분)을 다시 계산. */
     void RebuildNetworks();
+    
+    /** 누적된 시간을 기준으로 실제 전력망을 정산 */
+    void UpdateEnergyNetworks(float StepDeltaTime);
 
     TArray<IKOEnergyProducer*> Producers;
     TArray<IKOEnergyConsumer*> Consumers;
@@ -61,4 +64,10 @@ private:
     TMap<const IKOEnergyConsumer*, int32> ConsumerToNetwork;
 
     bool bNetworkDirty = true;
+    
+    /** 전력 계산을 실행하는 간격. 0.1초면 초당 10회 계산 */
+    float EnergyUpdateInterval = 0.1f;
+
+    /** 이전 계산 이후 누적된 시간. */
+    float EnergyUpdateAccumulator = 0.f;
 };
