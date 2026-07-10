@@ -48,6 +48,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Utility_UsePotion, "Input.Ability.Utility.UsePotion");
 	
 	// ── Input | Ability | CoreSkill ───────────────────────────────
+	
 	// ── Input | Ability | Skill ───────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Skill_DimensionSever, "Input.Ability.Skill.DimensionSever");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Skill_DiveSlash, "Input.Ability.Skill.DiveSlash");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Skill_FlashStrike, "Input.Ability.Skill.FlashStrike");
 }

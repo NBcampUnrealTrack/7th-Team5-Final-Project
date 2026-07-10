@@ -201,6 +201,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cue")
 	FGameplayTag HitImpactAttackerCueTag; 
 	
+	float CurrentDamageMultiplier = 1.0f;
 	
 	UAbilityTask_Tick* TickTask;
 	

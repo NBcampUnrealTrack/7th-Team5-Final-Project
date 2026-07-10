@@ -151,8 +151,10 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
 		if (!SpecHandle.IsValid()) continue;
 		
+		float FinalAttackCoefficient = Effect.AttackCoefficient * CurrentDamageMultiplier;
+		
 		SpecHandle.Data->SetSetByCallerMagnitude(
-			KOGameplayTags::Data_AttackCoefficient, Effect.AttackCoefficient); 
+			KOGameplayTags::Data_AttackCoefficient, FinalAttackCoefficient); 
 		
 		
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
