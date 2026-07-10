@@ -47,6 +47,9 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_DiveSlash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_DimensionSever);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_LockOn);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Attack);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────

@@ -42,6 +42,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Skill_CoolTime, "Data.Skill.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_DiveSlash, "Data.CoolTime.DiveSlash");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_DimensionSever, "Data.CoolTime.DimensionSever");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_LockOn, "Data.CoolTime.LockOn");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Attack, "Data.CoolTime.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	
 	
