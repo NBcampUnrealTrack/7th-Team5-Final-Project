@@ -8,9 +8,12 @@
 #include "Components/Slider.h"
 #include "Components/WidgetSwitcher.h"
 #include "GameFramework/GameUserSettings.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundClass.h"
 #include "Sound/SoundMix.h"
+#include "UI/KOUISettings.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 
 UKOOptionWidget::UKOOptionWidget()
 {
@@ -162,9 +165,42 @@ void UKOOptionWidget::LoadAndRefreshUI()
 	RefreshSoundUI(Data->Sound);
 	RefreshGraphicsUI(Data->Graphics);
 
-	// UI(슬라이더)만 갱신하고 끝내면 실제 오디오 출력은 저장된 값과 어긋난 채로 남는다.
-	// (Apply를 눌러야만 SoundMix에 반영되던 문제) 로드 시점에도 곧바로 실제 사운드에 적용한다.
+	// UI(슬라이더/콤보박스)만 갱신하고 끝내면 실제 출력은 저장된 값과 어긋난 채로 남는다.
+	// (Apply를 눌러야만 SoundMix/GameUserSettings에 반영되던 문제) 로드 시점에도 곧바로 실제 출력에 적용한다.
 	ApplySoundOptions(Data->Sound);
+	ApplyGraphicsOptions(Data->Graphics);
+}
+
+void UKOOptionWidget::SyncSavedOptionsToRuntime(APlayerController* OwningPlayer)
+{
+	if (!OwningPlayer)
+	{
+		return;
+	}
+
+	const UKOUISettings* UISettings = UKOUISettings::Get();
+	if (!UISettings)
+	{
+		return;
+	}
+
+	const FKOUIWidgetEntry* Entry = UISettings->WidgetMap.Find(KOGameplayTags::UI_Widget_Option);
+	if (!Entry || Entry->WidgetClass.IsNull())
+	{
+		return;
+	}
+
+	const TSubclassOf<UCommonActivatableWidget> WidgetClass = Entry->WidgetClass.LoadSynchronous();
+	if (!WidgetClass || !WidgetClass->IsChildOf(StaticClass()))
+	{
+		return;
+	}
+
+	// 화면에 띄우지 않고, 저장된 값을 실제 SoundMix/GameUserSettings에 반영하기 위한 임시 인스턴스.
+	if (UKOOptionWidget* TempOptionWidget = CreateWidget<UKOOptionWidget>(OwningPlayer, WidgetClass))
+	{
+		TempOptionWidget->LoadAndRefreshUI();
+	}
 }
 
 void UKOOptionWidget::RefreshSoundUI(const FKOSoundOptions& Sound)

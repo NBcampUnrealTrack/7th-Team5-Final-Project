@@ -1,6 +1,7 @@
 #include "KOTitleController.h"
 #include "UI/KOUISubsystem.h"
 #include "UI/Loading/KOLoadingUiSubsystem.h"
+#include "UI/Option/KOOptionWidget.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
 #include "AudioDevice.h"
@@ -33,9 +34,12 @@ void AKOTitleController::BeginPlay()
 		if (FAudioDevice* AudioDevice = GetWorld()->GetAudioDeviceRaw())
 		{
 			AudioDevice->PushSoundMixModifier(DefaultSoundMix);
-			
+
 			UE_LOG(LogTemp, Log, TEXT("Default Sound Mix (%s) successfully pushed"),
 				*DefaultSoundMix->GetName());
 		}
 	}
+
+	// 저장된 옵션(사운드/그래픽스)을 게임 시작 시점에 실제 출력에 동기화.
+	UKOOptionWidget::SyncSavedOptionsToRuntime(this);
 }

@@ -13,6 +13,7 @@ class UButton;
 class UWidgetSwitcher;
 class USoundMix;
 class USoundClass;
+class APlayerController;
 
 UENUM(BlueprintType)
 enum class EKOOptionTab : uint8
@@ -37,13 +38,21 @@ class KARON_API UKOOptionWidget : public UKOActivatableWidget
 public:
 	UKOOptionWidget();
 
-	/** 저장값으로 UI를 갱신 (팝업이 열릴 때 자동 호출됨) */
+	/** 저장값으로 UI를 갱신하고, 곧바로 실제 사운드/그래픽스 출력에도 반영 (팝업이 열릴 때 자동 호출됨) */
 	UFUNCTION(BlueprintCallable, Category = "KO|Option")
 	void LoadAndRefreshUI();
 
 	/** Graphic/Sound 탭 전환 */
 	UFUNCTION(BlueprintCallable, Category = "KO|Option")
 	void SetActiveTab(EKOOptionTab Tab);
+
+	/**
+	 * 화면에 띄우지 않고, 저장된 옵션 값을 실제 SoundMix/GameUserSettings에 동기화.
+	 * 게임 시작 시점(타이틀/플레이어 컨트롤러 BeginPlay)에 호출해 "설정은 저장돼 있는데 출력이
+	 * 이전 값(기본값)으로 나오는" 문제를 막는다.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "KO|Option")
+	static void SyncSavedOptionsToRuntime(APlayerController* OwningPlayer);
 
 protected:
 	virtual void NativeOnInitialized() override;
