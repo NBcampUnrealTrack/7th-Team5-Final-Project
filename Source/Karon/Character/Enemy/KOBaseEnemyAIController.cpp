@@ -18,6 +18,23 @@ AKOBaseEnemyAIController::AKOBaseEnemyAIController()
 	AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 }
 
+void AKOBaseEnemyAIController::ResetPlayerDetection()
+{
+	SetTargetActor(nullptr);
+	ClearFocus(EAIFocusPriority::Gameplay);
+
+	if (AIPerceptionComp)
+	{
+		AIPerceptionComp->ForgetAll();
+	}
+
+	if (BBComp)
+	{
+		BBComp->ClearValue(TEXT("TargetActor"));
+		BBComp->ClearValue(TEXT("DetectLocation"));
+	}
+}
+
 void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

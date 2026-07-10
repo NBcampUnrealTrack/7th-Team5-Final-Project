@@ -239,21 +239,28 @@ void UKOBuildQuickSlotWidget::SetDisplayMode(EKOQuickSlotBarDisplayMode InDispla
 
 FReply UKOBuildQuickSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+	if (!BuildUIComponent)
+	{
+		return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	}
+	
+	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		BuildUIComponent->ClearBuildQuickSlot(SlotIndex);
+		return FReply::Handled();
+	}
+	
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
 	{
-		UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
-		if (BuildUIComponent)
+		const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
+
+		if (!AssignedFactoryId.IsNone())
 		{
-			const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
-			if (!AssignedFactoryId.IsNone())
-			{
-				FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
-					InMouseEvent,
-					this,
-					EKeys::LeftMouseButton
-				);
-				return Reply.NativeReply;
-			}
+			FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
+					InMouseEvent, this, EKeys::LeftMouseButton);
+
+			return Reply.NativeReply;
 		}
 	}
 

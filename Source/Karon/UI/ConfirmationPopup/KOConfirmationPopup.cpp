@@ -13,12 +13,21 @@ UKOConfirmationPopup::UKOConfirmationPopup()
 	bIsBackHandler = true;
 }
 
-void UKOConfirmationPopup::SetupPopup(const FText& Title, const FText& Description)
+void UKOConfirmationPopup::SetupPopup(const FText& Title, const FText& Description, bool bShowCancelButton)
 {
-	if (TitleText && DescriptionText)
+	if (TitleText)
 	{
 		TitleText->SetText(Title);
+	}
+
+	if (DescriptionText)
+	{
 		DescriptionText->SetText(Description);
+	}
+
+	if (CloseButton)
+	{
+		CloseButton->SetVisibility(bShowCancelButton ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 }
 

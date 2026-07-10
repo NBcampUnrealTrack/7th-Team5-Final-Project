@@ -23,7 +23,7 @@ public:
 	UPROPERTY()
 	FOnPopupClosedSignature OnConfirmed;
 	
-	void SetupPopup(const FText& Title, const FText& Description);
+	void SetupPopup(const FText& Title, const FText& Description, bool bShowCancelButton = true);
 	
 protected:
 	virtual void NativeConstruct() override;

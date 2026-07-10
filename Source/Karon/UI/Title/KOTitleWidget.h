@@ -29,6 +29,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> OptionButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonButtonBase> LoadButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widget Tag")
 	FGameplayTag ConfirmationPopupTag;
@@ -37,9 +40,13 @@ protected:
 	TSubclassOf<UCommonActivatableWidget> LoadingWidget;
 
 private:
-	void OnStartGameClicked() const;
+	void OnStartGameClicked();
 	void OnQuitGameClicked();
 	void OnOptionClicked() const;
+	void OnLoadClicked() const;
+	
+	UFUNCTION()
+	void StartGameConfirmation();
 
 	UFUNCTION()
 	void GameQuitConfirmation();

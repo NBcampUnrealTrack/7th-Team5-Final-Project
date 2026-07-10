@@ -19,6 +19,8 @@ public:
 	AKOBaseEnemyAIController();
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 	FORCEINLINE virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
+	
+	void ResetPlayerDetection(); // 타겟 초기화
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;

@@ -185,6 +185,21 @@ void UKOSkillQuickSlotEntryWidget::NativeDestruct()
 FReply UKOSkillQuickSlotEntryWidget::NativeOnMouseButtonDown(
 	const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		if (!HasSkill())
+		{
+			return FReply::Handled();
+		}
+
+		if (UKOSkillSubsystem* SkillSubsystem = UKOSkillSubsystem::Get(this))
+		{
+			SkillSubsystem->SetSkillQuickSlot(SlotKey, NAME_None);
+		}
+
+		return FReply::Handled();
+	}
+	
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton) && HasSkill())
 	{
 		FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(

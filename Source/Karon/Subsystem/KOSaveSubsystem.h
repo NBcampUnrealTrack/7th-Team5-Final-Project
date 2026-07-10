@@ -31,6 +31,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool DeleteSave();
     
+    // 로드 여부
+    UFUNCTION(BlueprintCallable, Category = "KO|Save")
+    void RequestLobbyLoad();
+
+    bool ConsumeLobbyLoadRequest();
+    
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
     void NotifyActorTargetingPlayer(AActor* SourceActor);
 
@@ -40,11 +46,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
     bool CanSaveOrLoad() const;
     
+    UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
+    void ForceEndCombat();
+    
     // 채집한 채집물 목록
     void MarkItemDropCollected(FName DropSaveId);
     
     // 죽은 몬스터 목록
     void MarkMonsterDead(FName MonsterSaveId);
+    
+    UFUNCTION(BlueprintPure, Category = "KO|Save")
+    bool HasLobbyLoadRequest() const { return bLobbyLoadRequested; }
 
 private:
     static const FString DefaultSlotName;
@@ -67,6 +79,8 @@ private:
     FTimerHandle SaveLoadUnlockTimerHandle;
 
     bool bSaveLoadBlockedByCombat = false;
+    
+    bool bLobbyLoadRequested = false;
     
     // 채집물
     TSet<FName> CollectedItemDropIds;

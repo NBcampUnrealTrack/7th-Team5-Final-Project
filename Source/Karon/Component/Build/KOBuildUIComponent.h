@@ -89,6 +89,9 @@ public:
 	void LoadBuildQuickSlotsFromSave(const TArray<FName>& InBuildQuickSlots);
 
 	const TArray<FName>& GetBuildQuickSlotsForSave() const { return BuildQuickSlots; }
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	bool ClearBuildQuickSlot(int32 SlotIndex);
 
 private:
 	APlayerController* GetOwningPlayerController() const;

@@ -392,12 +392,22 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			Pawn->SetActorTransform(SaveData->PlayerTransform);
 		}
 	}
+	
 	// 플레이어 체력 로드
 	if (SaveData->PlayerStatus.bHasHealth)
 	{
 		if (AKOPlayerState* PS = PC->GetPlayerState<AKOPlayerState>())
 		{
 			PS->LoadHealthFromSave(SaveData->PlayerStatus.Health);
+		}
+	}
+	
+	// 사망 판정 로드
+	if (APawn* Pawn = PC->GetPawn())
+	{
+		if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(Pawn))
+		{
+			Character->RestoreAliveStateFromLoad();
 		}
 	}
 
@@ -809,23 +819,19 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 
 bool UKOSaveSubsystem::DoesSaveExist() const
 {
-	return UGameplayStatics::DoesSaveGameExist(
-		DefaultSlotName,
-		DefaultUserIndex
-	);
+	return UGameplayStatics::DoesSaveGameExist(DefaultSlotName, DefaultUserIndex);
 }
 
 bool UKOSaveSubsystem::DeleteSave()
 {
+	bLobbyLoadRequested = false;
+	
 	if (!DoesSaveExist())
 	{
 		return false;
 	}
 
-	const bool bDeleted = UGameplayStatics::DeleteGameInSlot(
-		DefaultSlotName,
-		DefaultUserIndex
-	);
+	const bool bDeleted = UGameplayStatics::DeleteGameInSlot(DefaultSlotName, DefaultUserIndex);
 
 	if (bDeleted)
 	{
@@ -834,6 +840,19 @@ bool UKOSaveSubsystem::DeleteSave()
 	}
 
 	return bDeleted;
+}
+
+void UKOSaveSubsystem::RequestLobbyLoad()
+{
+	bLobbyLoadRequested = true;
+}
+
+bool UKOSaveSubsystem::ConsumeLobbyLoadRequest()
+{
+	const bool bRequested = bLobbyLoadRequested;
+	bLobbyLoadRequested = false;
+
+	return bRequested;
 }
 
 void UKOSaveSubsystem::NotifyActorTargetingPlayer(AActor* SourceActor)
@@ -908,6 +927,19 @@ bool UKOSaveSubsystem::CanSaveOrLoad() const
 	}
 
 	return ActorsTargetingPlayer.Num() == 0;
+}
+
+void UKOSaveSubsystem::ForceEndCombat()
+{
+	ActorsTargetingPlayer.Reset();
+	bSaveLoadBlockedByCombat = false;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 플레이어 사망으로 전투 상태 강제 종료"));
 }
 
 void UKOSaveSubsystem::MarkItemDropCollected(FName DropSaveId)

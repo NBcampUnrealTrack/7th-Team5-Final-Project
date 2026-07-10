@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/KOAbilitySystemComponent.h"
 #include "Utility/Log/KOLogManager.h"
+#include "Animation/AnimInstance.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
@@ -122,4 +124,44 @@ void AKOCharacterBase::OnJumpStrengthChanged(float OldValue, float NewValue)
 void AKOCharacterBase::OnGravityScaleChanged(float OldValue, float NewValue)
 {
 	GetCharacterMovement()->GravityScale = NewValue;
+}
+
+void AKOCharacterBase::RestoreAliveStateFromLoad()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+
+	// 사망 어빌리티와 몽타주를 먼저 중단
+	if (ASC)
+	{
+		ASC->CancelAllAbilities();
+
+		ASC->RemoveLooseGameplayTag(
+			KOGameplayTags::State_Character_Dead
+		);
+
+		FGameplayTagContainer DeadTags;
+		DeadTags.AddTag(KOGameplayTags::State_Character_Dead);
+
+		ASC->RemoveActiveEffectsWithGrantedTags(DeadTags);
+	}
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInstance = MeshComp->GetAnimInstance())
+		{
+			AnimInstance->StopAllMontages(0.0f);
+		}
+
+		// 몽타주를 먼저 중단한 다음 애니메이션 정지 해제
+		MeshComp->bPauseAnims = false;
+		MeshComp->SetComponentTickEnabled(true);
+	}
+
+	bIsDead = false;
+
+	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+	{
+		CMC->SetMovementMode(MOVE_Walking);
+		CMC->StopMovementImmediately();
+	}
 }

@@ -67,6 +67,10 @@ public:
 	UFUNCTION()
 	void OnGravityScaleChanged(float OldValue, float NewValue);
 	
+	// 세이브 로드
+	UFUNCTION()
+	void RestoreAliveStateFromLoad();
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;

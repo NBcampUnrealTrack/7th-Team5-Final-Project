@@ -27,6 +27,34 @@ void UKOBuildUIComponent::BeginPlay()
 	BuildQuickSlots.SetNum(QuickSlotCount);
 }
 
+bool UKOBuildUIComponent::ClearBuildQuickSlot(int32 SlotIndex)
+{
+	if (!BuildQuickSlots.IsValidIndex(SlotIndex))
+	{
+		return false;
+	}
+
+	if (BuildQuickSlots[SlotIndex].IsNone())
+	{
+		return false;
+	}
+
+	BuildQuickSlots[SlotIndex] = NAME_None;
+
+	FKOBuildQuickSlotChangedMessage Message;
+	Message.SlotIndex = SlotIndex;
+	Message.FactoryId = NAME_None;
+
+	Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+
+	if (SelectedQuickSlotIndex == SlotIndex)
+	{
+		SetSelectedBuildQuickSlot(INDEX_NONE);
+	}
+
+	return true;
+}
+
 APlayerController* UKOBuildUIComponent::GetOwningPlayerController() const
 {
 	return Cast<APlayerController>(GetOwner());

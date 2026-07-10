@@ -98,9 +98,24 @@ void AKOPlayerController::BeginPlay()
 		if (FAudioDevice* AudioDevice = GetWorld()->GetAudioDeviceRaw())
 		{
 			AudioDevice->PushSoundMixModifier(DefaultSoundMix);
-
-			UE_LOG(LogTemp, Log, TEXT("Default Sound Mix (%s) successfully pushed"),
-				*DefaultSoundMix->GetName());
+			
+			UE_LOG(LogTemp, Log, TEXT("Default Sound Mix (%s) successfully pushed"), *DefaultSoundMix->GetName());
+		}
+	}
+	
+	// 게임 로드
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (SaveSubsystem->ConsumeLobbyLoadRequest())
+		{
+			GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this]()
+				{
+					if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+					{
+						SaveSubsystem->LoadCurrentGame();
+					}
+				})
+			);
 		}
 	}
 
