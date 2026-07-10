@@ -20,6 +20,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "InputCoreTypes.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "StructUtils/InstancedStruct.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +61,7 @@ void UKOSkillQuickSlotEntryWidget::ClearSkill()
 	CachedInputTag    = FGameplayTag::EmptyTag;
 
 	ApplyIconToImage(nullptr);
+	RefreshCooldownVisual();
 	BroadcastChanged();
 }
 
@@ -129,6 +131,8 @@ void UKOSkillQuickSlotEntryWidget::NativeConstruct()
 		BindCooldownTracking();
 	}
 
+	RefreshCooldownVisual();
+
 	if (!SlotInputAction)
 	{
 		return;
@@ -177,6 +181,18 @@ void UKOSkillQuickSlotEntryWidget::NativeDestruct()
 	InputReleaseBindHandle = 0;
 
 	Super::NativeDestruct();
+}
+
+void UKOSkillQuickSlotEntryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (!HasSkill())
+	{
+		return;
+	}
+
+	RefreshCooldownVisual();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -325,6 +341,7 @@ void UKOSkillQuickSlotEntryWidget::SetSlotContent(
 
 	ApplyIconToImage(InIcon);
 	BindCooldownTracking();
+	RefreshCooldownVisual();
 }
 
 UAbilitySystemComponent* UKOSkillQuickSlotEntryWidget::GetOwnerASC() const
@@ -501,6 +518,39 @@ void UKOSkillQuickSlotEntryWidget::ApplyIconToImage(UTexture2D* InIcon)
 	{
 		SkillIconImage->SetBrushFromTexture(nullptr);
 		SkillIconImage->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UKOSkillQuickSlotEntryWidget::RefreshCooldownVisual()
+{
+	const bool bOnCooldown = IsOnCooldown();
+
+	if (CoolDownOverlay)
+	{
+		CoolDownOverlay->SetVisibility(bOnCooldown ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Hidden);
+
+		if (bOnCooldown)
+		{
+			if (UMaterialInstanceDynamic* MID = CoolDownOverlay->GetDynamicMaterial())
+			{
+				MID->SetScalarParameterValue(CooldownPercentParamName, GetCooldownPercent());
+			}
+		}
+	}
+
+	if (CoolDownText)
+	{
+		if (bOnCooldown)
+		{
+			const float Remaining = GetCooldownRemaining();
+			CoolDownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), Remaining)));
+			CoolDownText->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			CoolDownText->SetText(FText::GetEmpty());
+			CoolDownText->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 

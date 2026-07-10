@@ -177,7 +177,7 @@ void UKOSkillTreePopup::HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode)
 
 void UKOSkillTreePopup::HandleTooltipConfirmed()
 {
-	if (!IsValid(ActiveTooltipNode))
+	if (IsValid(ActiveTooltipNode) == false)
 	{
 		return;
 	}
@@ -196,7 +196,7 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 
 	const bool bUnlocked = SkillSubsystem->TryUnlockSkill(SkillName);
 
-	if (!bUnlocked)
+	if (bUnlocked == false)
 	{
 		const FText& ReasonText = SkillSubsystem->GetLastUnlockFailureReason();
 
@@ -255,5 +255,5 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 	ActiveTooltipNode = Node;
 
 	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, SkillState, ExecutionTypeText, CostItemRows);
-	SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	//SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }

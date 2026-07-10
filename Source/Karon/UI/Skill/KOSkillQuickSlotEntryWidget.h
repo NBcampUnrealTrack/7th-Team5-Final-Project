@@ -73,6 +73,7 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct()  override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void   NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
@@ -95,7 +96,13 @@ protected:
 	// ── 바인딩 위젯 ────────────────────────────────────────────────
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SkillIconImage;
-
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> CoolDownOverlay;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> CoolDownText;
+	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> KeyLabelText;
 
@@ -108,6 +115,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "SkillQuickSlot|Drag")
 	float DragVisualOpacity = 0.85f;
+
+	/** CoolDownOverlay 다이나믹 머티리얼에서 쿨타임 진행률(0=사용 가능, 1=막 발동)을 채워 넣을 스칼라 파라미터 이름. */
+	UPROPERTY(EditDefaultsOnly, Category = "SkillQuickSlot|Cooldown")
+	FName CooldownPercentParamName = TEXT("Percent");
 
 	/** 이 슬롯에 대응하는 InputAction (BP 에디터에서 Q/E/R/V 액션을 지정) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SkillQuickSlot|Input")
@@ -146,4 +157,7 @@ private:
 	void OnSlotKeyReleased();
 	void RefreshKeyLabel();
 	void BroadcastChanged();
+
+	/** CoolDownOverlay(진행률)/CoolDownText(남은 시간)를 현재 쿨타임 상태로 갱신. */
+	void RefreshCooldownVisual();
 };

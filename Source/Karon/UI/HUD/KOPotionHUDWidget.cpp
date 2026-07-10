@@ -8,14 +8,19 @@
 #include "StructUtils/InstancedStruct.h"
 #include "CommonTextBlock.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffect.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 void UKOPotionHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (!PotionItemTag.IsValid())
+	if (PotionItemTag.IsValid() == false)
 	{
 		PotionItemTag = KOGameplayTags::Item_HealingPotion;
 	}
@@ -46,6 +51,13 @@ void UKOPotionHUDWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+void UKOPotionHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	RefreshCooldownVisual();
+}
+
 void UKOPotionHUDWidget::InitializeFromPawn(APawn* Pawn)
 {
 	// 다른 인벤토리 참조 위젯들과 동일하게 PC를 먼저 찾고, 없으면 Pawn을 폴백으로 확인한다.
@@ -56,7 +68,7 @@ void UKOPotionHUDWidget::InitializeFromPawn(APawn* Pawn)
 		CachedInventoryComponent = OwningPC->FindComponentByClass<UKOInventoryComponent>();
 	}
 
-	if (!CachedInventoryComponent && Pawn)
+	if (CachedInventoryComponent == nullptr && Pawn)
 	{
 		CachedInventoryComponent = Pawn->FindComponentByClass<UKOInventoryComponent>();
 	}
@@ -80,14 +92,14 @@ void UKOPotionHUDWidget::HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPa
 
 void UKOPotionHUDWidget::RefreshPotionIcon()
 {
-	if (!PotionIcon || CachedPotionItemId.IsNone())
+	if (PotionIcon == nullptr || CachedPotionItemId.IsNone())
 	{
 		return;
 	}
 
 	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
 	UTexture2D* IconTexture = LoadSubsystem ? LoadSubsystem->ResolveItemIcon(CachedPotionItemId) : nullptr;
-	if (!IconTexture)
+	if (IconTexture == nullptr)
 	{
 		return;
 	}
@@ -99,7 +111,7 @@ void UKOPotionHUDWidget::RefreshPotionIcon()
 
 void UKOPotionHUDWidget::RefreshPotionCount()
 {
-	if (!PotionCountText)
+	if (PotionCountText == nullptr)
 	{
 		return;
 	}
@@ -114,7 +126,7 @@ void UKOPotionHUDWidget::RefreshPotionCount()
 void UKOPotionHUDWidget::HandleInventoryChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
 {
 	const FKOInventoryChangedMessage* Msg = Payload.GetPtr<FKOInventoryChangedMessage>();
-	if (!Msg || CachedPotionItemId.IsNone())
+	if (Msg == nullptr || CachedPotionItemId.IsNone())
 	{
 		return;
 	}
@@ -126,4 +138,83 @@ void UKOPotionHUDWidget::HandleInventoryChangedMessage(FGameplayTag Channel, con
 	}
 
 	RefreshPotionCount();
+}
+
+UAbilitySystemComponent* UKOPotionHUDWidget::GetOwnerASC() const
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (PC == nullptr)
+	{
+		return nullptr;
+	}
+
+	APawn* Pawn = PC->GetPawn();
+	if (Pawn == nullptr)
+	{
+		return nullptr;
+	}
+
+	return UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Pawn);
+}
+
+bool UKOPotionHUDWidget::GetCooldownRemainingAndDuration(float& OutRemaining, float& OutDuration) const
+{
+	if (CooldownEffectClass == nullptr)
+	{
+		return false;
+	}
+
+	UAbilitySystemComponent* ASC = GetOwnerASC();
+	if (ASC == nullptr)
+	{
+		return false;
+	}
+
+	FGameplayEffectQuery Query;
+	Query.EffectDefinition = CooldownEffectClass;
+
+	const TArray<TPair<float, float>> TimesAndDurations = ASC->GetActiveEffectsTimeRemainingAndDuration(Query);
+	if (TimesAndDurations.IsEmpty())
+	{
+		return false;
+	}
+
+	OutRemaining = FMath::Max(0.f, TimesAndDurations[0].Key);
+	OutDuration  = TimesAndDurations[0].Value;
+	return true;
+}
+
+void UKOPotionHUDWidget::RefreshCooldownVisual()
+{
+	float Remaining = 0.f;
+	float Duration  = 0.f;
+	const bool bOnCooldown = GetCooldownRemainingAndDuration(Remaining, Duration) && Duration > 0.f;
+
+	if (CoolDownOverlay)
+	{
+		CoolDownOverlay->SetVisibility(bOnCooldown ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Hidden);
+
+		if (bOnCooldown)
+		{
+			if (UMaterialInstanceDynamic* MID = CoolDownOverlay->GetDynamicMaterial())
+			{
+				const float Percent = FMath::Clamp(Remaining / Duration, 0.f, 1.f);
+				MID->SetScalarParameterValue(CooldownPercentParamName, Percent);
+			}
+		}
+	}
+
+	if (CoolDownText)
+	{
+		if (bOnCooldown)
+		{
+			CoolDownText->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), Remaining)));
+			CoolDownText->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			CoolDownText->SetText(FText::GetEmpty());
+			CoolDownText->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }

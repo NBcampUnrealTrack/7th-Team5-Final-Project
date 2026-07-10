@@ -83,4 +83,7 @@ private:
 	TWeakObjectPtr<UKOSkillSubsystem> CachedSkillSubsystem;
 
 	bool CanDragThisSkill() const;
+
+	/** OnSkillNodeClicked를 브로드캐스트해 Tooltip을 이 노드 기준으로 갱신시킨다. (클릭 / 드래그 시작 공용) */
+	void NotifySkillNodeClicked();
 };

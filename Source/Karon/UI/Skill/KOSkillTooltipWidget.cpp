@@ -42,6 +42,26 @@ void UKOSkillTooltipWidget::HandleConfirmButtonClicked()
 	OnConfirmed.Broadcast();
 }
 
+void UKOSkillTooltipWidget::RefreshConfirmButtonState(ESkillState CurrentState)
+{
+	const bool bCanUnlock = CurrentState == ESkillState::CanUnlock;
+	const bool bIsUnlocked = CurrentState == ESkillState::Unlocked;
+
+	if (ConfirmButton)
+	{
+		ConfirmButton->SetIsEnabled(bCanUnlock);
+		ConfirmButton->SetVisibility(
+			bIsUnlocked ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+	}
+
+
+	if (ConfirmButtonLockedOverlay)
+	{
+		ConfirmButtonLockedOverlay->SetVisibility(
+			bIsUnlocked ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
 void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& SkillRow, ESkillState CurrentState,
                                                          const FText& ExecutionType,
                                                          const TArray<FKOItemRow>& CostItemRows)
@@ -68,6 +88,8 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 	{
 		SkillIcon->SetBrush(DefaultBrush);
 	}
+
+	RefreshConfirmButtonState(CurrentState);
 
 	if (CostListContainer == nullptr || CostWidget == nullptr)
 	{
@@ -116,6 +138,8 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 
 void UKOSkillTooltipWidget::RefreshCostWidget(ESkillState NewCurrentState, const TArray<FKOItemRow>& CostItemRows)
 {
+	RefreshConfirmButtonState(NewCurrentState);
+
 	if (CostListContainer == nullptr)
 	{
 		return;

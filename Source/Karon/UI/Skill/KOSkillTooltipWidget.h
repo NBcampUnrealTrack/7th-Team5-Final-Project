@@ -40,6 +40,9 @@ protected:
 
 	void HandleConfirmButtonClicked();
 
+	/** CurrentState가 CanUnlock일 때만 ConfirmButton을 누를 수 있도록 활성화/잠금 오버레이를 갱신. */
+	void RefreshConfirmButtonState(ESkillState CurrentState);
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> SkillName;
 
@@ -57,6 +60,10 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> ConfirmButton;
+
+	/** CanUnlock 상태가 아닐 때(Locked/Unlocked) ConfirmButton 위를 덮어 클릭을 막는 잠금 표시 이미지. */
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> ConfirmButtonLockedOverlay;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UKOSkillCostEntryWidget> CostWidget;

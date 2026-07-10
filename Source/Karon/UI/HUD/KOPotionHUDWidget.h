@@ -9,8 +9,11 @@
 
 class UImage;
 class UCommonTextBlock;
+class UTextBlock;
 class UKOInventoryComponent;
 class APawn;
+class UGameplayEffect;
+class UAbilitySystemComponent;
 struct FInstancedStruct;
 
 /**
@@ -25,6 +28,7 @@ class KARON_API UKOPotionHUDWidget : public UCommonUserWidget, public IKOGMSInte
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	// 표시할 포션의 아이템 태그 (기본값: Item.HealingPotion)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Potion", Meta = (Categories = "Item"))
@@ -35,6 +39,23 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonTextBlock> PotionCountText;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> CoolDownOverlay;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> CoolDownText;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Potion|Cooldown")
+	FName CooldownPercentParamName = TEXT("Percent");
+
+	/**
+	 * 포션 사용 어빌리티가 CommitAbility 시 적용하는 쿨타임 GameplayEffect 클래스.
+	 * SkillQuickSlotEntry와 달리 GameplayTag가 아니라, 이 GE가 ASC에 활성 상태로 붙어있는 동안의
+	 * 잔여시간/지속시간을 직접 쿼리해서 쿨타임 UI를 갱신한다.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Potion|Cooldown")
+	TSubclassOf<UGameplayEffect> CooldownEffectClass;
 
 private:
 	// NativeConstruct 시점에는 OwningPlayer가 아직 폰을 소유하지 않았을 수 있어,
@@ -49,6 +70,14 @@ private:
 
 	UFUNCTION()
 	void HandleInventoryChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
+
+	UAbilitySystemComponent* GetOwnerASC() const;
+
+	/** CooldownEffectClass가 현재 ASC에 활성 상태인지 조회해 남은 시간/전체 지속시간을 반환. 없으면 false. */
+	bool GetCooldownRemainingAndDuration(float& OutRemaining, float& OutDuration) const;
+
+	/** CoolDownOverlay(진행률)/CoolDownText(남은 시간)를 현재 쿨타임 상태로 갱신. */
+	void RefreshCooldownVisual();
 
 	FName CachedPotionItemId = NAME_None;
 

@@ -48,6 +48,11 @@ void UKOSkillNodeWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
 
+	NotifySkillNodeClicked();
+}
+
+void UKOSkillNodeWidget::NotifySkillNodeClicked()
+{
 	if (OnSkillNodeClicked.IsBound())
 	{
 		OnSkillNodeClicked.Broadcast(this);
@@ -71,6 +76,10 @@ FReply UKOSkillNodeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeo
 {
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton) && CanDragThisSkill())
 	{
+		// Preview 단계에서 드래그를 가로채면 NativeOnClicked가 발생하지 않아 Tooltip이 갱신되지 않는다.
+		// 드래그 시작 시에도 클릭과 동일하게 이 노드 기준으로 Tooltip을 갱신한다.
+		NotifySkillNodeClicked();
+
 		FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this,
 		                                                                 EKeys::LeftMouseButton);
 		return Reply.NativeReply;
