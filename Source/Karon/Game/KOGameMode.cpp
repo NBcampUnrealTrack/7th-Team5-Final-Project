@@ -24,7 +24,7 @@ void AKOGameMode::HandlePlayerDeath(AActor* DeathInstigator)
 
 		if (APlayerCameraManager* CamMgr = WeakPC->PlayerCameraManager)
 		{
-			CamMgr->StartCameraFade(0.f, 0.7f, WeakThis->FadeDuration,
+			CamMgr->StartCameraFade(0.f, 0.9f, WeakThis->FadeDuration,
 			                        FLinearColor::Black, false, true);
 		}
 	}, RespawnDuration, false);

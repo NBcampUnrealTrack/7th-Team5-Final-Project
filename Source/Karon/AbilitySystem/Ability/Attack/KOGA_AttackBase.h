@@ -198,6 +198,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
 	FGameplayTagContainer AttackEventTags; 
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cue")
+	FGameplayTag HitImpactAttackerCueTag; 
+	
+	
 	UAbilityTask_Tick* TickTask;
 	
 // 모션 워핑

@@ -45,13 +45,14 @@ void UKOGA_HitReact::ActivateAbility(
 	}
 	
 	// 에너미가 Groggy가 0이면 즉시 종료
-	UAbilitySystemComponent* ASC=GetAbilitySystemComponentFromActorInfo();
+	UAbilitySystemComponent* ASC = GetASC();
 	if (!ASC)
 	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	if (const UKOGroggySet* GroggySet=ASC->GetSet<UKOGroggySet>())
+	if (const UKOGroggySet* GroggySet = ASC->GetSet<UKOGroggySet>())
 	{
 		if (GroggySet->GetGroggyHealth()==0.f)
 		{
@@ -151,10 +152,9 @@ void UKOGA_HitReact::ActivateAbility(
 			CueParams.Normal = HitResult->ImpactNormal;
 		}
 	}
-	CueParams.RawMagnitude = CachedTriggerEventData.EventMagnitude;
-	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(
-		KOGameplayTags::GameplayCue_HitImpact, CueParams);
 	
+	CueParams.RawMagnitude = CachedTriggerEventData.EventMagnitude;
+	ApplyGameplayCues(CueTags, CueParams);
 	
 	if (bRequireRotation)
 	{

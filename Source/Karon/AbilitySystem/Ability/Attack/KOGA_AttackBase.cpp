@@ -51,13 +51,11 @@ void UKOGA_AttackBase::ActivateAbility(
 			this, 
 			KOGameplayTags::Event_Trace_Start
 		);
-    
-	if (WaitEventTask)
-	{
-		WaitEventTask->EventReceived.AddDynamic(this, &ThisClass::OnHitDataEventReceived);
-		WaitEventTask->ReadyForActivation();
-	}
 	
+	WaitEventTask->EventReceived.AddDynamic(this, &ThisClass::OnHitDataEventReceived);
+	WaitEventTask->ReadyForActivation();
+	
+
 	TraceData.bIsFirstTick = true;
 	TraceData.HitActors.Empty();
 }
@@ -348,8 +346,16 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 	TraceData.HitActors.Add(HitActor);
 	
 	SendAttackEventsToTarget(HitActor);
-	
 	ApplyHitEffects(HitActor);
+	
+	if (UAbilitySystemComponent* SourceASC = GetASC())
+	{
+		FGameplayCueParameters AttackerCueParams;
+		AttackerCueParams.Location = Hit.ImpactPoint;
+		AttackerCueParams.Normal = Hit.ImpactNormal;
+		
+		SourceASC->ExecuteGameplayCue(HitImpactAttackerCueTag, AttackerCueParams);
+	}
 	
 	if (bUseHitStop)
 	{
@@ -360,11 +366,7 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 			HitStopTimeDilation,
 			true
 		);
-		
-		if (HitStopTask)
-		{
-			HitStopTask->ReadyForActivation();
-		}
+		HitStopTask->ReadyForActivation();
 	}
 }
 

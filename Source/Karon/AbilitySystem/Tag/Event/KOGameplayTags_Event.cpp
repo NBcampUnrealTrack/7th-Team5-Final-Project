@@ -78,6 +78,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Parried, "Event.Parried");
 	UE_DEFINE_GAMEPLAY_TAG(Event_CounterAttack, "Event.CounterAttack");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_Air_GroundImpact, "Event.Attack.Air.GroundImpact");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Event_SyncOverclockProgressBar, "Event.SyncOverclockProgressBar");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Jump_Launch, "Event.Jump.Launch");

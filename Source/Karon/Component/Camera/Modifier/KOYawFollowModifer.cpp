@@ -7,7 +7,10 @@ bool UKOYawFollowModifer::IsModifierActive_Implementation() const
 {
 	if (!Super::IsModifierActive_Implementation()) return false;
 
-	AKOPlayerController* PC = Cast<AKOPlayerController>(OwningCharacter->GetController());
+	AController* Controller = OwningCharacter->GetController();
+	if (!Controller) return true; 
+	
+	AKOPlayerController* PC = Cast<AKOPlayerController>(Controller);
 	if (!PC) return true;
 
 	return PC->GetTimeSinceLastLookInput() > ReactivateDelay;

@@ -182,6 +182,24 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarg
 	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
 }
 
+void UKOGameplayAbilityBase::ApplyGameplayCue(FGameplayTag CueTag, FGameplayCueParameters& Parameters)
+{
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC || !CueTag.IsValid()) return;
+	
+	ASC->ExecuteGameplayCue(CueTag, Parameters);
+}
+
+void UKOGameplayAbilityBase::ApplyGameplayCues(FGameplayTagContainer CueTag, FGameplayCueParameters& Parameters)
+{
+	for (auto& CueTag : CueTags)
+	{
+		if (!CueTag.IsValid()) continue;
+		
+		ApplyGameplayCue(CueTag, Parameters);
+	}
+}
+
 UGameplayEffect* UKOGameplayAbilityBase::GetCooldownGameplayEffect() const
 {
 	if (CooldownGEClass)

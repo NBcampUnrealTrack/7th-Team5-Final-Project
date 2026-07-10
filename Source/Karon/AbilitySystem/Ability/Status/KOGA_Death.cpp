@@ -119,8 +119,6 @@ void UKOGA_Death::EndAbility(
 
 void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)
 {
-	KO_LOGS(GAS, Ability, Warning, TEXT("Received Tag in Death Montage"));
-	
 	if (ACharacter* Character = GetAvatarCharacter())
 	{
 		Character->GetMesh()->bPauseAnims = true; 
@@ -131,15 +129,11 @@ void UKOGA_Death::OnReceiveEvent(FGameplayEventData Payload)
 
 void UKOGA_Death::OnMontageCompleted()
 {
-	KO_LOGS(GAS, Ability, Warning, TEXT("Death Montage Completed"));
-
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo,true, false);
 }
 
 void UKOGA_Death::OnMontageInterrupted()
 {
-	KO_LOGS(GAS, Ability, Warning, TEXT("Death Montage Interrupted"));
-	
 	if (ACharacter* Character = GetAvatarCharacter())
 	{
 		UAnimInstance* AnimInst = Character->GetMesh()->GetAnimInstance();

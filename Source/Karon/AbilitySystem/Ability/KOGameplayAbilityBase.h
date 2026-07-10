@@ -87,6 +87,9 @@ public:
 		float Level = 1.f
 	);
 	
+	virtual void ApplyGameplayCue(FGameplayTag CueTag, FGameplayCueParameters& Parameters);
+	
+	virtual void ApplyGameplayCues(FGameplayTagContainer CueTag, FGameplayCueParameters& Parameters);
 protected:
 	// ─── Cooldown ─────────────────────────────────────────────────────
 	virtual UGameplayEffect* GetCooldownGameplayEffect() const override;
@@ -120,6 +123,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Cost")
 	TSubclassOf<UGameplayEffect> CostGEClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Cue")
+	FGameplayTagContainer CueTags;
 	
 	mutable FActiveGameplayEffectHandle CostEffectHandle;
 	

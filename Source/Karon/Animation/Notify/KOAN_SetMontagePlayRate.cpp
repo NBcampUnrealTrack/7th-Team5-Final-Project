@@ -21,5 +21,5 @@ void UKOAN_SetMontagePlayRate::Notify(
  
 	AnimInstance->Montage_SetPlayRate(CurrentMontage, PlayRate);
  
-	UE_LOG(LogTemp, Log, TEXT("[SetPlayRate] PlayRate : %.2f"), PlayRate);
+	UE_LOG(LogTemp, Log, TEXT("[%s] | PlayRate : %.2f"),*CurrentMontage->GetName() , PlayRate);
 }

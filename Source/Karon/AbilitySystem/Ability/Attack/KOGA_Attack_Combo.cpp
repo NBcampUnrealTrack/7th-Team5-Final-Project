@@ -13,6 +13,7 @@
 UKOGA_Attack_Combo::UKOGA_Attack_Combo()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Heavy));
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_InAir);
 }

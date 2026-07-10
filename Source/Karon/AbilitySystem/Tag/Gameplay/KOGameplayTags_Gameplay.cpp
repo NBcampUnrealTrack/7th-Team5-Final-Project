@@ -10,4 +10,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_OverClock_Activate, "GameplayCue.OverClock.Activate");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_OverClock_Aura, "GameplayCue.OverClock.Aura");
 	
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_CameraShake_Attacker, "GameplayCue.CameraShake.Attacker");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_CameraShake_Hit, "GameplayCue.CameraShake.Hit");
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_AirPound, "GameplayCue.AirPound");
 }
