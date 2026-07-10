@@ -14,6 +14,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Game/KOGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/Map/FOW/KOVisionComponent.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -43,6 +44,7 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	Camera->BaseFOV = 90.f; 
 	
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	VisionComponent = CreateDefaultSubobject<UKOVisionComponent>(TEXT("VisionComponent"));
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
 	Trajectory->PrimaryComponentTick.AddPrerequisite(

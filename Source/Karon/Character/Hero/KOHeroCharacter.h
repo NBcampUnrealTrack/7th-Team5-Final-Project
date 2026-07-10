@@ -11,8 +11,9 @@ class UKOSpringArmComponent;
 class UKOCameraComponent;
 class UKOPreCMCTickComponent;
 class UCharacterTrajectoryComponent;
-class UKOStaminaSet; 
+class UKOStaminaSet;
 class UKOCombatSet;
+class UKOVisionComponent;
 
 
 UCLASS()
@@ -41,6 +42,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	UKOVisionComponent* GetVisionComponent() const { return VisionComponent; }
 	
 	UFUNCTION(BlueprintCallable)
 	UKOStaminaSet* GetStaminaSet() const { return StaminaSet; }
@@ -89,6 +93,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOVisionComponent> VisionComponent;
 
 protected:
 	UPROPERTY()

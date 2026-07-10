@@ -4,7 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "KOMapUIComponent.generated.h"
 
-class AKOFogManager;
+class UKOFogManagerSubsystem;
 class UKOMapSystemWidget;
 class UTexture2D;
 class UKOMainMapWidget;
@@ -59,7 +59,7 @@ private:
 	TObjectPtr<UKOMainMapWidget> MainMapWidget;
 
 	UPROPERTY()
-	mutable TObjectPtr<AKOFogManager> CachedFogManager;
- 
-	AKOFogManager* ResolveFogManager() const;
+	mutable TObjectPtr<UKOFogManagerSubsystem> CachedFogManager;
+
+	UKOFogManagerSubsystem* ResolveFogManager() const;
 };

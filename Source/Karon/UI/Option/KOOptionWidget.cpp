@@ -11,7 +11,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundClass.h"
-#include "Sound/SoundMix.h"
 #include "UI/KOUISettings.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
@@ -157,7 +156,7 @@ void UKOOptionWidget::PopulateComboBoxes()
 void UKOOptionWidget::LoadAndRefreshUI()
 {
 	UKOSaveGameOption* Data = UKOSaveGameOption::LoadOrCreate(this);
-	if (!Data)
+	if (Data == nullptr)
 	{
 		return;
 	}
@@ -173,25 +172,25 @@ void UKOOptionWidget::LoadAndRefreshUI()
 
 void UKOOptionWidget::SyncSavedOptionsToRuntime(APlayerController* OwningPlayer)
 {
-	if (!OwningPlayer)
+	if (OwningPlayer == nullptr)
 	{
 		return;
 	}
 
 	const UKOUISettings* UISettings = UKOUISettings::Get();
-	if (!UISettings)
+	if (UISettings == nullptr)
 	{
 		return;
 	}
 
 	const FKOUIWidgetEntry* Entry = UISettings->WidgetMap.Find(KOGameplayTags::UI_Widget_Option);
-	if (!Entry || Entry->WidgetClass.IsNull())
+	if (Entry == nullptr || Entry->WidgetClass.IsNull())
 	{
 		return;
 	}
 
 	const TSubclassOf<UCommonActivatableWidget> WidgetClass = Entry->WidgetClass.LoadSynchronous();
-	if (!WidgetClass || !WidgetClass->IsChildOf(StaticClass()))
+	if (WidgetClass == nullptr || !WidgetClass->IsChildOf(StaticClass()))
 	{
 		return;
 	}
@@ -304,7 +303,7 @@ FKOGraphicsOptions UKOOptionWidget::GatherGraphicsFromUI() const
 
 void UKOOptionWidget::ApplySingleSoundClass(USoundClass* SoundClass, float Volume) const
 {
-	if (!SoundMix || !SoundClass)
+	if (SoundMix == nullptr || !SoundClass)
 	{
 		return;
 	}
@@ -314,7 +313,7 @@ void UKOOptionWidget::ApplySingleSoundClass(USoundClass* SoundClass, float Volum
 
 void UKOOptionWidget::ApplySoundOptions(const FKOSoundOptions& Sound)
 {
-	if (!SoundMix)
+	if (SoundMix == nullptr)
 	{
 		return;
 	}
