@@ -93,11 +93,5 @@ void UKOGroggySet::HandleGroggyDamage(const FGameplayEffectModCallbackData& Data
  
 	SetGroggyHealth(NewGroggyHealth);
 	SetGroggyDamage(0.f);
- 
-	// 그로기 수치 0 도달 시 이벤트 발생
-	if (NewGroggyHealth <= 0.f)
-	{
-		OnGroggyTriggered.Broadcast();
-	}
 }
  

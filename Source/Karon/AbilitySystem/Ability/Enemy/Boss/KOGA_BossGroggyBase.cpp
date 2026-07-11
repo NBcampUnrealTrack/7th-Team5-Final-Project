@@ -23,7 +23,7 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	UGameplayAbility::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	if (!IsActive())
 	{
@@ -36,7 +36,7 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 		return;
 	}
 	
-	// 그로기 진입 모든 공격 GA 즉시 종료
+	// 그로기 진입 시 모든 공격 GA 즉시 종료
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
 		UGameplayAbility* GroggyInstance = GetCurrentAbilitySpec() ?
@@ -44,15 +44,12 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 		ASC->CancelAbilities(nullptr, nullptr, GroggyInstance);
 	}
  
-	// 보스 그로기 진입
 	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());
 	if (!Boss)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
- 
-	Boss->OnGroggyBegin();
  
 	// 그로기 유지 타이머
 	GetWorld()->GetTimerManager().SetTimer(
