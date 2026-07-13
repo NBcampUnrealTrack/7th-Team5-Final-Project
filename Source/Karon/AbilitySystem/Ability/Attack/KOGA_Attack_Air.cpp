@@ -8,6 +8,7 @@
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/Input/KOGameplayTags_Input.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -19,6 +20,48 @@ UKOGA_Attack_Air::UKOGA_Attack_Air()
 	
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Light));
 	ActivationRequiredTags.AddTag(KOGameplayTags::State_Character_Movement_InAir);
+}
+
+bool UKOGA_Attack_Air::CanActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, 
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+		return false; 
+	
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return false; 
+	
+	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
+	if (!Capsule) return false;
+	
+	FVector Start = Character->GetActorLocation() - 
+		FVector(0.0f, 0.0f, Capsule->GetScaledCapsuleHalfHeight());
+	
+	FVector End = Start + FVector(0.0f, 0.0f, -3000);
+	
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(Character);
+	
+	FHitResult Hit; 
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start, End,
+		ECC_WorldStatic,
+		CollisionParams
+	);
+	
+	if (!bHit) return true; 
+	
+#if WITH_EDITOR || !UE_BUILD_SHIPPING
+	if (TraceData.bShowDebug)
+		DrawDebugDirectionalArrow(GetWorld(), Start,End, 10.f, FColor::Red);
+#endif 
+	
+	return Hit.Distance >= MinHeight; 
 }
 
 void UKOGA_Attack_Air::ActivateAbility(

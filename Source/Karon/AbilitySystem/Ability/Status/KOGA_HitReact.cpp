@@ -61,6 +61,7 @@ void UKOGA_HitReact::ActivateAbility(
 		}
 	}
 	
+	ASC->CancelAllAbilities(this); 
 	
 	// 2. Caching 
 	if (TriggerEventData) CachedTriggerEventData = *TriggerEventData;

@@ -124,7 +124,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Cost")
 	TSubclassOf<UGameplayEffect> CostGEClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Cue")
+	UPROPERTY(EditDefaultsOnly, Category=GameplayCue, meta=(Categories="GameplayCue"))
 	FGameplayTagContainer CueTags;
 	
 	mutable FActiveGameplayEffectHandle CostEffectHandle;

@@ -13,6 +13,14 @@ class KARON_API UKOGA_Attack_Air : public UKOGA_AttackBase
 public:
 	UKOGA_Attack_Air();
 	
+	virtual bool CanActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayTagContainer* SourceTags = nullptr,
+		const FGameplayTagContainer* TargetTags = nullptr, 
+		FGameplayTagContainer* OptionalRelevantTags = nullptr
+	) const override;
+	
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -58,6 +66,9 @@ protected:
 	TArray<FName> MontageSectionNames;
 	
 	int32 CurrentSectionIndex = 0; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MinHeight = 50.f; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float AttackRadius = 300.f;

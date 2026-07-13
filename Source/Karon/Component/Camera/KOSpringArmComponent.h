@@ -27,5 +27,5 @@ public:
 
 private:
 	UPROPERTY(Transient)
-	TObjectPtr<class AKOCameraManager> CachedCameraManager = nullptr;
+	TObjectPtr<AKOCameraManager> CachedCameraManager = nullptr;
 };

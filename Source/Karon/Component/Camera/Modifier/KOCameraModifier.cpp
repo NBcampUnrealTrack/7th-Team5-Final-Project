@@ -4,12 +4,10 @@
 
 bool UKOCameraModifier::IsModifierActive_Implementation() const
 {
-	if (!bEnabled) return false;
-	 
+	if (!bEnabled || !OwningCharacter) return false;
+	
 	if (!ActivationTag.IsValid()) return true;
 	
-	if (!OwningCharacter) return false;
-
 	if (UAbilitySystemComponent* ASC = OwningCharacter->GetAbilitySystemComponent())
 	{
 		return ASC->HasMatchingGameplayTag(ActivationTag);

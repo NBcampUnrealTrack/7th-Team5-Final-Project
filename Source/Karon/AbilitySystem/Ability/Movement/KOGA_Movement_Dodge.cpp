@@ -75,6 +75,7 @@ void UKOGA_Movement_Dodge::ActivateAbility(
 	
 	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
+	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
 	MontageTask->ReadyForActivation(); 
 }
 
@@ -88,7 +89,6 @@ void UKOGA_Movement_Dodge::EndAbility(
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(GE_InvincibleHandle);
 	}
-	
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
