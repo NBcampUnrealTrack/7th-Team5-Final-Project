@@ -303,19 +303,6 @@ bool UKOGA_Utility_LockOn::IsTargetValid() const
 		}
 	}
 
-	// LOS 체크 — 타겟 소켓 위치로 LineTrace
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(OwnerChar);
-	Params.AddIgnoredActor(TargetActor);
-
-	FVector Start = OwnerChar->GetActorLocation();
-	FVector End   = GetTargetSocketLocation();
-
-	bool bBlocked = GetWorld()->LineTraceSingleByChannel(
-		HitResult, Start, End, ECC_Visibility, Params);
-
-	if (bBlocked) return false;
 	
 	// 3. 거리 체크
 	float Distance = FVector::Dist(GetAvatarCharacter()->GetActorLocation(), TargetActor->GetActorLocation());
@@ -378,12 +365,8 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
-	FVector  CameraLoc;
-	FRotator CameraRot;
-	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
-
-	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, GetTargetSocketLocation());
-	
+	const FVector EyeLoc = OwnerChar->GetActorLocation();
+	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, GetTargetSocketLocation());
 	
 	const bool bTargetIsBoss =
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
