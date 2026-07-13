@@ -3,6 +3,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UKOGA_BossJumpAttack::UKOGA_BossJumpAttack()
@@ -100,6 +101,8 @@ void UKOGA_BossJumpAttack::Launch()
     }
  
     BindLandedDelegate();
+    
+    AddPlayerToMoveIgnore();
  
     // 체공 유도 타이머
     FTimerDelegate HomingDelegate;
@@ -171,6 +174,7 @@ void UKOGA_BossJumpAttack::OnCharacterLanded(const FHitResult& Hit)
     GetWorld()->GetTimerManager().ClearTimer(HomingTimerHandle);
     GetWorld()->GetTimerManager().ClearTimer(FloatHoldTimerHandle);
     UnbindLandedDelegate();
+    RemovePlayerFromMoveIgnore();
  
     AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarActorFromActorInfo());
     if (!Boss)
@@ -184,6 +188,28 @@ void UKOGA_BossJumpAttack::OnCharacterLanded(const FHitResult& Hit)
     if (AnimInst)
     {
         AnimInst->Montage_JumpToSection(LandSection, AttackMontage);
+    }
+}
+
+void UKOGA_BossJumpAttack::AddPlayerToMoveIgnore()
+{
+    AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarActorFromActorInfo());
+    if (!Boss) return;
+ 
+    if (AActor* Target = Boss->CurrentTarget)
+    {
+        Boss->GetCapsuleComponent()->MoveIgnoreActors.AddUnique(Target);
+    }
+}
+ 
+void UKOGA_BossJumpAttack::RemovePlayerFromMoveIgnore()
+{
+    AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarActorFromActorInfo());
+    if (!Boss) return;
+ 
+    if (AActor* Target = Boss->CurrentTarget)
+    {
+        Boss->GetCapsuleComponent()->MoveIgnoreActors.Remove(Target);
     }
 }
  
@@ -236,6 +262,8 @@ void UKOGA_BossJumpAttack::EndAbility(
         WaitLaunchEventTask->EndTask();
         WaitLaunchEventTask = nullptr;
     }
+    
+    RemovePlayerFromMoveIgnore();
  
     AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarActorFromActorInfo());
     if (Boss)

@@ -103,4 +103,7 @@ private:
 
 	void BindLandedDelegate();
 	void UnbindLandedDelegate();
+	
+	void AddPlayerToMoveIgnore();
+	void RemovePlayerFromMoveIgnore();
 };
