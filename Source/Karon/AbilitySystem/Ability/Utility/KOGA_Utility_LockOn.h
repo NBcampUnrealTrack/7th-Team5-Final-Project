@@ -106,6 +106,25 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float BossLockOnCameraPitch = 10.f;
 	
+	
+	// ── 소프트 락온(리시) 설정 ──────────────────────────────────
+	// 타겟 정면(앵커) 기준, 마우스로 벗어날 수 있는 좌우 최대 각도
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn|Soft")
+	float LeashYaw = 40.f;
+
+	// 앵커 기준 상하 최대 각도
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn|Soft")
+	float LeashPitch = 20.f;
+
+	// 마우스에서 손 뗀 뒤 앵커로 복귀하는 보간 속도 (CameraInterpSpeed보다 느리게)
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn|Soft")
+	float RecenterInterpSpeed = 4.5f;
+
+	// 이 시간(초) 이상 마우스 입력이 없으면 "복귀 모드"로 전환
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn|Soft")
+	float ReactivateDelay = 1.0f;
+	
+	
 	// 보스 락온 시 카메라를 추가로 뒤로 빼는 거리 (cm)
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	float BossLockOnExtraArmLength = 350.f;

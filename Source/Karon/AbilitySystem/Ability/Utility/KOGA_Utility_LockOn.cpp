@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Game/KOPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/OverlapResult.h"
 
@@ -67,7 +68,10 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 	if (UWorld* World = GetWorld())
 	{
 		LockOnActivationTime = World->GetTimeSeconds();
-		GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
+		if (bShowDebugMessages && GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
+		}
 	}
 	ActivateLockOn();
 }
@@ -238,7 +242,7 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     	}
         // 1. 일반 액터 태그 검사
         bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag);
-        bool bIsBoss  = HitActor->ActorHasTag(FName("Boss"));
+        bool bIsBoss  = HitActor->ActorHasTag(BossActorTag);
 
         // 2. GAS 게임플레이 태그 검사 보완 (액터 태그가 없을 때를 대비한 안전망)
         if (!bIsEnemy && !bIsBoss)
@@ -369,20 +373,22 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	ACharacter* OwnerChar = GetAvatarCharacter();
 	if (!OwnerChar) return;
 
-	APlayerController* PC = Cast<APlayerController>(OwnerChar->GetController());
+	AKOPlayerController* PC = Cast<AKOPlayerController>(OwnerChar->GetController());
 	if (!PC) return;
 
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	
 	FVector  CameraLoc;
 	FRotator CameraRot;
 	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
 
-	FRotator TargetRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, GetTargetSocketLocation());
+	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, GetTargetSocketLocation());
 	
 	
 	const bool bTargetIsBoss =
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
 	
-	TargetRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
+	AnchorRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
 	
 	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
 	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
@@ -411,14 +417,34 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 			GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
 	}
 	
-	FRotator NewRot = FMath::RInterpTo(
-		PC->GetControlRotation(),
-		TargetRot,
-		GetWorld()->GetDeltaSeconds(),
-		CameraInterpSpeed
-	);
+	// 현재 시점(이번 프레임 마우스 입력이 이미 반영된 상태)
+	const FRotator CurrentRot = PC->GetControlRotation();
 
+	// 최근 마우스 조작 여부
+	const bool bRecentering = PC->GetTimeSinceLastLookInput() > ReactivateDelay;
+
+	FRotator TargetRot;
+	if (bRecentering)
+	{
+		// 손을 뗐으면 → 앵커(정면)로 복귀
+		TargetRot = AnchorRot;
+	}
+	else
+	{
+		// 조작 중이면 → 리시 범위 안으로만 클램프
+		const float YawDelta   = FMath::Clamp(FRotator::NormalizeAxis(CurrentRot.Yaw   - AnchorRot.Yaw),   -LeashYaw,   LeashYaw);
+		const float PitchDelta = FMath::Clamp(FRotator::NormalizeAxis(CurrentRot.Pitch - AnchorRot.Pitch), -LeashPitch, LeashPitch);
+		TargetRot = AnchorRot + FRotator(PitchDelta, YawDelta, 0.f);
+	}
+
+	const float Speed = bRecentering ? RecenterInterpSpeed : CameraInterpSpeed;
+	const FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, Speed);
 	PC->SetControlRotation(NewRot);
+
+	// 몸통은 계속 타겟을 향하도록 수동 회전 (bUseControllerRotationYaw=false 이므로)
+	FRotator BodyRot = OwnerChar->GetActorRotation();
+	BodyRot.Yaw = FMath::RInterpTo(BodyRot, FRotator(0.f, AnchorRot.Yaw, 0.f), DeltaTime, CameraInterpSpeed).Yaw;
+	//OwnerChar->SetActorRotation(FRotator(0.f, BodyRot.Yaw, 0.f));
 	
 }
  
