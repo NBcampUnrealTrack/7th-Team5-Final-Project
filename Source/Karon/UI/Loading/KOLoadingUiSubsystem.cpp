@@ -79,7 +79,7 @@ void UKOLoadingUiSubsystem::HideLoadingScreen()
 
 bool UKOLoadingUiSubsystem::TickLoading(float DeltaTime)
 {
-	if (!bIsLoadingActive || !CurrentLoadingWidget) return false;
+	if (bIsLoadingActive ==false || CurrentLoadingWidget == nullptr) return false;
 
 	switch (CurrentState)
 	{
