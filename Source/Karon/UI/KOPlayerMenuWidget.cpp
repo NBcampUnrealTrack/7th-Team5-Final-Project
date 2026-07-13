@@ -197,6 +197,11 @@ void UKOPlayerMenuWidget::HandleSaveClicked()
 
 void UKOPlayerMenuWidget::HandleLoadClicked()
 {
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->ShowLoadingScreen(DefaultLoadingWidget);
+	}
+	
 	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
 
 	const bool bLoaded = SaveSubsystem && SaveSubsystem->LoadCurrentGame();
@@ -208,6 +213,11 @@ void UKOPlayerMenuWidget::HandleLoadClicked()
 	}
 
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+	
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->HideLoadingScreen();
+	}
 }
 
 #define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"

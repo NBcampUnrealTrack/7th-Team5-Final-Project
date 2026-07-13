@@ -39,6 +39,11 @@ void UKOGameOverWidget::OnBackToTitleClicked()
 
 void UKOGameOverWidget::OnBackToLastSaveClicked()
 {
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->ShowLoadingScreen(DefaultLoadingWidget);
+	}
+	
 	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
 	if (!SaveSubsystem)
 	{
@@ -103,4 +108,9 @@ void UKOGameOverWidget::OnBackToLastSaveClicked()
 	}
 	
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_GameOverMenu);
+		
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->HideLoadingScreen();
+	}
 }
