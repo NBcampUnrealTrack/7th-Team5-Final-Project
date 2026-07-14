@@ -9,6 +9,8 @@
 #include "AbilitySystem/Effect/KOGameplayEffectContext.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
+#include "Character/Enemy/KOBaseEnemy.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/KO_HitData.h"
@@ -399,7 +401,13 @@ AActor* UKOGA_AttackBase::GetMotionWarpTarget() const
 
 	if (bHit && HitResult.GetActor())
 	{
-		return HitResult.GetActor(); 
+		AActor* HitActor = HitResult.GetActor();
+		
+		if (Cast<AKOBaseEnemy>(HitActor) || Cast<AKOBossBase>(HitActor))
+		{
+			return HitActor; 
+		}
+		
 	}
 
 	return nullptr;
