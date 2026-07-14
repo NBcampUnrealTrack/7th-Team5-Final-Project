@@ -61,6 +61,11 @@ void UKOInventoryPanelWidget::NativeConstruct()
         }
     }
     
+    if (WarningText)
+    {
+        WarningText->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    
     CacheEquipmentSlotWidgets();
 }
 
