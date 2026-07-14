@@ -189,6 +189,17 @@ void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 void UKOPlayerMenuWidget::HandleSaveClicked()
 {
 	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+	if (!SaveSubsystem)
+	{
+		ShowLocalMessage(FText::FromString(TEXT("저장 실패")));
+		return;
+	}
+	
+	if (!SaveSubsystem->CanSaveOrLoad())
+	{
+		ShowLocalMessage(FText::FromString(TEXT("전투 중에는 저장할 수 없습니다.")));
+		return;
+	}
 
 	const bool bSaved =	SaveSubsystem && SaveSubsystem->SaveCurrentGame();
 
@@ -197,24 +208,46 @@ void UKOPlayerMenuWidget::HandleSaveClicked()
 
 void UKOPlayerMenuWidget::HandleLoadClicked()
 {
-	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+	if (!SaveSubsystem)
+	{
+		ShowLocalMessage(FText::FromString(TEXT("로드 실패")));
+		return;
+	}
+
+	if (!SaveSubsystem->CanSaveOrLoad())
+	{
+		ShowLocalMessage(FText::FromString(TEXT("전투 중에는 로드할 수 없습니다.")));
+		return;
+	}
+	
+	UKOLoadingUiSubsystem* LoadingSubsystem =
+		GetGameInstance()
+		? GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>()
+		: nullptr;
+
+	if (LoadingSubsystem)
 	{
 		LoadingSubsystem->ShowLoadingScreen(DefaultLoadingWidget);
 	}
-	
-	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
 
 	const bool bLoaded = SaveSubsystem && SaveSubsystem->LoadCurrentGame();
 	
 	if (!bLoaded)
 	{
+		// 전투 이외의 사유로 로드가 실패해도 반드시 로딩 화면을 닫는다.
+		if (LoadingSubsystem)
+		{
+			LoadingSubsystem->HideLoadingScreen();
+		}
+		
 		ShowLocalMessage(FText::FromString(TEXT("로드 실패")));
 		return;
 	}
 
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 	
-	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	if (LoadingSubsystem)
 	{
 		LoadingSubsystem->HideLoadingScreen();
 	}

@@ -75,10 +75,8 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "SaveLoad|Combat")
     float SaveLoadUnlockDelayAfterCombat = 5.0f;
-
-    FTimerHandle SaveLoadUnlockTimerHandle;
-
-    bool bSaveLoadBlockedByCombat = false;
+    
+    double CombatUnlockRealTimeSeconds = 0.0;
     
     bool bLobbyLoadRequested = false;
     

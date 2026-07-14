@@ -23,6 +23,7 @@
 #include "Character/Enemy/Cluster/KOEnemyCluster.h"
 #include "MapActor/KOItemDropActor.h"
 #include "UI/Map/FOW/KOFogManagerSubsystem.h"
+#include "HAL/PlatformTime.h"
 
 const FString UKOSaveSubsystem::DefaultSlotName = TEXT("KaronSaveSlot");
 
@@ -893,12 +894,9 @@ void UKOSaveSubsystem::NotifyActorTargetingPlayer(AActor* SourceActor)
 	}
 
 	ActorsTargetingPlayer.Add(SourceActor);
-	bSaveLoadBlockedByCombat = true;
 
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
-	}
+	// 다시 전투가 시작됐으므로 기존 해제 예정 시간 초기화
+	CombatUnlockRealTimeSeconds = 0.0;
 }
 
 void UKOSaveSubsystem::NotifyActorStoppedTargetingPlayer(AActor* SourceActor)
@@ -922,52 +920,41 @@ void UKOSaveSubsystem::NotifyActorStoppedTargetingPlayer(AActor* SourceActor)
 		return;
 	}
 
-	// 모든 몬스터/보스가 타겟을 해제한 뒤에도 바로 풀지 않고 몇 초 대기
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
-
-		World->GetTimerManager().SetTimer(
-			SaveLoadUnlockTimerHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this]()
-			{
-				// 대기 시간 중 다시 타겟 지정된 적이 없을 때만 해제
-				if (ActorsTargetingPlayer.Num() == 0)
-				{
-					bSaveLoadBlockedByCombat = false;
-
-					UE_LOG(
-						LogTemp,
-						Warning,
-						TEXT("[SaveLoad] 전투 시간 끝")
-					);
-				}
-			}),
-			SaveLoadUnlockDelayAfterCombat,
-			false
-		);
-	}
+	// 게임 일시정지와 무관한 실제 시간 기준으로 해제 시점 설정
+	CombatUnlockRealTimeSeconds = FPlatformTime::Seconds() + static_cast<double>(SaveLoadUnlockDelayAfterCombat);
 }
 
 bool UKOSaveSubsystem::CanSaveOrLoad() const
 {
-	if (bSaveLoadBlockedByCombat)
+	// 현재 플레이어를 타겟으로 삼는 적이 있으면 불가능
+	if (ActorsTargetingPlayer.Num() > 0)
 	{
 		return false;
 	}
 
-	return ActorsTargetingPlayer.Num() == 0;
+	// 전투 종료 대기시간이 설정되지 않았다면 가능
+	if (CombatUnlockRealTimeSeconds <= 0.0)
+	{
+		return true;
+	}
+	const double CurrentRealTime = FPlatformTime::Seconds();
+	const double RemainingTime = FMath::Max(0.0, CombatUnlockRealTimeSeconds - CurrentRealTime);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[SaveLoad] 전투 종료까지 %.2f초"),
+		RemainingTime
+	);
+
+	// 실제 시간이 해제 예정 시간을 지났는지 검사
+	return FPlatformTime::Seconds() >= CombatUnlockRealTimeSeconds;
 }
 
 void UKOSaveSubsystem::ForceEndCombat()
 {
 	ActorsTargetingPlayer.Reset();
-	bSaveLoadBlockedByCombat = false;
-
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(SaveLoadUnlockTimerHandle);
-	}
+	CombatUnlockRealTimeSeconds = 0.0;
 
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 플레이어 사망으로 전투 상태 강제 종료"));
 }
