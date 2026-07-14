@@ -148,6 +148,17 @@ void AKOPlayerController::OnBuildModeChanged(FGameplayTag /*Channel*/, const FIn
 	{
 		return;
 	}
+	
+	if (Message->NewMode != EKOGridBuildMode::BuildMenu)
+	{
+		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+		{
+			if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_BuildInventory))
+			{
+				UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+			}
+		}
+	}
 
 	const bool bWasActive = Message->PreviousMode != EKOGridBuildMode::None;
 	const bool bIsActive = Message->NewMode != EKOGridBuildMode::None;
@@ -218,12 +229,6 @@ void AKOPlayerController::GiveStarterItems()
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Factory,
-		TEXT("Boiler"),
-		1
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Factory,
 		TEXT("AlloyMaker"),
 		1
 	);
@@ -233,31 +238,6 @@ void AKOPlayerController::GiveStarterItems()
 		TEXT("GearPress"),
 		1
 	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Factory,
-		TEXT("PipeWorkshop"),
-		1
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Factory,
-		TEXT("UndergroundMiningModule"),
-		1
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Factory,
-		TEXT("CornerBelt"),
-		20
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Factory,
-		TEXT("StraightBelt"),
-		20
-	);
-
 	// 아이템 -----------------------------------------
 
 	FoundInventoryComponent->TryAddItem(
@@ -269,12 +249,6 @@ void AKOPlayerController::GiveStarterItems()
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
 		TEXT("Coal"),
-		50
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Item,
-		TEXT("CoalDust"),
 		50
 	);
 
@@ -299,24 +273,6 @@ void AKOPlayerController::GiveStarterItems()
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
 		TEXT("Bronze"),
-		50
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Item,
-		TEXT("BronzePlate"),
-		50
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Item,
-		TEXT("DamagedMiningPipe"),
-		50
-	);
-
-	FoundInventoryComponent->TryAddItem(
-		EKOSlotKind::Item,
-		TEXT("MiningPipe"),
 		50
 	);
 
