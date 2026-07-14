@@ -31,4 +31,5 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CameraShake_Attacker);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CameraShake_Hit);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_AirPound);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CounterAttack);
 }

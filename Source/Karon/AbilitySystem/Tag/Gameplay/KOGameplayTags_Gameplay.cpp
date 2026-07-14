@@ -15,4 +15,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_CameraShake_Hit, "GameplayCue.CameraShake.Hit");
 	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_AirPound, "GameplayCue.AirPound");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_CounterAttack, "GameplayCue.CounterAttack");
 }
