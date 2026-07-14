@@ -161,7 +161,7 @@ void AKOBossBase::RestoreBossFromSave(const FTransform& SavedTransform, bool bWa
 
 			if (DataAsset)
 			{
-				if (UClass* AnimClass = DataAsset->AnimInstance.LoadSynchronous())
+				if (UClass* AnimClass = DataAsset->AnimInstance.Get())
 				{
 					MeshComp->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 					MeshComp->SetAnimInstanceClass(AnimClass);
@@ -189,6 +189,18 @@ void AKOBossBase::RestoreBossFromSave(const FTransform& SavedTransform, bool bWa
 		if (AAIController* AIC = Cast<AAIController>(GetController()))
 		{
 			AIC->StopMovement();
+			
+			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
+			{
+				// Blackboard 초기화
+				BB->SetValueAsBool(AKOAIC_BossController::bIsDeadKey, false);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, false);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsGimmickReadyKey, false);
+				BB->SetValueAsBool(AKOAIC_BossController::bIsPhase2Key, false);
+			}
+			
+			// 그로기 상태 초기화
+			OnGroggyEnd();
 
 			if (UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(AIC->BrainComponent))
 			{
