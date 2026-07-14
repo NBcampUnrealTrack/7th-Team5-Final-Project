@@ -242,8 +242,17 @@ bool UKOQuestGuideSubsystem::CanUnlockSkillByQuest() const
 	return Row->bAllowSkillUnlock;
 }
 
+void UKOQuestGuideSubsystem::ResetQuestGuide()
+{
+	CurrentQuestId = NAME_None;
+	CurrentProgress = 0;
+	CompletedQuestIds.Reset();
+
+	OnQuestChanged.Broadcast(NAME_None);
+}
+
 void UKOQuestGuideSubsystem::GetQuestGuideStateForSave(FName& OutCurrentQuestId, int32& OutCurrentProgress,
-	TArray<FName>& OutCompletedQuestIds) const
+                                                       TArray<FName>& OutCompletedQuestIds) const
 {
 	OutCurrentQuestId = CurrentQuestId;
 	OutCurrentProgress = CurrentProgress;

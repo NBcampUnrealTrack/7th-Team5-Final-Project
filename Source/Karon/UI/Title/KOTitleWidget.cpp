@@ -9,6 +9,7 @@
 
 #include "CommonButtonBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 void UKOTitleWidget::NativeConstruct()
 {
@@ -55,6 +56,12 @@ void UKOTitleWidget::StartGameConfirmation()
 	{
 		// 이전 진행 세이브 삭제
 		SaveSubsystem->DeleteSave();
+	}
+	
+	// 퀘스트 진행 초기화
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->ResetQuestGuide();
 	}
 	
 	//메인 레벨 변경 시 이름 변경

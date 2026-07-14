@@ -51,6 +51,8 @@ public:
 	
 	bool CanUnlockSkillByQuest() const; // 스킬 해금 가능 여부
 
+	void ResetQuestGuide(); // 퀘스트 초기화
+	
 	FKOQuestGuideChangedSignature OnQuestChanged;
 	
 	// 세이브 로드
