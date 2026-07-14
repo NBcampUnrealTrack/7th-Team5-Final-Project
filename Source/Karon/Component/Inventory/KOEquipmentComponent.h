@@ -10,13 +10,14 @@ class UKOWeaponDefinition;
 class AKOWeaponBase;
 class UGameplayEffect;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChangeBlocked);
+
 UENUM(BlueprintType)
 enum class EWeaponSlot : uint8
 {
 	Hand    UMETA(DisplayName = "Hand"),    // 손에 뽑아 든 상태
 	Holster UMETA(DisplayName = "Holster"), // 칼집/등에 꽂힌 상태
 };
-
 
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -33,9 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	void EquipWeapon(UKOWeaponDefinition* Def);
 
-	// 현재 무기 해제: GAS 회수, 액터 제거
+	// 현재 무기 해제: GAS 회수, 액터 제거. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	void UnequipWeapon();
+	bool UnequipWeapon();
 	
 	// 뽑기: 칼집(Holster) → 손(Hand)
 	void DrawWeapon();
@@ -64,11 +65,15 @@ public:
 	// 무기 장착
 	bool EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def);
 	
-	// 방어구 장착
+	// 방어구 장착. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
 	bool EquipArmorFromItem(EKOEquipmentSlotType SlotType, FName ItemId);
 
-	// 방어구 장착 해제
-	void UnequipArmor(EKOEquipmentSlotType SlotType);
+	// 방어구 장착 해제. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
+	bool UnequipArmor(EKOEquipmentSlotType SlotType);
+
+	// 스킬 등 공격 계열 GA가 활성화 중(State.Character.Attacking)인지 확인. true면 장비(무기/방어구) 변경을 막아야 한다.
+	UFUNCTION(BlueprintPure, Category = "Equipment")
+	bool IsEquipmentChangeBlockedBySkill() const;
 
 	UFUNCTION(BlueprintPure, Category = "Equipment|Armor")
 	FName GetEquippedArmorItemId(EKOEquipmentSlotType SlotType) const;
@@ -82,6 +87,8 @@ public:
 	// 세이브 로드
 	bool RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot);
 	void LoadArmorFromSave(const TMap<EKOEquipmentSlotType, FName>& SavedArmorItemIds);
+	
+	FOnEquipmentChangeBlocked OnEquipmentChangeBlocked;
 	
 protected:
 	void SetWeaponSlot(EWeaponSlot NewSlot);

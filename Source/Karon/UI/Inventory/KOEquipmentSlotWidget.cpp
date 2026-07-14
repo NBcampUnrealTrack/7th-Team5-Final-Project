@@ -129,6 +129,21 @@ bool UKOEquipmentSlotWidget::CanAcceptItem(FName ItemId) const
 	return true;
 }
 
+bool UKOEquipmentSlotWidget::NotifyIfBlockedBySkill(UKOEquipmentComponent* EquipmentComponent) const
+{
+    if (!EquipmentComponent || !EquipmentComponent->IsEquipmentChangeBlockedBySkill())
+    {
+        return false;
+    }
+
+    if (EquipmentComponent->OnEquipmentChangeBlocked.IsBound())
+    {
+        EquipmentComponent->OnEquipmentChangeBlocked.Broadcast();
+    }
+
+    return true;
+}
+
 void UKOEquipmentSlotWidget::SyncFromEquipmentComponent()
 {
 	UKOEquipmentComponent* EquipmentComponent = ResolveEquipmentComponent();
@@ -166,8 +181,7 @@ bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
 	{
 		if (EquippedItemId.IsNone())
 		{
-			EquipmentComponent->UnequipWeapon();
-			return true;
+			return EquipmentComponent->UnequipWeapon();
 		}
 
 		UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
@@ -204,8 +218,7 @@ bool UKOEquipmentSlotWidget::ApplyEquipmentToComponent()
 	// 방어구 슬롯
 	if (EquippedItemId.IsNone())
 	{
-		EquipmentComponent->UnequipArmor(SlotType);
-		return true;
+		return EquipmentComponent->UnequipArmor(SlotType);
 	}
 
 	return EquipmentComponent->EquipArmorFromItem(SlotType, EquippedItemId);
@@ -264,6 +277,12 @@ bool UKOEquipmentSlotWidget::TryEquipFromSource(FName ItemId, UKOItemDragSource*
     }
 
     if (!CanAcceptItem(ItemId))
+    {
+        return false;
+    }
+
+    UKOEquipmentComponent* EquipmentComponent = ResolveEquipmentComponent();
+    if (NotifyIfBlockedBySkill(EquipmentComponent))
     {
         return false;
     }
@@ -331,6 +350,11 @@ bool UKOEquipmentSlotWidget::TryEquipItemFromInventorySlot(int32 InventorySlotIn
 int32 UKOEquipmentSlotWidget::ExtractEquippedItem(FName ItemId, int32 Count)
 {
     if (EquippedItemId.IsNone() || EquippedItemId != ItemId || Count <= 0)
+    {
+        return 0;
+    }
+
+    if (NotifyIfBlockedBySkill(ResolveEquipmentComponent()))
     {
         return 0;
     }
@@ -442,6 +466,11 @@ bool UKOEquipmentSlotWidget::UnequipItem()
 
     UKOInventoryComponent* Inventory = InventoryComponent;
     if (!Inventory)
+    {
+        return false;
+    }
+
+    if (NotifyIfBlockedBySkill(ResolveEquipmentComponent()))
     {
         return false;
     }

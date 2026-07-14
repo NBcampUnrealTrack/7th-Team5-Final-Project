@@ -88,6 +88,9 @@ private:
 
     bool CanAcceptItem(FName ItemId) const;
 
+    /** 스킬 GA 활성 중이면 EquipmentComponent의 OnEquipmentChangeBlocked를 브로드캐스트하고 true 반환. */
+    bool NotifyIfBlockedBySkill(UKOEquipmentComponent* EquipmentComponent) const;
+
     // 무기 장착/해제
     bool ApplyEquipmentToComponent();
 

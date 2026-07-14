@@ -1,10 +1,13 @@
 // Copyright Karon Team 5. All Rights Reserved.
 #include "UI/Inventory/KOInventoryPanelWidget.h"
-
 #include "Component/Inventory/KOInventoryComponent.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 #include "UI/Inventory/KOInventoryWidget.h"
-#include "Blueprint/WidgetTree.h"
 #include "UI/Inventory/KOEquipmentSlotWidget.h"
+
+#include "Blueprint/WidgetTree.h"
+#include "Components/TextBlock.h"
+#include "Animation/WidgetAnimation.h"
 
 UKOInventoryPanelWidget::UKOInventoryPanelWidget()
 {
@@ -22,6 +25,18 @@ void UKOInventoryPanelWidget::SetInventoryComponent(UKOInventoryComponent* InCom
     }
 }
 
+void UKOInventoryPanelWidget::NativeOnInitialized()
+{
+    Super::NativeOnInitialized();
+    
+    if (WarningFadeAnim)
+    {
+        FWidgetAnimationDynamicEvent EndEvent;
+        EndEvent.BindDynamic(this, &ThisClass::OnFadeOutFinished);
+        BindToAnimationFinished(WarningFadeAnim, EndEvent);
+    }
+}
+
 void UKOInventoryPanelWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -36,7 +51,16 @@ void UKOInventoryPanelWidget::NativeConstruct()
     {
         BuildQuickSlotBar->SetDisplayMode(EKOQuickSlotBarDisplayMode::Inventory);
     }
-
+    
+    if (APawn* OwningPawn = GetOwningPlayerPawn())
+    {
+        UKOEquipmentComponent* EquipComp = OwningPawn->FindComponentByClass<UKOEquipmentComponent>();
+        if (EquipComp)
+        {
+            EquipComp->OnEquipmentChangeBlocked.AddDynamic(this, &ThisClass::HandleEquipmentChangeBlocked);
+        }
+    }
+    
     CacheEquipmentSlotWidgets();
 }
 
@@ -46,6 +70,15 @@ void UKOInventoryPanelWidget::NativeDestruct()
     {
         InventoryWidget->OnSlotClicked.RemoveDynamic(this, &UKOInventoryPanelWidget::HandleSlotClicked);
         InventoryWidget->OnSlotRightClicked.RemoveDynamic(this, &UKOInventoryPanelWidget::HandleSlotRightClicked);
+    }
+    
+    if (APawn* OwningPawn = GetOwningPlayerPawn())
+    {
+        UKOEquipmentComponent* EquipComp = OwningPawn->FindComponentByClass<UKOEquipmentComponent>();
+        if (EquipComp)
+        {
+            EquipComp->OnEquipmentChangeBlocked.RemoveDynamic(this, &ThisClass::HandleEquipmentChangeBlocked);
+        }
     }
 
     Super::NativeDestruct();
@@ -59,6 +92,32 @@ void UKOInventoryPanelWidget::HandleSlotClicked(int32 SlotIndex, const FKOItemSl
 void UKOInventoryPanelWidget::HandleSlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
 {
     TryEquipItemToMatchingSlot(SlotIndex, InSlot);
+}
+
+void UKOInventoryPanelWidget::HandleEquipmentChangeBlocked()
+{
+    if (WarningText && WarningFadeAnim)
+    {
+        if (IsAnimationPlaying(WarningFadeAnim))
+        {
+            StopAnimation(WarningFadeAnim);
+        }
+
+        WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+        PlayAnimation(WarningFadeAnim);
+    }
+}
+
+void UKOInventoryPanelWidget::OnFadeOutFinished()
+{
+    // StopAnimation()으로 중단된 이전 재생의 Finished 브로드캐스트가 다음 틱에 지연 도착할 수 있다.
+    // 그 사이 새 PlayAnimation이 시작됐다면 IsAnimationPlaying()이 true이므로 여기서 Collapsed로
+    // 전환하지 않아야, 방금 재시작된 애니메이션이 잘려나가지 않는다.
+    if (WarningText && WarningFadeAnim && IsAnimationPlaying(WarningFadeAnim) == false)
+    {
+        WarningText->SetVisibility(ESlateVisibility::Collapsed);
+    }
 }
 
 void UKOInventoryPanelWidget::CacheEquipmentSlotWidgets()

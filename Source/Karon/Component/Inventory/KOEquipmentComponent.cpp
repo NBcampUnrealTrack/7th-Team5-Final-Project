@@ -19,50 +19,61 @@ UKOEquipmentComponent::UKOEquipmentComponent()
 void UKOEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
 	if (!Character) return;
-	
+
 	SkeletalMesh = Character->GetMesh();
-	BodyMesh = SkeletalMesh; 
-	
-	DefaultAnimLayerClass = SkeletalMesh->GetAnimClass(); 
+	BodyMesh = SkeletalMesh;
+
+	DefaultAnimLayerClass = SkeletalMesh->GetAnimClass();
 }
 
 void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 {
 	if (!Def) return;
-	
+
 	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
 	if (!Character || !BodyMesh) return;
-	
-	bool WeaponDrawn = IsWeaponDrawn(); 
+
+	if (IsEquipmentChangeBlockedBySkill())
+	{
+		KO_LOG(GAS, Warning, TEXT("EquipWeapon blocked: Skill GA is active (State.Character.Attacking)."));
+		
+		if (OnEquipmentChangeBlocked.IsBound())
+		{
+			OnEquipmentChangeBlocked.Broadcast();
+		}
+		return;
+	}
+
+	bool WeaponDrawn = IsWeaponDrawn();
 	if (CurrentWeaponActor)
 	{
 		UnequipWeapon();
 	}
-	
+
 	FActorSpawnParameters Params;
 	Params.Owner = Character;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AKOWeaponBase* NewWeapon = GetWorld()->SpawnActor<AKOWeaponBase>(AKOWeaponBase::StaticClass(), Params);
-	if (!NewWeapon) return; 
-	
+	if (!NewWeapon) return;
+
 	NewWeapon->InitializeWeapon(Def);
-	
+
 	NewWeapon->AttachToComponent(
 		BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		WeaponDrawn ? Def->EquipSocket : Def->UnEquipSocket
 	);
-	
+
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (ASC && Def->GrantedSet)
 	{
 		Def->GrantedSet->GiveToAsc(ASC, ActiveHandles);
 	}
-	
+
 	FTransform WeaponSocketLocal = NewWeapon->GetMesh()->GetSocketTransform(
 		Def->GripSocket,
 		ERelativeTransformSpace::RTS_Component
@@ -71,15 +82,26 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 
 	CurrentWeaponActor = NewWeapon;
 	CurrentWeaponConfig = Def;
-	
+
 	SetWeaponSlot(WeaponDrawn ? EWeaponSlot::Hand : EWeaponSlot::Holster);
-	
-	KO_LOG(GAS,Warning, TEXT("Equiped Weapon : %s"), *Def->WeaponName.ToString());
+
+	KO_LOG(GAS, Warning, TEXT("Equiped Weapon : %s"), *Def->WeaponName.ToString());
 }
 
 
-void UKOEquipmentComponent::UnequipWeapon()
-{	
+bool UKOEquipmentComponent::UnequipWeapon()
+{
+	if (IsEquipmentChangeBlockedBySkill())
+	{
+		KO_LOG(GAS, Warning, TEXT("UnequipWeapon blocked: Skill GA is active (State.Character.Attacking)."));
+		
+		if (OnEquipmentChangeBlocked.IsBound())
+		{
+			OnEquipmentChangeBlocked.Broadcast();
+		}
+		return false;
+	}
+
 	// 무기 정보가 살아 있을 때 먼저 애니메이션을 Holster 상태로 돌린다.
 	if (CurrentWeaponConfig)
 	{
@@ -94,7 +116,7 @@ void UKOEquipmentComponent::UnequipWeapon()
 			SkeletalMesh->LinkAnimClassLayers(DefaultAnimLayerClass);
 		}
 	}
-	
+
 	// GAS 무기 능력 제거
 	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
 	if (Character)
@@ -112,13 +134,15 @@ void UKOEquipmentComponent::UnequipWeapon()
 		CurrentWeaponActor->Destroy();
 		CurrentWeaponActor = nullptr;
 	}
-	
+
 	// 무기 상태를 비운다.
 	CurrentWeaponConfig = nullptr;
 	CurrentWeaponItemId = NAME_None;
 	CurrentWeaponSlot = EWeaponSlot::Holster;
-	
+
 	SyncWeaponDrawnTagToASC();
+
+	return true;
 }
 
 void UKOEquipmentComponent::DrawWeapon()
@@ -138,11 +162,11 @@ void UKOEquipmentComponent::SheatheWeapon()
 	if (!CurrentWeaponActor || !CurrentWeaponConfig || CurrentWeaponSlot == EWeaponSlot::Holster) return;
 
 	CurrentWeaponActor->AttachToComponent(
-	BodyMesh,
+		BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		CurrentWeaponConfig->UnEquipSocket
 	);
-	
+
 	SetWeaponSlot(EWeaponSlot::Holster);
 }
 
@@ -197,7 +221,7 @@ bool UKOEquipmentComponent::RestoreWeaponFromSave(FName InWeaponItemId, UKOWeapo
 	EquipWeapon(Def);
 
 	CurrentWeaponItemId = InWeaponItemId;
-	
+
 	UE_LOG(
 		LogTemp,
 		Warning,
@@ -242,6 +266,7 @@ bool UKOEquipmentComponent::EquipArmorFromItem(EKOEquipmentSlotType SlotType, FN
 	{
 		return false;
 	}
+	//방어구도 제한하려면 if (IsEquipmentChangeBlockedBySkill()) 추가
 
 	EquippedArmorItemIds.FindOrAdd(SlotType) = ItemId;
 
@@ -250,16 +275,19 @@ bool UKOEquipmentComponent::EquipArmorFromItem(EKOEquipmentSlotType SlotType, FN
 	return true;
 }
 
-void UKOEquipmentComponent::UnequipArmor(EKOEquipmentSlotType SlotType)
+bool UKOEquipmentComponent::UnequipArmor(EKOEquipmentSlotType SlotType)
 {
 	if (SlotType == EKOEquipmentSlotType::Weapon)
 	{
-		return;
+		return false;
 	}
+	//방어구도 제한하려면 if (IsEquipmentChangeBlockedBySkill()) 추가
 
 	EquippedArmorItemIds.Remove(SlotType);
 
 	RecalculateArmorDefense();
+
+	return true;
 }
 
 FName UKOEquipmentComponent::GetEquippedArmorItemId(EKOEquipmentSlotType SlotType) const
@@ -365,14 +393,14 @@ void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 			if (NewSlot == EWeaponSlot::Hand)
 			{
 				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Carrying
-					? CurrentWeaponConfig->WeaponABP_Carrying
-					: nullptr;
+					               ? CurrentWeaponConfig->WeaponABP_Carrying
+					               : nullptr;
 			}
 			else
 			{
 				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Sheathed
-					? CurrentWeaponConfig->WeaponABP_Sheathed
-					: nullptr;
+					               ? CurrentWeaponConfig->WeaponABP_Sheathed
+					               : nullptr;
 			}
 		}
 
@@ -381,6 +409,23 @@ void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 	}
 
 	SyncWeaponDrawnTagToASC();
+}
+
+bool UKOEquipmentComponent::IsEquipmentChangeBlockedBySkill() const
+{
+	const AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (Character == nullptr)
+	{
+		return false;
+	}
+
+	const UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+	if (ASC == nullptr)
+	{
+		return false;
+	}
+
+	return ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Attacking);
 }
 
 void UKOEquipmentComponent::SyncWeaponDrawnTagToASC()
