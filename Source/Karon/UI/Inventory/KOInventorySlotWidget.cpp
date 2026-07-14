@@ -168,6 +168,7 @@ void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, c
         DragVisualOpacity,
         nullptr
     );
+    
     if (DragOp && InventoryComponent)
     {
         UKOInventorySlotItemSource* Src = NewObject<UKOInventorySlotItemSource>(DragOp);

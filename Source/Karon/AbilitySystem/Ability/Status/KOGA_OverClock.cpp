@@ -91,7 +91,7 @@ void UKOGA_OverClock::OnOverClockStart(FGameplayEventData Payload)
 		BuffEffectHandle = ApplyEffectToSelf(GE_OverClockBuff, 1.f);
 	 
 	if (GE_ClockDrain) 
-		DrainEffectHandle = ApplyEffectToSelf(GE_ClockDrain, 1.f);
+		DrainEffectHandle = ApplyEffectSetByCallerToSelf(GE_ClockDrain,KOGameplayTags::Data_Attribute_Combat_Clock, GainAmount);
 	
 
 	if (ActivationCueTag.IsValid())

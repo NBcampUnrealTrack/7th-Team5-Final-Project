@@ -85,6 +85,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", Meta = (DisplayName = "공격자도 함께 정지"))
 	bool bAffectInstigator = true; 
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cancel")
+	FGameplayTagContainer CancelTags;
+	
 private:
 	FGameplayEventData CachedTriggerEventData;
 	

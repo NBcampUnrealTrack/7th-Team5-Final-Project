@@ -48,9 +48,14 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> GE_ClockGain;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float GainAmount = 5.f; 
 	
 	UPROPERTY(EditDefaultsOnly, Category = "OverClock|Effect")
 	FGameplayTag ActivationCueTag;
+	
+
 	
 private:
 	UPROPERTY() 
