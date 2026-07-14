@@ -59,6 +59,8 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 	LockedTarget = BestTarget;
 	bIsLockedOn = true;
 	
+	SetCanBeCanceled(false);
+	
 	// 에너미 락온 UI 활성화
 	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
 	{
@@ -376,10 +378,7 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
 	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
 	{
-		/*const float DesiredArm = bTargetIsBoss
-			? DefaultArmLength + BossLockOnExtraArmLength
-			: DefaultArmLength;
-*/
+		
 		// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
 		const float DistToTarget = FVector::Dist(
 			OwnerChar->GetActorLocation(), GetTargetSocketLocation());
