@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/Ticker.h"    
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 #include "KOGA_Utility_LockOn.generated.h"
 
@@ -69,7 +70,9 @@ private:
 	// ── 카메라 회전 ─────────────────────────────────────────────────
 	UFUNCTION()
 	void UpdateCameraRotation();
- 
+	
+	bool CameraTick(float DeltaTime);
+	
 	void StartCameraUpdate();   // 카메라 타이머 시작
 	void StopCameraUpdate();    // 카메라 타이머 정지
  
@@ -163,6 +166,7 @@ private:
 	bool bIsLockedOn = false;
 	float LockOnActivationTime = 0.f;
 	
-	FTimerHandle CameraUpdateTimerHandle;
+	//FTimerHandle CameraUpdateTimerHandle;
+	FTSTicker::FDelegateHandle CameraTickHandle; 
 	FTimerHandle LockOnDistanceTimerHandle;
 };

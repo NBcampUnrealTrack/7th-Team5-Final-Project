@@ -376,27 +376,29 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	AnchorRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
 	
 	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
-	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+	if (bTargetIsBoss)
 	{
-		
-		// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
-		const float DistToTarget = FVector::Dist(
-			OwnerChar->GetActorLocation(), GetTargetSocketLocation());
-
-		float CloseExtra = 0.f;
-		if (DistToTarget < CloseDistanceThreshold)
+		if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
 		{
-			const float Alpha = 1.f - (DistToTarget / CloseDistanceThreshold); // 가까울수록 1에 가까움
-			CloseExtra = Alpha * MaxCloseExtraArmLength;
-		}
+			// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
+			const float DistToTarget = FVector::Dist(
+			   OwnerChar->GetActorLocation(), GetTargetSocketLocation());
 
-		const float DesiredArm = DefaultArmLength
-			+ (bTargetIsBoss ? BossLockOnExtraArmLength : 0.f)
-			+ CloseExtra;
-		
-		SpringArm->TargetArmLength = FMath::FInterpTo(
-			SpringArm->TargetArmLength, DesiredArm,
-			GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
+			float CloseExtra = 0.f;
+			if (DistToTarget < CloseDistanceThreshold)
+			{
+				const float Alpha = 1.f - (DistToTarget / CloseDistanceThreshold);
+				CloseExtra = Alpha * MaxCloseExtraArmLength;
+			}
+
+			const float DesiredArm = DefaultArmLength
+			   + BossLockOnExtraArmLength   // 보스 전용이므로 삼항 연산 제거
+			   + CloseExtra;
+
+			SpringArm->TargetArmLength = FMath::FInterpTo(
+			   SpringArm->TargetArmLength, DesiredArm,
+			   GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
+		}
 	}
 	
 	// 현재 시점(이번 프레임 마우스 입력이 이미 반영된 상태)
@@ -432,26 +434,29 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
  
 void UKOGA_Utility_LockOn::StartCameraUpdate()
 {
-    UWorld* World = GetWorld();
-    if (!World) return;
- 
-    // ≈ 60fps 간격으로 카메라 회전 갱신
-    World->GetTimerManager().SetTimer(
-        CameraUpdateTimerHandle,
-        this,
-        &UKOGA_Utility_LockOn::UpdateCameraRotation,
-        0.016f,
-        true   // 반복
-    );
+	StopCameraUpdate(); // 중복 등록 방지
+
+	CameraTickHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateUObject(this, &UKOGA_Utility_LockOn::CameraTick));
 }
- 
+
+bool UKOGA_Utility_LockOn::CameraTick(float /*DeltaTime*/)
+{
+	// UpdateCameraRotation 내부에서 GetWorld()->GetDeltaSeconds()로
+	// 실제 프레임 델타를 사용하므로 여기선 그대로 호출만 한다.
+	UpdateCameraRotation();
+	return true; // true를 반환해야 다음 프레임에도 계속 틱
+}
+
+
+
 void UKOGA_Utility_LockOn::StopCameraUpdate()
 {
-    UWorld* World = GetWorld();
-    if (World)
-    {
-        World->GetTimerManager().ClearTimer(CameraUpdateTimerHandle);
-    }
+	if (CameraTickHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(CameraTickHandle);
+		CameraTickHandle.Reset();
+	}
 }
 
 // ─────────────────────────────────────────────────────────────────────
