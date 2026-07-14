@@ -243,11 +243,11 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
     		}
     	}
         // 1. 일반 액터 태그 검사
-        bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag);
-        bool bIsBoss  = HitActor->ActorHasTag(BossActorTag);
+    	bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag) || HitActor->IsA(AKOBaseEnemy::StaticClass());
+    	bool bIsBoss  = HitActor->ActorHasTag(BossActorTag)  || HitActor->IsA(AKOBossBase::StaticClass());
 
         // 2. GAS 게임플레이 태그 검사 보완 (액터 태그가 없을 때를 대비한 안전망)
-        if (!bIsEnemy && !bIsBoss)
+        /*if (!bIsEnemy && !bIsBoss)
         {
             if (IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(HitActor))
             {
@@ -257,7 +257,7 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
                     bIsBoss  = TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Boss")));
                 }
             }
-        }
+        }*/
     	
    
         if (!bIsEnemy && !bIsBoss) continue;
