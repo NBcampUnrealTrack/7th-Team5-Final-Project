@@ -4,6 +4,7 @@
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Data/KO_HitData.h"
@@ -132,9 +133,9 @@ void UKOGA_BossDashAttack::OnDashHit(
 // 기믹 기둥 처리
 void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 {
-	if (PillarActor)
+	if (AKOBossCH01GimmickPillar* Pillar = Cast<AKOBossCH01GimmickPillar>(PillarActor))
 	{
-		PillarActor->Destroy();
+		Pillar->BreakPillar();
 	}
 	
 	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());

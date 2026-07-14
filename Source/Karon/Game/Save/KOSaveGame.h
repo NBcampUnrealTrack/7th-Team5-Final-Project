@@ -194,6 +194,18 @@ struct FKOSavedBoss // 보스 상태
 };
 
 USTRUCT(BlueprintType)
+struct FKOSavedBossPillar
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName PillarSaveId = NAME_None;
+
+	UPROPERTY()
+	bool bWasBroken = false;
+};
+
+USTRUCT(BlueprintType)
 struct FKOSavedFogState // 맵 안개
 {
 	GENERATED_BODY()
@@ -266,6 +278,10 @@ public:
 	// 보스 상태
 	UPROPERTY()
 	TArray<FKOSavedBoss> Bosses;
+	
+	// 보스 기믹 기둥 상태
+	UPROPERTY()
+	TArray<FKOSavedBossPillar> BossPillars;
 	
 	// 이미 채집된 맵 채집물 ID
 	UPROPERTY()

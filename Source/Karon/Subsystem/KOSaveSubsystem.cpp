@@ -21,6 +21,7 @@
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Cluster/KOEnemyCluster.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 #include "MapActor/KOItemDropActor.h"
 #include "UI/Map/FOW/KOFogManagerSubsystem.h"
 #include "HAL/PlatformTime.h"
@@ -325,6 +326,31 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 		SavedBoss.bWasAlive = !Boss->IsDeadForSave();
 
 		SaveData->Bosses.Add(SavedBoss);
+	}
+	
+	// 보스 기믹 기둥 상태 저장
+	SaveData->BossPillars.Empty();
+
+	for (TActorIterator<AKOBossCH01GimmickPillar> It(World); It; ++It)
+	{
+		AKOBossCH01GimmickPillar* Pillar = *It;
+		if (!Pillar)
+		{
+			continue;
+		}
+
+		const FName PillarSaveId = Pillar->GetPillarSaveId();
+
+		if (PillarSaveId.IsNone())
+		{
+			continue;
+		}
+
+		FKOSavedBossPillar SavedPillar;
+		SavedPillar.PillarSaveId = PillarSaveId;
+		SavedPillar.bWasBroken = Pillar->IsBrokenForSave();
+
+		SaveData->BossPillars.Add(SavedPillar);
 	}
 	
 	// 스킬 저장
@@ -784,6 +810,46 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		}
 
 		TargetBoss->RestoreBossFromSave(SavedBoss.Transform, SavedBoss.bWasAlive);
+	}
+	
+	// 보스 기믹 기둥 로드
+	TMap<FName, bool> SavedPillarStateMap;
+
+	for (const FKOSavedBossPillar& SavedPillar : SaveData->BossPillars)
+	{
+		if (SavedPillar.PillarSaveId.IsNone())
+		{
+			continue;
+		}
+
+		SavedPillarStateMap.Add(SavedPillar.PillarSaveId, SavedPillar.bWasBroken);
+	}
+
+	for (TActorIterator<AKOBossCH01GimmickPillar> It(World); It; ++It)
+	{
+		AKOBossCH01GimmickPillar* Pillar = *It;
+		if (!Pillar)
+		{
+			continue;
+		}
+
+		const FName PillarSaveId = Pillar->GetPillarSaveId();
+
+		if (PillarSaveId.IsNone())
+		{
+			continue;
+		}
+
+		const bool* SavedBrokenState = SavedPillarStateMap.Find(PillarSaveId);
+
+		if (SavedBrokenState)
+		{
+			Pillar->RestoreFromSave(*SavedBrokenState);
+		}
+		else
+		{
+			Pillar->RestoreFromSave(false);
+		}
 	}
 	
 	// 스킬 로드
