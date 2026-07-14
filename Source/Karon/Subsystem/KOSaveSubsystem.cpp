@@ -22,6 +22,7 @@
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Cluster/KOEnemyCluster.h"
 #include "MapActor/KOItemDropActor.h"
+#include "UI/Map/FOW/KOFogManagerSubsystem.h"
 
 const FString UKOSaveSubsystem::DefaultSlotName = TEXT("KaronSaveSlot");
 
@@ -344,6 +345,25 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 	
 	// 채집물 저장
 	SaveData->CollectedItemDropIds = CollectedItemDropIds.Array();
+	
+	// 안개 저장
+	if (UKOFogManagerSubsystem* FogSubsystem = UKOFogManagerSubsystem::Get(PC))
+	{
+		const bool bFogSaved = FogSubsystem->GetFogStateForSave(
+				SaveData->FogState.ExploredPixels,
+				SaveData->FogState.SizeX,
+				SaveData->FogState.SizeY
+			);
+
+		if (!bFogSaved)
+		{
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다.")
+			);
+		}
+	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
@@ -811,6 +831,16 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		{
 			ItemDrop->ApplyAvailableFromSave();
 		}
+	}
+	
+	// 안개 로드
+	if (UKOFogManagerSubsystem* FogSubsystem = UKOFogManagerSubsystem::Get(PC))
+	{
+		FogSubsystem->LoadFogStateFromSave(
+			SaveData->FogState.ExploredPixels,
+			SaveData->FogState.SizeX,
+			SaveData->FogState.SizeY
+		);
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 성공"));

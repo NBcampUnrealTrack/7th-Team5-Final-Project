@@ -7,6 +7,9 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/Canvas.h"
+#include "Engine/Texture2D.h"
+#include "PixelFormat.h"
 
 UKOFogManagerSubsystem* UKOFogManagerSubsystem::Get(const UObject* WorldContextObject)
 {
@@ -73,6 +76,16 @@ void UKOFogManagerSubsystem::RegisterConfig(
 	CombineMID = CombineMaterial ? UMaterialInstanceDynamic::Create(CombineMaterial, this) : nullptr;
 
 	bConfigured = true;
+	
+	if (bHasPendingFogLoad)
+	{
+		ApplyExploredPixelsToRenderTarget(PendingExploredPixels, PendingFogSizeX, PendingFogSizeY);
+
+		PendingExploredPixels.Reset();
+		PendingFogSizeX = 0;
+		PendingFogSizeY = 0;
+		bHasPendingFogLoad = false;
+	}
 }
 
 bool UKOFogManagerSubsystem::IsTickable() const
@@ -113,6 +126,119 @@ FVector2D UKOFogManagerSubsystem::WorldToUV(const FVector& WorldPos) const
 	const float U = (WorldPos.X - MapOrigin.X) / MapSize.X;
 	const float V = (WorldPos.Y - MapOrigin.Y) / MapSize.Y;
 	return FVector2D(U, V);
+}
+
+bool UKOFogManagerSubsystem::GetFogStateForSave(TArray<FColor>& OutExploredPixels, int32& OutSizeX,
+	int32& OutSizeY) const
+{
+	OutExploredPixels.Reset();
+	OutSizeX = 0;
+	OutSizeY = 0;
+
+	if (!ExploredFogRT)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("[FogSave] ExploredFogRT가 없습니다.")
+		);
+
+		return false;
+	}
+
+	const int32 SizeX = ExploredFogRT->SizeX;
+	const int32 SizeY = ExploredFogRT->SizeY;
+	const int64 ExpectedPixelCount = static_cast<int64>(SizeX) * static_cast<int64>(SizeY);
+
+	if (SizeX <= 0 || SizeY <= 0)
+	{
+		return false;
+	}
+
+	// 저장하는 순간 Render Target에서 직접 읽는다.
+	TArray<FColor> ReadPixels;
+
+	if (ReadPixelsFromRT(ExploredFogRT, ReadPixels) &&
+		ReadPixels.Num() == ExpectedPixelCount)
+	{
+		OutExploredPixels = MoveTemp(ReadPixels);
+		OutSizeX = SizeX;
+		OutSizeY = SizeY;
+
+		return true;
+	}
+
+	// Render Target 읽기에 실패하면 마지막 캐시 데이터를 사용한다.
+	if (CachedExploredPixels.Num() == ExpectedPixelCount &&
+		CachedSizeX == SizeX &&
+		CachedSizeY == SizeY)
+	{
+		OutExploredPixels = CachedExploredPixels;
+		OutSizeX = CachedSizeX;
+		OutSizeY = CachedSizeY;
+
+		return true;
+	}
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT(
+			"[FogSave] 탐험 안개 픽셀 읽기 실패. "
+			"RT=%dx%d Cached=%dx%d CachedPixels=%d"
+		),
+		SizeX,
+		SizeY,
+		CachedSizeX,
+		CachedSizeY,
+		CachedExploredPixels.Num()
+	);
+
+	return false;
+}
+
+void UKOFogManagerSubsystem::LoadFogStateFromSave(const TArray<FColor>& InExploredPixels, int32 InSizeX, int32 InSizeY)
+{
+	const int64 ExpectedPixelCount = static_cast<int64>(InSizeX) * static_cast<int64>(InSizeY);
+
+	if (InSizeX <= 0 ||
+		InSizeY <= 0 ||
+		InExploredPixels.Num() != ExpectedPixelCount)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT(
+				"[FogLoad] 저장된 안개 데이터가 유효하지 않습니다. "
+				"Size=%dx%d Pixels=%d"
+			),
+			InSizeX,
+			InSizeY,
+			InExploredPixels.Num()
+		);
+
+		return;
+	}
+
+	// FogManager 액터의 BeginPlay가 아직 실행되지 않았으면
+	// RegisterConfig()가 호출될 때까지 보관한다.
+	if (!bConfigured || !ExploredFogRT)
+	{
+		PendingExploredPixels = InExploredPixels;
+		PendingFogSizeX = InSizeX;
+		PendingFogSizeY = InSizeY;
+		bHasPendingFogLoad = true;
+
+		UE_LOG(
+			LogTemp,
+			Log,
+			TEXT("[FogLoad] Fog 설정 전이므로 복원 데이터를 대기시킵니다.")
+		);
+
+		return;
+	}
+
+	ApplyExploredPixelsToRenderTarget(InExploredPixels, InSizeX, InSizeY);
 }
 
 void UKOFogManagerSubsystem::UpdateFog()
@@ -160,6 +286,134 @@ bool UKOFogManagerSubsystem::ReadPixelsFromRT(UTextureRenderTarget2D* RT, TArray
 
 	FTextureRenderTargetResource* RTResource = static_cast<FTextureRenderTargetResource*>(RT->GetResource());
 	return RTResource->ReadPixels(OutPixels);
+}
+
+bool UKOFogManagerSubsystem::ApplyExploredPixelsToRenderTarget(const TArray<FColor>& InExploredPixels, int32 InSizeX,
+	int32 InSizeY)
+{
+	if (!ExploredFogRT)
+	{
+		return false;
+	}
+
+	const int64 ExpectedPixelCount = static_cast<int64>(InSizeX) * static_cast<int64>(InSizeY);
+
+	if (InSizeX <= 0 || InSizeY <= 0 || InExploredPixels.Num() != ExpectedPixelCount)
+	{
+		return false;
+	}
+
+	// 저장 당시 RT 크기와 현재 RT 크기가 다르면 그대로 복원할 수 없다.
+	if (ExploredFogRT->SizeX != InSizeX || ExploredFogRT->SizeY != InSizeY)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT(
+				"[FogLoad] RenderTarget 크기가 다릅니다. "
+				"Saved=%dx%d Current=%dx%d"
+			),
+			InSizeX,
+			InSizeY,
+			ExploredFogRT->SizeX,
+			ExploredFogRT->SizeY
+		);
+
+		return false;
+	}
+
+	FogRestoreTexture = UTexture2D::CreateTransient(
+		InSizeX,
+		InSizeY,
+		PF_B8G8R8A8,
+		TEXT("KO_FogRestoreTexture")
+	);
+
+	if (!FogRestoreTexture ||
+		!FogRestoreTexture->GetPlatformData() ||
+		FogRestoreTexture->GetPlatformData()->Mips.IsEmpty())
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("[FogLoad] 복원용 Texture2D 생성에 실패했습니다.")
+		);
+
+		return false;
+	}
+
+	FogRestoreTexture->SRGB = false;
+	FogRestoreTexture->NeverStream = true;
+
+	FTexture2DMipMap& Mip = FogRestoreTexture->GetPlatformData()->Mips[0];
+
+	void* TextureData = Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+	if (!TextureData)
+	{
+		Mip.BulkData.Unlock();
+		return false;
+	}
+
+	FMemory::Memcpy(
+		TextureData,
+		InExploredPixels.GetData(),
+		InExploredPixels.Num() * sizeof(FColor)
+	);
+
+	Mip.BulkData.Unlock();
+	FogRestoreTexture->UpdateResource();
+
+	UCanvas* Canvas = nullptr;
+	FVector2D CanvasSize = FVector2D::ZeroVector;
+	FDrawToRenderTargetContext RenderContext;
+
+	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(
+		GetWorld(),
+		ExploredFogRT,
+		Canvas,
+		CanvasSize,
+		RenderContext
+	);
+
+	if (!Canvas)
+	{
+		UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), RenderContext);
+
+		return false;
+	}
+
+	Canvas->K2_DrawTexture(
+		FogRestoreTexture,
+		FVector2D::ZeroVector,
+		CanvasSize,
+		FVector2D::ZeroVector,
+		FVector2D(1.f, 1.f),
+		FLinearColor::White,
+		BLEND_Opaque,
+		0.f,
+		FVector2D::ZeroVector
+	);
+
+	UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(GetWorld(), RenderContext);
+
+	// 위치 탐색 함수도 복원된 데이터를 즉시 사용하도록 캐시 갱신
+	CachedExploredPixels = InExploredPixels;
+	CachedSizeX = InSizeX;
+	CachedSizeY = InSizeY;
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT(
+			"[FogLoad] 탐험 안개 복원 완료. Size=%dx%d Pixels=%d"
+		),
+		InSizeX,
+		InSizeY,
+		InExploredPixels.Num()
+	);
+
+	return true;
 }
 
 bool UKOFogManagerSubsystem::IsLocationVisible(const FVector& WorldLocation) const

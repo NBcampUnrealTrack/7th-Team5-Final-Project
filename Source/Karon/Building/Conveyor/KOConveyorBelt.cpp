@@ -521,35 +521,59 @@ void AKOConveyorBelt::StepOnce()
     //    Output 설비와 연결된 벨트는 선택한 Output 아이템만 꺼낸다.
     //    선택 전이거나 ESC로 닫힌 상태면 아무것도 꺼내지 않는다.
     if (!Slots[0].IsValid())
-    {
-        if (BoundOutputMachine.IsValid())
+    {        
+        AActor* UpstreamActor = GetActorAtCell(MyCell - InDir);
+
+        if (!UpstreamActor)
         {
-            if (!bHasSelectedOutputPort || BoundOutputItemId.IsNone())
-            {
-                return;
-            }
-
-            if (UKOFactoryProcessorComponent* Proc =
-                BoundOutputMachine->FindComponentByClass<UKOFactoryProcessorComponent>())
-            {
-                if (Proc->TryExtractItem(BoundOutputItemId, 1) == 1)
-                {
-                    Slots[0] = FKOConveyorItem(BoundOutputItemId);
-                }
-            }
-
             return;
         }
 
         // 일반 벨트끼리 연결은 기존 방식 유지
-        IKOItemSource* Src = ResolveSource(GetActorAtCell(MyCell - InDir));
-        if (Src)
+        if (AKOConveyorBelt* UpstreamBelt = Cast<AKOConveyorBelt>(UpstreamActor))
         {
             FKOConveyorItem Pulled;
-            if (Src->PopOutputItem(Pulled))
+
+            if (UpstreamBelt->PopOutputItem(Pulled))
             {
                 Slots[0] = Pulled;
             }
+
+            return;
+        }
+        
+        // 벨트가 아닌 액터는 설비로 처리
+        AKOBaseBuilding* UpstreamMachine = Cast<AKOBaseBuilding>(UpstreamActor);
+        if (!UpstreamMachine)
+        {
+            return;
+        }
+
+        /*
+         * 기존 설비가 제거되고 같은 자리에 새 설비가 설치된 경우,
+         * 새 설비는 이전 설비와 다른 Actor이므로 Output 선택을 초기화한다.
+         */
+        if (BoundOutputMachine.Get() != UpstreamMachine)
+        {
+            BeginOutputPortSelection(UpstreamMachine);
+            return;
+        }
+        
+        if (!bHasSelectedOutputPort || BoundOutputItemId.IsNone())
+        {
+            return;
+        }
+
+        UKOFactoryProcessorComponent* Proc = BoundOutputMachine->FindComponentByClass<UKOFactoryProcessorComponent>();
+        if (!Proc)
+        {
+            return;
+        }
+        
+        // 선택한 Output 아이템만 추출
+        if (Proc->TryExtractItem(BoundOutputItemId, 1) == 1)
+        {
+            Slots[0] = FKOConveyorItem(BoundOutputItemId);
         }
     }
 }

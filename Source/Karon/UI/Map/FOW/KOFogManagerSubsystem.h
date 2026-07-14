@@ -7,6 +7,7 @@
 
 class UKOVisionComponent;
 class UTextureRenderTarget2D;
+class UTexture2D;
 class UMaterialInterface;
 class UMaterialInstanceDynamic;
 
@@ -66,10 +67,15 @@ public:
 	 * 잘못 사용하게 된다.
 	 */
 	bool IsConfigured() const { return bConfigured; }
+	
+	// 세이브 로드
+	bool GetFogStateForSave(TArray<FColor>& OutExploredPixels, int32& OutSizeX, int32& OutSizeY) const;
+	void LoadFogStateFromSave(const TArray<FColor>& InExploredPixels, int32 InSizeX, int32 InSizeY);
 
 private:
 	void UpdateFog();
 	bool ReadPixelsFromRT(UTextureRenderTarget2D* RT, TArray<FColor>& OutPixels) const;
+	bool ApplyExploredPixelsToRenderTarget(const TArray<FColor>& InExploredPixels, int32 InSizeX, int32 InSizeY);
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextureRenderTarget2D> CurrentFogRT;
@@ -106,4 +112,12 @@ private:
 	TArray<FColor> CachedExploredPixels;
 	int32 CachedSizeX = 0;
 	int32 CachedSizeY = 0;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<UTexture2D> FogRestoreTexture;
+
+	TArray<FColor> PendingExploredPixels;
+	int32 PendingFogSizeX = 0;
+	int32 PendingFogSizeY = 0;
+	bool bHasPendingFogLoad = false;
 };

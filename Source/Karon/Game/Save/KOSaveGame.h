@@ -193,6 +193,21 @@ struct FKOSavedBoss // 보스 상태
 	bool bWasAlive = true;
 };
 
+USTRUCT(BlueprintType)
+struct FKOSavedFogState // 맵 안개
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 SizeX = 0;
+
+	UPROPERTY()
+	int32 SizeY = 0;
+
+	UPROPERTY()
+	TArray<FColor> ExploredPixels;
+};
+
 UCLASS()
 class KARON_API UKOSaveGame : public USaveGame
 {
@@ -255,4 +270,8 @@ public:
 	// 이미 채집된 맵 채집물 ID
 	UPROPERTY()
 	TArray<FName> CollectedItemDropIds;	
+	
+	// 안개 상태
+	UPROPERTY()
+	FKOSavedFogState FogState;
 };
