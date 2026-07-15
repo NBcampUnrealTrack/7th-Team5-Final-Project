@@ -26,10 +26,18 @@ protected:
  
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Montage")
 	float MontageSpeed = 1.f;
+
+	// 공격 딜레이
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | Delay")
+	float PostAttackDelay = 1.f;
  
 	UFUNCTION()
 	virtual void OnMontageCompleted();
  
 	UFUNCTION()
 	virtual void OnMontageCancelled();
+
+private:
+	void OnPostAttackDelayFinished();
+	FTimerHandle PostAttackDelayHandle;
 };

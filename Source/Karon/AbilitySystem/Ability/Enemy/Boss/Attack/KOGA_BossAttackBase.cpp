@@ -50,10 +50,33 @@ void UKOGA_BossAttackBase::ActivateAbility(
 void UKOGA_BossAttackBase::OnMontageCompleted()
 {
 	ApplyCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
+	
+	if (PostAttackDelay > 0.f && GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			PostAttackDelayHandle,
+			this,
+			&UKOGA_BossAttackBase::OnPostAttackDelayFinished,
+			PostAttackDelay,
+			false
+		);
+	}
+	else
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+}
+
+void UKOGA_BossAttackBase::OnPostAttackDelayFinished()
+{
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
  
 void UKOGA_BossAttackBase::OnMontageCancelled()
 {
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PostAttackDelayHandle);
+	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

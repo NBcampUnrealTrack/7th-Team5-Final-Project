@@ -331,6 +331,27 @@ void AKOBossBase::OnMoveSpeedChangedCallback(float OldVal, float NewVal)
 	GetCharacterMovement()->MaxWalkSpeed = NewVal;
 }
 
+void AKOBossBase::RestoreToFull()
+{
+	if (!AbilitySystemComponent || !DataAsset) return;
+
+	// HP 최대치 복구
+	AbilitySystemComponent->ApplyModToAttributeUnsafe(
+		UKOHealthSet::GetHealthAttribute(),
+		EGameplayModOp::Override,
+		DataAsset->MaxHealth
+	);
+
+	// Groggy 최대치 복구
+	if (GroggySet)
+	{
+		GroggySet->SetGroggyHealth(GroggySet->GetMaxGroggyHealth());
+	}
+
+	// 그로기 상태였다면 종료
+	OnGroggyEnd();
+}
+
 // 비동기 로드 시작 
 void AKOBossBase::StartAsyncLoad(UKOBossDataAsset* InDataAsset)
 {

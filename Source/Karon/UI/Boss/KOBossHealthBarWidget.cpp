@@ -61,6 +61,32 @@ void UKOBossHealthBarWidget::NativeDestruct()
 void UKOBossHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	if (BossRef && GetVisibility() == ESlateVisibility::Visible)
+	{
+		APlayerController* PC = GetOwningPlayer();
+		APawn* PlayerPawn = PC ? PC->GetPawn() : nullptr;
+
+		if (PlayerPawn)
+		{
+			const float Distance = FVector::Dist(
+				PlayerPawn->GetActorLocation(),
+				BossRef->GetActorLocation()
+			);
+
+			const bool bShouldBeVisible = Distance <= MaxVisibleDistance;
+			const float CurrentOpacity = GetRenderOpacity();
+
+			if (bShouldBeVisible && CurrentOpacity < 0.5f && !IsAnimationPlaying(FadeIn))
+			{
+				if (FadeIn) PlayAnimation(FadeIn);
+			}
+			else if (!bShouldBeVisible && CurrentOpacity > 0.5f && !IsAnimationPlaying(FadeOut))
+			{
+				if (FadeOut) PlayAnimation(FadeOut);
+			}
+		}
+	}
 
 	if (!BossHealthYellow || MaxHP <= 0.f)
 	{

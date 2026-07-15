@@ -55,6 +55,8 @@ public:
 	
 	virtual void TriggerGroggy() { OnGroggyBegin(); }
 	
+	void RestoreToFull();
+	
 	// GA에서 타겟 읽기용 캐시
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentTarget;

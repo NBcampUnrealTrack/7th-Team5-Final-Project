@@ -33,4 +33,9 @@ public:
 	static const FName bIsGimmickReadyKey;
 	// 기믹 돌진 목표 위치
 	static const FName GimmickLocationKey;
+	
+	// 스폰 위치 초과 시 복귀 플래그
+	static const FName bIsReturnKey;
+	// 보스 스폰 위치
+	static const FName SpawnLocationKey;
 };

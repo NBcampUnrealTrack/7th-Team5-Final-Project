@@ -42,6 +42,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "HealthBar")
 	float YellowDecreaseSpeed = 0.8f;
 	
+	// 체력바 표시 최대 거리
+	UPROPERTY(EditAnywhere, Category = "HealthBar")
+	float MaxVisibleDistance = 5000.f;
+	
 private:
 	UFUNCTION()
 	void OnHealthChanged(float OldVal, float NewVal);
@@ -79,5 +83,4 @@ private:
 	TObjectPtr<UWidgetAnimation> FadeOut;
 	
 	FTimerHandle FadeOutTimerHandle;
-	
 };
