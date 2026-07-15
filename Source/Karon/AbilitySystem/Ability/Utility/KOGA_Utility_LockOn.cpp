@@ -13,7 +13,7 @@
 #include "Game/KOPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/OverlapResult.h"
-
+#include "Camera/CameraComponent.h"
 
 UKOGA_Utility_LockOn::UKOGA_Utility_LockOn()
 {
@@ -138,12 +138,9 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 		MoveComp->bOrientRotationToMovement = false;
 	}
  
-	// 스프링암 오프셋 적용
-	if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+	if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
 	{
-		DefaultCameraOffset = SpringArm->SocketOffset;
-		SpringArm->SocketOffset = LockOnCameraOffset;
-		DefaultArmLength = SpringArm->TargetArmLength;   // ← 추가: 원래 거리 기억
+		DefaultCameraRelLocation = Cam->GetRelativeLocation(); // 해제 시 복구용
 	}
 	
 	ApplyLockOnGameplayTag(true);
@@ -177,11 +174,9 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 			MoveComp->bOrientRotationToMovement = true;
 		}
 		
-		// 스프링암 오프셋 복구
-		if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
+		if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
 		{
-			SpringArm->SocketOffset = DefaultCameraOffset;
-			SpringArm->TargetArmLength = DefaultArmLength;   // ← 추가: 거리 복구
+			Cam->SetRelativeLocation(DefaultCameraRelLocation);
 		}
 	}
 	
@@ -245,20 +240,6 @@ AActor* UKOGA_Utility_LockOn::FindBestTarget() const
         // 1. 일반 액터 태그 검사
     	bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag) || HitActor->IsA(AKOBaseEnemy::StaticClass());
     	bool bIsBoss  = HitActor->ActorHasTag(BossActorTag)  || HitActor->IsA(AKOBossBase::StaticClass());
-
-        // 2. GAS 게임플레이 태그 검사 보완 (액터 태그가 없을 때를 대비한 안전망)
-        /*if (!bIsEnemy && !bIsBoss)
-        {
-            if (IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(HitActor))
-            {
-                if (UAbilitySystemComponent* TargetASC = ASCInterface->GetAbilitySystemComponent())
-                {
-                    bIsEnemy = TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Enemy")));
-                    bIsBoss  = TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Boss")));
-                }
-            }
-        }*/
-    	
    
         if (!bIsEnemy && !bIsBoss) continue;
 
@@ -368,22 +349,26 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	const FVector EyeLoc = OwnerChar->GetActorLocation();
-	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, GetTargetSocketLocation());
-	
+	//FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, GetTargetSocketLocation());
+	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, LockedTarget->GetActorLocation());
 	const bool bTargetIsBoss =
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
 	
 	AnchorRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
 	
-	// 보스면 카메라를 뒤로 빼서 덩치가 화면에 다 들어오게 함 (부드럽게 보간)
-	if (bTargetIsBoss)
+	
+	if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
 	{
-		if (USpringArmComponent* SpringArm = OwnerChar->FindComponentByClass<USpringArmComponent>())
-		{
-			// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
-			const float DistToTarget = FVector::Dist(
-			   OwnerChar->GetActorLocation(), GetTargetSocketLocation());
+		// 일반 몬스터: 카메라 기본 위치 유지(= 현재 동작과 동일).
+		FVector TargetRelLoc = DefaultCameraRelLocation;
 
+		// 보스만: 오프셋 + 뒤로 빼기(줌아웃) 적용
+		if (bTargetIsBoss)
+		{
+			TargetRelLoc = LockOnCameraOffset;
+
+			// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
+			const float DistToTarget = FVector::Dist(EyeLoc, LockedTarget->GetActorLocation());
 			float CloseExtra = 0.f;
 			if (DistToTarget < CloseDistanceThreshold)
 			{
@@ -391,15 +376,15 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 				CloseExtra = Alpha * MaxCloseExtraArmLength;
 			}
 
-			const float DesiredArm = DefaultArmLength
-			   + BossLockOnExtraArmLength   // 보스 전용이므로 삼항 연산 제거
-			   + CloseExtra;
-
-			SpringArm->TargetArmLength = FMath::FInterpTo(
-			   SpringArm->TargetArmLength, DesiredArm,
-			   GetWorld()->GetDeltaSeconds(), CameraInterpSpeed);
+			// 카메라를 뒤로(-X) 빼서 보스 덩치가 화면에 들어오게 함
+			TargetRelLoc.X -= (BossLockOnExtraArmLength + CloseExtra);
 		}
+
+		const FVector NewRelLoc = FMath::VInterpTo(
+			Cam->GetRelativeLocation(), TargetRelLoc, DeltaTime, CameraOffsetInterpSpeed);
+		Cam->SetRelativeLocation(NewRelLoc);
 	}
+
 	
 	// 현재 시점(이번 프레임 마우스 입력이 이미 반영된 상태)
 	const FRotator CurrentRot = PC->GetControlRotation();
@@ -428,7 +413,6 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 	// 몸통은 계속 타겟을 향하도록 수동 회전 (bUseControllerRotationYaw=false 이므로)
 	FRotator BodyRot = OwnerChar->GetActorRotation();
 	BodyRot.Yaw = FMath::RInterpTo(BodyRot, FRotator(0.f, AnchorRot.Yaw, 0.f), DeltaTime, CameraInterpSpeed).Yaw;
-	//OwnerChar->SetActorRotation(FRotator(0.f, BodyRot.Yaw, 0.f));
 	
 }
  
