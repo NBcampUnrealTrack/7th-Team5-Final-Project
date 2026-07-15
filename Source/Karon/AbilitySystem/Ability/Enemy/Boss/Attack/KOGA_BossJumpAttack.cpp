@@ -72,6 +72,12 @@ void UKOGA_BossJumpAttack::Launch()
         return;
     }
     const FVector BossLocation  = Boss->GetActorLocation();
+    
+    if (Boss->CurrentTarget)
+    {
+        LaunchTargetLocation = Boss->CurrentTarget->GetActorLocation();
+    }
+
     const FVector ToTarget      = LaunchTargetLocation - BossLocation;
     const FVector HorizontalDir = FVector(ToTarget.X, ToTarget.Y, 0.f).GetSafeNormal();
     const float   Distance      = FVector(ToTarget.X, ToTarget.Y, 0.f).Size();
