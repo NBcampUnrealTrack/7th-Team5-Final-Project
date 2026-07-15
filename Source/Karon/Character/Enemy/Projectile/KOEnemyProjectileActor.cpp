@@ -120,7 +120,7 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 	Enemy=InEnemy;
 	SetActorScale3D(InEnemy->ProjectileScale);
 	ProjectileStaticMesh->SetStaticMesh(InEnemy->ProjectileMesh);
-	TrailEffectComponent->SetAsset(InEnemy->ImpactEffect);
+	TrailEffectComponent->SetAsset(InEnemy->ProjectileImpactEffect);
 	TrailEffectComponent->Activate(true);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
 	ProjectileDamage=DamageMultiplier;

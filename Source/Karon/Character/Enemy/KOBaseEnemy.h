@@ -87,8 +87,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Projectile")
 	FGameplayTag ProjectileTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	class UNiagaraSystem* ImpactEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	class UNiagaraSystem* ProjectileImpactEffect;
 	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackRadius=150.f;
