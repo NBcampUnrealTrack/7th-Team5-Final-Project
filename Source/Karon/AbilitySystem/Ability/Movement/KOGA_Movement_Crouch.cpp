@@ -1,8 +1,11 @@
 #include "AbilitySystem/Ability/Movement/KOGA_Movement_Crouch.h"
+
+#include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "GameFramework/Character.h"
 
 UKOGA_Movement_Crouch::UKOGA_Movement_Crouch()
 {
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
 bool UKOGA_Movement_Crouch::CanActivateAbility(

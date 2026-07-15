@@ -563,6 +563,17 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 	APawn* ControlledPawn = GetPawn();
 	if (!ControlledPawn) return;
 
+	if (IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(ControlledPawn))
+	{
+		if (UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent())
+		{
+			if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_HitReacting))
+			{
+				return; 
+			}
+		}
+	}
+	
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator MoveRotation(0.f, GetControlRotation().Yaw, 0.f);
 

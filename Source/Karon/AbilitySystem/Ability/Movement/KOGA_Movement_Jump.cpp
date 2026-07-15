@@ -15,6 +15,7 @@ UKOGA_Movement_Jump::UKOGA_Movement_Jump()
 	 SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Jump)); 
 	
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
 bool UKOGA_Movement_Jump::CanActivateAbility(

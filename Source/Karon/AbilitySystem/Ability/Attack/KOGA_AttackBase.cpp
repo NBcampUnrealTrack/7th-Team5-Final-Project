@@ -25,6 +25,8 @@ UKOGA_AttackBase::UKOGA_AttackBase()
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
+	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
 void UKOGA_AttackBase::ActivateAbility(

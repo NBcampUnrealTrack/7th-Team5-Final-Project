@@ -13,6 +13,7 @@ UKOGA_Movement_Sprint::UKOGA_Movement_Sprint()
 
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Sprint));
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_Dodging);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
 bool UKOGA_Movement_Sprint::CanActivateAbility(
