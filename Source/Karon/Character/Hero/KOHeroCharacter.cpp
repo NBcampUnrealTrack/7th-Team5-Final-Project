@@ -7,6 +7,8 @@
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
 #include "MotionWarpingComponent.h"
+#include "AbilitySystem/Ability/Status/KOGA_OverClock.h"
+#include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Animation/KOAnimInstance.h"
 #include "Component/Camera/KOCameraComponent.h"
@@ -15,6 +17,7 @@
 #include "Game/KOGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/Map/FOW/KOVisionComponent.h"
+#include "TimerManager.h"
 
 
 AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
@@ -110,6 +113,65 @@ void AKOHeroCharacter::OnCharacterDead(AActor* DeathInstigator)
 	if (!GM) return;
 	
 	GM->HandlePlayerDeath(DeathInstigator);
+}
+
+void AKOHeroCharacter::RespawnWithoutSave(const FTransform& RespawnTransform)
+{
+	if (!AbilitySystemComponent || !HealthSet)
+	{
+		return;
+	}
+
+	RestoreAliveStateFromLoad();
+	
+	AbilitySystemComponent->SetNumericAttributeBase(
+		UKOHealthSet::GetHealthAttribute(),
+		HealthSet->GetMaxHealth()
+	);
+
+	SetActorTransform(
+		RespawnTransform,
+		false,
+		nullptr,
+		ETeleportType::TeleportPhysics
+	);
+	
+	// 취소된 오버클락 어빌리티 재실행
+	ReactivateOverClockAfterRespawn();
+}
+
+void AKOHeroCharacter::ReactivateOverClockAfterRespawn()
+{
+	// 사망 몽타주와 Death Ability 종료가 반영된 다음 실행
+	GetWorldTimerManager().SetTimerForNextTick(
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+		{
+			if (!AbilitySystemComponent)
+			{
+				return;
+			}
+
+			for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+			{
+				if (!Spec.Ability)
+				{
+					continue;
+				}
+
+				if (!Spec.Ability->IsA(UKOGA_OverClock::StaticClass()))
+				{
+					continue;
+				}
+
+				if (!Spec.IsActive())
+				{
+					AbilitySystemComponent->TryActivateAbility(Spec.Handle);
+				}
+
+				return;
+			}
+		})
+	);
 }
 
 bool AKOHeroCharacter::IsLockOn() const

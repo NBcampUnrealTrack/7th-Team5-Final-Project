@@ -36,13 +36,14 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 
 		FGameplayAbilitySpec Spec(Entry.Ability, Entry.AbilityLevel);
 		
+		// 영구적으로 Ability Spec을 부여
+		const FGameplayAbilitySpecHandle AbilityHandle = ASC->GiveAbility(Spec);
+		
+		OutHandles.AbilityHandles.Add(AbilityHandle);
+		
 		if (Entry.bStartActivated)
 		{
-			OutHandles.AbilityHandles.Add(ASC->GiveAbilityAndActivateOnce(Spec));
-		}
-		else
-		{
-			OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
+			ASC->TryActivateAbility(AbilityHandle);
 		}
 
 		KO_LOG(GAS, Log, TEXT("[Sub] Ability   | %-30s | Lv.%d "),

@@ -35,6 +35,9 @@ public:
 	virtual void InitializeAttributes() override;
 	
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
+	void RespawnWithoutSave(const FTransform& RespawnTransform);
+	void ReactivateOverClockAfterRespawn();
 
 public:
 	UFUNCTION(BlueprintCallable)

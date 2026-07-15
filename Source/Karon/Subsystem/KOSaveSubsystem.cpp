@@ -22,6 +22,7 @@
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Cluster/KOEnemyCluster.h"
 #include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
+#include "Character/Hero/KOHeroCharacter.h"
 #include "MapActor/KOItemDropActor.h"
 #include "UI/Map/FOW/KOFogManagerSubsystem.h"
 #include "HAL/PlatformTime.h"
@@ -449,12 +450,24 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		}
 	}
 	
-	// 사망 판정 로드
+	// 사망 상태 복구
 	if (APawn* Pawn = PC->GetPawn())
 	{
 		if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(Pawn))
 		{
-			Character->RestoreAliveStateFromLoad();
+			UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+
+			const bool bHasDeadTag = ASC && ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead);
+
+			if (Character->bIsDead || bHasDeadTag)
+			{
+				Character->RestoreAliveStateFromLoad();
+
+				if (AKOHeroCharacter* HeroCharacter = Cast<AKOHeroCharacter>(Character))
+				{
+					HeroCharacter->ReactivateOverClockAfterRespawn();
+				}
+			}
 		}
 	}
 
@@ -478,20 +491,19 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			{
 				Equipment->UnequipWeapon();
 			}
-
-			UKOWeaponDefinition* WeaponDef =
-				LoadSub->ResolveWeaponDefinitionByItemId(SaveData->EquippedWeaponItemId);
-
-			if (!WeaponDef)
+			else if (UKOWeaponDefinition* WeaponDef =
+				LoadSub->ResolveWeaponDefinitionByItemId(SaveData->EquippedWeaponItemId))
 			{
-				Equipment->UnequipWeapon();
-			}
-
-			Equipment->RestoreWeaponFromSave(
+				Equipment->RestoreWeaponFromSave(
 				SaveData->EquippedWeaponItemId,
 				WeaponDef,
 				SaveData->EquippedWeaponSlot
 			);
+			}
+			else
+			{
+				Equipment->UnequipWeapon();
+			}
 		}
 		
 		// 방어구 로드

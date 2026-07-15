@@ -9,9 +9,9 @@
 #include "Subsystem/KOSaveSubsystem.h"
 #include "UI/KOUISubsystem.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/Pawn.h"
 #include "Character/Enemy/KOBaseEnemyAIController.h"
 #include "EngineUtils.h"
+#include "Character/Hero/KOHeroCharacter.h"
 
 void UKOGameOverWidget::NativeConstruct()
 {
@@ -47,6 +47,11 @@ void UKOGameOverWidget::OnBackToLastSaveClicked()
 	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
 	if (!SaveSubsystem)
 	{
+		if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+		{
+			LoadingSubsystem->HideLoadingScreen();
+		}
+
 		return;
 	}
 
@@ -57,11 +62,30 @@ void UKOGameOverWidget::OnBackToLastSaveClicked()
 	if (!SaveSubsystem->DoesSaveExist())
 	{
 		APlayerController* PlayerController = GetOwningPlayer();
+
 		if (!PlayerController)
 		{
+			if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+			{
+				LoadingSubsystem->HideLoadingScreen();
+			}
+
 			return;
 		}
-		
+
+		AKOHeroCharacter* HeroCharacter = Cast<AKOHeroCharacter>(PlayerController->GetPawn());
+
+		if (!HeroCharacter)
+		{
+			if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+			{
+				LoadingSubsystem->HideLoadingScreen();
+			}
+
+			return;
+		}
+
+		// 모든 적의 기존 플레이어 감지 상태 초기화
 		for (TActorIterator<AKOBaseEnemyAIController> It(GetWorld()); It; ++It)
 		{
 			if (AKOBaseEnemyAIController* EnemyController = *It)
@@ -70,17 +94,22 @@ void UKOGameOverWidget::OnBackToLastSaveClicked()
 			}
 		}
 
-		if (APawn* OldPawn = PlayerController->GetPawn())
-		{
-			PlayerController->UnPossess();
-			OldPawn->Destroy();
-		}
+		// 기본값은 현재 위치
+		FTransform RespawnTransform = HeroCharacter->GetActorTransform();
 
+		// PlayerStart 위치 사용
 		if (AGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AGameModeBase>())
 		{
-			GameMode->RestartPlayer(PlayerController);
+			if (AActor* StartSpot = GameMode->FindPlayerStart(PlayerController))
+			{
+				RespawnTransform = StartSpot->GetActorTransform();
+			}
 		}
-		
+
+		// 상태, 위치 복구
+		HeroCharacter->RespawnWithoutSave(RespawnTransform);
+
+		// 카메라 페이드 초기화
 		if (APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager)
 		{
 			CameraManager->StopCameraFade();
@@ -89,12 +118,22 @@ void UKOGameOverWidget::OnBackToLastSaveClicked()
 
 		UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_GameOverMenu);
 
+		if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+		{
+			LoadingSubsystem->HideLoadingScreen();
+		}
+
 		return;
 	}
 
 	// 저장된 게임이 있으면 마지막 저장 시점 로드
 	if (!SaveSubsystem->LoadCurrentGame())
 	{
+		if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+		{
+			LoadingSubsystem->HideLoadingScreen();
+		}
+		
 		return;
 	}
 	

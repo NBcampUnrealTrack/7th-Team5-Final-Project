@@ -130,20 +130,17 @@ void AKOCharacterBase::RestoreAliveStateFromLoad()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 
-	// 사망 어빌리티와 몽타주를 먼저 중단
 	if (ASC)
 	{
-		ASC->CancelAllAbilities();
-
-		ASC->RemoveLooseGameplayTag(
-			KOGameplayTags::State_Character_Dead
-		);
+		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Dead, 0);
 
 		FGameplayTagContainer DeadTags;
 		DeadTags.AddTag(KOGameplayTags::State_Character_Dead);
 
 		ASC->RemoveActiveEffectsWithGrantedTags(DeadTags);
 	}
+	
+	bIsDead = false;
 
 	if (USkeletalMeshComponent* MeshComp = GetMesh())
 	{
@@ -152,12 +149,8 @@ void AKOCharacterBase::RestoreAliveStateFromLoad()
 			AnimInstance->StopAllMontages(0.0f);
 		}
 
-		// 몽타주를 먼저 중단한 다음 애니메이션 정지 해제
 		MeshComp->bPauseAnims = false;
-		MeshComp->SetComponentTickEnabled(true);
 	}
-
-	bIsDead = false;
 
 	if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 	{
