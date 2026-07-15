@@ -1,5 +1,6 @@
 ﻿#include "KOCharacterBase.h"
 
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
@@ -133,6 +134,8 @@ void AKOCharacterBase::RestoreAliveStateFromLoad()
 	if (ASC)
 	{
 		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Dead, 0);
+		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_OverClock,0);
+		ASC->SetNumericAttributeBase(UKOCombatSet::GetClockAttribute(),0.f);
 
 		FGameplayTagContainer DeadTags;
 		DeadTags.AddTag(KOGameplayTags::State_Character_Dead);

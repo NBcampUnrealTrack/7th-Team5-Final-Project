@@ -221,6 +221,13 @@ void UKOPlayerMenuWidget::HandleLoadClicked()
 		return;
 	}
 	
+	// 저장 파일이 없으면 로딩 화면을 띄우지 않고 종료
+	if (!SaveSubsystem->DoesSaveExist())
+	{
+		ShowLocalMessage(FText::FromString(TEXT("저장된 게임이 없습니다.")));
+		return;
+	}
+	
 	UKOLoadingUiSubsystem* LoadingSubsystem =
 		GetGameInstance()
 		? GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>()
@@ -235,7 +242,6 @@ void UKOPlayerMenuWidget::HandleLoadClicked()
 	
 	if (!bLoaded)
 	{
-		// 전투 이외의 사유로 로드가 실패해도 반드시 로딩 화면을 닫는다.
 		if (LoadingSubsystem)
 		{
 			LoadingSubsystem->HideLoadingScreen();
