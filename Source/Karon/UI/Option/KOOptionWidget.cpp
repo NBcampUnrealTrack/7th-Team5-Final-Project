@@ -1,6 +1,9 @@
 // Copyright Karon Team 5. All Rights Reserved.
 
 #include "KOOptionWidget.h"
+#include "UI/KOUISubsystem.h"
+#include "UI/KOUISettings.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 
 #include "Components/Button.h"
 #include "Components/CheckBox.h"
@@ -11,8 +14,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundClass.h"
-#include "UI/KOUISettings.h"
-#include "AbilitySystem/Tag/KOGameplayTags.h"
 
 UKOOptionWidget::UKOOptionWidget()
 {
@@ -75,6 +76,12 @@ void UKOOptionWidget::NativeOnInitialized()
 	{
 		Button_Sound->IsFocusable = false;
 		Button_Sound->OnClicked.AddDynamic(this, &ThisClass::HandleSoundTabClicked);
+	}
+	
+	if (Button_Close)
+	{
+		Button_Close->IsFocusable = false;
+		Button_Close->OnClicked.AddDynamic(this, &ThisClass::HandleCloseClicked);
 	}
 }
 
@@ -397,6 +404,11 @@ void UKOOptionWidget::HandleGraphicTabClicked()
 void UKOOptionWidget::HandleSoundTabClicked()
 {
 	SetActiveTab(EKOOptionTab::Sound);
+}
+
+void UKOOptionWidget::HandleCloseClicked()
+{
+	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Option);
 }
 
 // ---- 헬퍼: 해상도 인덱스 변환 ----

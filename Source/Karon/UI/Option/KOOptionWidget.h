@@ -68,6 +68,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Sound;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Close;
 
 protected:
 	// ---- SoundClass 참조 (BP 기본값에서 에셋 지정) ----
@@ -176,6 +179,9 @@ private:
 
 	UFUNCTION()
 	void HandleSoundTabClicked();
+	
+	UFUNCTION()
+	void HandleCloseClicked();
 
 	static const TArray<FIntPoint> SupportedResolutions;
 	static const TArray<int32> SupportedFrameLimits;
