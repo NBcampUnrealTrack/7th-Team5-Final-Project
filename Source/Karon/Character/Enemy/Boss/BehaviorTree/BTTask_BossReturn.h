@@ -31,5 +31,5 @@ private:
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
  
 	UPROPERTY()
-	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;8
+	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 };
