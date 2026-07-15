@@ -8,7 +8,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Game/KOPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
