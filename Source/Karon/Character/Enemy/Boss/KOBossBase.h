@@ -42,6 +42,7 @@ public:
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
 	void NotifyPlayerDetected();
+	void NotifyPlayerLost();
 	
 	void NotifyDeathAnimEnd();
 	

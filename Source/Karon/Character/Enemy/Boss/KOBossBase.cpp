@@ -51,6 +51,17 @@ void AKOBossBase::NotifyPlayerDetected()
 	OnBossDetectedPlayer.Broadcast(this);
 }
 
+void AKOBossBase::NotifyPlayerLost()
+{
+	bPlayerDetected = false;
+	CurrentTarget = nullptr;
+
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		SaveSubsystem->NotifyActorStoppedTargetingPlayer(this);
+	}
+}
+
 void AKOBossBase::NotifyDeathAnimEnd()
 {
 	OnBossDeathAnimEnd.Broadcast();
@@ -61,12 +72,7 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	Super::OnCharacterDead(DeathInstigator);
 	
 	bIsDead = true;
-	bPlayerDetected = false;
-	
-	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
-	{
-		SaveSubsystem->NotifyActorStoppedTargetingPlayer(this);
-	}
+	NotifyPlayerLost();
 	
 	OnBossDeath();
 	
@@ -333,6 +339,8 @@ void AKOBossBase::OnMoveSpeedChangedCallback(float OldVal, float NewVal)
 
 void AKOBossBase::RestoreToFull()
 {
+	NotifyPlayerLost();
+	
 	if (!AbilitySystemComponent || !DataAsset) return;
 
 	// HP 최대치 복구

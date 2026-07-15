@@ -50,7 +50,7 @@ EBTNodeResult::Type UBTTask_BossReturn::ExecuteTask(
 	
 	if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
 	{
-		Boss->CurrentTarget = nullptr;
+		Boss->NotifyPlayerLost();
 	}
  
 	CachedOwnerComp = &OwnerComp;
@@ -93,7 +93,7 @@ void UBTTask_BossReturn::OnMoveCompleted(
 	AAIController* AIC = CachedOwnerComp->GetAIOwner();
 	if (AIC)
 	{
-		AIC->GetPathFollowingComponent()->OnRequestFinished.RemoveAll(this);\
+		AIC->GetPathFollowingComponent()->OnRequestFinished.RemoveAll(this);
 		
 		if (Result.IsSuccess())
 		{
