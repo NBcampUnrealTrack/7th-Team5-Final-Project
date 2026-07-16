@@ -44,13 +44,18 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Skill_CoolTime);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_DiveSlash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_DimensionSever);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Attack);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
+	
+	// ───────────────────────── Character Skill Cool Time Data ────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Character_Plunge);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Character_DimensionSever);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Character_DiveSlash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Character_FlashStrike);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Character_BladeDance);
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_BossCH01_GroundSlap);

@@ -40,12 +40,16 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Skill_CoolTime, "Data.Skill.CoolTime");
-	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_DiveSlash, "Data.CoolTime.DiveSlash");
-	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_DimensionSever, "Data.CoolTime.DimensionSever");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_LockOn, "Data.CoolTime.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Attack, "Data.CoolTime.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
 	
+	// ───────────────────────── Character Skill Cool Time Data ────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_Plunge, "Data.CoolTime.Character.Plunge");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_DimensionSever, "Data.CoolTime.Character.DimensionSever");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_DiveSlash, "Data.CoolTime.Character.DiveSlash");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_FlashStrike, "Data.CoolTime.Character.FlashStrike");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_BladeDance, "Data.CoolTime.Character.BladeDance");
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundSlap, "Data.CoolTime.BossCH01.GroundSlap");
