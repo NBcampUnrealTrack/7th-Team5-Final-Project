@@ -287,6 +287,12 @@ void AKOPlayerController::GiveStarterItems()
 		TEXT("Sword"),
 		1
 	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Hammer"),
+		1
+	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
