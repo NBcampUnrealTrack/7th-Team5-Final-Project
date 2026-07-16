@@ -23,6 +23,7 @@ public class Karon : ModuleRules
 			// UDeveloperSettings (Project Settings 통합)
 			"DeveloperSettings",
 			"Niagara",
+			"NiagaraAnimNotifies",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
