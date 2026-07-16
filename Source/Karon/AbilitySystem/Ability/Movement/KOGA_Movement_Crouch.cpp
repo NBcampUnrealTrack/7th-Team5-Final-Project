@@ -6,6 +6,7 @@
 UKOGA_Movement_Crouch::UKOGA_Movement_Crouch()
 {
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 }
 
 bool UKOGA_Movement_Crouch::CanActivateAbility(

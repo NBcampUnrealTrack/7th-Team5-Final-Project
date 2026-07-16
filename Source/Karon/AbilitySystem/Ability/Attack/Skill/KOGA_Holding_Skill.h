@@ -46,6 +46,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Holding|Time")
 	float MaxHoldTime;
 	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Holding|Damage")
+	TArray<FKODamageEffectData> HoldDamageEffect;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Holding|Damage")
+	TArray<FKOEffectData> AdditionalHoldDamageEffect;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Holding|Damage")
+	TArray<FKODamageEffectData> FinishDamageEffect;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Holding|Damage")
+	TArray<FKOEffectData> AdditionalFinishDamageEffect;
+
 private:
 	FTimerHandle MaxHoldTimerHandle;
 	bool bIsHolding;

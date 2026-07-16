@@ -13,7 +13,7 @@ UKOGA_Movement_Dodge::UKOGA_Movement_Dodge()
 	
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Dodge)); 
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Movement_Dodging); 
-	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 

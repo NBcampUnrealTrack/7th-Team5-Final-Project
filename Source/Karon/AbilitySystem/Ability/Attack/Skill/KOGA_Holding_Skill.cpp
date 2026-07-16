@@ -20,6 +20,9 @@ void UKOGA_Holding_Skill::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	DamageEffects = HoldDamageEffect;
+	AdditionalEffects = AdditionalHoldDamageEffect;
+	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	if (!IsActive()) return;
@@ -114,6 +117,9 @@ void UKOGA_Holding_Skill::ExecuteFinisher()
 	bIsHolding = false;
 	bIsFinisherActive = true;
 
+	DamageEffects = FinishDamageEffect;
+	AdditionalEffects = AdditionalFinishDamageEffect;
+	
 	UWorld* World = GetWorld();
 	if (World)
 	{

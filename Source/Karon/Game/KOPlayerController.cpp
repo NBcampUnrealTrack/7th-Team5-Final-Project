@@ -567,7 +567,8 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 	{
 		if (UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent())
 		{
-			if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_HitReacting))
+			if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_HitReacting) 
+				|| ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Attacking))
 			{
 				return; 
 			}

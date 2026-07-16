@@ -7,7 +7,7 @@
 
 UKOGA_Attack_Plunge::UKOGA_Attack_Plunge()
 {
-    SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Attack_Plunge));
+    SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Skill_Plunge));
     
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }

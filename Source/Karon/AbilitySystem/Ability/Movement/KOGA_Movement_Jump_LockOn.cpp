@@ -12,7 +12,9 @@
 UKOGA_Movement_Jump_LockOn::UKOGA_Movement_Jump_LockOn()
 {
 	ActivationRequiredTags.AddTag(KOGameplayTags::State_Character_LockOn); 
-	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_Dodging);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 	FAbilityTriggerData TriggerData;
 	TriggerData.TriggerTag = KOGameplayTags::Event_Movement_Jump_LockOn;
 	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;

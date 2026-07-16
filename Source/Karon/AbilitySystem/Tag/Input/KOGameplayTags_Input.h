@@ -40,7 +40,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Charge);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Dash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Plunge);
+	
 
     // ── Input | Ability | Interaction ─────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Interaction);
@@ -60,4 +60,5 @@ namespace KOGameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DimensionSever);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DiveSlash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_FlashStrike);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_BladeDance);
 }
