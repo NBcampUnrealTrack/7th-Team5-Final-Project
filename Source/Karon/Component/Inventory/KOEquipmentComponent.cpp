@@ -293,22 +293,35 @@ void UKOEquipmentComponent::RecalculateArmorDefense()
 	TotalArmorDefense = 0;
 
 	const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-	if (!LoadSub) return; 
+	if (LoadSub == nullptr)
+	{
+		KO_LOG(GAS, Warning, TEXT("RecalculateArmorDefense: KOLoadSubsystem 없음. 방어구 방어력을 계산할 수 없습니다."));
+		return;
+	}
 
 	for (const TPair<EKOEquipmentSlotType, FName>& Pair : EquippedArmorItemIds)
 	{
 		const EKOEquipmentSlotType SlotType = Pair.Key;
 		const FName ItemId = Pair.Value;
 
-		if (SlotType == EKOEquipmentSlotType::Weapon || ItemId.IsNone()) continue; 
+		if (SlotType == EKOEquipmentSlotType::Weapon || ItemId.IsNone()) continue;
 
 		const FKOItemRow* ItemRow = LoadSub->FindItemRow(ItemId);
-		if (!ItemRow) continue; 
-		
+		if (ItemRow == nullptr)
+		{
+			KO_LOG(GAS, Warning, TEXT("RecalculateArmorDefense: ItemRow 없음 (ItemId=%s). Defense 미반영."), *ItemId.ToString());
+			continue;
+		}
+
 		const FKOEquipmentRow* EquipmentRow =
 			LoadSub->FindEquipmentRowByItemTag(ItemRow->ItemTag);
 
-		if (!EquipmentRow) continue; 
+		if (EquipmentRow == nullptr)
+		{
+			KO_LOG(GAS, Warning, TEXT("RecalculateArmorDefense: EquipmentRow 없음 (ItemId=%s, ItemTag=%s). Defense 미반영."),
+				*ItemId.ToString(), *ItemRow->ItemTag.ToString());
+			continue;
+		}
 
 		TotalArmorDefense += EquipmentRow->Defense;
 	}
@@ -331,8 +344,18 @@ void UKOEquipmentComponent::ApplyArmorDefenseEffect()
 		ArmorDefenseEffectHandle = FActiveGameplayEffectHandle();
 	}
 
-	if (ArmorDefenseEffectClass == nullptr || TotalArmorDefense <= 0)
+	if (TotalArmorDefense <= 0)
 	{
+		return;
+	}
+
+	if (ArmorDefenseEffectClass == nullptr)
+	{
+		KO_LOG(GAS, Warning, TEXT(
+			"ApplyArmorDefenseEffect: ArmorDefenseEffectClass가 설정되지 않아 방어구 방어력(%d)을 적용할 수 없습니다. "
+			"이 컴포넌트를 생성한 클래스(EquipmentComponentClass, 예: BP_EquipmentComponent)의 "
+			"클래스 디폴트에서 ArmorDefenseEffectClass를 GE_ArmorDefense로 지정하세요."),
+			TotalArmorDefense);
 		return;
 	}
 
@@ -342,6 +365,8 @@ void UKOEquipmentComponent::ApplyArmorDefenseEffect()
 	FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(ArmorDefenseEffectClass, 1.f, Context);
 	if (!Spec.IsValid())
 	{
+		KO_LOG(GAS, Warning, TEXT("ApplyArmorDefenseEffect: MakeOutgoingSpec 실패 (ArmorDefenseEffectClass=%s)."),
+			*GetNameSafe(ArmorDefenseEffectClass));
 		return;
 	}
 
