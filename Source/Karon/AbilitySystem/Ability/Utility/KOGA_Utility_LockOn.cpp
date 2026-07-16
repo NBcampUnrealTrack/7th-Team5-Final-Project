@@ -65,6 +65,11 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 	{
 		Enemy->OnLockOnEvent.ExecuteIfBound(true);
 	}
+	// 보스 락온 UI 활성화
+	if (AKOBossBase* Boss=Cast<AKOBossBase>(LockedTarget))
+	{
+		Boss->OnLockOnEvent.Broadcast(true);
+	}
  
 	if (UWorld* World = GetWorld())
 	{
@@ -159,6 +164,12 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
 	{
 		Enemy->OnLockOnEvent.ExecuteIfBound(false);
+	}
+	
+	// 보스 락온 UI 비활성화
+	if (AKOBossBase* Boss=Cast<AKOBossBase>(LockedTarget))
+	{
+		Boss->OnLockOnEvent.Broadcast(false);
 	}
 	
 	bIsLockedOn = false;

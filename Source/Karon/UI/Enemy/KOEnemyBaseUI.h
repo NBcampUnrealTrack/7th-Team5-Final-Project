@@ -14,6 +14,7 @@ class KARON_API UKOEnemyBaseUI : public UCommonUserWidget
 {
 	GENERATED_BODY()
 public:
+	UFUNCTION( BlueprintCallable )
 	void OnVisibilityChanged(bool bIsVisible);
 	
 	protected:

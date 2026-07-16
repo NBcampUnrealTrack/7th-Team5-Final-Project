@@ -21,7 +21,7 @@ struct FOnAttributeChangeData;
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
-DECLARE_DELEGATE_OneParam(FOnUIVisibleEvent,bool bIsBattle)
+DECLARE_DELEGATE_OneParam(FOnUIVisibleEvent,bool bShouldVisible)
 DECLARE_DELEGATE_OneParam(FOnTriggerEvent,bool bIsTriggered)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 

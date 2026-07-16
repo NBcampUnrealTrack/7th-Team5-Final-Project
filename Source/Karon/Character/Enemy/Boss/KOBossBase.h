@@ -17,6 +17,8 @@ DECLARE_MULTICAST_DELEGATE(FOnBossReady);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDetectedPlayer, AKOBossBase*);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
 DECLARE_MULTICAST_DELEGATE(FOnBossDied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossUIVisibleEvent,bool, bShouldVisible);
+
  
 UCLASS()
 class KARON_API AKOBossBase : public AKOCharacterBase
@@ -38,6 +40,9 @@ public:
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
 	FOnBossDied OnBossDied;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnBossUIVisibleEvent OnLockOnEvent;
 	
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	

@@ -177,7 +177,7 @@ void AKOBaseEnemy::BeginPlay()
 		}
 	}
 	
-	//LockOn Binding
+	//ParriedWidget Binding
 	if (EnemyParriedWidgetComponent)
 	{
 		if (UKOEnemyBaseUI* Parried = Cast<UKOEnemyBaseUI>(EnemyParriedWidgetComponent->GetWidget()))
