@@ -51,12 +51,7 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 // 그로기 진입
 void AKOBossChapter01::OnGroggyBegin()
 {
-	if (bIsDead)
-	{
-		return;
-	}
-	
-	bIsGroggy = true;
+	if (bIsDead) return;
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -84,10 +79,7 @@ void AKOBossChapter01::TriggerGroggy()
 // 그로기 종료
 void AKOBossChapter01::OnGroggyEnd()
 {
-	if (bIsDead)
-	{
-		return;
-	}
+	if (bIsDead) return;
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -101,8 +93,6 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		GroggySet->SetGroggyHealth(GroggySet->GetMaxGroggyHealth());
 	}
- 
-	bIsGroggy = false;
  
 	CloseCore();
 }
@@ -135,8 +125,6 @@ void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 		{
 			BB->SetValueAsBool(AKOAIC_BossController::bIsDeadKey, true);
-			
-			KO_LOG(GAS, Warning, TEXT("bISDeadKey is Changed")); 
 		}
 	}
 }

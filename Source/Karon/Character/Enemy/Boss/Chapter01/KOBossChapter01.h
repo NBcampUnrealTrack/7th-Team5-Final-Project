@@ -42,7 +42,4 @@ private:
  
 	void OpenCore();
 	void CloseCore();
-	
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Boss|State")
-	bool bIsGroggy = false;
 };

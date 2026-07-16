@@ -1,10 +1,8 @@
 #include "KOGA_BossGroggyBase.h"
 
 #include "AbilitySystemComponent.h"
-#include "AIController.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 
 UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
@@ -12,11 +10,10 @@ UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AbilityTags.AddTag(KOGameplayTags::State_Boss_Groggy);
 	
-	// 그로기 중 재발동 방지
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
 }
-
+ 
 void UKOGA_BossGroggyBase::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, 
@@ -24,11 +21,8 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	UGameplayAbility::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!IsActive())
-	{
-		return;
-	}
+ 
+	if (!IsActive()) return;
  
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -50,8 +44,19 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	
+	if (GroggyMontage)
+	{
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, GroggyMontage, 1.f, GroggySection, false);
  
-	// 그로기 유지 타이머
+		MontageTask->OnCompleted.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCompleted);
+		MontageTask->OnCancelled.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCancelled);
+		MontageTask->OnInterrupted.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCancelled);
+		MontageTask->ReadyForActivation();
+	}
+	
 	GetWorld()->GetTimerManager().SetTimer(
 		GroggyTimerHandle,
 		this,
@@ -60,7 +65,29 @@ void UKOGA_BossGroggyBase::ActivateAbility(
 		false
 	);
 }
-
+ 
+void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (Character && GroggyMontage)
+	{
+		if (UAnimInstance* AnimInst = Character->GetMesh()->GetAnimInstance())
+		{
+			AnimInst->Montage_JumpToSection(RestoreSection, GroggyMontage);
+		}
+	}
+}
+ 
+void UKOGA_BossGroggyBase::OnMontageCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+ 
+void UKOGA_BossGroggyBase::OnMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+ 
 void UKOGA_BossGroggyBase::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, 
@@ -79,22 +106,4 @@ void UKOGA_BossGroggyBase::EndAbility(
 	}
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
-{
-	ACharacter* Character = GetAvatarCharacter();
-	if (Character)
-	{
-		AAIController* AIC = Cast<AAIController>(Character->GetController());
-		if (AIC)
-		{
-			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-			{
-				BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, false);
-			}
-		}
-	}
- 
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
