@@ -24,9 +24,9 @@ void UKOWorldNotice::NativeDestruct()
 void UKOWorldNotice::WorldEnter(FGameplayTag Channel, const FInstancedStruct& Payload)
 {
 	//원하는 구조체로 형변환
-	if (const FKOWorldNoticeMessage* WorldNoticeMessage = Payload.GetPtr<FKOWorldNoticeMessage>())
+	if (const FKOTextMessage* WorldNoticeMessage = Payload.GetPtr<FKOTextMessage>())
 	{
-		WorldNameTextBlock->SetText(FText::FromString(WorldNoticeMessage->WorldName));
+		WorldNameTextBlock->SetText(FText::FromString(WorldNoticeMessage->InString));
 		FOnSetTextBlock.Broadcast();
 	}
 }

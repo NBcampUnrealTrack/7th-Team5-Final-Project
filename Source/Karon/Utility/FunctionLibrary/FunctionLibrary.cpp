@@ -1,11 +1,11 @@
 ﻿#include "FunctionLibrary.h"
 
 #include "AbilitySystemComponent.h"
-#include "GameplayTagAssetInterface.h"
 #include "Character/KOCharacterBase.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
-void FunctionLibrary::FindActorsWithGameplayTagInRange(
+void UFunctionLibrary::FindActorsWithGameplayTagInRange(
 	const UWorld* World, 
 	const FVector& ScanOrigin, 
 	float Radius,
@@ -40,10 +40,18 @@ void FunctionLibrary::FindActorsWithGameplayTagInRange(
 					if (ASC->HasMatchingGameplayTag(TargetTag))
 					{
 						OutDetectedActors.Add(HitActor);
-
 					}
 				}
 			}
 		}
 	}
+}
+
+void UFunctionLibrary::SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FString Text)
+{
+	UWorld* World = WorldContextObject->GetWorld();
+	FKOTextMessage Message;
+	Message.InString=Text;
+	
+	UGMRouterSubsystem::BroadcastMessage(World,Tag,FInstancedStruct::Make(Message));
 };

@@ -23,8 +23,8 @@ void AKOWorldOverlapActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 {
 	if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(OtherActor))
 	{
-		FKOWorldNoticeMessage NoticeMessage;
-		NoticeMessage.WorldName=WorldName;
+		FKOTextMessage NoticeMessage;
+		NoticeMessage.InString=WorldName;
 	
 		UGMRouterSubsystem::BroadcastMessage(GetWorld(),
 			KOGameplayTags::Event_WorldNotice,

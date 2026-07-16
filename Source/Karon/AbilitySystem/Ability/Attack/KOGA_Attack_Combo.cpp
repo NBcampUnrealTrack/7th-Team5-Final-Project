@@ -31,7 +31,7 @@ void UKOGA_Attack_Combo::ActivateAbility(
 	TArray<AActor*> IgnoredActors;
 	IgnoredActors.Add(Character);
 	TArray<TWeakObjectPtr<AActor>> DetectedActors;
-	FunctionLibrary::FindActorsWithGameplayTagInRange(
+	UFunctionLibrary::FindActorsWithGameplayTagInRange(
 		GetWorld(),
 		Character->GetActorLocation(),
 		GroggyRadius,

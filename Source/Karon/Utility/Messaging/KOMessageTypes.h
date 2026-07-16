@@ -244,14 +244,13 @@ struct FKOTelemetryCombatMessage
 };
 
 /**
- * WorldNotice 용 메세지
- * 채널: KOGameplayTags::Event_WorldNotice
+ * 범용 텍스트 메세지 구조체
  */
 USTRUCT()
-struct FKOWorldNoticeMessage
+struct FKOTextMessage
 {
     GENERATED_BODY()
     
     UPROPERTY()
-    FString WorldName;
+    FString InString;
 };

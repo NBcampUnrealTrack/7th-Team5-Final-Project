@@ -1,11 +1,16 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "GameplayTagContainer.h"
+#include "FunctionLibrary.generated.h"
 
-namespace FunctionLibrary
+UCLASS()
+class KARON_API UFunctionLibrary : public UBlueprintFunctionLibrary
 {
-	void FindActorsWithGameplayTagInRange(
+	GENERATED_BODY()
+public:
+	static void FindActorsWithGameplayTagInRange(
 		const UWorld* World,
 		const FVector& ScanOrigin,
 		float Radius,
@@ -13,4 +18,7 @@ namespace FunctionLibrary
 		const TArray<AActor*>& ActorsToIgnore,
 		TArray<TWeakObjectPtr<AActor>>& OutDetectedActors
 	);
-}
+	
+	UFUNCTION(BlueprintCallable)
+	static void SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FString Text);
+};

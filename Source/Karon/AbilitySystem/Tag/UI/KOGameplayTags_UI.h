@@ -42,6 +42,9 @@ namespace KOGameplayTags
 	/** 키조작을 알려주는 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_KeyNotice);
 	
+	/** 키조작을 알려주는 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_LevelSequenceText);
+	
 	/** 상호작용을 알려주는 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InteractionNotice);
 	

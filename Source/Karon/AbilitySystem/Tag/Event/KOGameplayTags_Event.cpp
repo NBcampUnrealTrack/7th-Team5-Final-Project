@@ -88,5 +88,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss02_ScatterFire, "Event.Boss2.ScatterFire");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_WorldNotice, "Event.WorldNotice");
-
+	UE_DEFINE_GAMEPLAY_TAG(Event_LevelSequenceText, "Event.LevelSequenceText");
 }

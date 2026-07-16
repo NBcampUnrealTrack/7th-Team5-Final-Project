@@ -94,5 +94,6 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Boss02_ScatterFire);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_WorldNotice);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LevelSequenceText);
 
 }
