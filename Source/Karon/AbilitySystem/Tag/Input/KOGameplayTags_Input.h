@@ -56,6 +56,7 @@ namespace KOGameplayTags
     // ── Input | Ability | CoreSkill ───────────────────────────────
 	
     // ── Input | Ability | Skill ───────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_Plunge);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DimensionSever);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DiveSlash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_FlashStrike);

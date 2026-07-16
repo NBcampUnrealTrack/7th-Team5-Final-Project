@@ -13,6 +13,15 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_lockedSkill);
 	/** 디멘션 세버*/
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_DimensionSever);
+	/** 플런지 차지*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_PlungeCharge);
+	/** 다이브 슬래시*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_DiveSlash);
+	/** 플래시 스트라이크*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_FlashStrike);
+	
+	/** 패시브 공격력1*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Skill_PassiveAtrtack1);
 	
 	// ─── Skill State (Active Skill Unlocked from UI) ────────────────────────────
 	/** 디멘션세버*/
