@@ -49,6 +49,9 @@ struct FKOAttackMontageData
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PlayRate = 1.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DamageRate = 1.f; 
 };
 
 USTRUCT(BlueprintType)
@@ -205,6 +208,8 @@ protected:
 	
 	UAbilityTask_Tick* TickTask;
 	
+	int32 CurrentMontageIndex = 0;
+	
 // 모션 워핑
 protected:
 	AActor* GetMotionWarpTarget() const;
@@ -222,7 +227,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp")
 	FName WarpTargetName = TEXT("AttackTarget");
+	
+
 private:
 	//자신 효과 핸들
 	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;
+	
+
 };

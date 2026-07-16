@@ -174,6 +174,8 @@ void UKOGA_Attack_Air::OnGroundImpact(FGameplayEventData Payload)
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character || !ASC) return;
 	
+	TraceData.TraceMesh = FindTraceMesh();
+	
 	FVector ImpactPoint = TraceData.TraceMesh ? 
 	  TraceData.TraceMesh->GetSocketLocation(TraceData.GetEndSocket()) : 
 	  Character->GetActorLocation();
@@ -186,7 +188,7 @@ void UKOGA_Attack_Air::OnGroundImpact(FGameplayEventData Payload)
 		CueParams.Location = ImpactPoint;
 		CueParams.Normal = bHitGround ? GroundHit.ImpactNormal : FVector::UpVector;
 		CueParams.EffectContext = ASC->MakeEffectContext();
-		if (bHitGround)
+		if (bHitGround)	
 		{
 			CueParams.EffectContext.AddHitResult(GroundHit);
 		}

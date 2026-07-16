@@ -16,12 +16,8 @@ namespace KOGameplayTags
 	
 	// ── State | Character | Attacking ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);
-	//TODO:
-	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Combo);
-	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Heavy);
-	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Charge);
-	// UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking_Dash);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Drawing);
 	// ── State | Character | OverClock ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OverClock);
 	

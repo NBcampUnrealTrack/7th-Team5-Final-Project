@@ -43,6 +43,8 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_DamagedMiningPipe,  "Item.DamagedMiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Sword, "Item.Sword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hameer, "Item.Hammer");
+	UE_DEFINE_GAMEPLAY_TAG(Item_GreatSword, "Item.GreatSword");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Head, "Item.Head");
 	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody, "Item.UpperBody");
 	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody, "Item.LowerBody");

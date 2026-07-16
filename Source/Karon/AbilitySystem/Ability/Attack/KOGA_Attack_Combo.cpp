@@ -140,7 +140,7 @@ void UKOGA_Attack_Combo::EndAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	ComboIndex = 0;
+	CurrentMontageIndex = 0;
 	bNextComboRequested = false;
 	bComboWindowOpen = false;
 	bIsTransitioning = false;
@@ -181,10 +181,10 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 		CurrentMontageTask = nullptr;
 	}
 	
-	if (!MontageData.IsValidIndex(ComboIndex))
+	if (!MontageData.IsValidIndex(CurrentMontageIndex))
 	{
 		KO_LOG(Combat, Error, TEXT("ComboIndex %d is out of MontageData range (%d)."),
-			ComboIndex, MontageData.Num());
+			CurrentMontageIndex, MontageData.Num());
 		
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
@@ -195,10 +195,10 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 		UpdateMotionWarpTarget();
 	}
 	
-	KO_LOG(Combat, Warning, TEXT("Current ComboIndex : %d"), ComboIndex);
-	const FName TaskName = FName(*FString::Printf(TEXT("MontageTask_%d"), ComboIndex));
+	KO_LOG(Combat, Warning, TEXT("Current ComboIndex : %d"), CurrentMontageIndex);
+	const FName TaskName = FName(*FString::Printf(TEXT("MontageTask_%d"), CurrentMontageIndex));
 	
-	float PlayRate = MontageData[ComboIndex].PlayRate;
+	float PlayRate = MontageData[CurrentMontageIndex].PlayRate;
 	if (UKOCombatSet* CombatSet = GetCombatSet())
 	{
 		PlayRate *= CombatSet->GetAttackSpeed();
@@ -207,7 +207,7 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 	 CurrentMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this, TaskName,
-			MontageData[ComboIndex].Montage,
+			MontageData[CurrentMontageIndex].Montage,
 			PlayRate
 		);
 	
@@ -275,12 +275,12 @@ void UKOGA_Attack_Combo::OnReceiveTransition(FGameplayEventData Payload)
 {
 	if (!bNextComboRequested) return; 
 	
-	KO_LOG(Combat, Warning, TEXT("Combo Transition %d -> %d."), ComboIndex, ComboIndex+1);
+	KO_LOG(Combat, Warning, TEXT("Combo Transition %d -> %d."), CurrentMontageIndex, CurrentMontageIndex+1);
 	
 	bNextComboRequested = false;
 	bComboWindowOpen = false;
 	bIsTransitioning = true;
-	ComboIndex++; 
+	CurrentMontageIndex++; 
 	
 	PlayComboMontage();
 	

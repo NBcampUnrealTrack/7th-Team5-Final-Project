@@ -75,6 +75,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
 	/** 무기 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hameer);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_GreatSword);
 	/** 투구 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head);
 	/** 상의 */

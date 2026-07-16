@@ -65,6 +65,8 @@ public:
 	// 무기 장착
 	bool EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def);
 	
+	void AttachWeaponToSocket(bool bDrawn);
+	
 	// 방어구 장착. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
 	bool EquipArmorFromItem(EKOEquipmentSlotType SlotType, FName ItemId);
 
@@ -73,7 +75,7 @@ public:
 
 	// 스킬 등 공격 계열 GA가 활성화 중(State.Character.Attacking)인지 확인. true면 장비(무기/방어구) 변경을 막아야 한다.
 	UFUNCTION(BlueprintPure, Category = "Equipment")
-	bool IsEquipmentChangeBlockedBySkill() const;
+	bool CanEquip() const;
 
 	UFUNCTION(BlueprintPure, Category = "Equipment|Armor")
 	FName GetEquippedArmorItemId(EKOEquipmentSlotType SlotType) const;

@@ -25,7 +25,7 @@ UKOGA_AttackBase::UKOGA_AttackBase()
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
-	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Drawing);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
@@ -155,7 +155,10 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		   SourceASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
 		if (!SpecHandle.IsValid()) continue;
 		
-		float FinalAttackCoefficient = Effect.AttackCoefficient * CurrentDamageMultiplier;
+		float FinalAttackCoefficient =  Effect.AttackCoefficient * CurrentDamageMultiplier;
+		
+		if (MontageData.IsValidIndex(CurrentMontageIndex)) 
+			FinalAttackCoefficient *= MontageData[CurrentMontageIndex].DamageRate;
 		
 		SpecHandle.Data->SetSetByCallerMagnitude(
 			KOGameplayTags::Data_AttackCoefficient, FinalAttackCoefficient); 

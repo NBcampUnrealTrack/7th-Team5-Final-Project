@@ -3,7 +3,6 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Kismet/GameplayStatics.h"
 #include "Utility/Log/KOLogManager.h"
 
 UKOGA_OverClock::UKOGA_OverClock()
@@ -68,7 +67,7 @@ void UKOGA_OverClock::OnClockGain(FGameplayEventData Payload)
 	
 	const float ClockAmount = 
 		ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock) ?
-		Payload.EventMagnitude : Payload.EventMagnitude / 2.5;
+		Payload.EventMagnitude : 0.f;
 	
 	ApplyEffectSetByCallerToSelf(
 		GE_ClockGain,
@@ -112,7 +111,6 @@ void UKOGA_OverClock::OnOverClockEnd(FGameplayEventData Payload)
 	{
 		ASC->RemoveActiveGameplayEffect(BuffEffectHandle);
 		ASC->RemoveActiveGameplayEffect(DrainEffectHandle);
-		
 		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_OverClock, 0);
 	}
 }

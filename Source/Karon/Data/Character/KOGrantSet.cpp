@@ -1,7 +1,6 @@
 ﻿#include "KOGrantSet.h"
 #include "AbilitySystemComponent.h"
 #include "KOCharacterStatRow.h"
-#include "SQLitePreparedStatement.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "Utility/Log/KOLogManager.h"
@@ -38,7 +37,6 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 		
 		// 영구적으로 Ability Spec을 부여
 		const FGameplayAbilitySpecHandle AbilityHandle = ASC->GiveAbility(Spec);
-		
 		OutHandles.AbilityHandles.Add(AbilityHandle);
 		
 		if (Entry.bStartActivated)

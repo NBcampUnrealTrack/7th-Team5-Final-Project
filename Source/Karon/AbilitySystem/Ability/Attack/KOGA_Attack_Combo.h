@@ -67,7 +67,6 @@ protected:
 	void OnReceiveTransition(FGameplayEventData Payload);
 
 private:
-	int32 ComboIndex = 0;
 	bool bNextComboRequested = false;
 	bool bComboWindowOpen = false;
 	bool bIsTransitioning = false; 

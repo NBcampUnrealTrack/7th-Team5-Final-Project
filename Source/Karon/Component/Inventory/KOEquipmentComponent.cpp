@@ -1,11 +1,11 @@
 #include "KOEquipmentComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Character/KOCharacterBase.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "Items/Equipment/KOWeaponBase.h"
 #include "Utility/Log/KOLogManager.h"
-#include "GameplayTagContainer.h"
 #include "Data/KODataTableTypes.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -33,21 +33,16 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 {
 	if (!Def) return;
 
-	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
-	if (!Character || !BodyMesh) return;
-
-	if (IsEquipmentChangeBlockedBySkill())
+	if (!CanEquip())
 	{
-		KO_LOG(GAS, Warning, TEXT("EquipWeapon blocked: Skill GA is active (State.Character.Attacking)."));
-		
-		if (OnEquipmentChangeBlocked.IsBound())
-		{
-			OnEquipmentChangeBlocked.Broadcast();
-		}
+		if (OnEquipmentChangeBlocked.IsBound()) OnEquipmentChangeBlocked.Broadcast();
 		return;
 	}
+	
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character) return;
 
-	bool WeaponDrawn = IsWeaponDrawn();
+	bool bWeaponDrawn = IsWeaponDrawn();
 	if (CurrentWeaponActor)
 	{
 		UnequipWeapon();
@@ -65,7 +60,7 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 	NewWeapon->AttachToComponent(
 		BodyMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		WeaponDrawn ? Def->EquipSocket : Def->UnEquipSocket
+		bWeaponDrawn ? Def->AttachSockets.EquipSocket.SocketName : Def->AttachSockets.UnequipSocket.SocketName
 	);
 
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
@@ -73,32 +68,24 @@ void UKOEquipmentComponent::EquipWeapon(UKOWeaponDefinition* Def)
 	{
 		Def->GrantedSet->GiveToAsc(ASC, ActiveHandles);
 	}
-
-	FTransform WeaponSocketLocal = NewWeapon->GetMesh()->GetSocketTransform(
-		Def->GripSocket,
-		ERelativeTransformSpace::RTS_Component
-	);
-	NewWeapon->SetActorRelativeTransform(WeaponSocketLocal.Inverse());
-
+	
 	CurrentWeaponActor = NewWeapon;
 	CurrentWeaponConfig = Def;
+	
+	AttachWeaponToSocket(bWeaponDrawn);
 
-	SetWeaponSlot(WeaponDrawn ? EWeaponSlot::Hand : EWeaponSlot::Holster);
+	SetWeaponSlot(bWeaponDrawn ? EWeaponSlot::Hand : EWeaponSlot::Holster);
 
 	KO_LOG(GAS, Warning, TEXT("Equiped Weapon : %s"), *Def->WeaponName.ToString());
 }
 
-
 bool UKOEquipmentComponent::UnequipWeapon()
 {
-	if (IsEquipmentChangeBlockedBySkill())
+	if (!CanEquip())
 	{
-		KO_LOG(GAS, Warning, TEXT("UnequipWeapon blocked: Skill GA is active (State.Character.Attacking)."));
-		
 		if (OnEquipmentChangeBlocked.IsBound())
-		{
 			OnEquipmentChangeBlocked.Broadcast();
-		}
+		
 		return false;
 	}
 
@@ -148,35 +135,23 @@ bool UKOEquipmentComponent::UnequipWeapon()
 void UKOEquipmentComponent::DrawWeapon()
 {
 	if (!CurrentWeaponActor || !CurrentWeaponConfig || CurrentWeaponSlot == EWeaponSlot::Hand) return;
-
-	CurrentWeaponActor->AttachToComponent(
-		BodyMesh,
-		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		CurrentWeaponConfig->EquipSocket
-	);
+	
+	AttachWeaponToSocket(true);
 	SetWeaponSlot(EWeaponSlot::Hand);
 }
 
 void UKOEquipmentComponent::SheatheWeapon()
 {
 	if (!CurrentWeaponActor || !CurrentWeaponConfig || CurrentWeaponSlot == EWeaponSlot::Holster) return;
-
-	CurrentWeaponActor->AttachToComponent(
-		BodyMesh,
-		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		CurrentWeaponConfig->UnEquipSocket
-	);
-
+	
+	AttachWeaponToSocket(false);
 	SetWeaponSlot(EWeaponSlot::Holster);
 }
 
 void UKOEquipmentComponent::ToggleWeaponDrawState()
 {
-	if (!CurrentWeaponActor || !CurrentWeaponConfig)
-	{
-		return;
-	}
-
+	if (!CurrentWeaponActor || !CurrentWeaponConfig) return;
+	
 	if (CurrentWeaponSlot == EWeaponSlot::Hand)
 	{
 		SheatheWeapon();
@@ -189,10 +164,7 @@ void UKOEquipmentComponent::ToggleWeaponDrawState()
 
 bool UKOEquipmentComponent::EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def)
 {
-	if (InWeaponItemId.IsNone() || !Def)
-	{
-		return false;
-	}
+	if (InWeaponItemId.IsNone() || !Def) return false;
 
 	EquipWeapon(Def);
 
@@ -207,6 +179,22 @@ bool UKOEquipmentComponent::EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponD
 	SyncWeaponDrawnTagToASC();
 
 	return true;
+}
+
+void UKOEquipmentComponent::AttachWeaponToSocket(bool bDrawn)
+{
+	if (!CurrentWeaponActor || !CurrentWeaponConfig) return;
+	
+	const FKOAttachSocket& Socket = bDrawn ? 
+		CurrentWeaponConfig->AttachSockets.EquipSocket : CurrentWeaponConfig->AttachSockets.UnequipSocket;
+	
+	CurrentWeaponActor->AttachToComponent(
+		BodyMesh,
+		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+		Socket.SocketName
+	);
+	
+	CurrentWeaponActor->SetActorRelativeTransform(Socket.Transform);
 }
 
 bool UKOEquipmentComponent::RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot)
@@ -305,34 +293,22 @@ void UKOEquipmentComponent::RecalculateArmorDefense()
 	TotalArmorDefense = 0;
 
 	const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-	if (!LoadSub)
-	{
-		return;
-	}
+	if (!LoadSub) return; 
 
 	for (const TPair<EKOEquipmentSlotType, FName>& Pair : EquippedArmorItemIds)
 	{
 		const EKOEquipmentSlotType SlotType = Pair.Key;
 		const FName ItemId = Pair.Value;
 
-		if (SlotType == EKOEquipmentSlotType::Weapon || ItemId.IsNone())
-		{
-			continue;
-		}
+		if (SlotType == EKOEquipmentSlotType::Weapon || ItemId.IsNone()) continue; 
 
 		const FKOItemRow* ItemRow = LoadSub->FindItemRow(ItemId);
-		if (!ItemRow)
-		{
-			continue;
-		}
-
+		if (!ItemRow) continue; 
+		
 		const FKOEquipmentRow* EquipmentRow =
 			LoadSub->FindEquipmentRowByItemTag(ItemRow->ItemTag);
 
-		if (!EquipmentRow)
-		{
-			continue;
-		}
+		if (!EquipmentRow) continue; 
 
 		TotalArmorDefense += EquipmentRow->Defense;
 	}
@@ -343,16 +319,10 @@ void UKOEquipmentComponent::RecalculateArmorDefense()
 void UKOEquipmentComponent::ApplyArmorDefenseEffect()
 {
 	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
-	if (!Character)
-	{
-		return;
-	}
+	if (!Character) return;
 
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-	if (!ASC)
-	{
-		return;
-	}
+	if (!ASC) return; 
 
 	// 기존에 적용된 방어구 방어력 GE는 제거하고, 새 총합으로 다시 적용한다.
 	if (ArmorDefenseEffectHandle.IsValid())
@@ -392,14 +362,14 @@ void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 		{
 			if (NewSlot == EWeaponSlot::Hand)
 			{
-				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Carrying
-					               ? CurrentWeaponConfig->WeaponABP_Carrying
+				NewAnimLayer = CurrentWeaponConfig->WeaponAnimationSet.WeaponABP_Carrying
+					               ? CurrentWeaponConfig->WeaponAnimationSet.WeaponABP_Carrying
 					               : nullptr;
 			}
 			else
 			{
-				NewAnimLayer = CurrentWeaponConfig->WeaponABP_Sheathed
-					               ? CurrentWeaponConfig->WeaponABP_Sheathed
+				NewAnimLayer = CurrentWeaponConfig->WeaponAnimationSet.WeaponABP_Sheathed
+					               ? CurrentWeaponConfig->WeaponAnimationSet.WeaponABP_Sheathed
 					               : nullptr;
 			}
 		}
@@ -411,47 +381,29 @@ void UKOEquipmentComponent::SetWeaponSlot(EWeaponSlot NewSlot)
 	SyncWeaponDrawnTagToASC();
 }
 
-bool UKOEquipmentComponent::IsEquipmentChangeBlockedBySkill() const
+bool UKOEquipmentComponent::CanEquip() const
 {
-	const AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
-	if (Character == nullptr)
-	{
-		return false;
-	}
-
-	const UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-	if (ASC == nullptr)
-	{
-		return false;
-	}
-
-	return ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Attacking);
+	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
+	if (!Character || !BodyMesh) return false; 
+	
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+	if (!ASC) return false; 
+	
+	return !ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Attacking);
 }
 
 void UKOEquipmentComponent::SyncWeaponDrawnTagToASC()
 {
-	AKOCharacterBase* Character = GetOwner<AKOCharacterBase>();
-	if (!Character)
-	{
-		return;
-	}
-
-	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-	if (!ASC)
-	{
-		return;
-	}
-
-	const FGameplayTag WeaponDrawnTag =
-		FGameplayTag::RequestGameplayTag(TEXT("State.Character.WeaponDrawn"));
-
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner());
+	if (!ASC) return;
+	
 	const bool bWeaponDrawn =
 		CurrentWeaponActor != nullptr &&
 		CurrentWeaponConfig != nullptr &&
 		CurrentWeaponSlot == EWeaponSlot::Hand;
 
 	ASC->SetLooseGameplayTagCount(
-		WeaponDrawnTag,
+		KOGameplayTags::State_Character_WeaponDrawn,
 		bWeaponDrawn ? 1 : 0
 	);
 }

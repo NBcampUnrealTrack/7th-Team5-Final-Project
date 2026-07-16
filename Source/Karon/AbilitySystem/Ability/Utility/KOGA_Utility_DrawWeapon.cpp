@@ -15,7 +15,8 @@ UKOGA_Utility_DrawWeapon::UKOGA_Utility_DrawWeapon()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_DrawWeapon));
-
+	
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Drawing);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
 	
 	FAbilityTriggerData Trigger;
@@ -61,7 +62,7 @@ void UKOGA_Utility_DrawWeapon::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* Montage = Config->DrawMontage;
+	UAnimMontage* Montage = Config->WeaponAnimationSet.DrawMontage;
 	if (!Montage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

@@ -131,7 +131,7 @@ bool UKOEquipmentSlotWidget::CanAcceptItem(FName ItemId) const
 
 bool UKOEquipmentSlotWidget::NotifyIfBlockedBySkill(UKOEquipmentComponent* EquipmentComponent) const
 {
-    if (!EquipmentComponent || !EquipmentComponent->IsEquipmentChangeBlockedBySkill())
+    if (EquipmentComponent && EquipmentComponent->CanEquip())
     {
         return false;
     }

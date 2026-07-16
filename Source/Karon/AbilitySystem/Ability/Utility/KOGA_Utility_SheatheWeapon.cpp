@@ -14,7 +14,8 @@ UKOGA_Utility_SheatheWeapon::UKOGA_Utility_SheatheWeapon()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_SheatheWeapon));
-
+	
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Drawing);
 	// 뽑혀 있을 때만 활성화 가능
 	ActivationRequiredTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
@@ -44,7 +45,7 @@ void UKOGA_Utility_SheatheWeapon::ActivateAbility(
 	UKOWeaponDefinition* Config = EquipComponent->GetCurrentWeaponConfig();
 	if (!Config) return;
 
-	UAnimMontage* Montage = Config->SheatheMontage;
+	UAnimMontage* Montage = Config->WeaponAnimationSet.SheatheMontage;
 	if (!Montage) return;
 
 	UAbilityTask_WaitGameplayEvent* EventTask =
