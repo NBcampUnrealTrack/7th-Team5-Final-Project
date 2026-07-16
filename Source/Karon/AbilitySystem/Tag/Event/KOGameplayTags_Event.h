@@ -92,4 +92,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Jump_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Boss01_Shockwave);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Boss02_ScatterFire);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_WorldNotice);
+
 }

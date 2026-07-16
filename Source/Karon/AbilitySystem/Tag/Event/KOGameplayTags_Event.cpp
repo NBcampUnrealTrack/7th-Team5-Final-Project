@@ -86,4 +86,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Jump_Launch, "Event.Jump.Launch");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss01_Shockwave, "Event.Boss1.Shockwave");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Boss02_ScatterFire, "Event.Boss2.ScatterFire");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Event_WorldNotice, "Event.WorldNotice");
+
 }

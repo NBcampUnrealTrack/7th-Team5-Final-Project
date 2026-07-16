@@ -242,3 +242,16 @@ struct FKOTelemetryCombatMessage
     UPROPERTY()
     FVector  Position = FVector::ZeroVector;
 };
+
+/**
+ * WorldNotice 용 메세지
+ * 채널: KOGameplayTags::Event_WorldNotice
+ */
+USTRUCT()
+struct FKOWorldNoticeMessage
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FString WorldName;
+};
