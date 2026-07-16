@@ -9,7 +9,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
-#include "UI/Inventory/KOInventoryWidget.h"
+#include "Components/WidgetSwitcher.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 
@@ -38,19 +38,26 @@ void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 void UKOInventorySlotWidget::ApplyVisuals()
 {
     const bool bHasItem = SlotData.HasItem();
+    
+    constexpr int32 ItemOverlayIndex = 0;
+    constexpr int32 EmptyOverlayIndex = 1;
+    
+    if (Switcher)
+    {
+        Switcher->SetActiveWidgetIndex(bHasItem ? ItemOverlayIndex : EmptyOverlayIndex);
+    }
 
     if (IconImage)
     {
-        UTexture2D* TextureToShow = bHasItem ? CachedIcon.Get() : EmptySlotIcon.Get();
-
-        if (TextureToShow)
+        if (bHasItem && CachedIcon)
         {
-            IconImage->SetBrushFromTexture(TextureToShow);
+            IconImage->SetBrushFromTexture(CachedIcon.Get());
             IconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
         }
         else
         {
+            IconImage->SetBrushFromTexture(nullptr);
             IconImage->SetVisibility(ESlateVisibility::Hidden);
         }
     }
@@ -65,7 +72,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         else
         {
             CountText->SetText(FText::GetEmpty());
-            CountText->SetVisibility(bHideCountWhenEmpty ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+            CountText->SetVisibility(ESlateVisibility::Collapsed);
         }
     }
 
@@ -82,8 +89,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         return;
     }
 
-    UKOItemTooltipWidget* Tooltip =
-        CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+    UKOItemTooltipWidget* Tooltip = CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
 
     if (Tooltip)
     {

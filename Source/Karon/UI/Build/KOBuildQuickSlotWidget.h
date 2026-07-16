@@ -11,6 +11,7 @@ class UImage;
 class UBorder;
 class UTexture2D;
 class UTextBlock;
+class UWidgetSwitcher;
 class UDragDropOperation;
 class UKOBuildUIComponent;
 class UKOInventoryComponent;
@@ -69,12 +70,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
 	EKOQuickSlotBarDisplayMode DisplayMode = EKOQuickSlotBarDisplayMode::BuildMode;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
-	TObjectPtr<UTexture2D> EmptySlotIcon = nullptr;
-
 	/** SlotIconImage에 강제할 Desired Size (정사각). SetBrushFromTexture가 텍스처 원본 해상도로 ImageSize를 덮어쓰는 문제 방지용. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
 	float SlotIconSize = 64.f;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWidgetSwitcher> SlotStateSwitcher;
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SlotIconImage;

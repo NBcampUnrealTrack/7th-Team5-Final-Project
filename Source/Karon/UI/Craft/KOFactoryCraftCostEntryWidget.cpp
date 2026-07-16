@@ -30,8 +30,8 @@ void UKOFactoryCraftCostEntryWidget::SetupCost(
 		const bool bEnough = InOwnedCount >= InRequiredCount;
 		CountText->SetColorAndOpacity(
 			bEnough
-				? FSlateColor(FLinearColor::White)
-				: FSlateColor(FLinearColor::Red)
+				? FSlateColor(FLinearColor(0.254152f,0.158961f,0.068478f,1.0f))
+				: FSlateColor(FLinearColor(0.880208f,0.086299f,0.071588f,1.0f))
 		);
 	}
 }

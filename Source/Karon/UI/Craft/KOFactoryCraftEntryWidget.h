@@ -48,10 +48,16 @@ protected:
 	TObjectPtr<UTextBlock> FactoryNameText;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor CraftableColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.3f);
+	FLinearColor CraftableColor = FLinearColor::White;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
 	FLinearColor NotCraftableColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+	FLinearColor NotCraftableHoveredColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.45f);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
+	FLinearColor NotCraftablePressedColor = FLinearColor(0.104f, 0.003f, 0.003f, 0.45f);
 
 private:
 	UPROPERTY()

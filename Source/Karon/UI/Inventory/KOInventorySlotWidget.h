@@ -9,6 +9,7 @@
 class UImage;
 class UTextBlock;
 class UTexture2D;
+class UWidgetSwitcher;
 class UKOInventoryWidget;
 class UDragDropOperation;
 class UKOItemTooltipWidget;
@@ -42,6 +43,9 @@ protected:
         const FDragDropEvent& InDragDropEvent,
         UDragDropOperation* InOperation
     ) override;
+    
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UWidgetSwitcher> Switcher;
 
     /** WBP에서 같은 이름으로 위젯을 만들면 자동 바인딩. 비주얼만 디자인. */
     UPROPERTY(meta = (BindWidgetOptional))

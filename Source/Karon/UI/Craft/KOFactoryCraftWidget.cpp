@@ -2,10 +2,13 @@
 
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "CommonButtonBase.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Engine/Texture2D.h"
+#include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
 
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Data/KODataTableTypes.h"
@@ -27,7 +30,7 @@ void UKOFactoryCraftWidget::NativeConstruct()
 
     if (CraftButton)
     {
-        CraftButton->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleCraftButtonClicked);
+        CraftButton->OnClicked().AddUObject(this, &ThisClass::HandleCraftButtonClicked);
     }
     
     if (DecreaseCraftCountButton)
@@ -71,7 +74,7 @@ void UKOFactoryCraftWidget::NativeDestruct()
 {
     if (CraftButton)
     {
-        CraftButton->OnClicked.RemoveDynamic(this, &UKOFactoryCraftWidget::HandleCraftButtonClicked);
+        CraftButton->OnClicked().RemoveAll(this);
     }
     
     if (DecreaseCraftCountButton)
@@ -385,6 +388,9 @@ void UKOFactoryCraftWidget::RebuildCostList()
     {
         return;
     }
+    
+    constexpr int32 ColumnCount = 2;
+    int32 AddedEntryIndex = 0;
 
     for (const TPair<FName, int32>& RequiredItem : RequiredItems)
     {
@@ -410,12 +416,17 @@ void UKOFactoryCraftWidget::RebuildCostList()
             RequiredCount
         );
 
-        UPanelSlot* AddedSlot = CostListBox->AddChild(CostEntry);
+        const int32 Row = AddedEntryIndex / ColumnCount;
+        const int32 Column = AddedEntryIndex % ColumnCount;
 
-        if (UVerticalBoxSlot* VerticalBoxSlot = Cast<UVerticalBoxSlot>(AddedSlot))
+        UUniformGridSlot* GridSlot = CostListBox->AddChildToUniformGrid(CostEntry, Row, Column);
+
+        if (GridSlot)
         {
-            VerticalBoxSlot->SetPadding(FMargin(0.0f, 0.0f, 0.0f, 8.0f));
+            GridSlot->SetHorizontalAlignment(HAlign_Fill);
         }
+
+        ++AddedEntryIndex;
     }
 }
 
@@ -485,43 +496,10 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
     }
 
     const EKOFactoryCraftAvailability Availability = GetCraftAvailability(SelectedTarget, CraftCount);
-
     const bool bCanCraft = Availability == EKOFactoryCraftAvailability::CanCraft;
-
     CraftButton->SetIsEnabled(bCanCraft);
-
-    CraftButton->SetBackgroundColor(
-        bCanCraft
-            ? CraftableButtonColor
-            : NotCraftableButtonColor
-    );
-
-    if (CraftButtonText)
-    {
-        FText ButtonText;
-
-        switch (Availability)
-        {
-        case EKOFactoryCraftAvailability::CanCraft:
-            ButtonText = FText::FromString(TEXT("제작"));
-            break;
-
-        case EKOFactoryCraftAvailability::NotEnoughMaterials:
-            ButtonText = FText::FromString(TEXT("재료 부족"));
-            break;
-
-        case EKOFactoryCraftAvailability::NotEnoughInventorySpace:
-            ButtonText = FText::FromString(TEXT("인벤토리 공간 부족"));
-            break;
-
-        default:
-            ButtonText = FText::FromString(TEXT("제작 불가"));
-            break;
-        }
-
-        CraftButtonText->SetText(ButtonText);
-    }
 }
+
 
 void UKOFactoryCraftWidget::HandleCraftButtonClicked()
 {

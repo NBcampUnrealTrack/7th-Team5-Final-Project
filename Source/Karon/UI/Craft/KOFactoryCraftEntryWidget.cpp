@@ -47,10 +47,17 @@ void UKOFactoryCraftEntryWidget::SetupEntry(
 	}
 	
 	if (EntryButton)
-	{
-		const FLinearColor TargetColor = bInCanCraft ? CraftableColor : NotCraftableColor;
+	{		
+		if (!bInCanCraft)
+		{
+			FButtonStyle NotCraftableStyle = EntryButton->GetStyle();
 
-		EntryButton->SetBackgroundColor(TargetColor);
+			NotCraftableStyle.Normal.TintColor = FSlateColor(NotCraftableColor);
+			NotCraftableStyle.Hovered.TintColor = FSlateColor(NotCraftableHoveredColor);
+			NotCraftableStyle.Pressed.TintColor = FSlateColor(NotCraftablePressedColor);
+
+			EntryButton->SetStyle(NotCraftableStyle);
+		}
 	}
 }
 

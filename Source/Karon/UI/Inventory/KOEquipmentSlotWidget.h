@@ -6,6 +6,7 @@
 #include "KOEquipmentSlotWidget.generated.h"
 
 class UImage;
+class UWidgetSwitcher;
 class UDragDropOperation;
 class UKOInventoryComponent;
 class UKOItemTooltipWidget;
@@ -59,12 +60,15 @@ protected:
         UDragDropOperation*& OutOperation
     ) override;
 
-protected:
+protected:    
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|EquipmentSlot")
     EKOEquipmentSlotType SlotType = EKOEquipmentSlotType::Weapon;
 
     UPROPERTY(BlueprintReadOnly, Category = "KO|EquipmentSlot")
     FName EquippedItemId = NAME_None;
+    
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UWidgetSwitcher> EquipmentStateSwitcher;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> EquipmentIconImage;

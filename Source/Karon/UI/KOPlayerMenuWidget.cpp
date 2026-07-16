@@ -7,6 +7,8 @@
 #include "UI/Loading/KOLoadingUiSubsystem.h"
 
 #include "Components/Button.h"
+#include "Groups/CommonButtonGroupBase.h"
+#include "CommonButtonBase.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystem/KOSaveSubsystem.h"
@@ -23,26 +25,26 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 	
 	if (Button_Inventory)
 	{
-		Button_Inventory->IsFocusable = false;
-		Button_Inventory->OnClicked.AddDynamic(this, &ThisClass::HandleInventoryClicked);
+		Button_Inventory->SetIsFocusable(false);
+		Button_Inventory->OnClicked().AddUObject(this, &ThisClass::HandleInventoryClicked);
 	}
 
 	if (Button_Factory)
 	{
-		Button_Factory->IsFocusable = false;
-		Button_Factory->OnClicked.AddDynamic(this, &ThisClass::HandleFactoryClicked);
+		Button_Factory->SetIsFocusable(false);
+		Button_Factory->OnClicked().AddUObject(this, &ThisClass::HandleFactoryClicked);
 	}
 
 	if (Button_Skill)
 	{
-		Button_Skill->IsFocusable = false;
-		Button_Skill->OnClicked.AddDynamic(this, &ThisClass::HandleSkillClicked);
+		Button_Skill->SetIsFocusable(false);
+		Button_Skill->OnClicked().AddUObject(this, &ThisClass::HandleSkillClicked);
 	}
 
 	if (Button_Option)
 	{
-		Button_Option->IsFocusable = false;
-		Button_Option->OnClicked.AddDynamic(this, &ThisClass::HandleOptionClicked);
+		Button_Option->SetIsFocusable(false);
+		Button_Option->OnClicked().AddUObject(this, &ThisClass::HandleOptionClicked);
 	}
 	
 	if (ToastMessageWidget)
@@ -84,6 +86,19 @@ void UKOPlayerMenuWidget::NativeOnInitialized()
 	{
 		Button_QuitGame->IsFocusable = false;
 		Button_QuitGame->OnClicked.AddDynamic(this, &ThisClass::HandleQuitGameClicked);
+	}
+	
+	// 버큰 그룹 등록
+	TabButtonGroup = NewObject<UCommonButtonGroupBase>(this);
+
+	if (TabButtonGroup)
+	{
+		TabButtonGroup->SetSelectionRequired(true);
+
+		TabButtonGroup->AddWidget(Button_Inventory);
+		TabButtonGroup->AddWidget(Button_Factory);
+		TabButtonGroup->AddWidget(Button_Skill);
+		TabButtonGroup->AddWidget(Button_Option);
 	}
 }
 
@@ -159,6 +174,11 @@ void UKOPlayerMenuWidget::SetActiveTab(EKOPlayerMenuTab Tab)
 	}
 
 	ContentSwitcher->SetActiveWidgetIndex(Index);
+
+	if (TabButtonGroup)
+	{
+		TabButtonGroup->SelectButtonAtIndex(Index, false);
+	}
 }
 
 void UKOPlayerMenuWidget::HandleInventoryClicked()

@@ -6,11 +6,13 @@
 #include "KOFactoryCraftWidget.generated.h"
 
 class UButton;
+class UCommonButtonBase;
 class UImage;
 class UPanelWidget;
 class UTextBlock;
 class UKOInventoryComponent;
 class UKOFactoryCraftCostEntryWidget;
+class UUniformGridPanel;
 
 UENUM()
 enum class EKOFactoryCraftAvailability : uint8
@@ -77,7 +79,7 @@ protected:
     TObjectPtr<UPanelWidget> FactoryListBox;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UPanelWidget> CostListBox;
+    TObjectPtr<UUniformGridPanel> CostListBox;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> FactoryIconImage; 
@@ -92,10 +94,7 @@ protected:
     TObjectPtr<UTextBlock> OwnedCountText; 
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> CraftButton; 
-    
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> CraftButtonText;
+    TObjectPtr<UCommonButtonBase> CraftButton; 
     
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UButton> DecreaseCraftCountButton; // -1

@@ -8,6 +8,8 @@ class UButton;
 class UWidgetSwitcher;
 class UCommonActivatableWidget;
 class UKOToastMessageWidget;
+class UCommonButtonBase;
+class UCommonButtonGroupBase;
 
 UENUM(BlueprintType)
 enum class EKOPlayerMenuTab : uint8
@@ -40,16 +42,19 @@ protected:
 	TObjectPtr<UWidgetSwitcher> ContentSwitcher;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Inventory;
+	TObjectPtr<UCommonButtonBase> Button_Inventory;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Factory;
+	TObjectPtr<UCommonButtonBase> Button_Factory;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Skill;
+	TObjectPtr<UCommonButtonBase> Button_Skill;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Option;
+	TObjectPtr<UCommonButtonBase> Button_Option;
+	
+	UPROPERTY()
+	TObjectPtr<UCommonButtonGroupBase> TabButtonGroup;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UKOToastMessageWidget> ToastMessageWidget;

@@ -3,6 +3,7 @@
 #include "Blueprint/DragDropOperation.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Image.h"
+#include "Components/WidgetSwitcher.h"
 #include "InputCoreTypes.h"
 
 #include "Component/Inventory/KOInventoryComponent.h"
@@ -493,14 +494,31 @@ bool UKOEquipmentSlotWidget::UnequipItem()
 void UKOEquipmentSlotWidget::RefreshVisual()
 {
 	const bool bHasItem = !EquippedItemId.IsNone();
+	
+	constexpr int32 EquippedPageIndex = 0;
+	constexpr int32 EmptyPageIndex = 1;
+	
+	if (EquipmentStateSwitcher)
+	{
+		EquipmentStateSwitcher->SetActiveWidgetIndex(bHasItem ? EquippedPageIndex : EmptyPageIndex);
+	}
 
 	if (EquipmentIconImage)
 	{
 		if (bHasItem)
 		{
 			UTexture2D* Icon = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, EquippedItemId);
-			EquipmentIconImage->SetBrushFromTexture(Icon);
-			EquipmentIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			
+			if (Icon)
+			{
+				EquipmentIconImage->SetBrushFromTexture(Icon);
+				EquipmentIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			}
+			else
+			{
+				EquipmentIconImage->SetBrushFromTexture(nullptr);
+				EquipmentIconImage->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
 		else
 		{
