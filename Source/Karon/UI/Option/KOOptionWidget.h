@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/SlateEnums.h"
 #include "UI/KOActivatableWidget.h"
 #include "Game/Save/KOSaveGameOption.h"
 #include "KOOptionWidget.generated.h"
@@ -28,6 +29,7 @@ enum class EKOOptionTab : uint8
  * BP에서 해야 할 작업:
  *   1. SoundMix, SC_* 에 프로젝트 SoundClass 에셋을 지정.
  *   2. 아래 BindWidget 이름과 동일한 UMG 위젯을 배치.
+ *      (ComboBox_OverallQuality는 그래픽 옵션 일괄 설정용 콤보박스로 선택 사항)
  *   3. KOUISettings WidgetMap에 UI.Widget.Option → (Layer.GameMenu, WBP_OptionWidget) 등록.
  */
 UCLASS()
@@ -120,7 +122,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UComboBoxString> ComboBox_FrameLimit;
-
+	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UCheckBox> CheckBox_VSync;
 
@@ -142,6 +144,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UComboBoxString> ComboBox_ShadingQuality;
 
+	/** 그래픽 옵션 일괄 설정. 낮음/보통/높음/최고 중 하나를 고르면 아래 세부 항목에 모두 적용되고,
+	 *  세부 항목을 개별로 바꾸면 자동으로 "사용자 설정"으로 표시된다. (선택 사항: BP에 없으면 무시됨) */
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	TObjectPtr<UComboBoxString> ComboBox_OverallQuality;
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UButton> Button_Apply;
 
@@ -154,6 +161,9 @@ private:
 
 	void RefreshSoundUI(const FKOSoundOptions& Sound);
 	void RefreshGraphicsUI(const FKOGraphicsOptions& Graphics);
+
+	/** 세부 품질 항목 6개가 모두 같은 값이면 그 값으로, 아니면 "사용자 설정"으로 ComboBox_OverallQuality를 갱신 */
+	void RefreshOverallQualityUI(const FKOGraphicsOptions& Graphics);
 
 	void ApplySoundOptions(const FKOSoundOptions& Sound);
 	void ApplyGraphicsOptions(const FKOGraphicsOptions& Graphics);
@@ -183,7 +193,19 @@ private:
 	UFUNCTION()
 	void HandleCloseClicked();
 
+	/** ComboBox_OverallQuality에서 프리셋을 고르면 세부 품질 항목 6개에 그대로 적용 */
+	UFUNCTION()
+	void HandleOverallQualityChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
+
+	/** 세부 품질 항목이 개별로 바뀌면 ComboBox_OverallQuality 표시를 갱신 (일치 시 프리셋명, 아니면 "사용자 설정") */
+	UFUNCTION()
+	void HandleQualityOptionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
+
 	static const TArray<FIntPoint> SupportedResolutions;
 	static const TArray<int32> SupportedFrameLimits;
 	static const TArray<FString> QualityLabels;
+	static const FString CustomQualityLabel;
+
+	/** true인 동안은 콤보박스 OnSelectionChanged가 프로그램적 변경을 사용자 입력으로 오인해 재귀 갱신하지 않도록 막는다 */
+	bool bSuppressQualitySync = false;
 };

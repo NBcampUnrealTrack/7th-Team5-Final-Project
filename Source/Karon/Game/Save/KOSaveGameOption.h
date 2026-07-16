@@ -47,24 +47,24 @@ struct FKOGraphicsOptions
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	bool bVSync = false;
 
-	/** 0=낮음 1=보통 2=높음 3=최고 4=시네마틱 */
+	/** 0=낮음 1=보통 2=높음 3=최고 (기본값: 높음) */
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 ShadowQuality = 3;
+	int32 ShadowQuality = 2;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 ViewDistanceQuality = 3;
+	int32 ViewDistanceQuality = 2;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 AntiAliasingQuality = 3;
+	int32 AntiAliasingQuality = 2;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 TextureQuality = 3;
+	int32 TextureQuality = 2;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 EffectsQuality = 3;
+	int32 EffectsQuality = 2;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
-	int32 ShadingQuality = 3;
+	int32 ShadingQuality = 2;
 };
 
 UCLASS(BlueprintType)

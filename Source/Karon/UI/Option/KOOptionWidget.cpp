@@ -43,8 +43,9 @@ const TArray<FString> UKOOptionWidget::QualityLabels =
 	TEXT("보통"),
 	TEXT("높음"),
 	TEXT("최고"),
-	TEXT("시네마틱"),
 };
+
+const FString UKOOptionWidget::CustomQualityLabel = TEXT("사용자 설정");
 
 // ---- 초기화 ----
 
@@ -83,6 +84,26 @@ void UKOOptionWidget::NativeOnInitialized()
 		Button_Close->IsFocusable = false;
 		Button_Close->OnClicked.AddDynamic(this, &ThisClass::HandleCloseClicked);
 	}
+
+	if (ComboBox_OverallQuality)
+	{
+		ComboBox_OverallQuality->OnSelectionChanged.AddDynamic(this, &ThisClass::HandleOverallQualityChanged);
+	}
+
+	auto BindQualityOptionChanged = [this](UComboBoxString* Box)
+	{
+		if (Box)
+		{
+			Box->OnSelectionChanged.AddDynamic(this, &ThisClass::HandleQualityOptionChanged);
+		}
+	};
+
+	BindQualityOptionChanged(ComboBox_ShadowQuality);
+	BindQualityOptionChanged(ComboBox_ViewDistanceQuality);
+	BindQualityOptionChanged(ComboBox_AntiAliasingQuality);
+	BindQualityOptionChanged(ComboBox_TextureQuality);
+	BindQualityOptionChanged(ComboBox_EffectsQuality);
+	BindQualityOptionChanged(ComboBox_ShadingQuality);
 }
 
 void UKOOptionWidget::NativeOnActivated()
@@ -156,6 +177,17 @@ void UKOOptionWidget::PopulateComboBoxes()
 	PopulateQuality(ComboBox_TextureQuality);
 	PopulateQuality(ComboBox_EffectsQuality);
 	PopulateQuality(ComboBox_ShadingQuality);
+
+	if (ComboBox_OverallQuality)
+	{
+		ComboBox_OverallQuality->ClearOptions();
+		for (const FString& Label : QualityLabels)
+		{
+			ComboBox_OverallQuality->AddOption(Label);
+		}
+		// 세부 항목이 서로 다른 값일 때 표시되는 항목. 사용자가 직접 골라도 별도 프리셋 값이 없어 적용되지 않는다.
+		ComboBox_OverallQuality->AddOption(CustomQualityLabel);
+	}
 }
 
 // ---- 로드 & UI 갱신 ----
@@ -244,15 +276,60 @@ void UKOOptionWidget::RefreshGraphicsUI(const FKOGraphicsOptions& Graphics)
 
 	auto SetQuality = [](UComboBoxString* Box, int32 Value)
 	{
-		if (Box) Box->SetSelectedIndex(FMath::Clamp(Value, 0, 4));
+		if (Box) Box->SetSelectedIndex(FMath::Clamp(Value, 0, 3));
 	};
 
+	// SetSelectedIndex는 OnSelectionChanged(Direct)를 발생시키므로, 아래 프로그램적 갱신 도중에는
+	// HandleQualityOptionChanged가 재귀적으로 끼어들지 않도록 막는다.
+	bSuppressQualitySync = true;
 	SetQuality(ComboBox_ShadowQuality,        Graphics.ShadowQuality);
 	SetQuality(ComboBox_ViewDistanceQuality,   Graphics.ViewDistanceQuality);
 	SetQuality(ComboBox_AntiAliasingQuality,   Graphics.AntiAliasingQuality);
 	SetQuality(ComboBox_TextureQuality,        Graphics.TextureQuality);
 	SetQuality(ComboBox_EffectsQuality,        Graphics.EffectsQuality);
 	SetQuality(ComboBox_ShadingQuality,        Graphics.ShadingQuality);
+	bSuppressQualitySync = false;
+
+	RefreshOverallQualityUI(Graphics);
+}
+
+void UKOOptionWidget::RefreshOverallQualityUI(const FKOGraphicsOptions& Graphics)
+{
+	if (ComboBox_OverallQuality == nullptr)
+	{
+		return;
+	}
+
+	const int32 Values[] =
+	{
+		Graphics.ShadowQuality,
+		Graphics.ViewDistanceQuality,
+		Graphics.AntiAliasingQuality,
+		Graphics.TextureQuality,
+		Graphics.EffectsQuality,
+		Graphics.ShadingQuality,
+	};
+
+	bool bAllSame = true;
+	for (int32 Value : Values)
+	{
+		if (Value != Values[0])
+		{
+			bAllSame = false;
+			break;
+		}
+	}
+
+	bSuppressQualitySync = true;
+	if (bAllSame && QualityLabels.IsValidIndex(Values[0]))
+	{
+		ComboBox_OverallQuality->SetSelectedIndex(Values[0]);
+	}
+	else
+	{
+		ComboBox_OverallQuality->SetSelectedIndex(QualityLabels.Num()); // "사용자 설정"
+	}
+	bSuppressQualitySync = false;
 }
 
 // ---- UI에서 값 수집 ----
@@ -293,15 +370,15 @@ FKOGraphicsOptions UKOOptionWidget::GatherGraphicsFromUI() const
 
 	auto GetQuality = [](UComboBoxString* Box, int32 Default) -> int32
 	{
-		return Box ? FMath::Clamp(Box->GetSelectedIndex(), 0, 4) : Default;
+		return Box ? FMath::Clamp(Box->GetSelectedIndex(), 0, 3) : Default;
 	};
 
-	Out.ShadowQuality        = GetQuality(ComboBox_ShadowQuality,        3);
-	Out.ViewDistanceQuality  = GetQuality(ComboBox_ViewDistanceQuality,   3);
-	Out.AntiAliasingQuality  = GetQuality(ComboBox_AntiAliasingQuality,   3);
-	Out.TextureQuality       = GetQuality(ComboBox_TextureQuality,        3);
-	Out.EffectsQuality       = GetQuality(ComboBox_EffectsQuality,        3);
-	Out.ShadingQuality       = GetQuality(ComboBox_ShadingQuality,        3);
+	Out.ShadowQuality        = GetQuality(ComboBox_ShadowQuality,        2);
+	Out.ViewDistanceQuality  = GetQuality(ComboBox_ViewDistanceQuality,   2);
+	Out.AntiAliasingQuality  = GetQuality(ComboBox_AntiAliasingQuality,   2);
+	Out.TextureQuality       = GetQuality(ComboBox_TextureQuality,        2);
+	Out.EffectsQuality       = GetQuality(ComboBox_EffectsQuality,        2);
+	Out.ShadingQuality       = GetQuality(ComboBox_ShadingQuality,        2);
 
 	return Out;
 }
@@ -409,6 +486,47 @@ void UKOOptionWidget::HandleSoundTabClicked()
 void UKOOptionWidget::HandleCloseClicked()
 {
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Option);
+}
+
+void UKOOptionWidget::HandleOverallQualityChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (bSuppressQualitySync)
+	{
+		return;
+	}
+
+	const int32 PresetIndex = QualityLabels.IndexOfByKey(SelectedItem);
+	if (!QualityLabels.IsValidIndex(PresetIndex))
+	{
+		// "사용자 설정"은 되돌릴 고정값이 없으므로 세부 항목은 그대로 둔다.
+		return;
+	}
+
+	bSuppressQualitySync = true;
+
+	auto ApplyPreset = [PresetIndex](UComboBoxString* Box)
+	{
+		if (Box) Box->SetSelectedIndex(PresetIndex);
+	};
+
+	ApplyPreset(ComboBox_ShadowQuality);
+	ApplyPreset(ComboBox_ViewDistanceQuality);
+	ApplyPreset(ComboBox_AntiAliasingQuality);
+	ApplyPreset(ComboBox_TextureQuality);
+	ApplyPreset(ComboBox_EffectsQuality);
+	ApplyPreset(ComboBox_ShadingQuality);
+
+	bSuppressQualitySync = false;
+}
+
+void UKOOptionWidget::HandleQualityOptionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (bSuppressQualitySync)
+	{
+		return;
+	}
+
+	RefreshOverallQualityUI(GatherGraphicsFromUI());
 }
 
 // ---- 헬퍼: 해상도 인덱스 변환 ----
