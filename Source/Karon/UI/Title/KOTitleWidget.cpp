@@ -58,6 +58,9 @@ void UKOTitleWidget::StartGameConfirmation()
 		SaveSubsystem->DeleteSave();
 	}
 	
+	// 아웃핏 선택 세이브도 함께 삭제 (새 게임 시 기본 옷으로 초기화하기 위함)
+	UGameplayStatics::DeleteGameInSlot(TEXT("OutfitSlot"), 0);
+	
 	// 퀘스트 진행 초기화
 	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
 	{
