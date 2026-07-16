@@ -28,6 +28,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Return")
 	float AcceptanceRadius = 100.f;
 	
+	UPROPERTY(EditAnywhere, Category = "Return")
+	float ReturnMoveSpeed = 5000.f;
+	
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
  
 	UPROPERTY()

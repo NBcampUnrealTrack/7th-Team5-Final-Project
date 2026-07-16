@@ -1,10 +1,13 @@
 #include "Character/Enemy/Boss/BehaviorTree/BTTask_BossReturn.h"
 
+#include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
+#include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Boss/KOAIC_BossController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 
 UBTTask_BossReturn::UBTTask_BossReturn()
@@ -51,6 +54,14 @@ EBTNodeResult::Type UBTTask_BossReturn::ExecuteTask(
 	if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
 	{
 		Boss->NotifyPlayerLost();
+		
+		if (ReturnMoveSpeed > 0.f)
+		{
+			if (UCharacterMovementComponent* MoveComp = Boss->GetCharacterMovement())
+			{
+				MoveComp->MaxWalkSpeed = ReturnMoveSpeed;
+			}
+		}
 	}
  
 	CachedOwnerComp = &OwnerComp;
@@ -129,9 +140,21 @@ void UBTTask_BossReturn::OnTaskFinished(
 			PFC->OnRequestFinished.RemoveAll(this);
 		}
 		AIC->StopMovement();
+		
+		if (AKOBossBase* Boss = Cast<AKOBossBase>(AIC->GetPawn()))
+		{
+			if (UCharacterMovementComponent* MoveComp = Boss->GetCharacterMovement())
+			{
+				if (const UKOMovementSet* MovementSet = Boss->GetAbilitySystemComponent()->GetSet<UKOMovementSet>())
+				{
+					MoveComp->MaxWalkSpeed = MovementSet->GetMaxWalkSpeed();
+				}
+			}
+		}
 	}
  
 	CachedOwnerComp = nullptr;
  
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
 }
+

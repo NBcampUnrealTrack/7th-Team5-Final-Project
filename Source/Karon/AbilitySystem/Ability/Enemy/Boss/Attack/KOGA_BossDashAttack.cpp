@@ -1,6 +1,7 @@
 #include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossDashAttack.h"
 
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
@@ -39,19 +40,63 @@ void UKOGA_BossDashAttack::ActivateAbility(
 	}
 	
 	AKOBossBase* Boss = Cast<AKOBossBase>(Character);
-	AActor* Target = Boss ? Boss-> CurrentTarget : nullptr;
+	AActor* Target = Boss ? Boss->CurrentTarget : nullptr;
  
 	DashDirection = Target ?
 		(Target->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal() :
 		Character->GetActorForwardVector();
-		DashDirection.Z = 0.f;
+	DashDirection.Z = 0.f;
 	
 	DashedActors.Empty();
 	
+	if (PreDashMontage)
+	{
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, PreDashMontage, 1.f, NAME_None, false);
+
+		MontageTask->OnCompleted.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCompleted);
+		MontageTask->OnCancelled.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCancelled);
+		MontageTask->OnInterrupted.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCancelled);
+		MontageTask->ReadyForActivation();
+	}
+	else
+	{
+		// 전조 몽타주 없으면 즉시 돌진
+		StartDash();
+	}
+}
+ 
+void UKOGA_BossDashAttack::OnPreDashMontageCompleted()
+{
+	if (ACharacter* Character = GetAvatarCharacter())
+	{
+		DashDirection = Character->GetActorForwardVector();
+		DashDirection.Z = 0.f;
+		DashDirection.Normalize();
+	}
+ 
+	StartDash();
+}
+ 
+void UKOGA_BossDashAttack::OnPreDashMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+ 
+void UKOGA_BossDashAttack::StartDash()
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+ 
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(
 		this, &UKOGA_BossDashAttack::OnDashHit
 	);
-
+ 
 	// 최대 돌진 시간 타이머
 	GetWorld()->GetTimerManager().SetTimer(
 		DashTimerHandle,
@@ -60,17 +105,13 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		DashDuration,
 		false
 	);
-	
+ 
 	GetWorld()->GetTimerManager().SetTimer(
 		DashVelocityTimerHandle,
 		FTimerDelegate::CreateLambda([this]()
 		{
 			ACharacter* Char = GetAvatarCharacter();
-			if (!IsActive() || !Char)
-			{
-				return;
-			}
-			
+			if (!IsActive() || !Char) return;
 			Char->GetCharacterMovement()->Velocity = DashDirection * DashSpeed;
 		}),
 		0.016f,
