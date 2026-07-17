@@ -302,7 +302,7 @@ void UKOPlayerMenuWidget::HandleQuitGameClicked()
 		Popup->OnConfirmed.Clear();
 		Popup->SetupPopup(
 		LOCTEXT("Quit Game", "게임 종료"),	
-		LOCTEXT("Quit Game Description", "저장하지 않은 진행 상황은 사라집니다. 정말 게임을 종료하시겠습니까?"));
+		LOCTEXT("Quit Game Description", "저장하지 않은 진행 상황은 사라집니다. \n정말 게임을 종료하시겠습니까?"));
 		Popup->OnConfirmed.AddUniqueDynamic(this, &ThisClass::HandleQuitGameConfirmed);
 	}
 }

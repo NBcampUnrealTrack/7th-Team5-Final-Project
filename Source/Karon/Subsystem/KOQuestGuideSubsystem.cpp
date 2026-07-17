@@ -25,11 +25,22 @@ void UKOQuestGuideSubsystem::InitializeQuestGuide(UDataTable* InQuestTable, FNam
 {
 	QuestTable = InQuestTable;
 
-	if (CurrentQuestId.IsNone())
+	if (!CurrentQuestId.IsNone())
 	{
-		CurrentQuestId = InStartQuestId;
-		OnQuestChanged.Broadcast(CurrentQuestId);
+		return;
 	}
+
+	if (!QuestTable || InStartQuestId.IsNone())
+	{
+		return;
+	}
+	
+	CurrentProgress = 0;
+	
+	MarkPreviousQuestsCompleted(InStartQuestId);
+
+	CurrentQuestId = InStartQuestId;
+	OnQuestChanged.Broadcast(CurrentQuestId);
 }
 
 void UKOQuestGuideSubsystem::SetCurrentQuest(FName NewQuestId)
@@ -173,12 +184,12 @@ void UKOQuestGuideSubsystem::NotifyFuelInserted(FName FuelItemId, int32 Count)
 
 void UKOQuestGuideSubsystem::NotifyItemCrafted(FName ItemId, int32 Count)
 {
-	if (Count <= 0)
+	if (ItemId.IsNone() || Count <= 0)
 	{
 		return;
 	}
 
-	TryCompleteQuest(EKOQuestCompleteType::CraftItem, ItemId);
+	TryCompleteQuest(EKOQuestCompleteType::CraftItem, ItemId, Count);
 }
 
 void UKOQuestGuideSubsystem::NotifyRecipeSelected(FName RecipeId)
@@ -204,16 +215,6 @@ void UKOQuestGuideSubsystem::NotifyProcessorInputInserted(FName ItemId, int32 Co
 void UKOQuestGuideSubsystem::NotifyConveyorOutputBound(FName OutputItemId)
 {
 	TryCompleteQuest(EKOQuestCompleteType::BindConveyorOutput, OutputItemId);
-}
-
-void UKOQuestGuideSubsystem::NotifyProcessorOutputCollected(FName ItemId, int32 Count)
-{
-	if (ItemId.IsNone() || Count <= 0)
-	{
-		return;
-	}
-
-	TryCompleteQuest(EKOQuestCompleteType::CollectProcessorOutput, ItemId);
 }
 
 void UKOQuestGuideSubsystem::NotifySkillUnlocked(FName SkillId)
@@ -379,4 +380,61 @@ void UKOQuestGuideSubsystem::AdvanceQuest()
 	}
 
 	SetCurrentQuest(Row->NextQuestId);
+}
+
+void UKOQuestGuideSubsystem::MarkPreviousQuestsCompleted(FName StartQuestId)
+{
+	if (!QuestTable || StartQuestId.IsNone())
+	{
+		return;
+	}
+
+	FName QuestIdToFind = StartQuestId;
+
+	TSet<FName> VisitedQuestIds;
+
+	while (!QuestIdToFind.IsNone())
+	{
+		if (VisitedQuestIds.Contains(QuestIdToFind))
+		{
+			UE_LOG(
+				LogTemp,
+				Error,
+				TEXT(
+					"[QuestGuide] 퀘스트 연결에 순환 구조가 있습니다. QuestId=%s"
+				),
+				*QuestIdToFind.ToString()
+			);
+			break;
+		}
+
+		VisitedQuestIds.Add(QuestIdToFind);
+
+		FName PreviousQuestId = NAME_None;
+
+		for (const FName& RowName : QuestTable->GetRowNames())
+		{
+			const FKOQuestGuideRow* Row = QuestTable->FindRow<FKOQuestGuideRow>(
+					RowName, TEXT("MarkPreviousQuestsCompleted"));
+
+			if (!Row)
+			{
+				continue;
+			}
+
+			if (Row->NextQuestId == QuestIdToFind)
+			{
+				PreviousQuestId = RowName;
+				break;
+			}
+		}
+
+		if (PreviousQuestId.IsNone())
+		{
+			break;
+		}
+
+		CompletedQuestIds.Add(PreviousQuestId);
+		QuestIdToFind = PreviousQuestId;
+	}
 }

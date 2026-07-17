@@ -6,17 +6,13 @@
 #include "Components/TextBlock.h"
 #include "Engine/Texture2D.h"
 
-void UKOBeltConnectEntryWidget::SetupSlot(const FKOFactoryPortSlot& InSlot, int32 SlotNumber, const FText& InDisplayName, UTexture2D* InIcon)
+void UKOBeltConnectEntryWidget::SetupSlot(const FKOFactoryPortSlot& InSlot, const FText& InDisplayName, UTexture2D* InIcon)
 {
     PortSlot = InSlot;
 
     if (NameText)
     {
         NameText->SetText(InDisplayName);
-    }
-    if (SlotNumberText)
-    {
-        SlotNumberText->SetText(FText::AsNumber(SlotNumber));
     }
     if (IconImage)
     {

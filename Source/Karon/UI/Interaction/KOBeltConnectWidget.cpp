@@ -114,7 +114,7 @@ void UKOBeltConnectWidget::BuildGroupEntries(EKOPortKind Kind, const TArray<FNam
             Icon = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemHint);
         }
 
-        Entry->SetupSlot(PortSlot, Index + 1, DisplayName, Icon);
+        Entry->SetupSlot(PortSlot, DisplayName, Icon);
         Entry->OnSlotClicked.AddDynamic(this, &UKOBeltConnectWidget::HandleSlotClicked);
 
         Panel->AddChild(Entry);

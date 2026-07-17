@@ -14,15 +14,9 @@ void UKOQuestGuideWidget::NativeConstruct()
 
 	if (CachedQuestGuide)
 	{
-		CachedQuestGuide->InitializeQuestGuide(
-			QuestGuideTable,
-			StartQuestId
-		);
+		CachedQuestGuide->InitializeQuestGuide(QuestGuideTable, StartQuestId);
 
-		CachedQuestGuide->OnQuestChanged.AddDynamic(
-			this,
-			&UKOQuestGuideWidget::HandleQuestChanged
-		);
+		CachedQuestGuide->OnQuestChanged.AddDynamic(this, &UKOQuestGuideWidget::HandleQuestChanged);
 	}
 
 	RefreshQuestText();
@@ -32,10 +26,7 @@ void UKOQuestGuideWidget::NativeDestruct()
 {
 	if (CachedQuestGuide)
 	{
-		CachedQuestGuide->OnQuestChanged.RemoveDynamic(
-			this,
-			&UKOQuestGuideWidget::HandleQuestChanged
-		);
+		CachedQuestGuide->OnQuestChanged.RemoveDynamic(this, &UKOQuestGuideWidget::HandleQuestChanged);
 	}
 
 	Super::NativeDestruct();

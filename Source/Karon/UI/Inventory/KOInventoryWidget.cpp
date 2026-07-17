@@ -89,17 +89,6 @@ bool UKOInventoryWidget::NativeOnDrop(
         Source->Restore(ItemId, Rejected);
     }
     
-    // 퀘스트
-    const bool bFromProcessorOutput = Source->IsA<UKOProcessorOutputItemSource>();
-    const int32 Accepted = Extracted - Rejected;
-
-    if (Accepted > 0 && bFromProcessorOutput)
-    {
-        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
-        {
-            QuestGuide->NotifyProcessorOutputCollected(ItemId, Accepted);
-        }
-    }
     return true;
 }
 

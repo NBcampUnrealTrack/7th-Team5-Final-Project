@@ -27,10 +27,9 @@ public:
     /**
      * 포트 슬롯 세팅(일반 포트 모델 — 빈 포트도 바인딩 가능).
      * @param InSlot      (Kind, PortIndex, ItemId). Output ItemId가 실제 필터로 사용된다.
-     * @param SlotNumber  그룹 내 1-based 표시 번호.
      * @param InIcon      아이템 아이콘. nullptr이면 EmptySlotIcon 사용.
      */
-    void SetupSlot(const FKOFactoryPortSlot& InSlot, int32 SlotNumber, const FText& InDisplayName, UTexture2D* InIcon);
+    void SetupSlot(const FKOFactoryPortSlot& InSlot, const FText& InDisplayName, UTexture2D* InIcon);
 
     const FKOFactoryPortSlot& GetSlot() const { return PortSlot; }
 
@@ -47,10 +46,6 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> NameText;
-
-    /** 그룹 내 슬롯 번호(1,2,3,4 …) 표시용. 팩토리 슬롯형 레이아웃에서 사용. */
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UTextBlock> SlotNumberText;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> IconImage;

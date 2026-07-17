@@ -7,6 +7,8 @@
 class UButton;
 class UWidgetSwitcher;
 class UKOFactoryCraftWidget;
+class UCommonButtonBase;
+class UCommonButtonGroupBase;
 
 UENUM(BlueprintType)
 enum class EKOBuildInventoryTab : uint8
@@ -37,10 +39,13 @@ protected:
 	TObjectPtr<UWidgetSwitcher> ContentSwitcher;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Inventory;
+	TObjectPtr<UCommonButtonBase> Button_Inventory;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Factory;
+	TObjectPtr<UCommonButtonBase> Button_Factory;
+	
+	UPROPERTY()
+	TObjectPtr<UCommonButtonGroupBase> TabButtonGroup;
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UKOFactoryCraftWidget> FactoryCraftWidget;

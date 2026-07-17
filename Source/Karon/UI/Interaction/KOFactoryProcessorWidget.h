@@ -13,6 +13,7 @@ class UTextBlock;
 class UProgressBar;
 class UPanelWidget;
 class UButton;
+class UImage;
 class UWidgetSwitcher;
 class UKOFactorySlotWidget;
 class UKOInventoryWidget;
@@ -96,6 +97,9 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UButton> RecipeButton;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UImage> NotCraftableImage;
     
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
     FLinearColor RecipeButtonNormalColor = FLinearColor(1.f, 1.f, 1.f, 1.f);

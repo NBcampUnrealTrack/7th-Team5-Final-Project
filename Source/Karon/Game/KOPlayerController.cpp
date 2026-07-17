@@ -293,6 +293,12 @@ void AKOPlayerController::GiveStarterItems()
 		TEXT("Hammer"),
 		1
 	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("GreatSword"),
+		1
+	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
@@ -747,9 +753,16 @@ void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
 
 void AKOPlayerController::Input_BuildInventory(const FInputActionValue& Value)
 {
-	if (!GridBuildComponent)
+	if (!GridBuildComponent && !BuildUIComponent)
 	{
 		return;
+	}
+	
+	const EKOGridBuildMode CurrentMode = GridBuildComponent->GetCurrentMode();
+
+	if (CurrentMode == EKOGridBuildMode::Placing || CurrentMode == EKOGridBuildMode::Destroying)
+	{
+		BuildUIComponent->CancelBuildAction();
 	}
 
 	if (GridBuildComponent->GetCurrentMode() != EKOGridBuildMode::BuildMenu)

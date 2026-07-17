@@ -44,7 +44,6 @@ public:
 	void NotifyRecipeSelected(FName RecipeId); // 레시피 선택
 	void NotifyProcessorInputInserted(FName ItemId, int32 Count); // input 슬롯 할당
 	void NotifyConveyorOutputBound(FName OutputItemId); // 벨트 output 슬롯 할당
-	void NotifyProcessorOutputCollected(FName ItemId, int32 Count); // Output 슬롯 아이템 인벤토리 수령
 	void NotifySkillUnlocked(FName SkillId); // 스킬 해금
 	void NotifySkillAssigned(FName SkillId); // 스킬 슬롯 할당
 	void NotifyBossDefeated(FName BossId); // 보스 처치
@@ -73,6 +72,9 @@ private:
 	void GrantRewards(const FKOQuestGuideRow& Row); // 퀘스트 보상
 	UKOInventoryComponent* GetPlayerInventory() const;
 	void AdvanceQuest();
+	
+	// 퀘스트 완료 처리
+	void MarkPreviousQuestsCompleted(FName StartQuestId);
 
 	UPROPERTY()
 	TObjectPtr<UDataTable> QuestTable = nullptr;

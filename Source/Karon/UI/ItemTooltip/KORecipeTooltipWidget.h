@@ -16,5 +16,8 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> RecipeText;
+	TObjectPtr<UTextBlock> RecipeinputText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> RecipeoutputText;
 };

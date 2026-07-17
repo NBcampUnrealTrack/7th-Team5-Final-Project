@@ -21,6 +21,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
 #include "UI/Interaction/KOFactoryRecipeEntryWidget.h"
 #include "UI/Inventory/KOInventoryWidget.h"
@@ -159,6 +160,7 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     {
         RecipeButton->OnClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
     }
+    
     if (RecipeSelectPanel) RecipeSelectPanel->ClearChildren();
     for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
     {
@@ -423,33 +425,6 @@ void UKOFactoryProcessorWidget::RefreshEventDriven()
     UKOFactoryProcessorComponent* Proc = Processor.Get();
     if (!Proc) return;
 
-    if (RecipeText)
-    {
-        if (!IsPressureAvailable())
-        {
-            RecipeText->SetText(LOCTEXT("RecipePressureBlocked", "압력 부족"));
-        }
-        else
-        {
-            FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
-            
-            const FName ActiveId   = Proc->GetActiveRecipeId();
-            const FName SelectedId = Proc->GetSelectedRecipe();
-            const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
-            if (!ShownId.IsNone())
-            {
-                if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
-                {
-                    if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
-                    {
-                        RecipeName = Row->DisplayName;
-                    }
-                }
-            }
-            RecipeText->SetText(RecipeName);
-        }
-    }
-
     if (StateText)
     {
         StateText->SetText(StateToText(Proc->GetState()));
@@ -481,6 +456,12 @@ void UKOFactoryProcessorWidget::HandleProcessorChangedMessage(FGameplayTag Chann
 
 void UKOFactoryProcessorWidget::RefreshRecipeButtonState()
 {
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc)
+    {
+        return;
+    }
+    
     const bool bPressureAvailable = IsPressureAvailable();
 
     if (RecipeButton)
@@ -492,6 +473,39 @@ void UKOFactoryProcessorWidget::RefreshRecipeButtonState()
                 ? RecipeButtonNormalColor
                 : RecipeButtonPressureBlockedColor
         );
+    }
+    
+    if (NotCraftableImage)
+    {
+        NotCraftableImage->SetVisibility(bPressureAvailable 
+            ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+    }
+    
+    if (RecipeText)
+    {
+        if (!IsPressureAvailable())
+        {
+            RecipeText->SetText(LOCTEXT("RecipePressureBlocked", "압력 부족"));
+        }
+        else
+        {
+            FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
+            
+            const FName ActiveId   = Proc->GetActiveRecipeId();
+            const FName SelectedId = Proc->GetSelectedRecipe();
+            const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
+            if (!ShownId.IsNone())
+            {
+                if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
+                {
+                    if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
+                    {
+                        RecipeName = Row->DisplayName;
+                    }
+                }
+            }
+            RecipeText->SetText(RecipeName);
+        }
     }
 
     if (!bPressureAvailable)

@@ -529,8 +529,16 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
                     *Out.Key.ToString());
                 continue;
             }
+            const int32 ProducedCount = Out.Value;
+            
             int32& Current = OutputBuffer.FindOrAdd(ItemId);
             Current += Out.Value;
+            
+            // 퀘스트
+            if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+            {
+                QuestGuide->NotifyItemCrafted(ItemId, ProducedCount);
+            }
         }
     }
 

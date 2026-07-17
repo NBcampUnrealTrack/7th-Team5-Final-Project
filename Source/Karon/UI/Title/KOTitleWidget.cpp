@@ -103,9 +103,7 @@ void UKOTitleWidget::OnStartGameClicked()
 			LOCTEXT("StartNewGameTitle", "새 게임 시작"),
 			LOCTEXT(
 				"StartNewGameDescription",
-				"기존 저장 데이터가 있습니다.\n"
-				"새 게임을 시작하면 기존 저장 데이터가 삭제됩니다.\n"
-				"계속하시겠습니까?"
+				"기존 저장 데이터가 있습니다.\n새 게임을 시작하면 기존 저장 데이터가 삭제됩니다. 계속하시겠습니까?"
 			)
 		);
 

@@ -292,14 +292,6 @@ bool UKOFactorySlotWidget::MoveCurrentSlotItemToInventory()
 
     const int32 Accepted = Extracted - Rejected;
 
-    if (Accepted > 0 && Mode == EKOFactorySlotMode::ProcessorOutput)
-    {
-        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
-        {
-            QuestGuide->NotifyProcessorOutputCollected(ItemId, Accepted);
-        }
-    }
-
     RefreshFromComponent();
 
     return Accepted > 0;

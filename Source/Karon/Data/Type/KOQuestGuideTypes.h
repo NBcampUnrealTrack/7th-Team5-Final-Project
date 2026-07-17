@@ -29,8 +29,6 @@ enum class EKOQuestCompleteType : uint8
 	InsertProcessorInput,	
 	// 벨트 output 슬롯 할당
 	BindConveyorOutput,
-	// 아이템 획득 (설비)
-	CollectProcessorOutput,
 	// 스킬 해금
 	UnlockSkill,
 	// 스킬 슬롯 할당

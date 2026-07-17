@@ -1,6 +1,7 @@
 ﻿#include "KOBuildInventoryWidget.h"
 
-#include "Components/Button.h"
+#include "Groups/CommonButtonGroupBase.h"
+#include "CommonButtonBase.h"
 #include "Components/WidgetSwitcher.h"
 #include "UI/Craft/KOFactoryCraftWidget.h"
 
@@ -16,14 +17,25 @@ void UKOBuildInventoryWidget::NativeOnInitialized()
 	
 	if (Button_Inventory)
 	{
-		Button_Inventory->IsFocusable = false;
-		Button_Inventory->OnClicked.AddDynamic(this, &ThisClass::HandleInventoryClicked);
+		Button_Inventory->SetIsFocusable(false);
+		Button_Inventory->OnClicked().AddUObject(this, &ThisClass::HandleInventoryClicked);
 	}
 
 	if (Button_Factory)
 	{
-		Button_Factory->IsFocusable = false;
-		Button_Factory->OnClicked.AddDynamic(this, &ThisClass::HandleFactoryClicked);
+		Button_Factory->SetIsFocusable(false);
+		Button_Factory->OnClicked().AddUObject(this, &ThisClass::HandleFactoryClicked);
+	}
+	
+	// 버큰 그룹 등록
+	TabButtonGroup = NewObject<UCommonButtonGroupBase>(this);
+
+	if (TabButtonGroup)
+	{
+		TabButtonGroup->SetSelectionRequired(true);
+
+		TabButtonGroup->AddWidget(Button_Inventory);
+		TabButtonGroup->AddWidget(Button_Factory);
 	}
 }
 
