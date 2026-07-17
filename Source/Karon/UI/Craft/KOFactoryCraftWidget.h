@@ -97,6 +97,9 @@ protected:
     TObjectPtr<UCommonButtonBase> CraftButton; 
     
     UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> CraftButtonText;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UButton> DecreaseCraftCountButton; // -1
 
     UPROPERTY(meta = (BindWidgetOptional))
@@ -137,6 +140,7 @@ private:
 
 private:
     void RebuildFactoryList(); // 설비/장비 목록 만듦 (왼쪽)
+    void RefreshEntrySelection(); // 버튼 선택
     void RefreshDetail(); // 선택된 설비/장비의 상세 정보 영역을 갱신 (오른쪽)
     void RebuildCostList(); // 선택된 설비/장비의 필요 재료 목록을 만듦
     void RefreshCraftButtonState();

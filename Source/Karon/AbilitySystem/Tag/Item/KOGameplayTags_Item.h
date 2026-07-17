@@ -38,19 +38,17 @@ namespace KOGameplayTags
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module);
-	/** 석탄 카테고리 (Coal) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Coal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module); // 기초 모듈
 	/** 자원 카테고리 (CoalDust, Copper, Tin, Bronze) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource); // 구리, 주석, 청동, 약초 씨앗, 약초
 	/** 가공 재료 카테고리 (BronzePlate, MiningPipe, Gear 등) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material); // 석탄 가루, 구리판, 청동판, 파손된 채파, 채파, 기어, 약초즙
 	/** 장비 카테고리 (Sword) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Equipment);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Equipment); // 장비들
 	/** 소모품 카테고리 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Consumable);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Consumable); // 물약
 	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource); // 석탄
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
 	/** 기초 모듈 */

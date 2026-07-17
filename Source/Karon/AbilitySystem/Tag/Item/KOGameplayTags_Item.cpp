@@ -24,7 +24,6 @@ namespace KOGameplayTags
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Module,   "Item.Category.Module");
-	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Coal,     "Item.Category.Coal");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Equipment,   "Item.Category.Equipment");

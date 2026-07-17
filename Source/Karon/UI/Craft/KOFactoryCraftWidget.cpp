@@ -172,14 +172,11 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
         }
 
         const bool bCanCraft = CanCraftTarget(Target, 1);
+        const UKOInventoryComponent* Inventory = CachedInventory.Get();
 
-        EntryWidget->SetupEntry(
-            Target.Type,
-            Target.Id,
-            DisplayName,
-            Icon,
-            bCanCraft
-        );
+        const int32 OwnedCount = Inventory ? Inventory->GetCountOf(Target.Id) : 0;
+
+        EntryWidget->SetupEntry(Target.Type, Target.Id, DisplayName, Icon, bCanCraft, OwnedCount);
 
         EntryWidget->OnClicked.AddDynamic(this, &UKOFactoryCraftWidget::HandleCraftEntryClicked);
         FactoryListBox->AddChild(EntryWidget);
@@ -239,6 +236,7 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
             UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, EquipmentId)
         );
     }
+    RefreshEntrySelection();
 }
 
 void UKOFactoryCraftWidget::HandleCraftEntryClicked(EKOCraftTargetType InTargetType, FName InTargetId)
@@ -246,8 +244,35 @@ void UKOFactoryCraftWidget::HandleCraftEntryClicked(EKOCraftTargetType InTargetT
     SelectedTarget = FKOCraftTarget(InTargetType, InTargetId);
     CraftCount = MinCraftCount;
 
+    RefreshEntrySelection();
     RefreshCraftCountText();
     RefreshDetail();
+}
+
+void UKOFactoryCraftWidget::RefreshEntrySelection()
+{
+    if (!FactoryListBox)
+    {
+        return;
+    }
+
+    const int32 ChildCount = FactoryListBox->GetChildrenCount();
+
+    for (int32 Index = 0; Index < ChildCount; ++Index)
+    {
+        UKOFactoryCraftEntryWidget* EntryWidget =
+            Cast<UKOFactoryCraftEntryWidget>(FactoryListBox->GetChildAt(Index));
+
+        if (!EntryWidget)
+        {
+            continue;
+        }
+
+        const bool bShouldSelect = SelectedTarget.IsValid() &&
+            EntryWidget->MatchesTarget(SelectedTarget.Type, SelectedTarget.Id);
+
+        EntryWidget->SetSelected(bShouldSelect);
+    }
 }
 
 void UKOFactoryCraftWidget::RefreshDetail()
@@ -498,6 +523,30 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
     const EKOFactoryCraftAvailability Availability = GetCraftAvailability(SelectedTarget, CraftCount);
     const bool bCanCraft = Availability == EKOFactoryCraftAvailability::CanCraft;
     CraftButton->SetIsEnabled(bCanCraft);
+    
+    FText ButtonText;
+
+    switch (Availability)
+    {
+    case EKOFactoryCraftAvailability::CanCraft:
+        ButtonText = FText::FromString(TEXT("제작"));
+        break;
+
+    case EKOFactoryCraftAvailability::NotEnoughMaterials:
+        ButtonText = FText::FromString(TEXT("재료 불가"));
+        break;
+
+    case EKOFactoryCraftAvailability::NotEnoughInventorySpace:
+        ButtonText = FText::FromString(TEXT("인벤토리 공간 부족"));
+        break;
+
+    case EKOFactoryCraftAvailability::Invalid:
+    default:
+        ButtonText = FText::FromString(TEXT("제작 불가"));
+        break;
+    }
+
+    CraftButtonText->SetText(ButtonText);
 }
 
 

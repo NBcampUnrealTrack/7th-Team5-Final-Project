@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Styling/SlateTypes.h"
 #include "KOFactoryCraftEntryWidget.generated.h"
 
 class UButton;
@@ -31,8 +32,13 @@ public:
 		FName InTargetId,
 		const FText& InDisplayName,
 		UTexture2D* InIcon,
-		bool bInCanCraft
+		bool bInCanCraft,
+		int32 InOwnedCount
 	);
+	
+	void SetSelected(bool bInSelected);
+
+	bool MatchesTarget(EKOCraftTargetType InTargetType, FName InTargetId) const;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -47,17 +53,17 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> FactoryNameText;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor CraftableColor = FLinearColor::White;
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> SelectionArrowText;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor NotCraftableColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> TextAmount;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UImage> NotCraftableImage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor NotCraftableHoveredColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.45f);
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor NotCraftablePressedColor = FLinearColor(0.104f, 0.003f, 0.003f, 0.45f);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Selection")
+	TObjectPtr<UTexture2D> SelectedNormalImage;
 
 private:
 	UPROPERTY()
@@ -68,4 +74,13 @@ private:
 
 	UFUNCTION()
 	void HandleClicked();
+	
+	void CacheDefaultButtonStyle();
+	void RefreshVisualState();
+
+	bool bCanCraft = false;
+	bool bSelected = false;
+	bool bDefaultStyleCached = false;
+
+	FButtonStyle DefaultButtonStyle;
 };
