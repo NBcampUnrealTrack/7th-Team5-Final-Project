@@ -46,7 +46,7 @@ void UKOGA_AttackBase::ActivateAbility(
 		return;
 	}
 	
-	if (bUseMotionWarping)
+	if (MotionWarpData.bUseMotionWarping)
 	{
 		UpdateMotionWarpTarget();
 	}
@@ -84,7 +84,17 @@ void UKOGA_AttackBase::EndAbility(
 		}
 		SelfEffectsHandles.Empty();
 	}
-
+	
+	if (MotionWarpData.bUseMotionWarping)
+	{
+		if (AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter()))
+		{
+			if (UMotionWarpingComponent* MotionWarpingComponent = Character->GetMotionWarpingComponent())
+			{
+				MotionWarpingComponent->RemoveAllWarpTargets();
+			}
+		}
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -148,7 +158,6 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 		KOContext->SetHitData(CachedHitData.Get());
 	}
 	
-	float AttackValue = GetCombatSet() ? GetCombatSet()->GetAttackPower() : 1.f;
 	for (const FKODamageEffectData& Effect : DamageEffects)
 	{
 		FGameplayEffectSpecHandle SpecHandle = 
@@ -182,7 +191,6 @@ void UKOGA_AttackBase::ApplyHitEffects(AActor* TargetActor)
 	}
 	
 }
-
 
 UKOCombatSet* UKOGA_AttackBase::GetCombatSet()
 {
@@ -342,8 +350,6 @@ UMeshComponent* UKOGA_AttackBase::FindTraceMesh()
 
 void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 {
-	KO_LOG(Combat, Warning, TEXT("OnTargetHit"));
-	
 	AActor* HitActor = Hit.GetActor();
 	if (!Hit.bBlockingHit || !HitActor) return;
 	
@@ -353,11 +359,10 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 	
 	if (!TargetASC || TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead)) return;
-	
 	TraceData.HitActors.Add(HitActor);
 	
-	SendAttackEventsToTarget(HitActor);
 	ApplyHitEffects(HitActor);
+	SendAttackEventsToTarget(HitActor);
 	
 	if (UAbilitySystemComponent* SourceASC = GetASC())
 	{
@@ -381,91 +386,89 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 	}
 }
 
-AActor* UKOGA_AttackBase::GetMotionWarpTarget() const
+AActor* UKOGA_AttackBase::FindMotionWarpTarget() const
 {
-	ACharacter* Avatar = Cast<ACharacter>(GetAvatarCharacter());
-	if (!Avatar) return nullptr;
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return nullptr;
 
-	FVector StartLoc = Avatar->GetActorLocation();
-	FVector ForwardVec = Avatar->GetActorForwardVector();
-	FVector EndLoc = StartLoc + (ForwardVec * MaxWarpRange); 
+	FVector Start = Character->GetActorLocation();
+	FVector ForwardDir = Character->GetActorForwardVector();
+	FVector End = Start + ForwardDir * MotionWarpData.MaxWarpDistance;
 	
-	float SearchRadius = 150.f; 
-
 	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(Avatar);
-
-	FHitResult HitResult;
-	bool bHit = UKismetSystemLibrary::SphereTraceSingle(
-		this, StartLoc, EndLoc, SearchRadius,
+	ActorsToIgnore.Add(Character);
+	// 캐릭터에 부착물들도 Ignore 추가 
+	TArray<AActor*> AttachedActors;
+	Character->GetAttachedActors(AttachedActors);
+	ActorsToIgnore.Append(AttachedActors);
+	
+	TArray<FHitResult> HitResults;
+	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
+		this, Start, End,
+		MotionWarpData.TargetSearchRange,
 		UEngineTypes::ConvertToTraceType(ECC_Pawn), 
 		false, ActorsToIgnore, 
 		EDrawDebugTrace::None, 
-		HitResult, true
+		HitResults, true
 	);
-
-	if (bHit && HitResult.GetActor())
+	
+	if (!bHit) return nullptr; 
+	
+	for (const FHitResult& HitResult : HitResults)
 	{
 		AActor* HitActor = HitResult.GetActor();
+		if (!HitActor) continue;
 		
-		if (Cast<AKOBaseEnemy>(HitActor) || Cast<AKOBossBase>(HitActor))
-		{
-			return HitActor; 
-		}
+		// 죽어 있는 대상은 WarpTarget 대상 x 
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+		if (!TargetASC || TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead)) continue;
 		
+		return HitActor; 
 	}
-
+	
 	return nullptr;
 }
 
 void UKOGA_AttackBase::UpdateMotionWarpTarget()
 {
-	ACharacter* AvatarCharacter = Cast<ACharacter>(GetAvatarCharacter());
-	if (!AvatarCharacter) return;
+	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
+	if (!Character) return;
 	
-	UMotionWarpingComponent* MotionWarpComp = AvatarCharacter->FindComponentByClass<UMotionWarpingComponent>();
+	UMotionWarpingComponent* MotionWarpComp = Character->GetMotionWarpingComponent();
 	if (!MotionWarpComp) return;
 	
-	AActor* TargetActor = GetMotionWarpTarget();
+	AActor* TargetActor = FindMotionWarpTarget();
 	
-	if (!TargetActor || FVector::Dist(AvatarCharacter->GetActorLocation(), TargetActor->GetActorLocation()) > MaxWarpRange)
+	if (!TargetActor || FVector::Dist(Character->GetActorLocation(), TargetActor->GetActorLocation()) > MotionWarpData.MaxWarpDistance)
 	{
-		MotionWarpComp->RemoveWarpTarget(WarpTargetName);
+		MotionWarpComp->RemoveWarpTarget(MotionWarpData.TargetName);
 		return;
 	}
 	
 	const FVector TargetLocation = TargetActor->GetActorLocation();
-	const FVector OwnerLocation = AvatarCharacter->GetActorLocation();
+	const FVector AttackerLocation = Character->GetActorLocation();
 	
-	FVector2D Distance2D = FVector2D(TargetLocation - OwnerLocation);
-	float CurrentLength = Distance2D.Size();
-	if (CurrentLength <= KINDA_SMALL_NUMBER) return;
+	FVector2D Distance2D = FVector2D(TargetLocation - AttackerLocation);
+	float Distance = Distance2D.Size();
+	if (Distance <= KINDA_SMALL_NUMBER) return;
 	
-	FVector ToTargetDirection = FVector(Distance2D, 0.f) / CurrentLength;
+	FVector Direction = FVector(Distance2D, 0.f) / Distance;
 	
-	float CasterRadius = 
-		AvatarCharacter->GetCapsuleComponent() ? AvatarCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() : 0.f;
-	float TargetRadius = 0.0f;
-	if (const ACharacter* TargetChar = Cast<ACharacter>(TargetActor))
-	{
-		TargetRadius = TargetChar->GetCapsuleComponent()->GetScaledCapsuleRadius();
-	}
+	float AttackCapsuleRadius = 
+		Character->GetCapsuleComponent() ? Character->GetCapsuleComponent()->GetScaledCapsuleRadius() : 0.f;
 	
-	const float StandoffDistance = CasterRadius + TargetRadius + LungeOffset;
-	FVector FinalWarpLocation;
+	float TargetCapsuleRadius = 0.0f;
+	if (UCapsuleComponent* TargetCapsule = TargetActor->FindComponentByClass<UCapsuleComponent>())
+		TargetCapsuleRadius = TargetCapsule->GetScaledCapsuleRadius();
 	
-	if (CurrentLength <= StandoffDistance)
-	{
-		FinalWarpLocation = OwnerLocation;
-	}
-	else
-	{
-		FinalWarpLocation = TargetLocation - (ToTargetDirection * StandoffDistance);
-	}
+	const float WarpStopDistance = AttackCapsuleRadius + TargetCapsuleRadius + MotionWarpData.ReachMargin;
 	
-	FinalWarpLocation.Z = OwnerLocation.Z;
-	FRotator FinalWarpRotation = ToTargetDirection.Rotation();
+	FVector FinalWarpLocation = Distance <= WarpStopDistance ? 
+		AttackerLocation : TargetLocation - Direction * WarpStopDistance;
 	
-	MotionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(WarpTargetName, FinalWarpLocation, FinalWarpRotation);
+	FinalWarpLocation.Z = AttackerLocation.Z;
+	FRotator FinalWarpRotation = Direction.Rotation();
+	
+	MotionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(MotionWarpData.TargetName, FinalWarpLocation, FinalWarpRotation);
 }
 

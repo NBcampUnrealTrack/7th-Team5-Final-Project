@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "MotionWarpingComponent.h"
 #include "GameFramework/Character.h"
 
 #include "KOCharacterBase.generated.h"
@@ -24,6 +25,8 @@ public:
 	AKOCharacterBase(const FObjectInitializer& ObjectInitializer);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
+	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
 	
 	UKOEquipmentComponent* GetEquipmentComponent() const { return EquipmentComponent; }
 
@@ -72,6 +75,7 @@ public:
 	void RestoreAliveStateFromLoad();
 	
 protected:
+	// Ability System 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UKOAbilitySystemComponent> AbilitySystemComponent;
 	
@@ -87,6 +91,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Atttribute | Guard")
 	TObjectPtr<UKOGuardSet> GuardSet;
 	
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOEquipmentComponent> EquipmentComponent;
 
@@ -94,6 +99,9 @@ protected:
 	// 미지정 시 UKOEquipmentComponent(C++ 기본 클래스)를 사용한다.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	TSubclassOf<UKOEquipmentComponent> EquipmentComponentClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")

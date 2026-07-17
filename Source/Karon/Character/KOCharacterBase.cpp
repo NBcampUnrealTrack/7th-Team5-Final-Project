@@ -1,5 +1,6 @@
 ﻿#include "KOCharacterBase.h"
 
+#include "MotionWarpingComponent.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOMovementSet.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
@@ -21,6 +22,8 @@ AKOCharacterBase::AKOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	// 기본값은 기존과 동일한 C++ 클래스. 자식 Blueprint에서 EquipmentComponentClass를
 	// BP_EquipmentComponent 등으로 교체하면 그 클래스로 생성된다 (PostInitializeComponents 참고).
 	EquipmentComponentClass = UKOEquipmentComponent::StaticClass();
+	
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 UAbilitySystemComponent* AKOCharacterBase::GetAbilitySystemComponent() const

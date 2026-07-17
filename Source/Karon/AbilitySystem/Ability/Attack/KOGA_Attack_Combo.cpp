@@ -190,7 +190,7 @@ void UKOGA_Attack_Combo::PlayComboMontage()
 		return;
 	}
 
-	if (bUseMotionWarping)
+	if (MotionWarpData.bUseMotionWarping)
 	{
 		UpdateMotionWarpTarget();
 	}

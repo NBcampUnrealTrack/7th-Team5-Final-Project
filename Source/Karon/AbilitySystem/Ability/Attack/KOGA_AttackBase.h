@@ -24,7 +24,7 @@ struct FKODamageEffectData // 데미지 용
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FKOEffectData // 추가 효과용 
+struct KARON_API FKOEffectData // 추가 효과용 
 {
 	GENERATED_BODY()
 	
@@ -38,9 +38,8 @@ struct FKOEffectData // 추가 효과용
 	TMap<FGameplayTag, float> SetByCallerValues;
 };
 
-
 USTRUCT(BlueprintType, Blueprintable)
-struct FKOAttackMontageData
+struct KARON_API FKOAttackMontageData
 {
 	GENERATED_BODY()
 	
@@ -55,7 +54,7 @@ struct FKOAttackMontageData
 };
 
 USTRUCT(BlueprintType)
-struct FKOTraceSocketPair
+struct KARON_API FKOTraceSocketPair
 {
 	GENERATED_BODY()
 
@@ -67,7 +66,7 @@ struct FKOTraceSocketPair
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct FKOTraceData
+struct KARON_API FKOTraceData
 {
 	GENERATED_BODY()
 	
@@ -123,6 +122,27 @@ struct FKOTraceData
 	}
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct KARON_API FKOMotionWarpData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bUseMotionWarping = true; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float TargetSearchRange = 150.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxWarpDistance = 150.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float ReachMargin = 50.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FName TargetName = TEXT("AttackTarget");
+};
+
 UCLASS(Abstract)
 class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 {
@@ -158,7 +178,7 @@ public:
 protected:
 	UFUNCTION()
 	virtual void PerformWeaponTrace(float DeltaTime);
-	
+
 	UFUNCTION()
 	void OnHitDataEventReceived(FGameplayEventData Payload);
 	
@@ -190,6 +210,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	TArray<FKOAttackMontageData> MontageData;
 	
+	int32 CurrentMontageIndex = 0;
+	
 	// 데미지 GE
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	TArray<FKODamageEffectData> DamageEffects;
@@ -208,30 +230,17 @@ protected:
 	
 	UAbilityTask_Tick* TickTask;
 	
-	int32 CurrentMontageIndex = 0;
-	
-// 모션 워핑
+
 protected:
-	AActor* GetMotionWarpTarget() const;
+	// MotionWrapping 
+	AActor* FindMotionWarpTarget() const;
 
 	void UpdateMotionWarpTarget();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp")
-	bool bUseMotionWarping = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp", meta = (EditCondition = "bUseMotionWarping"))
-	float LungeOffset = 50.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp", meta = (EditCondition = "bUseMotionWarping"))
-	float MaxWarpRange = 400.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|MotionWarp")
-	FName WarpTargetName = TEXT("AttackTarget");
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MotionWarp")
+	FKOMotionWarpData MotionWarpData;
 
 private:
 	//자신 효과 핸들
 	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;
-	
-
 };

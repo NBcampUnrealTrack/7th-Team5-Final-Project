@@ -94,9 +94,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UCharacterTrajectoryComponent> Trajectory;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
-	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOVisionComponent> VisionComponent;
 

@@ -6,7 +6,6 @@
 #include "Game/KOPlayerState.h"
 #include "CharacterTrajectoryComponent.h"
 #include "Karon.h"
-#include "MotionWarpingComponent.h"
 #include "AbilitySystem/Ability/Status/KOGA_OverClock.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
@@ -31,14 +30,8 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	SpringArm = CreateDefaultSubobject<UKOSpringArmComponent>(TEXT("SprintArm"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->bUsePawnControlRotation = true;
-	// SpringArm->TargetArmLength = 300.f; 
-	
-	// SpringArm->bEnableCameraLag = true;
-	//SpringArm->bEnableCameraRotationLag = true;
-	
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->bEnableCameraRotationLag = false;
-	
 	SpringArm->CameraLagSpeed = 20.f; 
 	SpringArm->CameraRotationLagSpeed = 50.f; 
 	
@@ -46,7 +39,6 @@ AKOHeroCharacter::AKOHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	Camera->SetupAttachment(SpringArm);
 	Camera->BaseFOV = 90.f; 
 	
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	VisionComponent = CreateDefaultSubobject<UKOVisionComponent>(TEXT("VisionComponent"));
 	PreCMCTick = CreateDefaultSubobject<UKOPreCMCTickComponent>(TEXT("PreCMCTick"));
 	Trajectory  = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("Trajectory"));
@@ -117,11 +109,8 @@ void AKOHeroCharacter::OnCharacterDead(AActor* DeathInstigator)
 
 void AKOHeroCharacter::RespawnWithoutSave(const FTransform& RespawnTransform)
 {
-	if (!AbilitySystemComponent || !HealthSet)
-	{
-		return;
-	}
-
+	if (!AbilitySystemComponent || !HealthSet) return;
+	
 	RestoreAliveStateFromLoad();
 	
 	AbilitySystemComponent->SetNumericAttributeBase(

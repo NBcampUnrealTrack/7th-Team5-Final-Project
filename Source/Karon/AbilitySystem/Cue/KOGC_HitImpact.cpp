@@ -1,7 +1,5 @@
 ﻿#include "KOGC_HitImpact.h"
 #include "GameFramework/Character.h"
-#include "Utility/Log/KOLogManager.h"
-
 
 AKOGC_HitImpact::AKOGC_HitImpact()
 {
