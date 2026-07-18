@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
+#include "Components/PointLightComponent.h"
 #include "KOBossChapter01.generated.h"
 
 UCLASS()
@@ -42,4 +43,25 @@ private:
  
 	void OpenCore();
 	void CloseCore();
+	
+	UPROPERTY(VisibleAnywhere, Category = "Boss|FaceLight")
+	TObjectPtr<UPointLightComponent> FaceLight;
+
+	// 라이트를 부착할 소켓 이름
+	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
+	FName FaceLightSocket = FName("head");
+
+	// 페이즈 1 색상
+	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
+	FLinearColor FaceLightColorNormal = FLinearColor(1.f, 0.8f, 0.f);
+
+	// 페이즈 2 색상
+	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
+	FLinearColor FaceLightColorPhase2 = FLinearColor(1.f, 0.1f, 0.f);
+
+	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
+	float FaceLightIntensity = 3000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
+	float FaceLightRadius = 300.f;
 };

@@ -6,11 +6,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Utility/Log/KOLogManager.h"
 
 AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	FaceLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("FaceLight"));
 }
  
 void AKOBossChapter01::BeginPlay()
@@ -22,9 +22,21 @@ void AKOBossChapter01::OnBossInitialized()
 {
 	if (GetMesh())
 	{
-		CoreMID = GetMesh()->CreateDynamicMaterialInstance(
-			CoreMaterialIndex
-		);
+		CoreMID = GetMesh()->CreateDynamicMaterialInstance(CoreMaterialIndex);
+		
+		const bool bSocketExists = GetMesh()->DoesSocketExist(FaceLightSocket);
+
+		if (FaceLight && bSocketExists)
+		{
+			FaceLight->AttachToComponent(
+				GetMesh(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+				FaceLightSocket
+			);
+			FaceLight->SetLightColor(FaceLightColorNormal);
+			FaceLight->SetIntensity(FaceLightIntensity);
+			FaceLight->SetAttenuationRadius(FaceLightRadius);
+		}
 	}
 	
 	CloseCore();
@@ -45,6 +57,11 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 				BB->SetValueAsBool(AKOAIC_BossController::bIsPhase2Key, true);
 			}
 		}
+
+		if (FaceLight)
+		{
+			FaceLight->SetLightColor(FaceLightColorPhase2);
+		}
 	}
 }
  
@@ -60,7 +77,12 @@ void AKOBossChapter01::OnGroggyBegin()
 			BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, true);
 		}
 	}
- 
+	
+	if (FaceLight)
+	{
+		FaceLight->SetVisibility(false);
+	}
+	
 	OpenCore();
 }
 
@@ -93,17 +115,18 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		GroggySet->SetGroggyHealth(GroggySet->GetMaxGroggyHealth());
 	}
- 
+
+	if (FaceLight)
+	{
+		FaceLight->SetVisibility(true);
+	}
 	CloseCore();
 }
  
 // 사망
 void AKOBossChapter01::OnBossDeath()
 {
-	if (bIsDead)
-	{
-		return;
-	}
+	if (bIsDead) return;
 	
 	bIsDead = true;
  
@@ -113,6 +136,11 @@ void AKOBossChapter01::OnBossDeath()
 		{
 			BB->SetValueAsBool(AKOAIC_BossController::bIsDeadKey, true);
 		}
+	}
+
+	if (FaceLight)
+	{
+		FaceLight->SetVisibility(false);
 	}
 }
 

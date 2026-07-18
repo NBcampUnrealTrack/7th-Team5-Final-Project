@@ -5,23 +5,31 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 AKOBossCH01Platform::AKOBossCH01Platform()
 {
 	PrimaryActorTick.bCanEverTick = true;
- 
+	
+	PlatformRoot = CreateDefaultSubobject<USceneComponent>(TEXT("PlatformRoot"));
+	RootComponent = PlatformRoot;
+
 	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlatformMesh"));
+	PlatformMesh->SetupAttachment(RootComponent);
 	PlatformMesh->SetCollisionProfileName(TEXT("NoCollision"));
-	RootComponent = PlatformMesh;
  
 	DamageCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("DamageCollision"));
 	DamageCollision->SetupAttachment(RootComponent);
-	DamageCollision->SetCollisionProfileName(TEXT("BlockAll"));
-	DamageCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	DamageCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	DamageCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	DamageCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	DamageCollision->SetGenerateOverlapEvents(true);
  
 	IndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("IndicatorMesh"));
+	IndicatorMesh->SetupAttachment(RootComponent);
 	IndicatorMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	IndicatorMesh->SetVisibility(false);
 }
@@ -31,8 +39,8 @@ void AKOBossCH01Platform::BeginPlay()
 	Super::BeginPlay();
  
 	// 충돌 바인딩
-	DamageCollision->OnComponentHit.AddDynamic(
-		this, &AKOBossCH01Platform::OnDamageCollisionHit
+	DamageCollision->OnComponentBeginOverlap.AddDynamic(
+		this, &AKOBossCH01Platform::OnDamageCollisionBeginOverlap
 	);
  
 	// 인디케이터 바닥 위치
@@ -52,8 +60,13 @@ void AKOBossCH01Platform::BeginPlay()
 void AKOBossCH01Platform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
- 
-	// 착지 후 플레이어 위치 체크
+	UpdateDebrisFade(DeltaTime);
+
+	if (bBroken)
+	{
+		return;
+	}
+
 	if (bLanded)
 	{
 		CheckPlayerOnPlatform();
@@ -195,38 +208,27 @@ void AKOBossCH01Platform::StartFall()
 	bFalling = true;
 	IndicatorMesh->SetVisibility(false);
 }
- 
-// 낙석 충돌 데미지처리
-void AKOBossCH01Platform::OnDamageCollisionHit(
-	UPrimitiveComponent* HitComponent,
+
+void AKOBossCH01Platform::OnDamageCollisionBeginOverlap(
+	UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse,
-	const FHitResult& Hit)
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
 {
-	if (!OtherActor)
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner())
 	{
 		return;
 	}
-	
-	if (OtherComp->GetCollisionObjectType() == ECC_WorldStatic)
-	{
-		return;
-	}
-	
-	if (OtherActor == GetOwner())
-	{
-		return;
-	}
-	
+
 	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(OtherActor);
 	if (!ASI)
 	{
 		return;
 	}
-	
-	ApplyDamageToTarget(OtherActor);
-	Destroy();
+
+	BreakApart();
 }
 
 void AKOBossCH01Platform::OnLanded()
@@ -234,7 +236,7 @@ void AKOBossCH01Platform::OnLanded()
 	bLanded = true;
  
 	DamageCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DamageCollision->OnComponentHit.RemoveAll(this);
+	DamageCollision->OnComponentBeginOverlap.RemoveAll(this);
  
 	PlatformMesh->SetCollisionProfileName(TEXT("BlockAll"));
  
@@ -249,15 +251,145 @@ void AKOBossCH01Platform::OnLanded()
  
 void AKOBossCH01Platform::LifeTimeEnd()
 {
+	BreakApart();
+}
+
+// 파편을 무작위로 흩뿌리고 잠시 뒤 액터를 제거
+void AKOBossCH01Platform::BreakApart()
+{
+	bBroken = true;
+	
 	if (PlayerOnPlatform)
 	{
 		SetOnPlatformTag(PlayerOnPlatform, false);
 		PlayerOnPlatform = nullptr;
 	}
- 
-	Destroy();
+	
+	PlatformMesh->SetVisibility(false);
+	PlatformMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DamageCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	UStaticMesh* FragmentMesh = DebrisMesh.Get();
+	if (!FragmentMesh)
+	{
+		FragmentMesh = PlatformMesh->GetStaticMesh();
+	}
+
+	if (FragmentMesh)
+	{
+		const FVector MeshExtent = PlatformMesh->Bounds.BoxExtent;
+		const FVector Origin = GetActorLocation();
+		const int32 SpawnCount = FMath::RandRange(DebrisMinCount, DebrisMaxCount);
+
+		for (int32 i = 0; i < SpawnCount; ++i)
+		{
+			// 발판 범위 안 무작위 위치에서 파편 스폰
+			const FVector RandomOffset(
+				FMath::FRandRange(-MeshExtent.X, MeshExtent.X),
+				FMath::FRandRange(-MeshExtent.Y, MeshExtent.Y),
+				FMath::FRandRange(-MeshExtent.Z * 0.5f, MeshExtent.Z * 0.5f)
+			);
+			const FRotator RandomRotation(
+				FMath::FRandRange(0.f, 360.f),
+				FMath::FRandRange(0.f, 360.f),
+				FMath::FRandRange(0.f, 360.f)
+			);
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			AStaticMeshActor* Debris = GetWorld()->SpawnActor<AStaticMeshActor>(
+				Origin + RandomOffset, RandomRotation, SpawnParams);
+
+			if (!Debris)
+			{
+				continue;
+			}
+
+			UStaticMeshComponent* DebrisComp = Debris->GetStaticMeshComponent();
+			DebrisComp->SetMobility(EComponentMobility::Movable);
+			DebrisComp->SetStaticMesh(FragmentMesh);
+
+			// 발판 재질을 그대로 사용해 시각적으로 이질감이 없게
+			for (int32 MatIndex = 0; MatIndex < PlatformMesh->GetNumMaterials(); ++MatIndex)
+			{
+				DebrisComp->SetMaterial(MatIndex, PlatformMesh->GetMaterial(MatIndex));
+			}
+
+			const float RandomScale = FMath::FRandRange(DebrisScaleRange.X, DebrisScaleRange.Y);
+			Debris->SetActorScale3D(FVector(RandomScale));
+
+			DebrisComp->SetCollisionProfileName(TEXT("PhysicsActor"));
+			DebrisComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			DebrisComp->SetSimulatePhysics(true);
+
+			// 무작위 방향으로 튕겨나가게
+			DebrisComp->AddImpulse(FMath::VRand() * DebrisImpulseStrength, NAME_None, true);
+			DebrisComp->AddAngularImpulseInDegrees(FMath::VRand() * DebrisImpulseStrength, NAME_None, true);
+			
+			FDebrisFadeInfo FadeInfo;
+			FadeInfo.DebrisActor = Debris;
+			FadeInfo.InitialScale = Debris->GetActorScale3D();
+			FadingDebris.Add(FadeInfo);
+		}
+	}
+	
+	SetLifeSpan(DebrisLifeSpan + 0.1f);
 }
+
+void AKOBossCH01Platform::UpdateDebrisFade(float DeltaTime)
+{
+	if (FadingDebris.Num() == 0)
+	{
+		return;
+	}
  
+	const float FadeStartTime = FMath::Max(DebrisLifeSpan - DebrisFadeOutDuration, 0.f);
+ 
+	for (int32 i = FadingDebris.Num() - 1; i >= 0; --i)
+	{
+		FDebrisFadeInfo& Info = FadingDebris[i];
+ 
+		AStaticMeshActor* DebrisActor = Info.DebrisActor.Get();
+		if (!DebrisActor)
+		{
+			FadingDebris.RemoveAtSwap(i);
+			continue;
+		}
+ 
+		Info.ElapsedTime += DeltaTime;
+ 
+		if (Info.ElapsedTime < FadeStartTime)
+		{
+			continue;
+		}
+		
+		if (!Info.bFadeStarted)
+		{
+			Info.bFadeStarted = true;
+			if (UStaticMeshComponent* DebrisComp = DebrisActor->GetStaticMeshComponent())
+			{
+				DebrisComp->SetSimulatePhysics(false);
+				DebrisComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+		}
+ 
+		const float FadeAlpha = FMath::Clamp(
+			(Info.ElapsedTime - FadeStartTime) / FMath::Max(DebrisFadeOutDuration, KINDA_SMALL_NUMBER),
+			0.f, 1.f
+		);
+ 
+		DebrisActor->SetActorScale3D(Info.InitialScale * (1.f - FadeAlpha));
+ 
+		if (FadeAlpha >= 1.f)
+		{
+			DebrisActor->Destroy();
+			FadingDebris.RemoveAtSwap(i);
+		}
+	}
+}
+
 void AKOBossCH01Platform::SetOnPlatformTag(AActor* TargetActor, bool bAdd)
 {
 	if (!TargetActor)
@@ -284,54 +416,5 @@ void AKOBossCH01Platform::SetOnPlatformTag(AActor* TargetActor, bool bAdd)
 	else
 	{
 		ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_OnPlatform);
-	}
-}
- 
-void AKOBossCH01Platform::ApplyDamageToTarget(AActor* TargetActor)
-{
-	if (!FallDamageEffectClass || !TargetActor)
-	{
-		return;
-	}
-	
-	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(TargetActor);
-	if (!TargetASI)
-	{
-		return;
-	}
- 
-	UAbilitySystemComponent* TargetASC = TargetASI->GetAbilitySystemComponent();
-	if (!TargetASC)
-	{
-		return;
-	}
- 
-	IAbilitySystemInterface* OwnerASI = Cast<IAbilitySystemInterface>(GetOwner());
-	if (!OwnerASI)
-	{
-		return;
-	}
- 
-	UAbilitySystemComponent* OwnerASC = OwnerASI->GetAbilitySystemComponent();
-	if (!OwnerASC)
-	{
-		return;
-	}
- 
-	const UKOCombatSet* CombatSet = OwnerASC->GetSet<UKOCombatSet>();
-	if (!CombatSet)
-	{
-		return;
-	}
- 
-	FGameplayEffectContextHandle Context = OwnerASC->MakeEffectContext();
-	Context.AddSourceObject(GetOwner());
-	
-	FGameplayEffectSpecHandle Spec = OwnerASC->MakeOutgoingSpec(FallDamageEffectClass, 1.f, Context);
- 
-	if (Spec.IsValid())
-	{
-		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage,CombatSet->GetAttackPower());
-		OwnerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
 }
