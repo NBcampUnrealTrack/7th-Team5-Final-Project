@@ -92,6 +92,12 @@ void UKOOptionWidget::NativeOnInitialized()
 		Button_Other->OnClicked.AddDynamic(this,&ThisClass::HandleOtherTabClicked);
 	}
 	
+	if (Button_Return)
+	{
+		Button_Return->IsFocusable = false;
+		Button_Return->OnClicked.AddDynamic(this, &ThisClass::ReturnEscape);
+	}
+	
 	if (Button_Close)
 	{
 		Button_Close->IsFocusable = false;
@@ -553,6 +559,11 @@ void UKOOptionWidget::HandleSoundTabClicked()
 void UKOOptionWidget::HandleOtherTabClicked()
 {
 	SetActiveTab(EKOOptionTab::Other);
+}
+
+void UKOOptionWidget::ReturnEscape()
+{
+	
 }
 
 void UKOOptionWidget::HandleCloseClicked()

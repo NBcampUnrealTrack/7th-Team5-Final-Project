@@ -208,6 +208,9 @@ private:
 	void HandleOtherTabClicked();
 	
 	UFUNCTION()
+	void ReturnEscape();
+	
+	UFUNCTION()
 	void HandleCloseClicked();
 	
 	// Language 변경시 적용
