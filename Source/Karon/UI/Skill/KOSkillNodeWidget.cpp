@@ -22,6 +22,8 @@ void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag I
 		SkillIcon->SetBrushFromTexture(InIcon);
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Skill Node: %s 스킬 %s 태그로 초기화됨"), 
+		*InSkillName.ToString(), *InSkillTag.ToString());
 	RefreshNode();
 }
 
