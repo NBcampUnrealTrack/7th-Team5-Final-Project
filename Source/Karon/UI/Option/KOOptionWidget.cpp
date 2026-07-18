@@ -10,6 +10,7 @@
 #include "Components/ComboBoxString.h"
 #include "Components/Slider.h"
 #include "Components/WidgetSwitcher.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -563,7 +564,20 @@ void UKOOptionWidget::HandleOtherTabClicked()
 
 void UKOOptionWidget::ReturnEscape()
 {
+	AGameModeBase* GM=UGameplayStatics::GetGameMode(this);
+	APawn* Player = UGameplayStatics::GetPlayerPawn(this,0);
+	APlayerController* PC=UGameplayStatics::GetPlayerController(this,0);
 	
+	if (!GM||!Player||!PC)
+	{
+		return;
+	}
+
+	AActor* PlayerStartActor = GM->ChoosePlayerStart_Implementation(PC);
+	if (PlayerStartActor)
+	{
+		Player->SetActorLocation(PlayerStartActor->GetActorLocation());
+	}
 }
 
 void UKOOptionWidget::HandleCloseClicked()
