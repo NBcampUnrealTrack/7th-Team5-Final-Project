@@ -47,11 +47,11 @@ void UFunctionLibrary::FindActorsWithGameplayTagInRange(
 	}
 }
 
-void UFunctionLibrary::SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FString Text)
+void UFunctionLibrary::SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FText Text)
 {
 	UWorld* World = WorldContextObject->GetWorld();
 	FKOTextMessage Message;
-	Message.InString=Text;
+	Message.InText=Text;
 	
 	UGMRouterSubsystem::BroadcastMessage(World,Tag,FInstancedStruct::Make(Message));
 };

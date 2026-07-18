@@ -252,5 +252,5 @@ struct FKOTextMessage
     GENERATED_BODY()
     
     UPROPERTY()
-    FString InString;
+    FText InText;
 };

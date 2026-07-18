@@ -81,6 +81,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FKOGraphicsOptions Graphics;
+	
+	// 0 : 한국어, 1 : 영어
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	int32 LanguageOption = 0;
 
 	/** SaveGame에서 로드하거나, 없으면 기본값으로 생성해 반환 */
 	UFUNCTION(BlueprintCallable, Category = "KO|Option", meta = (WorldContext = "WorldContextObject"))

@@ -20,7 +20,8 @@ UENUM(BlueprintType)
 enum class EKOOptionTab : uint8
 {
 	Graphic,
-	Sound
+	Sound,
+	Other
 };
 
 /**
@@ -70,6 +71,12 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Sound;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Other;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Return;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Close;
@@ -155,12 +162,17 @@ protected:
 	/** 모든 항목을 기본값으로 되돌리고 즉시 적용 */
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UButton> Button_Reset;
+	
+	// 언어 선택 콤보박스
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UComboBoxString> ComboBox_CultureLanguage;
 
 private:
 	void PopulateComboBoxes();
 
 	void RefreshSoundUI(const FKOSoundOptions& Sound);
 	void RefreshGraphicsUI(const FKOGraphicsOptions& Graphics);
+	void RefreshOtherUI(const int32& LanguageOption);
 
 	/** 세부 품질 항목 6개가 모두 같은 값이면 그 값으로, 아니면 "사용자 설정"으로 ComboBox_OverallQuality를 갱신 */
 	void RefreshOverallQualityUI(const FKOGraphicsOptions& Graphics);
@@ -168,9 +180,11 @@ private:
 	void ApplySoundOptions(const FKOSoundOptions& Sound);
 	void ApplyGraphicsOptions(const FKOGraphicsOptions& Graphics);
 	void ApplySingleSoundClass(USoundClass* SoundClass, float Volume) const;
+	void ApplyCultureLanguageOptions(const int32& LanguageOption);
 
 	FKOSoundOptions GatherSoundFromUI() const;
 	FKOGraphicsOptions GatherGraphicsFromUI() const;
+	const int32 GatherCultureLanguageFromUI() const;
 
 	int32 ResolutionToIndex(FIntPoint InResolution) const;
 	FIntPoint IndexToResolution(int32 Index) const;
@@ -191,7 +205,14 @@ private:
 	void HandleSoundTabClicked();
 	
 	UFUNCTION()
+	void HandleOtherTabClicked();
+	
+	UFUNCTION()
 	void HandleCloseClicked();
+	
+	// Language 변경시 적용
+	UFUNCTION()
+	void HandleCultureLanguageChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 	/** ComboBox_OverallQuality에서 프리셋을 고르면 세부 품질 항목 6개에 그대로 적용 */
 	UFUNCTION()
@@ -205,6 +226,7 @@ private:
 	static const TArray<int32> SupportedFrameLimits;
 	static const TArray<FString> QualityLabels;
 	static const FString CustomQualityLabel;
+	static const TArray<FString> CultureLabels;
 
 	/** true인 동안은 콤보박스 OnSelectionChanged가 프로그램적 변경을 사용자 입력으로 오인해 재귀 갱신하지 않도록 막는다 */
 	bool bSuppressQualitySync = false;

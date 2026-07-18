@@ -33,5 +33,5 @@ protected:
 	TObjectPtr<UBoxComponent> OverlapBox;
 	
 	UPROPERTY(EditAnywhere,Category="WorldName")
-	FString WorldName;
+	FText WorldName;
 };

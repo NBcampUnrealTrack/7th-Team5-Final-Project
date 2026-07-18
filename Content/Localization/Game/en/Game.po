@@ -1,0 +1,2549 @@
+﻿# Game English translation.
+# Fill out your copyright notice in the Description page of Project Settings.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Game\n"
+"POT-Creation-Date: 2026-07-18 16:35\n"
+"PO-Revision-Date: 2026-07-18 16:35\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Key:	DC4120D44D450E31F6B5CF94DE58EEFE
+#. SourceLocation:	/Game/Karon/Character/Animation/AnimModifiers/AM_FootSteps_Modulation.Default__AM_FootSteps_Modulation_C.Usage
+#: /Game/Karon/Character/Animation/AnimModifiers/AM_FootSteps_Modulation.Default__AM_FootSteps_Modulation_C.Usage
+msgctxt ",DC4120D44D450E31F6B5CF94DE58EEFE"
+msgid "Needs to have "
+msgstr "Needs to have "
+
+#. Key:	F48CDDBE4CF4C502B9CB7DBFEB5EDED8
+#. SourceLocation:	/Game/Karon/Character/Animation/AnimModifiers/AM_TriggerWeightThreshold.AM_TriggerWeightThreshold_C:ExecuteUbergraph_AM_TriggerWeightThreshold [Script Bytecode]
+#: /Game/Karon/Character/Animation/AnimModifiers/AM_TriggerWeightThreshold.AM_TriggerWeightThreshold_C:ExecuteUbergraph_AM_TriggerWeightThreshold [Script Bytecode]
+msgctxt ",F48CDDBE4CF4C502B9CB7DBFEB5EDED8"
+msgid "Skipping updating the trigger weight threshold for {0}  since we don't support UAnimNotifyStates for now."
+msgstr "Skipping updating the trigger weight threshold for {0}  since we don't support UAnimNotifyStates for now."
+
+#. Key:	C5DBDE764EE15854AA3F68A48AE844B0
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.BladeDance.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.BladeDance.Description
+msgctxt ",C5DBDE764EE15854AA3F68A48AE844B0"
+msgid "춤추듯 주변을 공격하는 기술 [홀딩]"
+msgstr "A skill that attacks nearby enemies in a dance-like motion [Hold]"
+
+#. Key:	F4DC8B0B41670260426FF2B93377C565
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.BladeDance.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.BladeDance.DisplayName
+msgctxt ",F4DC8B0B41670260426FF2B93377C565"
+msgid "블레이드 댄스"
+msgstr "Blade Dance"
+
+#. Key:	6933318446D160F1129D1EA9078A6D79
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.DimensionSever.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.DimensionSever.Description
+msgctxt ",6933318446D160F1129D1EA9078A6D79"
+msgid "빠르게 움직여 적을 타격하는 기술"
+msgstr "A skill that moves quickly to strike an enemy"
+
+#. Key:	CD2DAC8347579F4FBC8DAD9D9108795E
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.DimensionSever.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.DimensionSever.DisplayName
+msgctxt ",CD2DAC8347579F4FBC8DAD9D9108795E"
+msgid "디멘션 세버"
+msgstr "Dimension Sever"
+
+#. Key:	C47912BF4FAC32B8B19478A15BB7C4F4
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.DiveSlash.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.DiveSlash.Description
+msgctxt ",C47912BF4FAC32B8B19478A15BB7C4F4"
+msgid "짧게 뛰어 내려찍는 기술"
+msgstr "A skill that leaps briefly and slams down"
+
+#. Key:	14D14F514CFD06FA84CD76975AF5B21F
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.DiveSlash.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.DiveSlash.DisplayName
+msgctxt ",14D14F514CFD06FA84CD76975AF5B21F"
+msgid "다이브 슬래시"
+msgstr "Dive Slash"
+
+#. Key:	9A4161AE41FED96BB424598DE1649667
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.FlashStrike.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.FlashStrike.Description
+msgctxt ",9A4161AE41FED96BB424598DE1649667"
+msgid "앞을 향해 순식간에 돌진하는 기술"
+msgstr "A skill that instantly dashes forward"
+
+#. Key:	5987C2DD44A6825DD5CE54BFDDFBE190
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.FlashStrike.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.FlashStrike.DisplayName
+msgctxt ",5987C2DD44A6825DD5CE54BFDDFBE190"
+msgid "플래시 스트라이크"
+msgstr "Flash Strike"
+
+#. Key:	8B7A028046A1660F20A0609427D9B167
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.PassiveAttack1.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.PassiveAttack1.Description
+msgctxt ",8B7A028046A1660F20A0609427D9B167"
+msgid "공격력이 10 증가한다"
+msgstr "Increases Attack Power by 10"
+
+#. Key:	C54A139F486E58644B7EC0A78CB755DB
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.PassiveAttack1.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.PassiveAttack1.DisplayName
+msgctxt ",C54A139F486E58644B7EC0A78CB755DB"
+msgid "공격력 증강"
+msgstr "Attack Power Boost"
+
+#. Key:	F893DF5A438A853B2C03D6A017C7B9AA
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.PlungeCharge.Description
+#: /Game/Karon/Data/DT_Skill.DT_Skill.PlungeCharge.Description
+msgctxt ",F893DF5A438A853B2C03D6A017C7B9AA"
+msgid "검을 강하게 내려 찍는 기술"
+msgstr "A skill that strikes down hard with a sword"
+
+#. Key:	3C4BC171472F550C9BA9168E08507399
+#. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.PlungeCharge.DisplayName
+#: /Game/Karon/Data/DT_Skill.DT_Skill.PlungeCharge.DisplayName
+msgctxt ",3C4BC171472F550C9BA9168E08507399"
+msgid "내려찍기"
+msgstr "Slam"
+
+#. Key:	E36DAF76446DD168BC6FF4B055BD5233
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.AlloyMaker.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.AlloyMaker.Description
+msgctxt ",E36DAF76446DD168BC6FF4B055BD5233"
+msgid "금속을 고온으로 녹여 합금을 만드는 기계"
+msgstr "A machine that melts metal at high temperatures to create alloys"
+
+#. Key:	AlloyMaker_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.AlloyMaker.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.AlloyMaker.DisplayName
+msgctxt "DT_Factory,AlloyMaker_DisplayName"
+msgid "합금기"
+msgstr "Alloy Furnace"
+
+#. Key:	FA08FA4A4AB5FEC3DD3D22ADCD291253
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.Boiler.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.Boiler.Description
+msgctxt ",FA08FA4A4AB5FEC3DD3D22ADCD291253"
+msgid "석탄을 태워 압력을 생산하는 기계"
+msgstr "A machine that burns coal to generate pressure"
+
+#. Key:	Boiler_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.Boiler.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.Boiler.DisplayName
+msgctxt "DT_Factory,Boiler_DisplayName"
+msgid "보일러"
+msgstr "Boiler"
+
+#. Key:	A8864C0E4CDE96FDF4EB5B99E60EA468
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.CornerBelt.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.CornerBelt.Description
+msgctxt ",A8864C0E4CDE96FDF4EB5B99E60EA468"
+msgid "방향을 꺾어 아이템을 운반하는 벨트"
+msgstr "A belt that changes direction to transport items"
+
+#. Key:	3D5E9B1D4F8B3082851780B4911A11E1
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.CornerBelt.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.CornerBelt.DisplayName
+msgctxt ",3D5E9B1D4F8B3082851780B4911A11E1"
+msgid "L자형 벨트"
+msgstr "L-shaped belt"
+
+#. Key:	8F9CA6ED49C3C425B3587B8C40FAB7B5
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.GearPress.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.GearPress.Description
+msgctxt ",8F9CA6ED49C3C425B3587B8C40FAB7B5"
+msgid "강한 압력으로 기어를 만드는 기계"
+msgstr "A machine that creates gears using strong pressure"
+
+#. Key:	GearPress_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.GearPress.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.GearPress.DisplayName
+msgctxt "DT_Factory,GearPress_DisplayName"
+msgid "기어 프레스"
+msgstr "Gear Press"
+
+#. Key:	DD3DCF9546BFCBD5A4AB50BE94BB7CBF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.HerbFarm.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.HerbFarm.Description
+msgctxt ",DD3DCF9546BFCBD5A4AB50BE94BB7CBF"
+msgid "씨앗을 심어 약초를 길러내는 기계"
+msgstr "A machine that plants seeds to grow herbs"
+
+#. Key:	6929B1E54F63C364ABCAAAA6920D829C
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.HerbFarm.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.HerbFarm.DisplayName
+msgctxt ",6929B1E54F63C364ABCAAAA6920D829C"
+msgid "약초 재배소"
+msgstr "Herb Farm"
+
+#. Key:	F1AECB0347C5A790B1005A8256D67D8E
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.JuicePress.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.JuicePress.Description
+msgctxt ",F1AECB0347C5A790B1005A8256D67D8E"
+msgid "약초의 즙을 짜내고 씨앗을 걸러내는 기계"
+msgstr "A machine that extracts herb juice and filters out seeds"
+
+#. Key:	4002E2554C0E631768A015A4C0485791
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.JuicePress.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.JuicePress.DisplayName
+msgctxt ",4002E2554C0E631768A015A4C0485791"
+msgid "착즙기"
+msgstr "Juicer"
+
+#. Key:	54C68064486C713D1A3AC4A0717FA664
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.ModuleDismantler.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.ModuleDismantler.Description
+msgctxt ",54C68064486C713D1A3AC4A0717FA664"
+msgid "기초 모듈을 분해해 원자재를 추출하는 기계"
+msgstr "A machine that disassembles basic modules to extract raw materials"
+
+#. Key:	ModuleDismantler_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.ModuleDismantler.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.ModuleDismantler.DisplayName
+msgctxt "DT_Factory,ModuleDismantler_DisplayName"
+msgid "모듈 분해기"
+msgstr "Module Disassembler"
+
+#. Key:	D66FDEE94DBF82F7FC9D3484AC55ADED
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.PipeWorkshop.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.PipeWorkshop.Description
+msgctxt ",D66FDEE94DBF82F7FC9D3484AC55ADED"
+msgid "파이프를 수리하거나 새로 만드는 기계"
+msgstr "A machine that repairs or crafts new pipes"
+
+#. Key:	PipeWorkshop_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.PipeWorkshop.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.PipeWorkshop.DisplayName
+msgctxt "DT_Factory,PipeWorkshop_DisplayName"
+msgid "파이프 제작소"
+msgstr "Pipe Workshop"
+
+#. Key:	D8A82D2B43DBC3484323C291A4DD1D77
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.PotionBrewer.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.PotionBrewer.Description
+msgctxt ",D8A82D2B43DBC3484323C291A4DD1D77"
+msgid "약초 즙을 끓이고 섞어 회복약을 만드는 기계"
+msgstr "A machine that boils and mixes herb juice to create healing potions"
+
+#. Key:	C04075AD4D20795C41010FAAA060BB03
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.PotionBrewer.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.PotionBrewer.DisplayName
+msgctxt ",C04075AD4D20795C41010FAAA060BB03"
+msgid "조제기"
+msgstr "Compounder"
+
+#. Key:	A039C94D4E29849642995797AF6F472B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.RollingMill.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.RollingMill.Description
+msgctxt ",A039C94D4E29849642995797AF6F472B"
+msgid "금속을 얇게 눌러 판재로 만드는 기계"
+msgstr "A machine that presses metal thin into plates"
+
+#. Key:	DA94D20A4DA75DA8DD52B6ABCDF0F514
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.RollingMill.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.RollingMill.DisplayName
+msgctxt ",DA94D20A4DA75DA8DD52B6ABCDF0F514"
+msgid "압연기"
+msgstr "Rolling Mill"
+
+#. Key:	4C3953964416259A4D79F48AAB6CBD24
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.StraightBelt.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.StraightBelt.Description
+msgctxt ",4C3953964416259A4D79F48AAB6CBD24"
+msgid "아이템을 한 방향으로 운반하는 벨트"
+msgstr "A belt that transports items in one direction"
+
+#. Key:	09671F2E4B28715B7C8022B22CB18647
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.StraightBelt.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.StraightBelt.DisplayName
+msgctxt ",09671F2E4B28715B7C8022B22CB18647"
+msgid "일자형 벨트"
+msgstr "Straight Belt"
+
+#. Key:	5883FFCD46087B287131A29F2AAE65EE
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.UndergroundMiningModule.Description
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.UndergroundMiningModule.Description
+msgctxt ",5883FFCD46087B287131A29F2AAE65EE"
+msgid "지하 깊숙한 곳에서 자원을 끌어올리는 기계"
+msgstr "A machine that draws up resources from deep underground"
+
+#. Key:	UndergroundMiningModule_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.UndergroundMiningModule.DisplayName
+#: /Game/Karon/Data/Factory/DT_Factory.DT_Factory.UndergroundMiningModule.DisplayName
+msgctxt "DT_Factory,UndergroundMiningModule_DisplayName"
+msgid "지하 채광 모듈"
+msgstr "Underground Mining Module"
+
+#. Key:	426E3475416D52C4F5DFF2870765AD10
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicGunpowder.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicGunpowder.DisplayName
+msgctxt ",426E3475416D52C4F5DFF2870765AD10"
+msgid "기초 화약"
+msgstr "Basic Gunpowder"
+
+#. Key:	8B5021CC45A4E586BB7FCB948072BD5B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.Description
+msgctxt ",8B5021CC45A4E586BB7FCB948072BD5B"
+msgid "정체불명의 기계 모듈. 분해하면 유용한 자원을 얻을 수 있다."
+msgstr "An unidentified machine module. Disassembling it yields useful resources."
+
+#. Key:	BasicModule_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.DisplayName
+msgctxt "DT_Item,BasicModule_DisplayName"
+msgid "기초 모듈"
+msgstr "Basic Module"
+
+#. Key:	83C14CDA48632E99F84B20BFFD4C05D8
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Bronze.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Bronze.Description
+msgctxt ",83C14CDA48632E99F84B20BFFD4C05D8"
+msgid "구리와 주석이 만나 탄생한 합금. 단단하고 가공하기 좋다."
+msgstr "An alloy born from the union of copper and tin. Hard and easy to work with."
+
+#. Key:	Bronze_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Bronze.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Bronze.DisplayName
+msgctxt "DT_Item,Bronze_DisplayName"
+msgid "청동"
+msgstr "Bronze"
+
+#. Key:	4A5DE3B849E1EE551C2678A4850293AE
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BronzePlate.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BronzePlate.Description
+msgctxt ",4A5DE3B849E1EE551C2678A4850293AE"
+msgid "청동을 눌러 펴낸 판재. 정갈하게 다듬어져 있다."
+msgstr "A plate pressed flat from bronze. Neatly finished."
+
+#. Key:	BronzePlate_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BronzePlate.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BronzePlate.DisplayName
+msgctxt "DT_Item,BronzePlate_DisplayName"
+msgid "청동판"
+msgstr "Bronze Plate"
+
+#. Key:	0EC54D93478EE03AA545B29142723C23
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Coal.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Coal.Description
+msgctxt ",0EC54D93478EE03AA545B29142723C23"
+msgid "오래된 지층이 만들어낸 연료. 태우면 강한 열과 압력을 낸다."
+msgstr "A fuel formed by ancient strata. Burns to produce intense heat and pressure."
+
+#. Key:	Coal_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Coal.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Coal.DisplayName
+msgctxt "DT_Item,Coal_DisplayName"
+msgid "석탄"
+msgstr "Coal"
+
+#. Key:	1D8DA18646ADC73874946088FD8ADB93
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.CoalDust.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.CoalDust.Description
+msgctxt ",1D8DA18646ADC73874946088FD8ADB93"
+msgid "석탄이 타고 남은 잔재. 아직 쓸모가 있을지도 모른다."
+msgstr "The residue left after coal burns. It may still have some use."
+
+#. Key:	CoalDust_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.CoalDust.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.CoalDust.DisplayName
+msgctxt "DT_Item,CoalDust_DisplayName"
+msgid "석탄 가루"
+msgstr "Coal Dust"
+
+#. Key:	8220B05C428F3B02A86A758F5A3FD4C9
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Copper.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Copper.Description
+msgctxt ",8220B05C428F3B02A86A758F5A3FD4C9"
+msgid "붉은빛을 띠는 무른 금속. 손질하면 다양하게 활용할 수 있다."
+msgstr "A soft, reddish metal. Versatile once refined."
+
+#. Key:	Copper_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Copper.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Copper.DisplayName
+msgctxt "DT_Item,Copper_DisplayName"
+msgid "구리"
+msgstr "Copper"
+
+#. Key:	5B2E7C544E40ECB337E1E89A25DD2947
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.CopperPlate.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.CopperPlate.Description
+msgctxt ",5B2E7C544E40ECB337E1E89A25DD2947"
+msgid "구리를 눌러 펴낸 판재. 표면이 고르지 않다."
+msgstr "A plate pressed flat from copper. Its surface is uneven."
+
+#. Key:	EE7CE9854B77959F2CBCEA8C8EFBFB15
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.CopperPlate.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.CopperPlate.DisplayName
+msgctxt ",EE7CE9854B77959F2CBCEA8C8EFBFB15"
+msgid "구리판"
+msgstr "Copper Plate"
+
+#. Key:	4C66515143F6CA9FF7B11AB14E935142
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.DamagedMiningPipe.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.DamagedMiningPipe.Description
+msgctxt ",4C66515143F6CA9FF7B11AB14E935142"
+msgid "심하게 긁히고 휜 파이프. 손을 좀 보면 다시 쓸 수 있을 것 같다."
+msgstr "A badly scratched and bent pipe. It might be usable again with some repair."
+
+#. Key:	DamagedMiningPipe_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.DamagedMiningPipe.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.DamagedMiningPipe.DisplayName
+msgctxt "DT_Item,DamagedMiningPipe_DisplayName"
+msgid "파손된 채광 파이프"
+msgstr "Damaged Mining Pipe"
+
+#. Key:	FD219A6D483121AE31E464AF0AA27160
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.Description
+msgctxt ",FD219A6D483121AE31E464AF0AA27160"
+msgid "정교하게 깎인 금속 톱니바퀴. 묵직한 무게감이 느껴진다."
+msgstr "A precisely machined metal cog. It feels substantially heavy."
+
+#. Key:	Gear_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.DisplayName
+msgctxt "DT_Item,Gear_DisplayName"
+msgid "기어"
+msgstr "Gear"
+
+#. Key:	832AA0CE48E4AFAF00C24D99A875CA10
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.GreatSword.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.GreatSword.Description
+msgctxt ",832AA0CE48E4AFAF00C24D99A875CA10"
+msgid "단단한 검. 어떤 것이라도 베어버린다."
+msgstr "A sturdy sword. It can cut through anything."
+
+#. Key:	365DBD2B48E9334B48B662B0BBAFB85B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.GreatSword.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.GreatSword.DisplayName
+msgctxt ",365DBD2B48E9334B48B662B0BBAFB85B"
+msgid "대검"
+msgstr "Greatsword"
+
+#. Key:	76BC40064A54A85E01688BBACD1E5CEF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.Description
+msgctxt ",76BC40064A54A85E01688BBACD1E5CEF"
+msgid "한 번 휘두르면 땅이 꺼질 것 같은 무게. 느리지만 막을 수 없다."
+msgstr "A weight that seems to crack the ground with a single swing. Slow, but unstoppable."
+
+#. Key:	9050BC6A437B56E161E065B3EE330B69
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.DisplayName
+msgctxt ",9050BC6A437B56E161E065B3EE330B69"
+msgid "해머"
+msgstr "Hammer"
+
+#. Key:	699083D843261F62A18F79BCE18D1E0D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Head.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Head.Description
+msgctxt ",699083D843261F62A18F79BCE18D1E0D"
+msgid "방어력 : 05"
+msgstr "Defense: 05"
+
+#. Key:	A783AC3B4A1532A1245399A480445DAF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Head.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Head.DisplayName
+msgctxt ",A783AC3B4A1532A1245399A480445DAF"
+msgid "투구"
+msgstr "Helmet"
+
+#. Key:	0EEB25DD4D3501F4927925A18344A6CD
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HealingPotion.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HealingPotion.Description
+msgctxt ",0EEB25DD4D3501F4927925A18344A6CD"
+msgid "약초 즙을 정제해 만든 약. 마시면 상처가 서서히 아문다."
+msgstr "A medicine refined from herb juice. Drinking it slowly heals wounds."
+
+#. Key:	48DB0F354AE642FA53FDBF9E889C094F
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HealingPotion.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HealingPotion.DisplayName
+msgctxt ",48DB0F354AE642FA53FDBF9E889C094F"
+msgid "회복약"
+msgstr "Healing Potion"
+
+#. Key:	B1A11C7A44E6BF85F9BB33B6485A206D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Herb.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Herb.Description
+msgctxt ",B1A11C7A44E6BF85F9BB33B6485A206D"
+msgid "들판에서 자라는 풀. 짙은 향을 풍긴다."
+msgstr "A plant that grows in the fields. Gives off a strong scent."
+
+#. Key:	444ED24C48BDAF72175981BC4E3DDE65
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Herb.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Herb.DisplayName
+msgctxt ",444ED24C48BDAF72175981BC4E3DDE65"
+msgid "약초"
+msgstr "Herb"
+
+#. Key:	C99F24BA462B964F289B9E94F274B3D2
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HerbJuice.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HerbJuice.Description
+msgctxt ",C99F24BA462B964F289B9E94F274B3D2"
+msgid "약초를 짜낸 끈적한 즙. 알 수 없는 약효가 느껴진다."
+msgstr "A sticky juice squeezed from herbs. It seems to hold some unknown medicinal effect."
+
+#. Key:	068F31BC4D3074E932F4DA93C21E3745
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HerbJuice.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HerbJuice.DisplayName
+msgctxt ",068F31BC4D3074E932F4DA93C21E3745"
+msgid "약초즙"
+msgstr "Herb Juice"
+
+#. Key:	102BD4A146291591FD329A85986A1ADF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HerbSeed.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HerbSeed.Description
+msgctxt ",102BD4A146291591FD329A85986A1ADF"
+msgid "작고 단단한 씨앗. 심으면 약초로 자란다."
+msgstr "A small, hard seed. Grows into an herb when planted."
+
+#. Key:	108D5A7747A15AF24F28C8B72C568851
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HerbSeed.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HerbSeed.DisplayName
+msgctxt ",108D5A7747A15AF24F28C8B72C568851"
+msgid "약초 씨앗"
+msgstr "Herb Seed"
+
+#. Key:	AA41FE8047EB8367798B22B0B6682225
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
+msgctxt ",AA41FE8047EB8367798B22B0B6682225"
+msgid "방어력 : 08"
+msgstr "Defense: 08"
+
+#. Key:	21C66AC54BFA3E93F057128997C59C4B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.DisplayName
+msgctxt ",21C66AC54BFA3E93F057128997C59C4B"
+msgid "하의"
+msgstr "Leg Armor"
+
+#. Key:	D349783F4C41AA2D79FB229963C3AFAD
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.MiningPipe.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.MiningPipe.Description
+msgctxt ",D349783F4C41AA2D79FB229963C3AFAD"
+msgid "지하 깊숙이 뻗어 자원을 끌어올리는 파이프. 한 번 쓰면 닳는다."
+msgstr "A pipe that reaches deep underground to draw up resources. It wears out with use."
+
+#. Key:	MiningPipe_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.MiningPipe.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.MiningPipe.DisplayName
+msgctxt "DT_Item,MiningPipe_DisplayName"
+msgid "채광 파이프"
+msgstr "Mining Pipe"
+
+#. Key:	DE0636E24DEBFDCB5A2D96891F0E59DB
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.Description
+msgctxt ",DE0636E24DEBFDCB5A2D96891F0E59DB"
+msgid "방어력 : 05"
+msgstr "Defense: 05"
+
+#. Key:	D0782B2B4BF2F82E7A76F5A5989F3B7B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.DisplayName
+msgctxt ",D0782B2B4BF2F82E7A76F5A5989F3B7B"
+msgid "신발"
+msgstr "Boots"
+
+#. Key:	B79D846E443DE190CE6F9FB4EFFD222D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sulfur.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Sulfur.DisplayName
+msgctxt ",B79D846E443DE190CE6F9FB4EFFD222D"
+msgid "유황"
+msgstr "Sulfur"
+
+#. Key:	6C43E5AB4633A6111FB28F8514B643BA
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.Description
+msgctxt ",6C43E5AB4633A6111FB28F8514B643BA"
+msgid "청동을 갈고 다듬어 만들어진 검. 투박하지만 충분히 믿음직하다."
+msgstr "A sword forged by grinding and shaping bronze. Crude, but reliable enough."
+
+#. Key:	66BB9A8C4A8F536CBAD14291EB3C0CCE
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.DisplayName
+msgctxt "DT_Item,66BB9A8C4A8F536CBAD14291EB3C0CCE"
+msgid "청동검"
+msgstr "Bronze Sword"
+
+#. Key:	FC138C674EA2AA4562B1E5B259B444D3
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Tin.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Tin.Description
+msgctxt ",FC138C674EA2AA4562B1E5B259B444D3"
+msgid "은빛의 부드러운 금속. 홀로는 약하지만 섞이면 강해진다."
+msgstr "A soft, silvery metal. Weak on its own, but strong when alloyed."
+
+#. Key:	Tin_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Tin.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Tin.DisplayName
+msgctxt "DT_Item,Tin_DisplayName"
+msgid "주석"
+msgstr "Tin"
+
+#. Key:	4217B10A4A85C1BD91E0958E655587C7
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.Description
+msgctxt ",4217B10A4A85C1BD91E0958E655587C7"
+msgid "방어력 : 10"
+msgstr "Defense: 10"
+
+#. Key:	40E4646F4EF6225BA4C8868AB99F9CAD
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.DisplayName
+msgctxt ",40E4646F4EF6225BA4C8868AB99F9CAD"
+msgid "상의"
+msgstr "Chest Armor"
+
+#. Key:	Alloy_Bronze_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Alloy_Bronze.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Alloy_Bronze.DisplayName
+msgctxt "DT_Recipe,Alloy_Bronze_DisplayName"
+msgid "청동"
+msgstr "Bronze"
+
+#. Key:	Boiler_Coal_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Boiler_Coal.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Boiler_Coal.DisplayName
+msgctxt "DT_Recipe,Boiler_Coal_DisplayName"
+msgid "석탄 연소"
+msgstr "Coal Combustion"
+
+#. Key:	Dismantle_BasicModule_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Dismantle_BasicModule.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Dismantle_BasicModule.DisplayName
+msgctxt "DT_Recipe,Dismantle_BasicModule_DisplayName"
+msgid "기초 모듈 분해"
+msgstr "Basic Module Disassembly"
+
+#. Key:	GearPress_Gear_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.GearPress_Gear.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.GearPress_Gear.DisplayName
+msgctxt "DT_Recipe,GearPress_Gear_DisplayName"
+msgid "기어"
+msgstr "Gear"
+
+#. Key:	A98C2FE941C1AD3F5C15CF86D56D28D6
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.HerbFarm_Herb.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.HerbFarm_Herb.DisplayName
+msgctxt ",A98C2FE941C1AD3F5C15CF86D56D28D6"
+msgid "약초 재배"
+msgstr "Herb Cultivation"
+
+#. Key:	B56BDD9D4E42D9B82F6FA4AA2171E8A1
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.JuicePress_HerbJuice.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.JuicePress_HerbJuice.DisplayName
+msgctxt ",B56BDD9D4E42D9B82F6FA4AA2171E8A1"
+msgid "약초 착즙"
+msgstr "Herb Juicing"
+
+#. Key:	PipeWorkshop_MakeMiningPipe_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PipeWorkshop_MakeMiningPipe.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PipeWorkshop_MakeMiningPipe.DisplayName
+msgctxt "DT_Recipe,PipeWorkshop_MakeMiningPipe_DisplayName"
+msgid "채광 파이프"
+msgstr "Mining Pipe"
+
+#. Key:	PipeWorkshop_RepairMiningPipe_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PipeWorkshop_RepairMiningPipe.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PipeWorkshop_RepairMiningPipe.DisplayName
+msgctxt "DT_Recipe,PipeWorkshop_RepairMiningPipe_DisplayName"
+msgid "채광 파이프 수리"
+msgstr "Mining Pipe Repair"
+
+#. Key:	10A069A04D32289462E4F9AA60401D59
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PotionBrewer_HealingPotion.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.PotionBrewer_HealingPotion.DisplayName
+msgctxt ",10A069A04D32289462E4F9AA60401D59"
+msgid "회복약"
+msgstr "Healing Potion"
+
+#. Key:	Alloy_BronzePlate_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Rolling_BronzePlate.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Rolling_BronzePlate.DisplayName
+msgctxt "DT_Recipe,Alloy_BronzePlate_DisplayName"
+msgid "청동판"
+msgstr "Bronze Plate"
+
+#. Key:	9DF374BB4743CFEB08DDD5AC2301F6ED
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Rolling_CopperPlate.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Rolling_CopperPlate.DisplayName
+msgctxt "DT_Recipe,9DF374BB4743CFEB08DDD5AC2301F6ED"
+msgid "구리판"
+msgstr "Copper Plate"
+
+#. Key:	UndergroundMining_Coal_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Coal.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Coal.DisplayName
+msgctxt "DT_Recipe,UndergroundMining_Coal_DisplayName"
+msgid "석탄"
+msgstr "Coal"
+
+#. Key:	UndergroundMining_Copper_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Copper.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Copper.DisplayName
+msgctxt "DT_Recipe,UndergroundMining_Copper_DisplayName"
+msgid "구리"
+msgstr "Copper"
+
+#. Key:	5B2CAD5E4A69BCD6BD85BFBE9C190B76
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Sulfur.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Sulfur.DisplayName
+msgctxt ",5B2CAD5E4A69BCD6BD85BFBE9C190B76"
+msgid "유황"
+msgstr "Sulfur"
+
+#. Key:	UndergroundMining_Tin_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Tin.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.UndergroundMining_Tin.DisplayName
+msgctxt "DT_Recipe,UndergroundMining_Tin_DisplayName"
+msgid "주석"
+msgstr "Tin"
+
+#. Key:	WeaponWorkbench_BronzeSword_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.WeaponWorkbench_BronzeSword.DisplayName
+#: /Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.WeaponWorkbench_BronzeSword.DisplayName
+msgctxt "DT_Recipe,WeaponWorkbench_BronzeSword_DisplayName"
+msgid "청동검"
+msgstr "Bronze Sword"
+
+#. Key:	57052ED440DDF2D837D5A79A4208B6BD
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.DescriptionText
+msgctxt ",57052ED440DDF2D837D5A79A4208B6BD"
+msgid "▶ Tab을 눌러 인벤토리를 열고 보일러를 설비 슬롯에 등록하세요."
+msgstr "▶ Press Tab to open your inventory and register the Boiler to an equipment slot."
+
+#. Key:	A874C61E411165A08E169B8B2A162D6D
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.ObjectiveText
+msgctxt ",A874C61E411165A08E169B8B2A162D6D"
+msgid "보일러를 퀵슬롯에 등록하세요."
+msgstr "Register the Boiler to a quick slot."
+
+#. Key:	8D46C31D40801929F8DD8292217D2A16
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.Title
+msgctxt ",8D46C31D40801929F8DD8292217D2A16"
+msgid "설비 가이드"
+msgstr "Facility Guide"
+
+#. Key:	C5285935451100798A27FAB81BE23FF3
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignConveyorQuickSlot.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignConveyorQuickSlot.DescriptionText
+msgctxt ",C5285935451100798A27FAB81BE23FF3"
+msgid "▶ 보상으로 받은 컨베이어 벨트를 건설 퀵슬롯에 등록하세요."
+msgstr "▶ Register the Conveyor Belt you received as a reward to a build quick slot."
+
+#. Key:	3B583B7E43258AF7D7FB2CBA70989433
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignConveyorQuickSlot.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignConveyorQuickSlot.ObjectiveText
+msgctxt ",3B583B7E43258AF7D7FB2CBA70989433"
+msgid "컨베이어 벨트를 설비 슬롯에 등록하세요."
+msgstr "Register the Conveyor Belt to an equipment slot."
+
+#. Key:	38A23FBB4753CBB50CCA4798F01A9F3F
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignFirstSkill.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignFirstSkill.DescriptionText
+msgctxt ",38A23FBB4753CBB50CCA4798F01A9F3F"
+msgid "▶ 해금한 스킬을 사용할 수 있도록 스킬 슬롯에 등록하세요."
+msgstr "▶ Register the unlocked skill to a skill slot so you can use it."
+
+#. Key:	3EC750CF4DF59C4B2EDA58B3A7912279
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignFirstSkill.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignFirstSkill.ObjectiveText
+msgctxt ",3EC750CF4DF59C4B2EDA58B3A7912279"
+msgid "스킬 슬롯에 할당하세요."
+msgstr "Assign it to a skill slot."
+
+#. Key:	5E16416D43BE17035973698807C64BDF
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.DescriptionText
+msgctxt ",5E16416D43BE17035973698807C64BDF"
+msgid "▶ 주변에 떨어져 있는 무기를 획득하세요."
+msgstr "▶ Pick up the weapon lying nearby."
+
+#. Key:	8488660F496A3DA9A3665FA9BF742E52
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.ObjectiveText
+msgctxt ",8488660F496A3DA9A3665FA9BF742E52"
+msgid "무기를 획득하세요."
+msgstr "Obtain a weapon."
+
+#. Key:	5E5AD20F41723C4DC0382BBAD260EC13
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CollectWeapon.Title
+msgctxt ",5E5AD20F41723C4DC0382BBAD260EC13"
+msgid "전투 가이드"
+msgstr "Combat Guide"
+
+#. Key:	3D6E4C514A7BF244F58B1AA7D76B0B4A
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ConnectDisassemblerToBoiler.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ConnectDisassemblerToBoiler.DescriptionText
+msgctxt ",3D6E4C514A7BF244F58B1AA7D76B0B4A"
+msgid "▶ 컨베이어 벨트를 설치해 모듈 분해기와 보일러를 연결하세요."
+msgstr "▶ Install a Conveyor Belt to connect the Module Disassembler and the Boiler."
+
+#. Key:	5EAAB42043F025E4D6C1F5A3780D3BDE
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ConnectDisassemblerToBoiler.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ConnectDisassemblerToBoiler.ObjectiveText
+msgctxt ",5EAAB42043F025E4D6C1F5A3780D3BDE"
+msgid "모듈 분해기와 보일러를 벨트로 연결하세요."
+msgstr "Connect the Module Disassembler and the Boiler with a belt."
+
+#. Key:	6F769AAC4CA6C4A0C354138EFF3DE581
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.DescriptionText
+msgctxt ",6F769AAC4CA6C4A0C354138EFF3DE581"
+msgid "▶ 제작 탭에서 모듈 분해기를 제작하세요."
+msgstr "▶ Craft the Module Disassembler from the Crafting tab."
+
+#. Key:	88FB8D774A0904098A0557A6A15D3E8B
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.ObjectiveText
+msgctxt ",88FB8D774A0904098A0557A6A15D3E8B"
+msgid "모듈 분해기를 제작하세요."
+msgstr "Craft the Module Disassembler."
+
+#. Key:	4A79EEB64B298444DCC6A8BE4C8BB58A
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.DescriptionText
+msgctxt ",4A79EEB64B298444DCC6A8BE4C8BB58A"
+msgid "▶ 합금기, 압연기, 기어 프레스를 통하여 기어를 제작하세요."
+msgstr "▶ Craft a Gear using the Alloy Furnace, Rolling Mill, and Gear Press."
+
+#. Key:	FC37DDAA4F1ABCBC918AF8851A56E197
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.ObjectiveText
+msgctxt ",FC37DDAA4F1ABCBC918AF8851A56E197"
+msgid "기어를 제작하세요."
+msgstr "Craft a Gear."
+
+#. Key:	3FDDD1B64219C2BB3E0DFC8030FF9F51
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.EquipWeapon.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.EquipWeapon.DescriptionText
+msgctxt ",3FDDD1B64219C2BB3E0DFC8030FF9F51"
+msgid "▶ Tab을 눌러 인벤토리를 열고 획득한 무기를 무기 슬롯에 장착하세요."
+msgstr "▶ Press Tab to open your inventory and equip the weapon you obtained to a weapon slot."
+
+#. Key:	E59A1D834BFAABCEE083E3B2960DB291
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.EquipWeapon.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.EquipWeapon.ObjectiveText
+msgctxt ",E59A1D834BFAABCEE083E3B2960DB291"
+msgid "인벤토리에서 무기를 장착하세요."
+msgstr "Equip the weapon from your inventory."
+
+#. Key:	5A6371374C942C562DE60F95E8884567
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.DescriptionText
+msgctxt ",5A6371374C942C562DE60F95E8884567"
+msgid "▶ 스킬을 장착했다면 보스 구역으로 이동해 보스를 처치하세요."
+msgstr "▶ Once your skill is equipped, head to the boss area and defeat the boss."
+
+#. Key:	867AA0B9448A46C1687C208D6C0CF766
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.ObjectiveText
+msgctxt ",867AA0B9448A46C1687C208D6C0CF766"
+msgid "보스를 처치하세요."
+msgstr "Defeat the boss."
+
+#. Key:	792FB5A845B71BC7CB2E51914B01E5B1
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.Title
+msgctxt ",792FB5A845B71BC7CB2E51914B01E5B1"
+msgid "최종 목표"
+msgstr "Final Objective"
+
+#. Key:	C1141EFE4766D7A4C98A408659AB044E
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertCoal.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertCoal.DescriptionText
+msgctxt ",C1141EFE4766D7A4C98A408659AB044E"
+msgid "▶보일러에 상호작용한 뒤 석탄을 연료 슬롯에 넣으세요."
+msgstr "▶ Interact with the Boiler, then place Coal into the fuel slot."
+
+#. Key:	979A763645A42CBD7D7AF5817A68DAE7
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertCoal.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertCoal.ObjectiveText
+msgctxt ",979A763645A42CBD7D7AF5817A68DAE7"
+msgid "보일러에 석탄을 넣으세요."
+msgstr "Place Coal into the Boiler."
+
+#. Key:	4C3638FC4B0FD5BE4D3164B58DBFFA08
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertDisassemblerInput.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertDisassemblerInput.DescriptionText
+msgctxt ",4C3638FC4B0FD5BE4D3164B58DBFFA08"
+msgid "▶ 선택한 레시피에 필요한 재료를 Input 슬롯에 넣으세요."
+msgstr "▶ Place the materials required for the selected recipe into the Input slot."
+
+#. Key:	4EAB76964F713A3075331BBA4F40A564
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertDisassemblerInput.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertDisassemblerInput.ObjectiveText
+msgctxt ",4EAB76964F713A3075331BBA4F40A564"
+msgid "Input 슬롯에 재료를 넣으세요."
+msgstr "Place the material in the input slot."
+
+#. Key:	5CB86CEC4EAA11F785FA88AAE4934BC6
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.DescriptionText
+msgctxt ",5CB86CEC4EAA11F785FA88AAE4934BC6"
+msgid "▶ X키로 무기를 손에 들고 주변 몬스터를 모두 처치하세요."
+msgstr "▶ Press X to draw your weapon and defeat all nearby monsters."
+
+#. Key:	41E885644D2B14EC341776A65C291316
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.ObjectiveText
+msgctxt ",41E885644D2B14EC341776A65C291316"
+msgid "몬스터 처치하세요."
+msgstr "Defeat the monsters."
+
+#. Key:	E11330B444441EC0B8282FAD9F3E1525
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.DescriptionText
+msgctxt ",E11330B444441EC0B8282FAD9F3E1525"
+msgid "▶ B키로 건설 모드를 열고 보일러를 설치하세요."
+msgstr "▶ Press B to open Build Mode and install the Boiler."
+
+#. Key:	DA224F3348A80DDC4F83918B3009A011
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.ObjectiveText
+msgctxt ",DA224F3348A80DDC4F83918B3009A011"
+msgid "보일러를 설치하세요."
+msgstr "Install the Boiler."
+
+#. Key:	26F5F3DE4B2E853E56B567A51B035D08
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceDisassembler.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceDisassembler.DescriptionText
+msgctxt ",26F5F3DE4B2E853E56B567A51B035D08"
+msgid "▶ 모듈 분해기를 설비 슬롯에 등록하고 설치하세요."
+msgstr "▶ Register the Module Disassembler to an equipment slot and install it."
+
+#. Key:	70DD9C384CC5F25C613642B9A99F9D80
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceDisassembler.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceDisassembler.ObjectiveText
+msgctxt ",70DD9C384CC5F25C613642B9A99F9D80"
+msgid "모듈 분해기를 설치하세요."
+msgstr "Install the Module Disassembler."
+
+#. Key:	689779334CC67265BF66938D287ECE3A
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerOutput.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerOutput.DescriptionText
+msgctxt ",689779334CC67265BF66938D287ECE3A"
+msgid "▶ 벨트 연결 창에서 모듈 분해기의 Output 슬롯 중 석탄을 선택하세요."
+msgstr "▶ In the belt connection window, select Coal among the Module Disassembler's Output slots."
+
+#. Key:	60F7392F4F33B97AB87083A6D65361F7
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerOutput.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerOutput.ObjectiveText
+msgctxt ",60F7392F4F33B97AB87083A6D65361F7"
+msgid "Output 슬롯을 선택하세요."
+msgstr "Select an output slot."
+
+#. Key:	50FFDEA544EE674CEDB36392036FFC22
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerRecipe.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerRecipe.DescriptionText
+msgctxt ",50FFDEA544EE674CEDB36392036FFC22"
+msgid "▶ 설치한 모듈 분해기와 상호작용하여 사용할 레시피를 선택하세요."
+msgstr "▶ Interact with the installed Module Disassembler and select a recipe to use."
+
+#. Key:	5FD3D28C4311037D964F79812A5B4862
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerRecipe.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerRecipe.ObjectiveText
+msgctxt ",5FD3D28C4311037D964F79812A5B4862"
+msgid "레시피를 선택하세요."
+msgstr "Select a recipe."
+
+#. Key:	08358D1244103477E20AEEAA8F6478FF
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.DescriptionText
+msgctxt ",08358D1244103477E20AEEAA8F6478FF"
+msgid "▶ 기본 설비 제작, 자동화 라인 구성, 스킬 해금, 보스 처치 흐름을 모두 완료했습니다."
+msgstr "▶ You have completed the full flow: crafting basic facilities, building an automation line, unlocking a skill, and defeating the boss."
+
+#. Key:	7C70B23F4EA17D232CB08F9889DF5F88
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.ObjectiveText
+msgctxt ",7C70B23F4EA17D232CB08F9889DF5F88"
+msgid "튜토리얼을 완료했습니다."
+msgstr "You have completed the tutorial."
+
+#. Key:	2AAEDD834FF563419983DE841516010C
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.Title
+msgctxt ",2AAEDD834FF563419983DE841516010C"
+msgid "튜토리얼 완료"
+msgstr "Tutorial Complete"
+
+#. Key:	CA07375343D71C317A82CEA1A1481DB1
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.DescriptionText
+msgctxt ",CA07375343D71C317A82CEA1A1481DB1"
+msgid "▶ 스킬 창을 열어 해금 가능한 스킬을 해금하세요."
+msgstr "▶ Open the skill window and unlock an available skill."
+
+#. Key:	68C4A58248BBBA4BB895F68AA44B3EAE
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.ObjectiveText
+msgctxt ",68C4A58248BBBA4BB895F68AA44B3EAE"
+msgid "스킬을 해금하세요."
+msgstr "Unlock a skill."
+
+#. Key:	7D54822A4F937CEA9E0B249851CB4DA7
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.UnlockFirstSkill.Title
+msgctxt ",7D54822A4F937CEA9E0B249851CB4DA7"
+msgid "스킬 가이드"
+msgstr "Skill Guide"
+
+#. Key:	B886F52D4763935B53833391A3F8BB73
+#. SourceLocation:	/Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text.Text
+#: /Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text.Text
+msgctxt ",B886F52D4763935B53833391A3F8BB73"
+msgid "적용"
+msgstr "Apply"
+
+#. Key:	2CBFB976476119802237CDA3C65D2BEE
+#. SourceLocation:	/Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_1.Text
+#: /Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_1.Text
+msgctxt ",2CBFB976476119802237CDA3C65D2BEE"
+msgid "이동"
+msgstr "Move"
+
+#. Key:	15D4717C4F78DEA79DA006A372F1B973
+#. SourceLocation:	/Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_2.Text
+#: /Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_2.Text
+msgctxt ",15D4717C4F78DEA79DA006A372F1B973"
+msgid "제거"
+msgstr "Remove"
+
+#. Key:	C1874F6E49DE884E349FC0BB52BA447E
+#. SourceLocation:	/Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_3.Text
+#: /Game/Karon/Debug/EUW_KODebugger.EUW_KODebugger_C:WidgetTree.ApplyButton_Text_3.Text
+msgctxt ",C1874F6E49DE884E349FC0BB52BA447E"
+msgid "스폰"
+msgstr "Spawn"
+
+#. Key:	42D50ECA409CB2C4A63920BAAF1C4712
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+msgctxt ",42D50ECA409CB2C4A63920BAAF1C4712"
+msgid "지상의 빛을 만들던 우리의 심장부.."
+msgstr "The heart that once forged the light of the surface world.."
+
+#. Key:	42E3D9B14FB590B151F5318839846C15
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+msgctxt ",42E3D9B14FB590B151F5318839846C15"
+msgid "이곳은.."
+msgstr "This place is.."
+
+#. Key:	61E1F5274333BC944F738EBFC85124F9
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+msgctxt ",61E1F5274333BC944F738EBFC85124F9"
+msgid "처음부터 다시, 내 손으로 세운다"
+msgstr "From the beginning, once more — built by my own hands"
+
+#. Key:	743249284906BBE5E21AF78DBD8980CF
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+msgctxt ",743249284906BBE5E21AF78DBD8980CF"
+msgid "기억 속의 불꽃은 꺼졌지만"
+msgstr "The flame in my memory has gone out,"
+
+#. Key:	DEC18C4640D9217A3FC22CB429047C07
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
+msgctxt ",DEC18C4640D9217A3FC22CB429047C07"
+msgid "설계도는 아직 내 머릿속에 있어."
+msgstr "but the blueprint still remains in my mind."
+
+#. Key:	WorldName_Cave
+#. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
+#: /Game/Karon/Localization/ST_WorldName.ST_WorldName
+msgctxt "ST_WorldName,WorldName_Cave"
+msgid "버려진 폐광"
+msgstr "Abandoned Mine"
+
+#. Key:	WorldName_SnowTown
+#. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
+#: /Game/Karon/Localization/ST_WorldName.ST_WorldName
+msgctxt "ST_WorldName,WorldName_SnowTown"
+msgid "설산의 무인 마을"
+msgstr "Uninhabited Village on Snow Mountain"
+
+#. Key:	WorldName_TrainStation
+#. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
+#: /Game/Karon/Localization/ST_WorldName.ST_WorldName
+msgctxt "ST_WorldName,WorldName_TrainStation"
+msgid "크리스토퍼 기차역"
+msgstr "Christopher Train Station"
+
+#. Key:	WorldName_WhiteCastle
+#. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
+#: /Game/Karon/Localization/ST_WorldName.ST_WorldName
+msgctxt "ST_WorldName,WorldName_WhiteCastle"
+msgid "백설의 도읍"
+msgstr "The CAPITAL of Snow White"
+
+#. Key:	95A6CAC647FC9DF2212AC6A37DE43948
+#. SourceLocation:	/Game/Karon/UI/BuildWidget/WBP_BuildQuickSlot.WBP_BuildQuickSlot_C:WidgetTree.CountText.Text
+#: /Game/Karon/UI/BuildWidget/WBP_BuildQuickSlot.WBP_BuildQuickSlot_C:WidgetTree.CountText.Text
+msgctxt ",95A6CAC647FC9DF2212AC6A37DE43948"
+msgid "1"
+msgstr "1"
+
+#. Key:	DF67A41B498CCEA398E1978C6933C1BC
+#. SourceLocation:	/Game/Karon/UI/BuildWidget/WBP_BuildQuickSlot.WBP_BuildQuickSlot_C:WidgetTree.SlotNumberText.Text
+#: /Game/Karon/UI/BuildWidget/WBP_BuildQuickSlot.WBP_BuildQuickSlot_C:WidgetTree.SlotNumberText.Text
+msgctxt ",DF67A41B498CCEA398E1978C6933C1BC"
+msgid "1"
+msgstr "1"
+
+#. Key:	83B1D9404E7F286E5F59D3A4615B7619
+#. SourceLocation:	/Game/Karon/UI/Confirmation/WBP_ConfirmationButton.Default__WBP_ConfirmationButton_C.NewText
+#: /Game/Karon/UI/Confirmation/WBP_ConfirmationButton.Default__WBP_ConfirmationButton_C.NewText
+msgctxt ",83B1D9404E7F286E5F59D3A4615B7619"
+msgid "확인"
+msgstr "Confirm"
+
+#. Key:	63E9E69340F5D8FEDD48C3A323E3E1E6
+#. SourceLocation:	/Game/Karon/UI/Confirmation/WBP_ConfirmationButton.WBP_ConfirmationButton_C:WidgetTree.CommonTextBlock_38.Text
+#: /Game/Karon/UI/Confirmation/WBP_ConfirmationButton.WBP_ConfirmationButton_C:WidgetTree.CommonTextBlock_38.Text
+msgctxt ",63E9E69340F5D8FEDD48C3A323E3E1E6"
+msgid "확인"
+msgstr "Confirm"
+
+#. Key:	B52B467D4FA5A5BB87F8DD9B2CC70D58
+#. SourceLocation:	/Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.CloseButton.NewText
+#: /Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.CloseButton.NewText
+msgctxt ",B52B467D4FA5A5BB87F8DD9B2CC70D58"
+msgid "취소"
+msgstr "Cancel"
+
+#. Key:	9FE785454CE04FED7AE8C0A9C8B7F709
+#. SourceLocation:	/Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.DescriptionText.Text
+#: /Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.DescriptionText.Text
+msgctxt ",9FE785454CE04FED7AE8C0A9C8B7F709"
+msgid "기존 저장 데이터가 있습니다.\r\n새 게임을 시작하면 기존 저장 데이터가 삭제됩니다. 계속하시겠습니까?"
+msgstr "An existing save file was found.\r\nStarting a new game will delete the existing save data. Do you want to continue?"
+
+#. Key:	CEAE2C72434A942E73EEB8A9879F7D1C
+#. SourceLocation:	/Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Confirmation/WBP_ConfirmationPopup.WBP_ConfirmationPopup_C:WidgetTree.TitleText.Text
+msgctxt ",CEAE2C72434A942E73EEB8A9879F7D1C"
+msgid "새 게임 시작"
+msgstr "New Game"
+
+#. Key:	63BE20E64FDEF64B9B7E2B97281DEC69
+#. SourceLocation:	/Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.NativeForward.DisplayName
+#: /Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.NativeForward.DisplayName
+msgctxt ",63BE20E64FDEF64B9B7E2B97281DEC69"
+msgid "Click"
+msgstr "Click"
+
+#. Key:	BCAE1E0840FFF75D031163B4002B360F
+#. SourceLocation:	/Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.NavigateBack.DisplayName
+#: /Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.NavigateBack.DisplayName
+msgctxt ",BCAE1E0840FFF75D031163B4002B360F"
+msgid "Back"
+msgstr "Back"
+
+#. Key:	AE9765C84A331DEC4B43A3B6A5D37C94
+#. SourceLocation:	/Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.SkillPopup.DisplayName
+#: /Game/Karon/UI/DT_UIInputAction.DT_UIInputAction.SkillPopup.DisplayName
+msgctxt ",AE9765C84A331DEC4B43A3B6A5D37C94"
+msgid "SKill"
+msgstr "SKill"
+
+#. Key:	626052014365C8BD9FE53B963CFBE32F
+#. SourceLocation:	/Game/Karon/UI/Enemy/WBP_KOEnemyHPBar.WBP_KOEnemyHPBar_C:WidgetTree.DamageTextBlock.Text
+#: /Game/Karon/UI/Enemy/WBP_KOEnemyHPBar.WBP_KOEnemyHPBar_C:WidgetTree.DamageTextBlock.Text
+msgctxt ",626052014365C8BD9FE53B963CFBE32F"
+msgid "7"
+msgstr "7"
+
+#. Key:	193135BB424D8853F423429FB126C9F3
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftCostEntryWidget.WBP_FactoryCraftCostEntryWidget_C:WidgetTree.CountText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftCostEntryWidget.WBP_FactoryCraftCostEntryWidget_C:WidgetTree.CountText.Text
+msgctxt ",193135BB424D8853F423429FB126C9F3"
+msgid "0 / 0"
+msgstr "0 / 0"
+
+#. Key:	16B50F024287D92E00C728AD15745ED6
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftCostEntryWidget.WBP_FactoryCraftCostEntryWidget_C:WidgetTree.ItemNameText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftCostEntryWidget.WBP_FactoryCraftCostEntryWidget_C:WidgetTree.ItemNameText.Text
+msgctxt ",16B50F024287D92E00C728AD15745ED6"
+msgid "재료 이름"
+msgstr "Material Name"
+
+#. Key:	FD56C50B4E0D9F6FB9184B9EE02159E5
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.FactoryNameText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.FactoryNameText.Text
+msgctxt ",FD56C50B4E0D9F6FB9184B9EE02159E5"
+msgid "설비 이름"
+msgstr "Facility Name"
+
+#. Key:	A9177C3F425F14B8934930B0664B377E
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.SelectionArrowText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.SelectionArrowText.Text
+msgctxt ",A9177C3F425F14B8934930B0664B377E"
+msgid "▶"
+msgstr "▶"
+
+#. Key:	C28A5B264267B591A2C147B76CC7693A
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.Text.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.Text.Text
+msgctxt ",C28A5B264267B591A2C147B76CC7693A"
+msgid "보유 "
+msgstr "Owned "
+
+#. Key:	4740B7AD47E5F39B6B878E838DB9CF06
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.TextAmount.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftEntryWidget.WBP_FactoryCraftEntryWidget_C:WidgetTree.TextAmount.Text
+msgctxt ",4740B7AD47E5F39B6B878E838DB9CF06"
+msgid "10"
+msgstr "10"
+
+#. Key:	0ABF46DB45058D3EDB6346BD5A06CC9F
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.CraftButtonText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.CraftButtonText.Text
+msgctxt ",0ABF46DB45058D3EDB6346BD5A06CC9F"
+msgid "제작"
+msgstr "Craft"
+
+#. Key:	FB97A00940C11FAD87591FBA344ADECF
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.CraftCountText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.CraftCountText.Text
+msgctxt ",FB97A00940C11FAD87591FBA344ADECF"
+msgid "99"
+msgstr "99"
+
+#. Key:	810140A54A18B0087D2F6FAE2260D57B
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.FactoryDescriptionText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.FactoryDescriptionText.Text
+msgctxt ",810140A54A18B0087D2F6FAE2260D57B"
+msgid "석탄을 태워 압력을 생산하는 기계. 모든 설비 라인의 시작점이다."
+msgstr "A machine that burns coal to produce pressure. The starting point of every facility line."
+
+#. Key:	62BC92394E737A7238D48DBAA8991134
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.FactoryNameText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.FactoryNameText.Text
+msgctxt ",62BC92394E737A7238D48DBAA8991134"
+msgid "보일러"
+msgstr "Boiler"
+
+#. Key:	31EDDB23482984E1D5A861BDA604F0C0
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.OwnedCountText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.OwnedCountText.Text
+msgctxt ",31EDDB23482984E1D5A861BDA604F0C0"
+msgid "보유 2 "
+msgstr "Owned 2 "
+
+#. Key:	5EBA6B3A445871C1CF9724AAE40FACC9
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption.Text
+msgctxt ",5EBA6B3A445871C1CF9724AAE40FACC9"
+msgid "레시피"
+msgstr "Recipe"
+
+#. Key:	2C93407046F1618320753DA913F1CE90
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_1.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_1.Text
+msgctxt ",2C93407046F1618320753DA913F1CE90"
+msgid "제작 정보"
+msgstr "Crafting Info"
+
+#. Key:	D7D118F94CBC7A2D5882C8B7097F99EE
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_2.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_2.Text
+msgctxt ",D7D118F94CBC7A2D5882C8B7097F99EE"
+msgid "RECIPE"
+msgstr "RECIPE"
+
+#. Key:	B14F06F149231A29DA7BC0906BF9ABFA
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_3.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_FactoryCraftWidget.WBP_FactoryCraftWidget_C:WidgetTree.Txt_Caption_3.Text
+msgctxt ",B14F06F149231A29DA7BC0906BF9ABFA"
+msgid "DETAIL"
+msgstr "DETAIL"
+
+#. Key:	2337571B4C8635D02F8550AEAE270B18
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.EmptyText.Text
+#: /Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.EmptyText.Text
+msgctxt ",2337571B4C8635D02F8550AEAE270B18"
+msgid "선택된 레시피가 없어 출력 아이템이 없습니다."
+msgstr "No recipe selected, so there is no output item."
+
+#. Key:	90BD26DF4041A71D9951DB8AEADFA734
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.TextBlock.Text
+#: /Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.TextBlock.Text
+msgctxt ",90BD26DF4041A71D9951DB8AEADFA734"
+msgid "자원 출력"
+msgstr "Resource Output"
+
+#. Key:	E63A59C14528E370713E9095302D36E6
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Factory/WBP_BeltConnect.WBP_BeltConnect_C:WidgetTree.TitleText.Text
+msgctxt ",E63A59C14528E370713E9095302D36E6"
+msgid "설비 이름"
+msgstr "Facility Name"
+
+#. Key:	BAAEC0F64DE2F34D3248FDA815CEB027
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_BeltConnectionEntry.WBP_BeltConnectionEntry_C:WidgetTree.NameText.Text
+#: /Game/Karon/UI/Factory/WBP_BeltConnectionEntry.WBP_BeltConnectionEntry_C:WidgetTree.NameText.Text
+msgctxt ",BAAEC0F64DE2F34D3248FDA815CEB027"
+msgid "이름"
+msgstr "Name"
+
+#. Key:	64108B714D4DCC4655C63DAE2E9F8B5C
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.CycleText.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.CycleText.Text
+msgctxt ",64108B714D4DCC4655C63DAE2E9F8B5C"
+msgid "연소 주기 : 00.0s"
+msgstr "Burn Cycle: 00.0s"
+
+#. Key:	E78CB17A4571B87EC13A88A99B7A91EA
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.EnergyPerSecText.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.EnergyPerSecText.Text
+msgctxt ",E78CB17A4571B87EC13A88A99B7A91EA"
+msgid "압력 생산 : 00 /s"
+msgstr "Pressure Output: 00 /s"
+
+#. Key:	82EE102B4B6BDF53B23CCF9D6F3158B1
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.PowerPerFuelText.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.PowerPerFuelText.Text
+msgctxt ",82EE102B4B6BDF53B23CCF9D6F3158B1"
+msgid "연료당 압력 : 000"
+msgstr "Pressure per Fuel: 000"
+
+#. Key:	7D4B6A2141D1AAA6ED720994D5421DDA
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TextBlock_62.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TextBlock_62.Text
+msgctxt ",7D4B6A2141D1AAA6ED720994D5421DDA"
+msgid "자원 투입"
+msgstr "Resource Input"
+
+#. Key:	5A6EF0564F3484A51C1B45971D4E84F5
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TitleText.Text
+msgctxt ",5A6EF0564F3484A51C1B45971D4E84F5"
+msgid "PRODUCER"
+msgstr "PRODUCER"
+
+#. Key:	E744E5484C0C105ED259578F0293D06D
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TitleText_1.Text
+#: /Game/Karon/UI/Factory/WBP_EnergyProducer.WBP_EnergyProducer_C:WidgetTree.TitleText_1.Text
+msgctxt ",E744E5484C0C105ED259578F0293D06D"
+msgid "INVENTORY"
+msgstr "INVENTORY"
+
+#. Key:	3D8F2B254ACFCA6A499DDABD30430219
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.NetworkProductionText.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.NetworkProductionText.Text
+msgctxt ",3D8F2B254ACFCA6A499DDABD30430219"
+msgid "00 /s"
+msgstr "00 /s"
+
+#. Key:	4F32FD6A4CDEAE20D17FB1B07CB63D8C
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.PowerUseText.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.PowerUseText.Text
+msgctxt ",4F32FD6A4CDEAE20D17FB1B07CB63D8C"
+msgid "0 / 0 /s"
+msgstr "0 / 0 /s"
+
+#. Key:	7A3261B648652E70461E7B9516BCD3FB
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.RecipeText.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.RecipeText.Text
+msgctxt ",7A3261B648652E70461E7B9516BCD3FB"
+msgid "가공할 재료"
+msgstr "Material to Process"
+
+#. Key:	AF5277294D51BBD59110CDB0294FCE23
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.StateText.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.StateText.Text
+msgctxt ",AF5277294D51BBD59110CDB0294FCE23"
+msgid "가공 상태"
+msgstr "Processing Status"
+
+#. Key:	36C1352046EE0AF8D79473AA449D2E94
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock.Text
+msgctxt ",36C1352046EE0AF8D79473AA449D2E94"
+msgid "자원 출력"
+msgstr "Resource Output"
+
+#. Key:	2FD7A7074A77921126DFF391EE84D751
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_112.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_112.Text
+msgctxt ",2FD7A7074A77921126DFF391EE84D751"
+msgid "생산량 : "
+msgstr "Output: "
+
+#. Key:	BA949E2C4759797401C034A4DB317CE9
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_259.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_259.Text
+msgctxt ",BA949E2C4759797401C034A4DB317CE9"
+msgid "사용/요구 압력 : "
+msgstr "Used/Required Pressure: "
+
+#. Key:	EDD8186A4F5A9DD4AAB50AB85E0DD209
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_88.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TextBlock_88.Text
+msgctxt ",EDD8186A4F5A9DD4AAB50AB85E0DD209"
+msgid "자원 투입"
+msgstr "Resource Input"
+
+#. Key:	60311EEA4E77810B9850E5A32EB88C96
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText.Text
+msgctxt ",60311EEA4E77810B9850E5A32EB88C96"
+msgid "RECIPE"
+msgstr "RECIPE"
+
+#. Key:	182F9CEB4DA344517EA1738D5321E782
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText_1.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText_1.Text
+msgctxt ",182F9CEB4DA344517EA1738D5321E782"
+msgid "INVENTORY"
+msgstr "INVENTORY"
+
+#. Key:	2F68B6CA44D16EE40E1FB8882D91BCF2
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText_2.Text
+#: /Game/Karon/UI/Factory/WBP_FactoryProcessor.WBP_FactoryProcessor_C:WidgetTree.TitleText_2.Text
+msgctxt ",2F68B6CA44D16EE40E1FB8882D91BCF2"
+msgid "PROCESSOR"
+msgstr "PROCESSOR"
+
+#. Key:	CA12711040F124B6B153F5B66EC629C3
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_FactorySlot.WBP_FactorySlot_C:WidgetTree.CountText.Text
+#: /Game/Karon/UI/Factory/WBP_FactorySlot.WBP_FactorySlot_C:WidgetTree.CountText.Text
+msgctxt ",CA12711040F124B6B153F5B66EC629C3"
+msgid "2"
+msgstr "2"
+
+#. Key:	613945B64E70E6D55C5D7BB8D33F2600
+#. SourceLocation:	/Game/Karon/UI/Factory/WBP_RecipeEntry.WBP_RecipeEntry_C:WidgetTree.NameText.Text
+#: /Game/Karon/UI/Factory/WBP_RecipeEntry.WBP_RecipeEntry_C:WidgetTree.NameText.Text
+msgctxt ",613945B64E70E6D55C5D7BB8D33F2600"
+msgid "제작 아이템"
+msgstr "Crafted Item"
+
+#. Key:	8CFC343144923039CA780596435BF7D1
+#. SourceLocation:	/Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.BackToLastSaveButton.NewText
+#: /Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.BackToLastSaveButton.NewText
+msgctxt ",8CFC343144923039CA780596435BF7D1"
+msgid "마지막 저장 지점으로 돌아가기"
+msgstr "Return to Last Save Point"
+
+#. Key:	288692F3457CA179D80CDF805419CCA1
+#. SourceLocation:	/Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.CommonTextBlock_89.Text
+#: /Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.CommonTextBlock_89.Text
+msgctxt ",288692F3457CA179D80CDF805419CCA1"
+msgid "사망 했습니다"
+msgstr "You Died"
+
+#. Key:	3CA8109A40B6BFA5469FD6897813846A
+#. SourceLocation:	/Game/Karon/UI/GameOver/WBP_GameOverMenuButton.Default__WBP_GameOverMenuButton_C.NewText
+#: /Game/Karon/UI/GameOver/WBP_GameOverMenuButton.Default__WBP_GameOverMenuButton_C.NewText
+msgctxt ",3CA8109A40B6BFA5469FD6897813846A"
+msgid "타이틀로 돌아가기"
+msgstr "Return to Title"
+
+#. Key:	E1B7108A429E29005C322D8D27EE89ED
+#. SourceLocation:	/Game/Karon/UI/GameOver/WBP_GameOverMenuButton.WBP_GameOverMenuButton_C:WidgetTree.CommonTextBlock_83.Text
+#: /Game/Karon/UI/GameOver/WBP_GameOverMenuButton.WBP_GameOverMenuButton_C:WidgetTree.CommonTextBlock_83.Text
+msgctxt ",E1B7108A429E29005C322D8D27EE89ED"
+msgid "타이틀로 돌아가기"
+msgstr "Return to Title"
+
+#. Key:	AB26EC374CB972D6A006F1991EACC2EF
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_Build.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_Build.NewKeyName
+msgctxt ",AB26EC374CB972D6A006F1991EACC2EF"
+msgid "1 ~ 5"
+msgstr "1 ~ 5"
+
+#. Key:	9EE2BE594ADB9C99117C3CB7A4ECC363
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_Build.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_Build.NewWidgetName
+msgctxt ",9EE2BE594ADB9C99117C3CB7A4ECC363"
+msgid "설치"
+msgstr "Install"
+
+#. Key:	6A0F08A9492B92306355B198547CE91A
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_CancelAction.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_CancelAction.NewKeyName
+msgctxt ",6A0F08A9492B92306355B198547CE91A"
+msgid "MouseRight"
+msgstr "MouseRight"
+
+#. Key:	2D92684F44610BBAB5BC789644A4563C
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_CancelAction.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_CancelAction.NewWidgetName
+msgctxt ",2D92684F44610BBAB5BC789644A4563C"
+msgid "실행 취소"
+msgstr "Undo"
+
+#. Key:	E2480D9645F4E7726F4580AA5DA8EADC
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_DestroyMode.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_DestroyMode.NewKeyName
+msgctxt ",E2480D9645F4E7726F4580AA5DA8EADC"
+msgid "C"
+msgstr "C"
+
+#. Key:	0A74199B471CF7729648F49D2CA7B8F2
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_DestroyMode.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_DestroyMode.NewWidgetName
+msgctxt ",0A74199B471CF7729648F49D2CA7B8F2"
+msgid "해제"
+msgstr "Unequip"
+
+#. Key:	2F0423B74988D59A2D859B81CA5D6ADA
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_RotatePreview.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_RotatePreview.NewKeyName
+msgctxt ",2F0423B74988D59A2D859B81CA5D6ADA"
+msgid "MouseWheel"
+msgstr "MouseWheel"
+
+#. Key:	CC78D62042574883AC65AA8E55B1DEA6
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_RotatePreview.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_BuildKeyGuide.WBP_BuildKeyGuide_C:WidgetTree.KeyIcon_RotatePreview.NewWidgetName
+msgctxt ",CC78D62042574883AC65AA8E55B1DEA6"
+msgid "회전"
+msgstr "Rotate"
+
+#. Key:	5B614BF749217E4EBA6394B7DACC4970
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_InGameHUD.WBP_InGameHUD_C:WidgetTree.WBP_WorldNotice.ToolTipText
+#: /Game/Karon/UI/HUD/WBP_InGameHUD.WBP_InGameHUD_C:WidgetTree.WBP_WorldNotice.ToolTipText
+msgctxt ",5B614BF749217E4EBA6394B7DACC4970"
+msgid "f"
+msgstr "f"
+
+#. Key:	E452806742796AD12C7484A03DF7ECBF
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_AttitudeChange.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_AttitudeChange.NewKeyName
+msgctxt ",E452806742796AD12C7484A03DF7ECBF"
+msgid "X"
+msgstr "X"
+
+#. Key:	73188DBF4755928827AD7FADB8F4CB91
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_AttitudeChange.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_AttitudeChange.NewWidgetName
+msgctxt ",73188DBF4755928827AD7FADB8F4CB91"
+msgid "태세 전환"
+msgstr "Switch Stance"
+
+#. Key:	CF7F99C243C2982138839DBBDD205188
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_BuildMode.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_BuildMode.NewKeyName
+msgctxt ",CF7F99C243C2982138839DBBDD205188"
+msgid "B"
+msgstr "B"
+
+#. Key:	CD33020741CB0329B59C3E907DF9F795
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_BuildMode.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_BuildMode.NewWidgetName
+msgctxt ",CD33020741CB0329B59C3E907DF9F795"
+msgid "건설 모드"
+msgstr "Build Mode"
+
+#. Key:	7B534BD24FB112BBCAEE1AACDF04F0D9
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Dash.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Dash.NewKeyName
+msgctxt ",7B534BD24FB112BBCAEE1AACDF04F0D9"
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#. Key:	4A13BBE34B9B4E4C1ED5AC8369C9819C
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Dash.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Dash.NewWidgetName
+msgctxt ",4A13BBE34B9B4E4C1ED5AC8369C9819C"
+msgid "대쉬"
+msgstr "Dash"
+
+#. Key:	73675AA642CFCE5C6FDE4E9E6A85E224
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Interact.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Interact.NewKeyName
+msgctxt ",73675AA642CFCE5C6FDE4E9E6A85E224"
+msgid "F"
+msgstr "F"
+
+#. Key:	8EB46BF442AABABA14C8A5954F4D45EE
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Interact.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Interact.NewWidgetName
+msgctxt ",8EB46BF442AABABA14C8A5954F4D45EE"
+msgid "상호작용"
+msgstr "Interact"
+
+#. Key:	97E54DA7459423D06DAD778605AAAF4E
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_LockOn.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_LockOn.NewKeyName
+msgctxt ",97E54DA7459423D06DAD778605AAAF4E"
+msgid "MouseWheel"
+msgstr "MouseWheel"
+
+#. Key:	4069CCBB46D11FBD0323F5AA79AF3A4D
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_LockOn.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_LockOn.NewWidgetName
+msgctxt ",4069CCBB46D11FBD0323F5AA79AF3A4D"
+msgid "락온 모드"
+msgstr "Lock-on Mode"
+
+#. Key:	1C5F2A1F42708BD548D776BCE20A0521
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Map.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Map.NewKeyName
+msgctxt ",1C5F2A1F42708BD548D776BCE20A0521"
+msgid "M"
+msgstr "M"
+
+#. Key:	815219954E2E402D40C7349B4F6DCE08
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Map.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.KeyIcon_Map.NewWidgetName
+msgctxt ",815219954E2E402D40C7349B4F6DCE08"
+msgid "지도"
+msgstr "Map"
+
+#. Key:	13059E384B1D2CFFB11D5BB98AB5EE70
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.ShortcutKey_PlayerMenu.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_NormalKeyGuide.WBP_NormalKeyGuide_C:WidgetTree.ShortcutKey_PlayerMenu.NewWidgetName
+msgctxt ",13059E384B1D2CFFB11D5BB98AB5EE70"
+msgid "메뉴"
+msgstr "Menu"
+
+#. Key:	21ABE77B4327E918122E8B94BD6FB1A1
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.CoolDownText.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.CoolDownText.Text
+msgctxt ",21ABE77B4327E918122E8B94BD6FB1A1"
+msgid "00"
+msgstr "00"
+
+#. Key:	E60E27504603FD5595216DB138CF1260
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
+msgctxt ",E60E27504603FD5595216DB138CF1260"
+msgid "00"
+msgstr "00"
+
+#. Key:	5BF1DFBF43F39C50005139970929B089
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.TextBlock_53.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.TextBlock_53.Text
+msgctxt ",5BF1DFBF43F39C50005139970929B089"
+msgid "T"
+msgstr "T"
+
+#. Key:	17E656C34C345DA54C3DA9858C2199EF
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.DescriptionText.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.DescriptionText.Text
+msgctxt ",17E656C34C345DA54C3DA9858C2199EF"
+msgid "▶ 주변에 떨어져 있는 무기를 획득하세요."
+msgstr "▶ Pick up the weapon lying nearby."
+
+#. Key:	36BAA380401B2BFBB1B7C49B134A9C75
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.ObjectiveText.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.ObjectiveText.Text
+msgctxt ",36BAA380401B2BFBB1B7C49B134A9C75"
+msgid "무기를 획득하세요."
+msgstr "Obtain a weapon."
+
+#. Key:	3B67F2DC4F0A9D1DEAAF49A5156E0E8A
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.TitleText.Text
+msgctxt ",3B67F2DC4F0A9D1DEAAF49A5156E0E8A"
+msgid "설비 가이드"
+msgstr "Facility Guide"
+
+#. Key:	08648B914CD1F8DA4829D0B9717873F5
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.Txt_Caption_2.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.Txt_Caption_2.Text
+msgctxt ",08648B914CD1F8DA4829D0B9717873F5"
+msgid "GUIDE"
+msgstr "GUIDE"
+
+#. Key:	6744339849D8E396BEB747BE1538438B
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.Default__WBP_ShortcutKeyIconBase_C.NewKeyName
+#: /Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.Default__WBP_ShortcutKeyIconBase_C.NewKeyName
+msgctxt ",6744339849D8E396BEB747BE1538438B"
+msgid "Tab"
+msgstr "Tab"
+
+#. Key:	9BE25C6640AA9BD6254174AFE376F125
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.Default__WBP_ShortcutKeyIconBase_C.NewWidgetName
+#: /Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.Default__WBP_ShortcutKeyIconBase_C.NewWidgetName
+msgctxt ",9BE25C6640AA9BD6254174AFE376F125"
+msgid "정보창"
+msgstr "Info Panel"
+
+#. Key:	69D0F93D4889CF360AF1F8A7072A79AF
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.KeyName.Text
+#: /Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.KeyName.Text
+msgctxt ",69D0F93D4889CF360AF1F8A7072A79AF"
+msgid "Tab"
+msgstr "Tab"
+
+#. Key:	2BBF69D94AFECFCDC8FC6888C94B3EDB
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.WidgetName.Text
+#: /Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.WidgetName.Text
+msgctxt ",2BBF69D94AFECFCDC8FC6888C94B3EDB"
+msgid "정보창"
+msgstr "Info Panel"
+
+#. Key:	08DC6625421C288AD115898A76C8DF7F
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.AttackPowerText.Text
+#: /Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.AttackPowerText.Text
+msgctxt ",08DC6625421C288AD115898A76C8DF7F"
+msgid "10"
+msgstr "10"
+
+#. Key:	6743EEFA48AF5E365C9D728A60F2E170
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.DefenseText.Text
+#: /Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.DefenseText.Text
+msgctxt ",6743EEFA48AF5E365C9D728A60F2E170"
+msgid "5"
+msgstr "5"
+
+#. Key:	C6D0AE784AD9F1BD13EDF58942CBA621
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.StateName1.Text
+#: /Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.StateName1.Text
+msgctxt ",C6D0AE784AD9F1BD13EDF58942CBA621"
+msgid "공격력"
+msgstr "Attack Power"
+
+#. Key:	2C112E2D481B8638C4A9D78BB69B1B9B
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.StateName2.Text
+#: /Game/Karon/UI/Inventory/WBP_CharacterState.WBP_CharacterState_C:WidgetTree.StateName2.Text
+msgctxt ",2C112E2D481B8638C4A9D78BB69B1B9B"
+msgid "방어력"
+msgstr "Defense"
+
+#. Key:	E6365D9749B90DC272193D8F8A8E60CB
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption.Text
+#: /Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption.Text
+msgctxt ",E6365D9749B90DC272193D8F8A8E60CB"
+msgid "설비 슬롯"
+msgstr "Facility Slot"
+
+#. Key:	A7E680DA43A6691979D10A834879DD58
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_1.Text
+#: /Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_1.Text
+msgctxt ",A7E680DA43A6691979D10A834879DD58"
+msgid "장비 슬롯"
+msgstr "Equipment Slot"
+
+#. Key:	240C510C44F80443A7397FA2FFD1789F
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_2.Text
+#: /Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_2.Text
+msgctxt ",240C510C44F80443A7397FA2FFD1789F"
+msgid "FACILITY"
+msgstr "FACILITY"
+
+#. Key:	E3CFE0CC444A2B33CA0047AFD393EAA4
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_3.Text
+#: /Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.Txt_Caption_3.Text
+msgctxt ",E3CFE0CC444A2B33CA0047AFD393EAA4"
+msgid "EQUIPMENT"
+msgstr "EQUIPMENT"
+
+#. Key:	98DBEA4B4C15F4F4BAA383B8B6855030
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.WarningText.Text
+#: /Game/Karon/UI/Inventory/WBP_InventoryPanel.WBP_InventoryPanel_C:WidgetTree.WarningText.Text
+msgctxt ",98DBEA4B4C15F4F4BAA383B8B6855030"
+msgid "현재는 장비를\r\n변경할 수 없습니다!"
+msgstr "You cannot change equipment\r\nat this time!"
+
+#. Key:	FAF3C63D4B355C2BF9AE588E6395855F
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventorySlot.WBP_InventorySlot_C:WidgetTree.CountText.Text
+#: /Game/Karon/UI/Inventory/WBP_InventorySlot.WBP_InventorySlot_C:WidgetTree.CountText.Text
+msgctxt ",FAF3C63D4B355C2BF9AE588E6395855F"
+msgid "99"
+msgstr "99"
+
+#. Key:	9F4055B945DEAA50364DD6BE7D3A08A2
+#. SourceLocation:	/Game/Karon/UI/Inventory/WBP_InventorySlot.WBP_InventorySlot_C:WidgetTree.Txt_LV.Text
+#: /Game/Karon/UI/Inventory/WBP_InventorySlot.WBP_InventorySlot_C:WidgetTree.Txt_LV.Text
+msgctxt ",9F4055B945DEAA50364DD6BE7D3A08A2"
+msgid "LV 2"
+msgstr "LV 2"
+
+#. Key:	6B39323D4F5666155DEF969978A44B3D
+#. SourceLocation:	/Game/Karon/UI/Loading/WBP_DefaultLoadingWidget.WBP_DefaultLoadingWidget_C:WidgetTree.CommonTextBlock_56.Text
+#: /Game/Karon/UI/Loading/WBP_DefaultLoadingWidget.WBP_DefaultLoadingWidget_C:WidgetTree.CommonTextBlock_56.Text
+msgctxt ",6B39323D4F5666155DEF969978A44B3D"
+msgid "Loading . . ."
+msgstr "Loading . . ."
+
+#. Key:	82C0885443D9FC648898128C57193DBD
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock.Text
+msgctxt ",82C0885443D9FC648898128C57193DBD"
+msgid "Pants"
+msgstr "Pants"
+
+#. Key:	9DE04C6D4B443BA149F043A7264D3E37
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_0.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_0.Text
+msgctxt ",9DE04C6D4B443BA149F043A7264D3E37"
+msgid "Jacket"
+msgstr "Jacket"
+
+#. Key:	EF7A27AF411F50A754F8E08413B4B8EF
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_1.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_1.Text
+msgctxt ",EF7A27AF411F50A754F8E08413B4B8EF"
+msgid "Shoes"
+msgstr "Shoes"
+
+#. Key:	4719046A40CEEF6DB6475A9AA23B0D8D
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_191.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_191.Text
+msgctxt ",4719046A40CEEF6DB6475A9AA23B0D8D"
+msgid "Game Start"
+msgstr "Game Start"
+
+#. Key:	FDF4D0934F027C4CAA1B3E9645F6CC56
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_2.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_2.Text
+msgctxt ",FDF4D0934F027C4CAA1B3E9645F6CC56"
+msgid "Gloves"
+msgstr "Gloves"
+
+#. Key:	47D26B1246F25211923E93A8CBBF6767
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_3.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_3.Text
+msgctxt ",47D26B1246F25211923E93A8CBBF6767"
+msgid "Hair"
+msgstr "Hair"
+
+#. Key:	EB0A1CFE4B19F3F129AEC18A9A2BDA22
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_4.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_4.Text
+msgctxt ",EB0A1CFE4B19F3F129AEC18A9A2BDA22"
+msgid "Accessories1"
+msgstr "Accessories1"
+
+#. Key:	241EAE7C42861DC43967EF8E53D4200F
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_439.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_439.Text
+msgctxt ",241EAE7C42861DC43967EF8E53D4200F"
+msgid "OutFit Custom"
+msgstr "OutFit Custom"
+
+#. Key:	B0AB69AB4667F0C16193259E0604F213
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_5.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_5.Text
+msgctxt ",B0AB69AB4667F0C16193259E0604F213"
+msgid "Accessories2"
+msgstr "Accessories2"
+
+#. Key:	999FCDC748AF159FE2121D8E1751B9B7
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
+#: /Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
+msgctxt ",999FCDC748AF159FE2121D8E1751B9B7"
+msgid "TEXT"
+msgstr "TEXT"
+
+#. Key:	006F8125473227B7997AC19D02C1AF4B
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.TextBlock_80.Text
+#: /Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.TextBlock_80.Text
+msgctxt ",006F8125473227B7997AC19D02C1AF4B"
+msgid " F"
+msgstr " F"
+
+#. Key:	AEEF232542DFA0E515CC14907150D2F4
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TextBlock_65.Text
+#: /Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TextBlock_65.Text
+msgctxt ",AEEF232542DFA0E515CC14907150D2F4"
+msgid "NOTICE"
+msgstr "NOTICE"
+
+#. Key:	29E6EEB6427D0208FFB0E2809B2E908B
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock.Text
+msgctxt ",29E6EEB6427D0208FFB0E2809B2E908B"
+msgid "BGM"
+msgstr "BGM"
+
+#. Key:	DC66EF6245824E1AB79FE4A994CD9E26
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_1.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_1.Text
+msgctxt ",DC66EF6245824E1AB79FE4A994CD9E26"
+msgid "SE"
+msgstr "SE"
+
+#. Key:	0A544813461A1D3CD21C348A9DB0499C
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_10.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_10.Text
+msgctxt ",0A544813461A1D3CD21C348A9DB0499C"
+msgid "그림자 품질"
+msgstr "Shadow Quality"
+
+#. Key:	D70BFFC3444C3B4503B07EAFFD9DA214
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_102.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_102.Text
+msgctxt ",D70BFFC3444C3B4503B07EAFFD9DA214"
+msgid "마스터 볼륨"
+msgstr "Master Volume"
+
+#. Key:	DAEE272C4516A5994FE9599A3D68CF5F
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_11.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_11.Text
+msgctxt ",DAEE272C4516A5994FE9599A3D68CF5F"
+msgid "안티앨리어싱"
+msgstr "Anti-Aliasing"
+
+#. Key:	D641E18C4E9F0009AE1D49B87186F177
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_117.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_117.Text
+msgctxt ",D641E18C4E9F0009AE1D49B87186F177"
+msgid "  닫  기  "
+msgstr "Close"
+
+#. Key:	DA6C8221482B3107B66A32AA0AEC0649
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_12.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_12.Text
+msgctxt ",DA6C8221482B3107B66A32AA0AEC0649"
+msgid "텍스처 퀄리티"
+msgstr "Texture Quality"
+
+#. Key:	6F6EBAD34FA6E45007EB0F9B17B19EB8
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_13.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_13.Text
+msgctxt ",6F6EBAD34FA6E45007EB0F9B17B19EB8"
+msgid "이펙트 퀄리티"
+msgstr "Effect Quality"
+
+#. Key:	26163E064FB3285A72588E92E10DD91F
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_14.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_14.Text
+msgctxt ",26163E064FB3285A72588E92E10DD91F"
+msgid "셰이딩 퀄리티"
+msgstr "Shading Quality"
+
+#. Key:	245F0E4A439A864FFFAB7D9882C86337
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_15.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_15.Text
+msgctxt ",245F0E4A439A864FFFAB7D9882C86337"
+msgid "프리셋"
+msgstr "Preset"
+
+#. Key:	08C543DA482CC282E66E76B06D396680
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_151.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_151.Text
+msgctxt ",08C543DA482CC282E66E76B06D396680"
+msgid "사운드"
+msgstr "Sound"
+
+#. Key:	C3D4712A4180A423E5EC868E22438F79
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_16.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_16.Text
+msgctxt ",C3D4712A4180A423E5EC868E22438F79"
+msgid "기타"
+msgstr "Etc"
+
+#. Key:	BC81FD074053A2D9724570AC5807A898
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_17.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_17.Text
+msgctxt ",BC81FD074053A2D9724570AC5807A898"
+msgid "언어"
+msgstr "Language"
+
+#. Key:	A9AAEAEF4F41A7EFF91D3381F3F04480
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_18.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_18.Text
+msgctxt ",A9AAEAEF4F41A7EFF91D3381F3F04480"
+msgid "끼임 탈출"
+msgstr "Unstuck"
+
+#. Key:	D233DE284BCE8ADE357EE79EA6D215C2
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_19.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_19.Text
+msgctxt ",D233DE284BCE8ADE357EE79EA6D215C2"
+msgid "귀환하기"
+msgstr "Return"
+
+#. Key:	0B592EE74C3664DB4DD0C1843329BD8C
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_194.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_194.Text
+msgctxt ",0B592EE74C3664DB4DD0C1843329BD8C"
+msgid "초기화"
+msgstr "Reset"
+
+#. Key:	1BBB33124E81D128F06BAEA4124B046C
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_2.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_2.Text
+msgctxt ",1BBB33124E81D128F06BAEA4124B046C"
+msgid "UI"
+msgstr "UI"
+
+#. Key:	AFD8DF7E4FE476968A87D3B2C74F206C
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_263.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_263.Text
+msgctxt ",AFD8DF7E4FE476968A87D3B2C74F206C"
+msgid "저장"
+msgstr "Save"
+
+#. Key:	28CED8E54C263304B1D11B977FAC6E7F
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_3.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_3.Text
+msgctxt ",28CED8E54C263304B1D11B977FAC6E7F"
+msgid "환경"
+msgstr "Environment"
+
+#. Key:	B15758CB4CFFA22A208868B4D4292EF6
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_4.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_4.Text
+msgctxt ",B15758CB4CFFA22A208868B4D4292EF6"
+msgid "전체 화면"
+msgstr "Full Screen"
+
+#. Key:	6BF3447C416F3D19498A0192A42569D1
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_5.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_5.Text
+msgctxt ",6BF3447C416F3D19498A0192A42569D1"
+msgid "수직 동기화"
+msgstr "V-Sync"
+
+#. Key:	7801EA64497FA8F9C11D0C8AC9C503A6
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_6.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_6.Text
+msgctxt ",7801EA64497FA8F9C11D0C8AC9C503A6"
+msgid "표현 거리"
+msgstr "View Distance"
+
+#. Key:	030023DB44197D35DE68ACBF52D17AAF
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_7.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_7.Text
+msgctxt ",030023DB44197D35DE68ACBF52D17AAF"
+msgid "창 해상도"
+msgstr "Window Resolution"
+
+#. Key:	9F0799E54FC9F6577932D18D751687C8
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_8.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_8.Text
+msgctxt ",9F0799E54FC9F6577932D18D751687C8"
+msgid "해상도 스케일"
+msgstr "Resolution Scale"
+
+#. Key:	CA6F0F2241E3E16C720C048DCBA36343
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_89.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_89.Text
+msgctxt ",CA6F0F2241E3E16C720C048DCBA36343"
+msgid "그래픽"
+msgstr "Graphics"
+
+#. Key:	50A797BE49F34C34CDD30B8DB161A82F
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_9.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_9.Text
+msgctxt ",50A797BE49F34C34CDD30B8DB161A82F"
+msgid "프레임"
+msgstr "Frame Rate"
+
+#. Key:	261CC96F4C0D4F7ACD85AAB8A0558C3F
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_GraphicsTitle.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_GraphicsTitle.Text
+msgctxt ",261CC96F4C0D4F7ACD85AAB8A0558C3F"
+msgid "디스플레이"
+msgstr "Display"
+
+#. Key:	6965789D4342B060C8DEB585A86E58B4
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_OtherTitle.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_OtherTitle.Text
+msgctxt ",6965789D4342B060C8DEB585A86E58B4"
+msgid "기타"
+msgstr "Etc"
+
+#. Key:	365610FF44F7F3FDC114D3B7FDCC6A6E
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_SoundTitle.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_SoundTitle.Text
+msgctxt ",365610FF44F7F3FDC114D3B7FDCC6A6E"
+msgid "사운드"
+msgstr "Sound"
+
+#. Key:	4DDFAD0A40AA6E70F2F4789E8C009AFA
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.CurrentItemAmount.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.CurrentItemAmount.Text
+msgctxt ",4DDFAD0A40AA6E70F2F4789E8C009AFA"
+msgid "99"
+msgstr "99"
+
+#. Key:	B0C4BE7E4ED8C561737874A3A93A53EF
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.RequireItemAmount.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.RequireItemAmount.Text
+msgctxt ",B0C4BE7E4ED8C561737874A3A93A53EF"
+msgid "99"
+msgstr "99"
+
+#. Key:	B469C3874262B12C4E4A6A925EB2A287
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.RequireItemName.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.RequireItemName.Text
+msgctxt ",B469C3874262B12C4E4A6A925EB2A287"
+msgid "아이템명"
+msgstr "Item Name"
+
+#. Key:	BAE0288440005CA1FDDBD58E5505A6F5
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.slate.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.slate.Text
+msgctxt ",BAE0288440005CA1FDDBD58E5505A6F5"
+msgid "/"
+msgstr "/"
+
+#. Key:	8BFB339443809D2DD3D2DBB981A677CF
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
+msgctxt ",8BFB339443809D2DD3D2DBB981A677CF"
+msgid "00"
+msgstr "00"
+
+#. Key:	044E70D74F4C3B605B6EA1A543552352
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.KeyLabelText.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.KeyLabelText.Text
+msgctxt ",044E70D74F4C3B605B6EA1A543552352"
+msgid "Q"
+msgstr "Q"
+
+#. Key:	62AF8A0D4DD55B238930D1A78930DF65
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillClassification.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillClassification.Text
+msgctxt ",62AF8A0D4DD55B238930D1A78930DF65"
+msgid "엑티브"
+msgstr "Active"
+
+#. Key:	21A826234D56B2C13840DE926974A065
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillExplanation.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillExplanation.Text
+msgctxt ",21A826234D56B2C13840DE926974A065"
+msgid "차징 공격 엑티브 스킬"
+msgstr "Charge Attack Active Skill"
+
+#. Key:	8C3B2D654C427ABD496A05952B2FE884
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillName.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillName.Text
+msgctxt ",8C3B2D654C427ABD496A05952B2FE884"
+msgid "스킬명"
+msgstr "Skill Name"
+
+#. Key:	97D356BA4ECE9E68AB2BB5B7A0C7EB76
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltipButton.WBP_SkillTooltipButton_C:WidgetTree.CommonTextBlock_49.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltipButton.WBP_SkillTooltipButton_C:WidgetTree.CommonTextBlock_49.Text
+msgctxt ",97D356BA4ECE9E68AB2BB5B7A0C7EB76"
+msgid "잠금 해제"
+msgstr "Unlock"
+
+#. Key:	0DCB119943099D23CA50E5B80BEBF61B
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
+#: /Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
+msgctxt ",0DCB119943099D23CA50E5B80BEBF61B"
+msgid "이어서 하기"
+msgstr "Continue"
+
+#. Key:	65567E8F4D9B638A09476D9A9C7F680A
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.OptionButton.NewText
+#: /Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.OptionButton.NewText
+msgctxt ",65567E8F4D9B638A09476D9A9C7F680A"
+msgid "옵션"
+msgstr "Options"
+
+#. Key:	9B6447C842619E1B1291FDAB17007226
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.QuitGameButton.NewText
+#: /Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.QuitGameButton.NewText
+msgctxt ",9B6447C842619E1B1291FDAB17007226"
+msgid "게임 종료"
+msgstr "Exit Game"
+
+#. Key:	B0845B8C4C7E5BCCEEE0ABB061481C88
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.StartGameButton.NewText
+#: /Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.StartGameButton.NewText
+msgctxt ",B0845B8C4C7E5BCCEEE0ABB061481C88"
+msgid "새 게임 시작"
+msgstr "New Game"
+
+#. Key:	434860C94DA053246DE65781E6B53CAA
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitleButton.Default__WBP_TitleButton_C.NewText
+#: /Game/Karon/UI/TitleMenu/WBP_TitleButton.Default__WBP_TitleButton_C.NewText
+msgctxt ",434860C94DA053246DE65781E6B53CAA"
+msgid "버튼 이름"
+msgstr "Button Name"
+
+#. Key:	A8F78993488F14054E3139A5D2DC932E
+#. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitleButton.WBP_TitleButton_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/TitleMenu/WBP_TitleButton.WBP_TitleButton_C:WidgetTree.TitleText.Text
+msgctxt ",A8F78993488F14054E3139A5D2DC932E"
+msgid "TEXT"
+msgstr "TEXT"
+
+#. Key:	7760C71D485724469C5B2FB7564EC3C0
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.DescriptionText.Text
+#: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.DescriptionText.Text
+msgctxt ",7760C71D485724469C5B2FB7564EC3C0"
+msgid "지하 깊숙히 뻗어 자원을 끌어올리는 파이프. 한번 쓰면 닳는다."
+msgstr "A pipe that reaches deep underground to draw up resources. It wears out with use."
+
+#. Key:	D60B5D0C46E0A176CE8D81AF78ED6E0E
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.NameText.Text
+#: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.NameText.Text
+msgctxt ",D60B5D0C46E0A176CE8D81AF78ED6E0E"
+msgid "채광 파이프"
+msgstr "Mining Pipe"
+
+#. Key:	DC7CB2404163B7014DC5C8A5B469A190
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtAmount.Text
+#: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtAmount.Text
+msgctxt ",DC7CB2404163B7014DC5C8A5B469A190"
+msgid "보유 12"
+msgstr "Owned 12"
+
+#. Key:	EB0B915D4C3A8BC8DF84C5A56FA68895
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtCategory.Text
+#: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtCategory.Text
+msgctxt ",EB0B915D4C3A8BC8DF84C5A56FA68895"
+msgid "소모품"
+msgstr "Consumable"
+
+#. Key:	1561550C43BE93E8F212A1A7D10D9A54
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.NameText.Text
+#: /Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.NameText.Text
+msgctxt ",1561550C43BE93E8F212A1A7D10D9A54"
+msgid "OUTPUT -"
+msgstr "OUTPUT -"
+
+#. Key:	71BF1E8049B9D291E35DC488A32CC5FD
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.NameText_2.Text
+#: /Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.NameText_2.Text
+msgctxt ",71BF1E8049B9D291E35DC488A32CC5FD"
+msgid "INPUT -"
+msgstr "INPUT -"
+
+#. Key:	B4170DEC46D266CBD95074A0E9E94532
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.RecipeinputText.Text
+#: /Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.RecipeinputText.Text
+msgctxt ",B4170DEC46D266CBD95074A0E9E94532"
+msgid "기초 모듈 X1"
+msgstr "Basic Module x1"
+
+#. Key:	F98BCC854B8093A8E3CFBCAEE02E8727
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.RecipeoutputText.Text
+#: /Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.RecipeoutputText.Text
+msgctxt ",F98BCC854B8093A8E3CFBCAEE02E8727"
+msgid "석탄, 주석, 구리"
+msgstr "Coal, Tin, Copper"
+
+#. Key:	F8355883427F8BF4E8CA6D9F49CC3D8A
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Factory.TabLabel
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Factory.TabLabel
+msgctxt ",F8355883427F8BF4E8CA6D9F49CC3D8A"
+msgid "CRAFT"
+msgstr "CRAFT"
+
+#. Key:	6208980444596854F5EFA9AFA9F10DFD
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Inventory.TabLabel
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Inventory.TabLabel
+msgctxt ",6208980444596854F5EFA9AFA9F10DFD"
+msgid "INVENTORY"
+msgstr "INVENTORY"
+
+#. Key:	84EEF3494B206A45D5616CB7246BF052
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Option.TabLabel
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Option.TabLabel
+msgctxt ",84EEF3494B206A45D5616CB7246BF052"
+msgid "OPTION"
+msgstr "OPTION"
+
+#. Key:	F8D852844892613549A0B6B3D694DA62
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Skill.TabLabel
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.Button_Skill.TabLabel
+msgctxt ",F8D852844892613549A0B6B3D694DA62"
+msgid "SKILL"
+msgstr "SKILL"
+
+#. Key:	C132554C47B7F7F2AD35D6863653B9AD
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_112.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_112.Text
+msgctxt ",C132554C47B7F7F2AD35D6863653B9AD"
+msgid "타이틀"
+msgstr "Title"
+
+#. Key:	92DDEE6C466E7919F8BA6CB74BEB32BF
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_161.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_161.Text
+msgctxt ",92DDEE6C466E7919F8BA6CB74BEB32BF"
+msgid "옵션"
+msgstr "Options"
+
+#. Key:	68CFA54746562CB7E457AB82B5F60E52
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_191.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_191.Text
+msgctxt ",68CFA54746562CB7E457AB82B5F60E52"
+msgid "불러오기"
+msgstr "Load Game"
+
+#. Key:	5FD2492A4211BE1534215198EFFEB377
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_214.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_214.Text
+msgctxt ",5FD2492A4211BE1534215198EFFEB377"
+msgid "계속하기"
+msgstr "Continue"
+
+#. Key:	DD698D8B4F9798FA4BCCD382BB4FAA67
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_59.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_59.Text
+msgctxt ",DD698D8B4F9798FA4BCCD382BB4FAA67"
+msgid "게임 저장"
+msgstr "Save Game"
+
+#. Key:	144FE2524B0498DCD052B1B4B295E20E
+#. SourceLocation:	/Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_97.Text
+#: /Game/Karon/UI/WBP_PlayerMenu.WBP_PlayerMenu_C:WidgetTree.TextBlock_97.Text
+msgctxt ",144FE2524B0498DCD052B1B4B295E20E"
+msgid "게임 종료"
+msgstr "Exit Game"
+
+#. Key:	7A19DC634CFDB184993BE9921A87A9F4
+#. SourceLocation:	/Game/Karon/UI/WBP_ToastMessage.WBP_ToastMessage_C:WidgetTree.MessageText.Text
+#: /Game/Karon/UI/WBP_ToastMessage.WBP_ToastMessage_C:WidgetTree.MessageText.Text
+msgctxt ",7A19DC634CFDB184993BE9921A87A9F4"
+msgid "저장 성공"
+msgstr "Save Successful"
+
+#. Key:	ItemAcquiredLog
+#. SourceLocation:	Source/Karon/UI/Enemy/KOEnemyDropItemLogMessage.cpp(35)
+#: Source/Karon/UI/Enemy/KOEnemyDropItemLogMessage.cpp(35)
+msgctxt "KaronItem,ItemAcquiredLog"
+msgid "{0} x {1} 획득하였습니다"
+msgstr "Acquired {0} x {1}"
+
+#. Key:	PowerUseFormat
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(403)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(403)
+msgctxt "KOFactoryProcessorWidget,PowerUseFormat"
+msgid "{0} / {1} /s"
+msgstr "{0} / {1} /s"
+
+#. Key:	NetworkProductionFormat
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(416)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(416)
+msgctxt "KOFactoryProcessorWidget,NetworkProductionFormat"
+msgid "{0} /s"
+msgstr "{0} /s"
+
+#. Key:	State_Running
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(46)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(46)
+msgctxt "KOFactoryProcessorWidget,State_Running"
+msgid "가공 중"
+msgstr "In Progress"
+
+#. Key:	State_OutputBlocked
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(47)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(47)
+msgctxt "KOFactoryProcessorWidget,State_OutputBlocked"
+msgid "출력 가득"
+msgstr "Full output"
+
+#. Key:	RecipePressureBlocked
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(488)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(488)
+msgctxt "KOFactoryProcessorWidget,RecipePressureBlocked"
+msgid "압력 부족"
+msgstr "Lack of pressure"
+
+#. Key:	State_Idle
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(49)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(49)
+msgctxt "KOFactoryProcessorWidget,State_Idle"
+msgid "대기"
+msgstr "Waiting"
+
+#. Key:	DefaultRecipeText
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(492)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(492)
+msgctxt "KOFactoryProcessorWidget,DefaultRecipeText"
+msgid "Recipe"
+msgstr "Recipe"
+
+#. Key:	PowerPerFuelFormat
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(145)
+#: Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(145)
+msgctxt "KOFactoryProducerWidget,PowerPerFuelFormat"
+msgid "연료당 압력 : {0}"
+msgstr "Pressure per fuel: {0}"
+
+#. Key:	EnergyPerSecFormat
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(153)
+#: Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(153)
+msgctxt "KOFactoryProducerWidget,EnergyPerSecFormat"
+msgid "압력 생산 : {0}/s"
+msgstr "Pressure production: {0}/s"
+
+#. Key:	CycleFormat
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(163)
+#: Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(163)
+msgctxt "KOFactoryProducerWidget,CycleFormat"
+msgid "연소 주기 : {0}s"
+msgstr "Combustion cycle: {0}s"
+
+#. Key:	Consumables
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(104)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(104)
+msgctxt "Karon,Consumables"
+msgid "소모품"
+msgstr "Consumables"
+
+#. Key:	EnergyResource
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
+msgctxt "Karon,EnergyResource"
+msgid "에너지 자원"
+msgstr "Energy Resources"
+
+#. Key:	Others
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(112)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(112)
+msgctxt "Karon,Others"
+msgid "기타"
+msgstr "Others"
+
+#. Key:	OwnedCountFormat
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(55)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(55)
+msgctxt "KOItemTooltip,OwnedCountFormat"
+msgid "보유 {0}"
+msgstr "Retention {0}"
+
+#. Key:	FacilityLabel
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(66)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(66)
+msgctxt "Karon,FacilityLabel"
+msgid "설비"
+msgstr "Facilities"
+
+#. Key:	Module
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(84)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(84)
+msgctxt "Karon,Module"
+msgid "모듈"
+msgstr "Module"
+
+#. Key:	Resource
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(89)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(89)
+msgctxt "Karon,Resource"
+msgid "자원"
+msgstr "Resource"
+
+#. Key:	Ingredients
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(94)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(94)
+msgctxt "Karon,Ingredients"
+msgid "가공 재료"
+msgstr "Processing Materials"
+
+#. Key:	Armor
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(99)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(99)
+msgctxt "Karon,Armor"
+msgid "장비"
+msgstr "Armor"
+
+#. Key:	Back To Title
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(291)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(291)
+msgctxt "KOPlayerMenuWidget,Back To Title"
+msgid "타이틀로 돌아가기"
+msgstr "Return to the title"
+
+#. Key:	Back To Title Description
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(292)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(292)
+msgctxt "KOPlayerMenuWidget,Back To Title Description"
+msgid "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"
+msgstr "Unsaved progress will disappear. Do you want to return to the title?"
+
+#. Key:	Quit Game
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(304)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(304)
+msgctxt "KOPlayerMenuWidget,Quit Game"
+msgid "게임 종료"
+msgstr "Game End"
+
+#. Key:	Quit Game Description
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(305)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(305)
+msgctxt "KOPlayerMenuWidget,Quit Game Description"
+msgid "저장하지 않은 진행 상황은 사라집니다. \n정말 게임을 종료하시겠습니까?"
+msgstr "Unsaved progress disappears. \r\nAre you sure you want to end the game?"
+
+#. Key:	InteractionLog
+#. SourceLocation:	Source/Karon/UI/Notice/KOInteractionNoticeUI.cpp(39)
+#: Source/Karon/UI/Notice/KOInteractionNoticeUI.cpp(39)
+msgctxt "Karon,InteractionLog"
+msgid "상호작용: {0}"
+msgstr "Interaction: {0}"
+
+#. Key:	Active
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)
+msgctxt "KOSkill,Active"
+msgid "액티브"
+msgstr "Active"
+
+#. Key:	ActiveExtension
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(20)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(20)
+msgctxt "KOSkill,ActiveExtension"
+msgid "행동 추가"
+msgstr "Add Action"
+
+#. Key:	Passive
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(21)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(21)
+msgctxt "KOSkill,Passive"
+msgid "패시브"
+msgstr "Passive"
+
+#. Key:	StartNewGameTitle
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(103)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(103)
+msgctxt "KOTitleWidget,StartNewGameTitle"
+msgid "새 게임 시작"
+msgstr "New Game"
+
+#. Key:	StartNewGameDescription
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(104)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(104)
+msgctxt "KOTitleWidget,StartNewGameDescription"
+msgid "기존 저장 데이터가 있습니다.\n새 게임을 시작하면 기존 저장 데이터가 삭제됩니다. 계속하시겠습니까?"
+msgstr "Existing stored data exists.\nIf you start a new game, your existing saved data will be deleted. Do you want to continue?"
+
+#. Key:	QuitGameTitle
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(125)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(125)
+msgctxt "KOTitleWidget,QuitGameTitle"
+msgid "게임 종료"
+msgstr "End Game"
+
+#. Key:	QuitGameDescription
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(126)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(126)
+msgctxt "KOTitleWidget,QuitGameDescription"
+msgid "게임을 종료하시겠습니까?"
+msgstr "Are you sure you want to close the game?"
+
+#. Key:	NoSaveFileTitle
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(145)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(145)
+msgctxt "KOTitleWidget,NoSaveFileTitle"
+msgid "알림"
+msgstr "Notification"
+
+#. Key:	NoSaveFileDescription
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(146)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(146)
+msgctxt "KOTitleWidget,NoSaveFileDescription"
+msgid "불러올 세이브 파일이 없습니다."
+msgstr "There are no save files to import."
+

@@ -36,8 +36,8 @@ void UKOInteractionNoticeUI::OnInteraction(FGameplayTag Channel, const FInstance
 			SetVisibility(ESlateVisibility::Visible);
 			
 			FText LogText = FText::Format(
-			FText::FromString(TEXT("상호작용: {0}")), 
-			InteractionMessage->InteractionId
+				NSLOCTEXT("Karon", "InteractionLog", "상호작용: {0}"), 
+				InteractionMessage->InteractionId
 			);
 			
 			InteractionTextBlock->SetText(LogText);

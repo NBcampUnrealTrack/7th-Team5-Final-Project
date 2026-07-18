@@ -26,7 +26,7 @@ void UKOWorldNotice::WorldEnter(FGameplayTag Channel, const FInstancedStruct& Pa
 	//원하는 구조체로 형변환
 	if (const FKOTextMessage* WorldNoticeMessage = Payload.GetPtr<FKOTextMessage>())
 	{
-		WorldNameTextBlock->SetText(FText::FromString(WorldNoticeMessage->InString));
+		WorldNameTextBlock->SetText(WorldNoticeMessage->InText);
 		FOnSetTextBlock.Broadcast();
 	}
 }

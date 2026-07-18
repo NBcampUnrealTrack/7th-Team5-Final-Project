@@ -20,5 +20,5 @@ public:
 	);
 	
 	UFUNCTION(BlueprintCallable)
-	static void SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FString Text);
+	static void SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FText Text);
 };

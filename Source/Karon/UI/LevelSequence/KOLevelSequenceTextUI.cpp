@@ -29,6 +29,6 @@ void UKOLevelSequenceTextUI::SetText(FGameplayTag Channel, const FInstancedStruc
 	//원하는 구조체로 형변환
 	if (const FKOTextMessage* WorldNoticeMessage = Payload.GetPtr<FKOTextMessage>())
 	{
-		LSTextBlock->SetText(FText::FromString(WorldNoticeMessage->InString));
+		LSTextBlock->SetText(WorldNoticeMessage->InText);
 	}
 }

@@ -32,7 +32,7 @@ void UKOEnemyDropItemLogMessage::SetLogMessage(FName ItemId, int32 Count)
 	if (ItemGetTextBlock)
 	{
 		FText LogText = FText::Format(
-			FText::FromString(TEXT("{0} x {1} 획득하였습니다")), 
+			NSLOCTEXT("KaronItem", "ItemAcquiredLog", "{0} x {1} 획득하였습니다"),
 			CachedDisplayName,
 			FText::AsNumber(Count)
 		);

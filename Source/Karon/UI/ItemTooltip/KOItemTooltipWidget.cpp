@@ -63,7 +63,7 @@ FText UKOItemTooltipWidget::ResolveCategoryText(EKOSlotKind Kind, FName Id) cons
 {
 	if (Kind == EKOSlotKind::Factory)
 	{
-		return FText::FromString(TEXT("설비"));
+		return NSLOCTEXT("Karon", "FacilityLabel", "설비");
 	}
 
 	// 아이템 슬롯이 아니면 표시하지 않음
@@ -81,35 +81,35 @@ FText UKOItemTooltipWidget::ResolveCategoryText(EKOSlotKind Kind, FName Id) cons
 	
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Module))
 	{
-		return FText::FromString(TEXT("모듈"));
+		return NSLOCTEXT("Karon", "Module", "모듈");
 	}
 	
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Resource))
 	{
-		return FText::FromString(TEXT("자원"));
+		return NSLOCTEXT("Karon", "Resource", "자원");
 	}
 	
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Material))
 	{
-		return FText::FromString(TEXT("가공 재료"));
+		return NSLOCTEXT("Karon", "Ingredients", "가공 재료");
 	}
 
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Equipment))
 	{
-		return FText::FromString(TEXT("장비"));
+		return NSLOCTEXT("Karon", "Armor", "장비");
 	}
 
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Consumable))
 	{
-		return FText::FromString(TEXT("소모품"));
+		return NSLOCTEXT("Karon", "Consumables", "소모품");
 	}
 	
 	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_EnergyResource))
 	{
-		return FText::FromString(TEXT("에너지 자원"));
+		return NSLOCTEXT("Karon", "EnergyResource", "에너지 자원");
 	}
 
-	return FText::FromString(TEXT("기타"));
+	return NSLOCTEXT("Karon", "Others", "기타");
 }
 
 int32 UKOItemTooltipWidget::ResolveOwnedCount(FName Id) const

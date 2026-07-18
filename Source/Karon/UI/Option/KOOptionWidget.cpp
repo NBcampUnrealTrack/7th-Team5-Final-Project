@@ -45,6 +45,13 @@ const TArray<FString> UKOOptionWidget::QualityLabels =
 	TEXT("최고"),
 };
 
+const TArray<FString> UKOOptionWidget::CultureLabels =
+{
+	TEXT("한국어"),
+	TEXT("English"),
+};
+
+
 const FString UKOOptionWidget::CustomQualityLabel = TEXT("사용자 설정");
 
 // ---- 초기화 ----
@@ -79,6 +86,12 @@ void UKOOptionWidget::NativeOnInitialized()
 		Button_Sound->OnClicked.AddDynamic(this, &ThisClass::HandleSoundTabClicked);
 	}
 	
+	if (Button_Other)
+	{
+		Button_Other->IsFocusable = false;
+		Button_Other->OnClicked.AddDynamic(this,&ThisClass::HandleOtherTabClicked);
+	}
+	
 	if (Button_Close)
 	{
 		Button_Close->IsFocusable = false;
@@ -89,7 +102,12 @@ void UKOOptionWidget::NativeOnInitialized()
 	{
 		ComboBox_OverallQuality->OnSelectionChanged.AddDynamic(this, &ThisClass::HandleOverallQualityChanged);
 	}
-
+	
+	if (ComboBox_CultureLanguage)
+	{
+		ComboBox_CultureLanguage->OnSelectionChanged.AddDynamic(this,&ThisClass::HandleCultureLanguageChanged);
+	}
+	
 	auto BindQualityOptionChanged = [this](UComboBoxString* Box)
 	{
 		if (Box)
@@ -132,6 +150,10 @@ void UKOOptionWidget::SetActiveTab(EKOOptionTab Tab)
 	case EKOOptionTab::Sound:
 		Index = 1;
 		break;
+		
+	case EKOOptionTab::Other:
+		Index = 2;
+		break;
 
 	default:
 		Index = 0;
@@ -158,6 +180,15 @@ void UKOOptionWidget::PopulateComboBoxes()
 		for (int32 Limit : SupportedFrameLimits)
 		{
 			ComboBox_FrameLimit->AddOption(Limit == 0 ? TEXT("제한 없음") : FString::FromInt(Limit));
+		}
+	}
+	
+	if (ComboBox_CultureLanguage)
+	{
+		ComboBox_CultureLanguage->ClearOptions();
+		for (const FString& Label : CultureLabels)
+		{
+			ComboBox_CultureLanguage->AddOption(Label);
 		}
 	}
 
@@ -202,11 +233,13 @@ void UKOOptionWidget::LoadAndRefreshUI()
 
 	RefreshSoundUI(Data->Sound);
 	RefreshGraphicsUI(Data->Graphics);
+	RefreshOtherUI(Data->LanguageOption);
 
 	// UI(슬라이더/콤보박스)만 갱신하고 끝내면 실제 출력은 저장된 값과 어긋난 채로 남는다.
 	// (Apply를 눌러야만 SoundMix/GameUserSettings에 반영되던 문제) 로드 시점에도 곧바로 실제 출력에 적용한다.
 	ApplySoundOptions(Data->Sound);
 	ApplyGraphicsOptions(Data->Graphics);
+	ApplyCultureLanguageOptions(Data->LanguageOption);
 }
 
 void UKOOptionWidget::SyncSavedOptionsToRuntime(APlayerController* OwningPlayer)
@@ -291,6 +324,11 @@ void UKOOptionWidget::RefreshGraphicsUI(const FKOGraphicsOptions& Graphics)
 	bSuppressQualitySync = false;
 
 	RefreshOverallQualityUI(Graphics);
+}
+
+void UKOOptionWidget::RefreshOtherUI(const int32& LanguageOption)
+{
+	if (ComboBox_CultureLanguage)     ComboBox_CultureLanguage->SetSelectedIndex(LanguageOption);
 }
 
 void UKOOptionWidget::RefreshOverallQualityUI(const FKOGraphicsOptions& Graphics)
@@ -383,6 +421,15 @@ FKOGraphicsOptions UKOOptionWidget::GatherGraphicsFromUI() const
 	return Out;
 }
 
+const int32 UKOOptionWidget::GatherCultureLanguageFromUI() const
+{
+	if (ComboBox_CultureLanguage)
+	{
+		return ComboBox_CultureLanguage->GetSelectedIndex();
+	}
+	return 0;
+}
+
 // ---- 적용 ----
 
 void UKOOptionWidget::ApplySingleSoundClass(USoundClass* SoundClass, float Volume) const
@@ -393,6 +440,23 @@ void UKOOptionWidget::ApplySingleSoundClass(USoundClass* SoundClass, float Volum
 	}
 	UGameplayStatics::SetSoundMixClassOverride(
 		this, SoundMix, SoundClass, Volume, /*Pitch=*/1.0f, /*FadeInTime=*/0.1f, /*bApplyToChildren=*/true);
+}
+
+void UKOOptionWidget::ApplyCultureLanguageOptions(const int32& LanguageOption)
+{
+	switch (LanguageOption)
+	{
+	case 0:
+		FInternationalization::Get().SetCurrentCulture("ko");
+		FTextLocalizationManager::Get().RefreshResources();
+		break;
+	case 1:
+		FInternationalization::Get().SetCurrentCulture("en");
+		FTextLocalizationManager::Get().RefreshResources();
+		break;
+	default:
+		break;
+	}
 }
 
 void UKOOptionWidget::ApplySoundOptions(const FKOSoundOptions& Sound)
@@ -444,15 +508,18 @@ void UKOOptionWidget::HandleApplyClicked()
 {
 	const FKOSoundOptions Sound       = GatherSoundFromUI();
 	const FKOGraphicsOptions Graphics = GatherGraphicsFromUI();
+	const int32 CultureLanguage		  = GatherCultureLanguageFromUI();
 
 	ApplySoundOptions(Sound);
 	ApplyGraphicsOptions(Graphics);
+	ApplyCultureLanguageOptions(CultureLanguage);
 
 	UKOSaveGameOption* Data = UKOSaveGameOption::LoadOrCreate(this);
 	if (Data)
 	{
-		Data->Sound    = Sound;
-		Data->Graphics = Graphics;
+		Data->Sound			 = Sound;
+		Data->Graphics		 = Graphics;
+		Data->LanguageOption = CultureLanguage;
 		UKOSaveGameOption::Save(this, Data);
 	}
 }
@@ -483,9 +550,36 @@ void UKOOptionWidget::HandleSoundTabClicked()
 	SetActiveTab(EKOOptionTab::Sound);
 }
 
+void UKOOptionWidget::HandleOtherTabClicked()
+{
+	SetActiveTab(EKOOptionTab::Other);
+}
+
 void UKOOptionWidget::HandleCloseClicked()
 {
 	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Option);
+}
+
+void UKOOptionWidget::HandleCultureLanguageChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (bSuppressQualitySync)
+	{
+		return;
+	}
+	const int32 PresetIndex = CultureLabels.IndexOfByKey(SelectedItem);
+	if (!CultureLabels.IsValidIndex(PresetIndex))
+	{
+		// "사용자 설정"은 되돌릴 고정값이 없으므로 세부 항목은 그대로 둔다.
+		return;
+	}
+
+	bSuppressQualitySync = true;
+	
+	if (ComboBox_CultureLanguage)
+	{
+		ComboBox_CultureLanguage->SetSelectedIndex(PresetIndex);
+	}
+	bSuppressQualitySync = false;
 }
 
 void UKOOptionWidget::HandleOverallQualityChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
