@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-18 16:35\n"
-"PO-Revision-Date: 2026-07-18 16:35\n"
+"POT-Creation-Date: 2026-07-19 00:25\n"
+"PO-Revision-Date: 2026-07-19 00:25\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1027,6 +1027,41 @@ msgstr "Remove"
 msgctxt ",C1874F6E49DE884E349FC0BB52BA447E"
 msgid "스폰"
 msgstr "Spawn"
+
+#. Key:	8A352DD04841E0C83FB77BAF4265BF12
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+msgctxt ",8A352DD04841E0C83FB77BAF4265BF12"
+msgid "기다려라 카스토르. 너희의 거짓말을 무너뜨려줄테니."
+msgstr "Wait, Castor, I'll break your lies."
+
+#. Key:	922399A346C22924283C758AB6907369
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+msgctxt ",922399A346C22924283C758AB6907369"
+msgid "재가 되기 전에 와봐라.. 너의 모든 것을 걸고.."
+msgstr "Come before the ashes... risk your everything.."
+
+#. Key:	B3F5D25C4DFC7FC0637412967924C75D
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+msgctxt ",B3F5D25C4DFC7FC0637412967924C75D"
+msgid "백설의 도읍"
+msgstr "The CAPITAL of Snow White"
+
+#. Key:	C1B4A61742B59C52CFD697974484FD54
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+msgctxt ",C1B4A61742B59C52CFD697974484FD54"
+msgid "지하의 쥐새끼가 아직도 불장난을 할 줄 알았나.. "
+msgstr "Did you think the rat in the basement would still play with fire.."
+
+#. Key:	E37514614BE44B1A917B9688EDD4AA93
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
+msgctxt ",E37514614BE44B1A917B9688EDD4AA93"
+msgid "이걸로 코어 1개.."
+msgstr "With this, one core.."
 
 #. Key:	42D50ECA409CB2C4A63920BAAF1C4712
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]

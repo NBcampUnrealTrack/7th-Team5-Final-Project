@@ -30,7 +30,7 @@ void UKOBossHealthBarWidget::NativeConstruct()
 
 		Boss->OnBossDetectedPlayer.AddUObject(this, &UKOBossHealthBarWidget::OnBossDetected);
 
-		Boss->OnBossDied.AddUObject(this, &UKOBossHealthBarWidget::OnBossDiedCallback);
+		Boss->OnBossDied.AddDynamic(this, &UKOBossHealthBarWidget::OnBossDiedCallback);
 	}
 }
 

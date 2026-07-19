@@ -12,7 +12,7 @@
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Components/SphereComponent.h"
-#include "Game/KOProjectilePoolSubsystem.h"
+#include "Subsystem/KOProjectilePoolSubsystem.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 

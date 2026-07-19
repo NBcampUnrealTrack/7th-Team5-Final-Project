@@ -16,7 +16,7 @@ class UStreamableHandle;
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDetectedPlayer, AKOBossBase*);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
-DECLARE_MULTICAST_DELEGATE(FOnBossDied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDied);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossUIVisibleEvent,bool, bShouldVisible);
 
  
@@ -39,6 +39,8 @@ public:
 	FOnBossReady OnBossReady;
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
+	
+	UPROPERTY(BlueprintAssignable)
 	FOnBossDied OnBossDied;
 	
 	UPROPERTY(BlueprintAssignable)

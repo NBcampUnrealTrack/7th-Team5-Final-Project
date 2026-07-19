@@ -8,7 +8,7 @@
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
 #include "Data/Type/KOEnemyType.h"
-#include "Game/KOProjectilePoolSubsystem.h"
+#include "Subsystem/KOProjectilePoolSubsystem.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
 #include "Data/KO_HitData.h"
 

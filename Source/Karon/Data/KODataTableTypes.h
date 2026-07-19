@@ -8,6 +8,7 @@
 #include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
+class ULevelSequence;
 class UGameplayAbility;
 class UGameplayEffect;
 class UTexture2D;
@@ -310,4 +311,15 @@ public:
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FEnemyDropItemInfo DropItemInfo;
+};
+
+//레벨시퀀스 데이터베이스
+USTRUCT(BlueprintType)
+struct FKOLevelSequenceRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<ULevelSequence> LevelSequence;
 };
