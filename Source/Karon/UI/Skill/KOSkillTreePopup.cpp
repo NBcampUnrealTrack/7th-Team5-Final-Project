@@ -93,21 +93,26 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		if (Node == nullptr || Node->GetSkillName().IsNone()) continue;
 
 		const FKOSkillRow* SkillRow = UKOSkillLibrary::GetSkillRow(WorldContext, Node->GetSkillName());
+		
+		const FKOSkillExecutionRow* SkillExRow = CachedLoadSubsystem->FindSkillExecutionRow(Node->GetSkillName());
 
-		if (SkillRow)
+		if (SkillRow && SkillExRow)
 		{
 			if (SkillRow->Icon.Get() == nullptr && SkillRow->Icon.IsNull() == false)
 			{
 				UE_LOG(LogTemp, Display, TEXT("SkillTree: Icon을 로딩합니다"));
 				(void)CachedLoadSubsystem->ResolveSkillIcon(Node->GetSkillName());
 			}
+			
 			ESkillState CurrentState = SkillSubsystem->GetSkillState(Node->GetSkillName());
+			ESkillExecutionType ExType = SkillExRow->ExecutionType;
+			
 			Node->InitializeNode(Node->GetSkillName(), SkillRow->SkillTag, SkillRow->UnlockCosts,
-			                     CurrentState, SkillRow->Icon.Get());
+			                     CurrentState, ExType, SkillRow->Icon.Get());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row를 찾을 수 없습니다."),
+			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row 또는 ExRow를 찾을 수 없습니다."),
 			       *Node->GetSkillName().ToString());
 		}
 	}

@@ -7,6 +7,7 @@
 #include "KOSkillNodeWidget.generated.h"
 
 class UImage;
+class UTextBlock;
 class UCommonButtonBase;
 class UKOSkillSubsystem;
 class UTexture2D;
@@ -25,8 +26,8 @@ public:
 	FOnSkillNodeClicked OnSkillNodeClicked;
 	// 외부(팝업)에서 노드를 초기화할 때 호출할 함수
 	UFUNCTION(BlueprintCallable, Category = "Skill")
-	void InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
-	                    TArray<FSkillCost> InCost, ESkillState InState, UTexture2D* InIcon);
+	void InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost,
+	                   ESkillState InState, ESkillExecutionType InExType, UTexture2D* InIcon);
 
 	// Tooltip의 ConfirmButton이 눌렸을 때 팝업에서 호출하여 실제 해금 시도를 수행하는 함수
 	UFUNCTION(BlueprintCallable, Category = "Skill")
@@ -41,7 +42,8 @@ public:
 protected:
 	virtual void NativeOnClicked() override;
 
-	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply
+	NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	                                  UDragDropOperation*& OutOperation) override;
 
@@ -55,10 +57,13 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> SkillIcon;
-	
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> OverlayImage;
-	
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> CurrentTypeText;
+
 	// 상태에 따른 색상 변경용 노출 변수
 	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
 	FLinearColor LockedColor = FLinearColor(0.2f, 0.2f, 0.2f, 0.8f);
@@ -72,8 +77,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Skill")
 	ESkillState CurrentState;
-
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Skill")
+	ESkillExecutionType CurrentExType;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
+	
 	FGameplayTag SkillTag;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Skill")
@@ -86,4 +95,6 @@ private:
 
 	/** OnSkillNodeClicked를 브로드캐스트해 Tooltip을 이 노드 기준으로 갱신시킨다. (클릭 / 드래그 시작 공용) */
 	void NotifySkillNodeClicked();
+	
+	void SetCurrentTypeText();
 };

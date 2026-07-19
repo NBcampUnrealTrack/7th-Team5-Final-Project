@@ -8,14 +8,16 @@
 #include "Components/Image.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "InputCoreTypes.h"
+#include "Components/TextBlock.h"
 
-void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag,
-                                        TArray<FSkillCost> InCost, ESkillState InState, UTexture2D* InIcon)
+void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost,
+                                        ESkillState InState, ESkillExecutionType InExType, UTexture2D* InIcon)
 {
 	SkillName = InSkillName;
 	SkillTag = InSkillTag;
 	SkillCosts = InCost;
 	CurrentState = InState;
+	CurrentExType = InExType;
 	
 	if (InIcon && SkillIcon)
 	{
@@ -24,6 +26,12 @@ void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag I
 
 	UE_LOG(LogTemp, Warning, TEXT("Skill Node: %s 스킬 %s 태그로 초기화됨"), 
 		*InSkillName.ToString(), *InSkillTag.ToString());
+	
+	if (CurrentTypeText)
+	{
+		SetCurrentTypeText();
+	}
+	
 	RefreshNode();
 }
 
@@ -60,6 +68,27 @@ void UKOSkillNodeWidget::NotifySkillNodeClicked()
 		OnSkillNodeClicked.Broadcast(this);
 	}
 }
+
+#define LOCTEXT_NAMESPACE "KOSkillNodeWidget"
+
+void UKOSkillNodeWidget::SetCurrentTypeText()
+{
+	switch (CurrentExType)
+	{
+	case ESkillExecutionType::Active:
+		CurrentTypeText->SetText(LOCTEXT("SkillType", "액티브"));
+		break;
+		
+	case ESkillExecutionType::ActiveExtension:
+		CurrentTypeText->SetText(LOCTEXT("SkillType", "추가동작"));
+		break;
+		
+	case ESkillExecutionType::PassiveStat:
+		CurrentTypeText->SetText(LOCTEXT("SkillType", "패시브"));
+		break;
+	}
+}
+#undef LOCTEXT_NAMESPACE
 
 void UKOSkillNodeWidget::ExecuteUnlock()
 {
