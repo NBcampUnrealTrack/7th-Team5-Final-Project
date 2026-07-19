@@ -38,7 +38,6 @@ void UKOGA_AttackBase::ActivateAbility(
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	TraceData.TraceMesh = FindTraceMesh();
-    
 	if (!TraceData.TraceMesh)
 	{
 		KO_LOG(Combat, Error, TEXT("TraceMesh 없음"));

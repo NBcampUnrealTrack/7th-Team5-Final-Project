@@ -67,7 +67,7 @@ void UKOGA_OverClock::OnClockGain(FGameplayEventData Payload)
 	
 	const float ClockAmount = 
 		ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_OverClock) ?
-		Payload.EventMagnitude : 0.f;
+		0.f : Payload.EventMagnitude;
 	
 	ApplyEffectSetByCallerToSelf(
 		GE_ClockGain,

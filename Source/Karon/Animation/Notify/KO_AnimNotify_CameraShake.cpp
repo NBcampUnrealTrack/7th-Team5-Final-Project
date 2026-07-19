@@ -1,6 +1,8 @@
 ﻿#include "KO_AnimNotify_CameraShake.h"
 
-void UKO_AnimNotify_CameraShake::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UKO_AnimNotify_CameraShake::Notify(
+	USkeletalMeshComponent* MeshComp, 
+	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);

@@ -1,10 +1,12 @@
 ﻿#include "KOAbilitySystemComponent.h"
 #include "Karon/Data/Character/KOGrantSet.h"
+
+#include "Tag/KOGameplayTags.h"
 #include "Utility/Log/KOLogManager.h"
 
 void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
-	if (!InputTag.IsValid()) return;
+	if (HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead) || !InputTag.IsValid()) return;
 	
 	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
@@ -27,19 +29,18 @@ void UKOAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 
 void UKOAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
 {
-	if (InputTag.IsValid())
+	if (!InputTag.IsValid()) return;
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+		if (AbilitySpec.Ability && 
+			(AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag) || 
+				AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
 		{
-			if (AbilitySpec.Ability && 
-				(AbilitySpec.Ability->AbilityTags.HasTagExact(InputTag) || 
-					AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)))
-			{
-				KO_LOG(Input, Log, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
+			KO_LOG(Input, Log, TEXT("[%s Ability]: Released"), *AbilitySpec.Ability->GetName());
 				
-				InputReleasedSpecHandles.AddUnique(AbilitySpec.Handle);
-				InputHeldSpecHandles.Remove(AbilitySpec.Handle);
-			}
+			InputReleasedSpecHandles.AddUnique(AbilitySpec.Handle);
+			InputHeldSpecHandles.Remove(AbilitySpec.Handle);
 		}
 	}
 }

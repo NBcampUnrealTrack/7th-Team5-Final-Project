@@ -5,8 +5,9 @@
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Items/Equipment/KOWeaponBase.h"
 
-void UKO_AnimNotifyState_NiagaraEffectAdvanced::NotifyTick(USkeletalMeshComponent* MeshComp,
-                                                           UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UKO_AnimNotifyState_NiagaraEffectAdvanced::NotifyTick(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 

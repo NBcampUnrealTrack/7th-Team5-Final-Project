@@ -16,4 +16,7 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_AirPound, "GameplayCue.AirPound");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_CounterAttack, "GameplayCue.CounterAttack");
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_WeaponTrail_Sword, "GameplayCue.WeaponTrail.Sword");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_WeaponTrail_Hammer, "GameplayCue.WeaponTrail.Hammer");
 }
