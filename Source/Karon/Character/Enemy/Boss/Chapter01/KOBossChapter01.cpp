@@ -1,6 +1,7 @@
 #include "KOBossChapter01.h"
 
 #include "AIController.h"
+#include "NiagaraFunctionLibrary.h"
 #include "TimerManager.h"
 #include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -40,6 +41,12 @@ void AKOBossChapter01::OnBossInitialized()
 	}
 	
 	CloseCore();
+
+	if (SmokeData)
+	{
+		InitVFXComponents();
+		StartSmokePattern(SmokeData->IdlePattern);
+	}
 }
  
 // 페이즈 전환
@@ -68,7 +75,10 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 // 그로기 진입
 void AKOBossChapter01::OnGroggyBegin()
 {
-	if (bIsDead) return;
+	if (bIsDead)
+	{
+		return;
+	}
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -81,6 +91,13 @@ void AKOBossChapter01::OnGroggyBegin()
 	if (FaceLight)
 	{
 		FaceLight->SetVisibility(false);
+	}
+	
+	if (SmokeData)
+	{
+		StopSmokePattern();
+		SetAllVFXActive(false);
+		StartSmokePattern(SmokeData->GroggyPattern);
 	}
 	
 	OpenCore();
@@ -101,7 +118,10 @@ void AKOBossChapter01::TriggerGroggy()
 // 그로기 종료
 void AKOBossChapter01::OnGroggyEnd()
 {
-	if (bIsDead) return;
+	if (bIsDead)
+	{
+		return;
+	}
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -120,13 +140,24 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		FaceLight->SetVisibility(true);
 	}
+	
+	if (SmokeData)
+	{
+		StopSmokePattern();
+		SetAllVFXActive(false);
+		StartSmokePattern(SmokeData->IdlePattern);
+	}
+
 	CloseCore();
 }
  
 // 사망
 void AKOBossChapter01::OnBossDeath()
 {
-	if (bIsDead) return;
+	if (bIsDead)
+	{
+		return;
+	}
 	
 	bIsDead = true;
  
@@ -142,6 +173,9 @@ void AKOBossChapter01::OnBossDeath()
 	{
 		FaceLight->SetVisibility(false);
 	}
+	
+	StopSmokePattern();
+	SetAllVFXActive(false);
 }
 
 void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
@@ -166,6 +200,40 @@ void AKOBossChapter01::NotifyGimmickDashEnd()
 			BB->SetValueAsBool(AKOAIC_BossController::bIsGimmickReadyKey, false);
 		}
 	}
+
+	if (SmokeData)
+	{
+		SetAllVFXActive(false);
+		StartSmokePattern(SmokeData->IdlePattern);
+	}
+}
+
+void AKOBossChapter01::OnGimmickReady()
+{
+	if (SmokeData)
+	{
+		StopSmokePattern();
+		StartSmokePattern(SmokeData->GimmickPattern);
+	}
+}
+
+void AKOBossChapter01::OnDashSmokeBegin()
+{
+	if (SmokeData)
+	{
+		StopSmokePattern();
+		StartSmokePattern(SmokeData->DashPattern);
+	}
+}
+
+void AKOBossChapter01::OnDashSmokeEnd()
+{
+	if (SmokeData)
+	{
+		StopSmokePattern();
+		SetAllVFXActive(false);
+		StartSmokePattern(SmokeData->IdlePattern);
+	}
 }
 
 // 코어 개방
@@ -187,5 +255,146 @@ void AKOBossChapter01::CloseCore()
 	if (CoreMID)
 	{
 		CoreMID->SetScalarParameterValue("EmissiveIntensity",0.f);
+	}
+}
+
+void AKOBossChapter01::InitVFXComponents()
+{
+	VFXComponents.Empty();
+	if (!SmokeData || !GetMesh())
+	{
+		return;
+	}
+	
+	for (const FKOBossVFXChannel& Channel : SmokeData->VFXChannels)
+	{
+		TArray<UNiagaraComponent*> ChannelComps;
+
+		if (!Channel.Effect)
+		{
+			VFXComponents.Add(ChannelComps);
+			continue;
+		}
+
+		for (const FName& SocketName : Channel.Sockets)
+		{
+			if (!GetMesh()->DoesSocketExist(SocketName))
+			{
+				ChannelComps.Add(nullptr);
+				continue;
+			}
+
+			UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAttached(
+				Channel.Effect, GetMesh(), SocketName,
+				FVector::ZeroVector, FRotator::ZeroRotator,
+				EAttachLocation::SnapToTarget, false);
+
+			if (Comp) Comp->Deactivate();
+			ChannelComps.Add(Comp);
+		}
+
+		VFXComponents.Add(ChannelComps);
+	}
+}
+
+void AKOBossChapter01::StartSmokePattern(const FKOBossSmokePattern& Pattern)
+{
+	StopSmokePattern();
+	PuffStep = 0;
+
+	if (Pattern.StepInterval <= 0.f)
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		PuffTimerHandle,
+		[this, Pattern]() { OnPuffStep(Pattern); },
+		Pattern.StepInterval, true, 0.f);
+}
+
+void AKOBossChapter01::StopSmokePattern()
+{
+	GetWorld()->GetTimerManager().ClearTimer(PuffTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(PuffOffTimerHandle);
+}
+
+void AKOBossChapter01::OnPuffStep(FKOBossSmokePattern Pattern)
+{
+	if (PuffStep < Pattern.Steps.Num())
+	{
+		const FKOBossSmokePuffStep& Step = Pattern.Steps[PuffStep];
+		SetVFXActive(Step.ChannelIndex, Step.SocketIndex, true, Step.SpawnRate);
+
+		const float Duration = Step.Duration;
+		const int32 Ch = Step.ChannelIndex;
+		const int32 Sock = Step.SocketIndex;
+		GetWorld()->GetTimerManager().SetTimer(
+			PuffOffTimerHandle,
+			[this, Ch, Sock]() { SetVFXActive(Ch, Sock, false); },
+			Duration, false);
+
+		PuffStep++;
+	}
+	else
+	{
+		StopSmokePattern();
+		PuffStep = 0;
+
+		if (!Pattern.bLoop)
+		{
+			return;
+		}
+		
+		if (Pattern.PauseInterval > 0.f)
+		{
+			GetWorld()->GetTimerManager().SetTimer(
+				PuffTimerHandle,
+				[this, Pattern]() { StartSmokePattern(Pattern); },
+				Pattern.PauseInterval, false);
+		}
+		else
+		{
+			StartSmokePattern(Pattern);
+		}
+	}
+}
+
+void AKOBossChapter01::SetVFXActive(int32 ChannelIndex, int32 SocketIndex, bool bActive, float SpawnRate)
+{
+	if (!VFXComponents.IsValidIndex(ChannelIndex))
+	{
+		return;
+	}
+	TArray<UNiagaraComponent*>& Channel = VFXComponents[ChannelIndex];
+	if (!Channel.IsValidIndex(SocketIndex))
+	{
+		return;
+	}
+	UNiagaraComponent* Comp = Channel[SocketIndex];
+	if (!Comp)
+	{
+		return;
+	}
+
+	if (bActive)
+	{
+		Comp->Activate(true);
+		Comp->SetFloatParameter(FName("SpawnRate"), SpawnRate);
+	}
+	else
+	{
+		Comp->Deactivate();
+	}
+}
+
+void AKOBossChapter01::SetAllVFXActive(bool bActive)
+{
+	for (int32 ChIdx = 0; ChIdx < VFXComponents.Num(); ++ChIdx)
+	{
+		for (int32 SockIdx = 0; SockIdx < VFXComponents[ChIdx].Num(); ++SockIdx)
+		{
+			SetVFXActive(ChIdx, SockIdx, bActive);
+		}
 	}
 }

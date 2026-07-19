@@ -61,7 +61,12 @@ public:
 	
 	virtual void NotifyGimmickDashEnd() {}
 	
+	virtual void OnGimmickReady() {}
+	
 	virtual void TriggerGroggy() { OnGroggyBegin(); }
+	
+	virtual void OnDashSmokeBegin() {}
+	virtual void OnDashSmokeEnd() {}
 	
 	void RestoreToFull();
 	

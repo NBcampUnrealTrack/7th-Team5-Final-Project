@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "KOBossSmokeData.h"
+#include "NiagaraComponent.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Components/PointLightComponent.h"
 #include "KOBossChapter01.generated.h"
@@ -24,7 +26,10 @@ protected:
 	virtual void TriggerGroggy() override;
 	
 	virtual void NotifyGimmickDashEnd() override;
- 
+	virtual void OnGimmickReady() override;
+	virtual void OnDashSmokeBegin() override;
+	virtual void OnDashSmokeEnd() override;
+	
 	virtual void OnBossDeath() override;
  
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
@@ -46,7 +51,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Boss|FaceLight")
 	TObjectPtr<UPointLightComponent> FaceLight;
-
+	
 	// 라이트를 부착할 소켓 이름
 	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
 	FName FaceLightSocket = FName("head");
@@ -64,4 +69,21 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Boss|FaceLight")
 	float FaceLightRadius = 300.f;
+	
+	// VFX
+	UPROPERTY(EditAnywhere, Category = "Boss|VFX")
+	TObjectPtr<UKOBossSmokeData> SmokeData;
+	
+	TArray<TArray<UNiagaraComponent*>> VFXComponents;
+
+	int32 PuffStep = 0;
+	FTimerHandle PuffTimerHandle;
+	FTimerHandle PuffOffTimerHandle;
+
+	void InitVFXComponents();
+	void StartSmokePattern(const FKOBossSmokePattern& Pattern);
+	void StopSmokePattern();
+	void OnPuffStep(FKOBossSmokePattern Pattern);
+	void SetVFXActive(int32 ChannelIndex, int32 SocketIndex, bool bActive, float SpawnRate = 20.f);
+	void SetAllVFXActive(bool bActive);
 };

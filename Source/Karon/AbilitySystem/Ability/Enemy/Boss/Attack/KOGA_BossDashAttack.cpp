@@ -92,6 +92,11 @@ void UKOGA_BossDashAttack::StartDash()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	
+	if (AKOBossBase* Boss = Cast<AKOBossBase>(Character))
+	{
+		Boss->OnDashSmokeBegin();
+	}
  
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(
 		this, &UKOGA_BossDashAttack::OnDashHit
@@ -131,7 +136,6 @@ void UKOGA_BossDashAttack::OnDashHit(
 		return;
 	}
 	
-	// 기믹 돌진 기둥 태그 확인 
 	if (bIsGimmickDash && OtherActor->ActorHasTag(FName("Object_BossCH01_Gimmick_Pillar")))
 	{
 		HandleGimmickPillarHit(OtherActor); 
@@ -195,6 +199,11 @@ void UKOGA_BossDashAttack::StopDash()
 	{
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 		Character->GetCapsuleComponent()->OnComponentHit.RemoveAll(this);
+
+		if (AKOBossBase* Boss = Cast<AKOBossBase>(Character))
+		{
+			Boss->OnDashSmokeEnd();
+		}
 	}
  
 	GetWorld()->GetTimerManager().ClearTimer(DashTimerHandle);
