@@ -19,4 +19,7 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_WeaponTrail_Sword, "GameplayCue.WeaponTrail.Sword");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_WeaponTrail_Hammer, "GameplayCue.WeaponTrail.Hammer");
+	
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Hammer_Hit, "GameplayCue.Hammer.Hit");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Hammer_Overlay, "GameplayCue.Hammer.Overlay");
 }

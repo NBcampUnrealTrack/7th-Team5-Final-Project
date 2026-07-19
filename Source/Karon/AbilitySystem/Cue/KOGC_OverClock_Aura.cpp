@@ -27,11 +27,8 @@ void AKOGC_OverClock_Aura::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (!OverclockMID)
-	{
-		return;
-	}
-
+	if (!OverclockMID) return; 
+		
 	CurrentAlpha = FMath::FInterpTo(CurrentAlpha, TargetAlpha, DeltaTime, 4.0f);
 
 	OverclockMID->SetScalarParameterValue(FName("VignetteRadius"), CurrentAlpha * 2.0f);
@@ -69,11 +66,13 @@ bool AKOGC_OverClock_Aura::OnActive_Implementation(AActor* MyTarget, const FGame
 	{
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionScale);
 
+		float DilatedDuration = SlowMotionRealTimeDuration * SlowMotionScale;
+		
 		GetWorld()->GetTimerManager().SetTimer(
 			TimeDilationTimerHandle,
 			this,
 			&AKOGC_OverClock_Aura::RestoreTimeDilation,
-			SlowMotionScale,
+			DilatedDuration,
 			false
 		);
 	}

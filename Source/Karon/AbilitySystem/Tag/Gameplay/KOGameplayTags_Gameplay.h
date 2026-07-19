@@ -35,4 +35,8 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_WeaponTrail_Sword);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_WeaponTrail_Hammer);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Hammer_Hit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Hammer_Overlay);
+	
 }

@@ -223,7 +223,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
 	FGameplayTagContainer AttackEventTags; 
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cue")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
 	FGameplayTag HitImpactAttackerCueTag; 
 	
 	float CurrentDamageMultiplier = 1.0f;
