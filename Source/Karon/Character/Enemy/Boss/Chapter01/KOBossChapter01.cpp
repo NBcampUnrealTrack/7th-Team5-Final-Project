@@ -13,7 +13,7 @@ AKOBossChapter01::AKOBossChapter01(const FObjectInitializer& ObjectInitializer)
 {
 	FaceLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("FaceLight"));
 }
- 
+
 void AKOBossChapter01::BeginPlay()
 {
 	Super::BeginPlay();
@@ -24,7 +24,7 @@ void AKOBossChapter01::OnBossInitialized()
 	if (GetMesh())
 	{
 		CoreMID = GetMesh()->CreateDynamicMaterialInstance(CoreMaterialIndex);
-		
+
 		const bool bSocketExists = GetMesh()->DoesSocketExist(FaceLightSocket);
 
 		if (FaceLight && bSocketExists)
@@ -39,7 +39,7 @@ void AKOBossChapter01::OnBossInitialized()
 			FaceLight->SetAttenuationRadius(FaceLightRadius);
 		}
 	}
-	
+
 	CloseCore();
 
 	if (SmokeData)
@@ -48,7 +48,7 @@ void AKOBossChapter01::OnBossInitialized()
 		StartSmokePattern(SmokeData->IdlePattern);
 	}
 }
- 
+
 // 페이즈 전환
 void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 {
@@ -56,7 +56,7 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 	{
 		// TODO: 페이즈2 처리
 		// 이동속도 증가 GE 와 같은 부가효과 추가
-		
+
 		if (AAIController* AIC = Cast<AAIController>(GetController()))
 		{
 			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -71,7 +71,7 @@ void AKOBossChapter01::OnPhaseChanged(int32 NewPhase)
 		}
 	}
 }
- 
+
 // 그로기 진입
 void AKOBossChapter01::OnGroggyBegin()
 {
@@ -79,7 +79,7 @@ void AKOBossChapter01::OnGroggyBegin()
 	{
 		return;
 	}
-	
+
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -87,19 +87,19 @@ void AKOBossChapter01::OnGroggyBegin()
 			BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, true);
 		}
 	}
-	
+
 	if (FaceLight)
 	{
 		FaceLight->SetVisibility(false);
 	}
-	
+
 	if (SmokeData)
 	{
 		StopSmokePattern();
 		SetAllVFXActive(false);
 		StartSmokePattern(SmokeData->GroggyPattern);
 	}
-	
+
 	OpenCore();
 }
 
@@ -114,7 +114,7 @@ void AKOBossChapter01::TriggerGroggy()
 		OnGroggyBegin();
 	}
 }
- 
+
 // 그로기 종료
 void AKOBossChapter01::OnGroggyEnd()
 {
@@ -122,7 +122,7 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		return;
 	}
-	
+
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -130,7 +130,7 @@ void AKOBossChapter01::OnGroggyEnd()
 			BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, false);
 		}
 	}
-	
+
 	if (GroggySet)
 	{
 		GroggySet->SetGroggyHealth(GroggySet->GetMaxGroggyHealth());
@@ -140,7 +140,7 @@ void AKOBossChapter01::OnGroggyEnd()
 	{
 		FaceLight->SetVisibility(true);
 	}
-	
+
 	if (SmokeData)
 	{
 		StopSmokePattern();
@@ -150,7 +150,7 @@ void AKOBossChapter01::OnGroggyEnd()
 
 	CloseCore();
 }
- 
+
 // 사망
 void AKOBossChapter01::OnBossDeath()
 {
@@ -158,9 +158,9 @@ void AKOBossChapter01::OnBossDeath()
 	{
 		return;
 	}
-	
+
 	bIsDead = true;
- 
+
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -173,7 +173,7 @@ void AKOBossChapter01::OnBossDeath()
 	{
 		FaceLight->SetVisibility(false);
 	}
-	
+
 	StopSmokePattern();
 	SetAllVFXActive(false);
 }
@@ -181,7 +181,7 @@ void AKOBossChapter01::OnBossDeath()
 void AKOBossChapter01::OnCharacterDead(AActor* DeathInstigator)
 {
 	Super::OnCharacterDead(DeathInstigator);
-	
+
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
 		if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
@@ -240,21 +240,21 @@ void AKOBossChapter01::OnDashSmokeEnd()
 void AKOBossChapter01::OpenCore()
 {
 	bCoreOpen = true;
- 
+
 	if (CoreMID)
 	{
-		CoreMID->SetScalarParameterValue("EmissiveIntensity",CoreEmissiveIntensity);
+		CoreMID->SetScalarParameterValue("EmissiveIntensity", CoreEmissiveIntensity);
 	}
 }
- 
+
 // 코어 닫기
 void AKOBossChapter01::CloseCore()
 {
 	bCoreOpen = false;
- 
+
 	if (CoreMID)
 	{
-		CoreMID->SetScalarParameterValue("EmissiveIntensity",0.f);
+		CoreMID->SetScalarParameterValue("EmissiveIntensity", 0.f);
 	}
 }
 
@@ -265,7 +265,7 @@ void AKOBossChapter01::InitVFXComponents()
 	{
 		return;
 	}
-	
+
 	for (const FKOBossVFXChannel& Channel : SmokeData->VFXChannels)
 	{
 		TArray<UNiagaraComponent*> ChannelComps;
@@ -307,16 +307,31 @@ void AKOBossChapter01::StartSmokePattern(const FKOBossSmokePattern& Pattern)
 		return;
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(
-		PuffTimerHandle,
-		[this, Pattern]() { OnPuffStep(Pattern); },
-		Pattern.StepInterval, true, 0.f);
+	if (UWorld* World = GetWorld())
+	{
+		//WeakPtr를 통해 크래시 방지
+		TWeakObjectPtr<AKOBossChapter01> WeakThis(this); 
+		
+		World->GetTimerManager().SetTimer(
+			PuffTimerHandle,
+			[WeakThis, Pattern]()
+			{
+				if (AKOBossChapter01* StrongThis = WeakThis.Get())
+				{
+					StrongThis->OnPuffStep(Pattern);
+				}
+			},
+			Pattern.StepInterval, true, 0.f);
+	}
 }
 
 void AKOBossChapter01::StopSmokePattern()
 {
-	GetWorld()->GetTimerManager().ClearTimer(PuffTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(PuffOffTimerHandle);
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(PuffTimerHandle);
+		World->GetTimerManager().ClearTimer(PuffOffTimerHandle);
+	}
 }
 
 void AKOBossChapter01::OnPuffStep(FKOBossSmokePattern Pattern)
@@ -329,10 +344,21 @@ void AKOBossChapter01::OnPuffStep(FKOBossSmokePattern Pattern)
 		const float Duration = Step.Duration;
 		const int32 Ch = Step.ChannelIndex;
 		const int32 Sock = Step.SocketIndex;
-		GetWorld()->GetTimerManager().SetTimer(
-			PuffOffTimerHandle,
-			[this, Ch, Sock]() { SetVFXActive(Ch, Sock, false); },
-			Duration, false);
+		if (UWorld* World = GetWorld())
+		{
+			TWeakObjectPtr<AKOBossChapter01> WeakThis(this);
+			
+			World->GetTimerManager().SetTimer(
+				PuffOffTimerHandle,
+				[WeakThis, Ch, Sock]()
+				{
+					if (AKOBossChapter01* StrongThis = WeakThis.Get())
+					{
+						StrongThis->SetVFXActive(Ch, Sock, false);
+					}
+				},
+				Duration, false);
+		}
 
 		PuffStep++;
 	}
@@ -345,13 +371,16 @@ void AKOBossChapter01::OnPuffStep(FKOBossSmokePattern Pattern)
 		{
 			return;
 		}
-		
+
 		if (Pattern.PauseInterval > 0.f)
 		{
-			GetWorld()->GetTimerManager().SetTimer(
+			if (UWorld* World = GetWorld())
+			{
+				World->GetTimerManager().SetTimer(
 				PuffTimerHandle,
 				[this, Pattern]() { StartSmokePattern(Pattern); },
 				Pattern.PauseInterval, false);
+			}
 		}
 		else
 		{
@@ -379,12 +408,18 @@ void AKOBossChapter01::SetVFXActive(int32 ChannelIndex, int32 SocketIndex, bool 
 
 	if (bActive)
 	{
-		Comp->Activate(true);
-		Comp->SetFloatParameter(FName("SpawnRate"), SpawnRate);
+		if (IsValid(Comp))
+		{
+			Comp->Activate(true);
+			Comp->SetFloatParameter(FName("SpawnRate"), SpawnRate);
+		}
 	}
 	else
 	{
-		Comp->Deactivate();
+		if (Comp)
+		{
+			Comp->Deactivate();
+		}
 	}
 }
 
