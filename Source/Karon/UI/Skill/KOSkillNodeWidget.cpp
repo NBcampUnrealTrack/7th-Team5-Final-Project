@@ -5,10 +5,11 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Data/KODataTableTypes.h"
 #include "UI/Skill/KOSkillDragDropOperation.h"
-#include "Components/Image.h"
+
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "InputCoreTypes.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 
 void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag InSkillTag, TArray<FSkillCost> InCost,
                                         ESkillState InState, ESkillExecutionType InExType, UTexture2D* InIcon)
@@ -18,20 +19,20 @@ void UKOSkillNodeWidget::InitializeNode(const FName& InSkillName, FGameplayTag I
 	SkillCosts = InCost;
 	CurrentState = InState;
 	CurrentExType = InExType;
-	
+
 	if (InIcon && SkillIcon)
 	{
 		SkillIcon->SetBrushFromTexture(InIcon);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Skill Node: %s 스킬 %s 태그로 초기화됨"), 
-		*InSkillName.ToString(), *InSkillTag.ToString());
-	
+	UE_LOG(LogTemp, Warning, TEXT("Skill Node: %s 스킬 %s 태그로 초기화됨"),
+	       *InSkillName.ToString(), *InSkillTag.ToString());
+
 	if (CurrentTypeText)
 	{
 		SetCurrentTypeText();
 	}
-	
+
 	RefreshNode();
 }
 
@@ -44,6 +45,11 @@ void UKOSkillNodeWidget::NativeConstruct()
 		CachedSkillSubsystem = LP->GetSubsystem<UKOSkillSubsystem>();
 	}
 
+	if (SkillIcon)
+	{
+		OriginalBrushTint = SkillIcon->GetBrush().TintColor;
+	}
+	
 	RefreshNode();
 }
 
@@ -52,6 +58,26 @@ void UKOSkillNodeWidget::NativeDestruct()
 	CachedSkillSubsystem = nullptr;
 
 	Super::NativeDestruct();
+}
+
+void UKOSkillNodeWidget::NativeOnSelected(bool bBroadcast)
+{
+	Super::NativeOnSelected(bBroadcast);
+	
+	if (SelectedImage)
+	{
+		SelectedImage->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UKOSkillNodeWidget::NativeOnDeselected(bool bBroadcast)
+{
+	Super::NativeOnDeselected(bBroadcast);
+	
+	if (SelectedImage)
+	{
+		SelectedImage->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UKOSkillNodeWidget::NativeOnClicked()
@@ -78,11 +104,11 @@ void UKOSkillNodeWidget::SetCurrentTypeText()
 	case ESkillExecutionType::Active:
 		CurrentTypeText->SetText(LOCTEXT("SkillType", "액티브"));
 		break;
-		
+
 	case ESkillExecutionType::ActiveExtension:
 		CurrentTypeText->SetText(LOCTEXT("SkillType", "추가동작"));
 		break;
-		
+
 	case ESkillExecutionType::PassiveStat:
 		CurrentTypeText->SetText(LOCTEXT("SkillType", "패시브"));
 		break;
@@ -103,13 +129,16 @@ void UKOSkillNodeWidget::ExecuteUnlock()
 	}
 }
 
-FReply UKOSkillNodeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+FReply UKOSkillNodeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry,
+                                                          const FPointerEvent& InMouseEvent)
 {
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton) && CanDragThisSkill())
 	{
-		// Preview 단계에서 드래그를 가로채면 NativeOnClicked가 발생하지 않아 Tooltip이 갱신되지 않는다.
-		// 드래그 시작 시에도 클릭과 동일하게 이 노드 기준으로 Tooltip을 갱신한다.
+		// Preview 단계에서 드래그를 가로채면 NativeOnClicked/SetSelected가 발생하지 않아
+		// Tooltip 갱신과 선택 표시(NativeOnSelected/NativeOnDeselected)가 이루어지지 않는다.
+		// 드래그 시작 시에도 클릭과 동일하게 이 노드 기준으로 Tooltip 갱신 및 선택 처리를 해준다.
 		NotifySkillNodeClicked();
+		SetIsSelected(GetSelected() == false, false);
 
 		FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this,
 		                                                                 EKeys::LeftMouseButton);
@@ -172,24 +201,51 @@ bool UKOSkillNodeWidget::CanDragThisSkill() const
 
 void UKOSkillNodeWidget::RefreshNode()
 {
-	if (OverlayImage == nullptr)
+	if (BackGroundImage == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill Node: OverlayImage를 찾을 수 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("Skill Node: BackGroundImage를 찾을 수 없습니다."));
 		return;
 	}
 
 	switch (CurrentState)
 	{
 	case ESkillState::Locked:
-		OverlayImage->SetColorAndOpacity(LockedColor);
-		break;
+		{
+			FSlateBrush SlateBrush;
+			SlateBrush.SetResourceObject(lockedImage);
+			BackGroundImage->SetBrush(SlateBrush);
+			
+			if (SkillIcon)
+			{
+				SkillIcon->SetBrushTintColor(FLinearColor::White);
+			}
+			break;
+		}
 
 	case ESkillState::CanUnlock:
-		OverlayImage->SetColorAndOpacity(CanUnlockColor);
-		break;
+		{
+			FSlateBrush SlateBrush;
+			SlateBrush.SetResourceObject(CanUnlockImage);
+			BackGroundImage->SetBrush(SlateBrush);
+			
+			if (SkillIcon)
+			{
+				SkillIcon->SetBrushTintColor(OriginalBrushTint);
+			}
+			break;
+		}
 
 	case ESkillState::Unlocked:
-		OverlayImage->SetColorAndOpacity(UnlockedColor);
-		break;
+		{
+			FSlateBrush SlateBrush;
+			SlateBrush.SetResourceObject(UnlockedImage);
+			BackGroundImage->SetBrush(SlateBrush);
+			
+			if (SkillIcon)
+			{
+				SkillIcon->SetBrushTintColor(OriginalBrushTint);
+			}
+			break;
+		}
 	}
 }

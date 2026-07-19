@@ -2,13 +2,16 @@
 
 #include "UI/Skill/KOSkillTreePopup.h"
 #include "UI/Skill/KOSkillNodeWidget.h"
+#include "UI/Skill/KOSkillTreeLink.h"
 #include "UI/Skill/KOSkillTooltipWidget.h"
 #include "UI/KOToastMessageWidget.h"
 #include "Subsystem/KOSkillSubsystem.h"
 #include "Data/Type/KOSkillTypes.h"
 #include "Skills/KOSkillLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+
 #include "Components/ScrollBox.h"
+#include "Groups/CommonButtonGroupBase.h"
 
 namespace
 {
@@ -36,16 +39,33 @@ void UKOSkillTreePopup::NativeConstruct()
 	CachedLoadSubsystem = UKOLoadSubsystem::Get(this);
 
 	SetupAndBindSkillNodes();
+
+	/**   BP를 통해 가져오므로 연결선 추가 시 BP에 등록 필요함   */
+	CachedSkillLinks = BP_GetAllSkillLinks();
+	RefreshAllSkillLinks();
+
 	ScrollBox->ScrollToEnd();
 
 	if (SkillTooltipWidget)
 	{
 		SkillTooltipWidget->OnConfirmed.AddDynamic(this, &UKOSkillTreePopup::HandleTooltipConfirmed);
 	}
-
+	
 	if (CachedSkillNodes.IsValidIndex(InitialSkillNodeIndex))
 	{
 		ShowSkillTooltip(CachedSkillNodes[InitialSkillNodeIndex]);
+	}
+	
+	SkillNodeGroup = NewObject<UCommonButtonGroupBase>(this);
+	
+	if (SkillNodeGroup && CachedSkillNodes.IsEmpty() == false)
+	{
+		for (UKOSkillNodeWidget* Node : CachedSkillNodes)
+		{
+			SkillNodeGroup->AddWidget(Node);
+		}
+		
+		SkillNodeGroup->DeselectAll();
 	}
 }
 
@@ -66,6 +86,7 @@ void UKOSkillTreePopup::NativeDestruct()
 		}
 	}
 	CachedSkillNodes.Empty();
+	CachedSkillLinks.Empty();
 	ActiveTooltipNode = nullptr;
 
 	Super::NativeDestruct();
@@ -114,6 +135,17 @@ void UKOSkillTreePopup::RefreshAllSkillNodes() const
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Skill Tree: SkillName [%s] 에 해당하는 Row 또는 ExRow를 찾을 수 없습니다."),
 			       *Node->GetSkillName().ToString());
+		}
+	}
+}
+
+void UKOSkillTreePopup::RefreshAllSkillLinks() const
+{
+	for (UKOSkillTreeLink* Link : CachedSkillLinks)
+	{
+		if (IsValid(Link))
+		{
+			Link->RefreshLink();
 		}
 	}
 }
@@ -214,6 +246,7 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 	}
 
 	RefreshAllSkillNodes();
+	RefreshAllSkillLinks();
 	RefreshActiveTooltip(ActiveTooltipNode);
 }
 
@@ -260,5 +293,4 @@ void UKOSkillTreePopup::ShowSkillTooltip(UKOSkillNodeWidget* Node)
 	ActiveTooltipNode = Node;
 
 	SkillTooltipWidget->InitializeSkillTooltipWidget(*SkillRow, SkillState, ExecutionTypeText, CostItemRows);
-	//SkillTooltipWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }

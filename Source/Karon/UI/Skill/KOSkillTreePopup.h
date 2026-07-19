@@ -6,12 +6,14 @@
 #include "KOSkillTreePopup.generated.h"
 
 class UKOSkillNodeWidget;
+class UKOSkillTreeLink;
 class UKOSkillSubsystem;
 class UKOSkillTooltipWidget;
 class UKOLoadSubsystem;
+class UKOToastMessageWidget;
 class UScrollBox;
 class UTextBlock;
-class UKOToastMessageWidget;
+class UCommonButtonGroupBase;
 
 /**
  * 팝업시킬 스킬창 모체
@@ -27,6 +29,7 @@ protected:
 	virtual void NativeDestruct() override;
 	
 	void RefreshAllSkillNodes() const;
+	void RefreshAllSkillLinks() const;
 	void SetupAndBindSkillNodes();
 	void RefreshActiveTooltip(UKOSkillNodeWidget* Node);
 	void HandleSkillNodeClicked(UKOSkillNodeWidget* ClickedNode);
@@ -43,16 +46,25 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillNodeWidget*> BP_GetAllSkillNodes() const;
-	
+
+	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
+	TArray<UKOSkillTreeLink*> BP_GetAllSkillLinks() const;
+
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UKOSkillTooltipWidget> SkillTooltipWidget;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UScrollBox> ScrollBox;
-
+	
+	UPROPERTY()
+	TObjectPtr<UCommonButtonGroupBase> SkillNodeGroup;
+	
 	UPROPERTY()
 	TArray<UKOSkillNodeWidget*> CachedSkillNodes;
-	
+
+	UPROPERTY()
+	TArray<UKOSkillTreeLink*> CachedSkillLinks;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly , Category="Skill Tree")
 	float TooltipInterval = 20.f;
 

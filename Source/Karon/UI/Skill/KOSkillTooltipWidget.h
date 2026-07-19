@@ -8,6 +8,7 @@
 
 class UCommonTextBlock;
 class UImage;
+class UBorder;
 class UVerticalBox;
 class UCommonButtonBase;
 class UKOSkillCostEntryWidget;
@@ -63,7 +64,7 @@ protected:
 
 	/** CanUnlock 상태가 아닐 때(Locked/Unlocked) ConfirmButton 위를 덮어 클릭을 막는 잠금 표시 이미지. */
 	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<UImage> ConfirmButtonLockedOverlay;
+	TObjectPtr<UBorder> ConfirmButtonLockedOverlay;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UKOSkillCostEntryWidget> CostWidget;

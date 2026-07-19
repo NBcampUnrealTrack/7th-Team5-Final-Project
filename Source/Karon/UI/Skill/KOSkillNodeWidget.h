@@ -35,6 +35,8 @@ public:
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	virtual void NativeOnSelected(bool bBroadcast) override;
+	virtual void NativeOnDeselected(bool bBroadcast) override;
 
 	FName GetSkillName() const { return SkillName; }
 	ESkillState GetCurrentState() const { return CurrentState; }
@@ -57,21 +59,25 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> SkillIcon;
-
+	
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UImage> OverlayImage;
+	TObjectPtr<UImage> SelectedImage;
+	
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UImage> BackGroundImage;
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> CurrentTypeText;
-
-	// 상태에 따른 색상 변경용 노출 변수
-	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
-	FLinearColor LockedColor = FLinearColor(0.2f, 0.2f, 0.2f, 0.8f);
-	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
-	FLinearColor CanUnlockColor = FLinearColor(1.f, 1.f, 0.5f, 0.4f);
-	UPROPERTY(EditDefaultsOnly, Category= "SKill|UI Color")
-	FLinearColor UnlockedColor = FLinearColor(1.f, 1.f, 1.f, 0.1f);
-
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SKill|Background Image")
+	TObjectPtr<UTexture2D> lockedImage;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SKill|Background Image")
+	TObjectPtr<UTexture2D> CanUnlockImage;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "SKill|Background Image")
+	TObjectPtr<UTexture2D> UnlockedImage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
 	FName SkillName;
 
@@ -82,7 +88,6 @@ protected:
 	ESkillExecutionType CurrentExType;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
-	
 	FGameplayTag SkillTag;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Skill")
@@ -91,6 +96,9 @@ protected:
 private:
 	TWeakObjectPtr<UKOSkillSubsystem> CachedSkillSubsystem;
 
+	UPROPERTY()
+	FSlateColor OriginalBrushTint;
+	
 	bool CanDragThisSkill() const;
 
 	/** OnSkillNodeClicked를 브로드캐스트해 Tooltip을 이 노드 기준으로 갱신시킨다. (클릭 / 드래그 시작 공용) */

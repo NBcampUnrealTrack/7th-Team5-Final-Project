@@ -4,13 +4,14 @@
 #include "UI/Skill/KOSkillCostEntryWidget.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Data/KODataTableTypes.h"
+#include "Data/Type/KOSkillTypes.h"
 
 #include "CommonButtonBase.h"
 #include "CommonTextBlock.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
-#include "Data/KODataTableTypes.h"
-#include "Data/Type/KOSkillTypes.h"
+#include "Components/Border.h"
 
 void UKOSkillTooltipWidget::NativeConstruct()
 {
