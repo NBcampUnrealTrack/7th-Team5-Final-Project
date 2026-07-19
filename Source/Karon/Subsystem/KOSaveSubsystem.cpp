@@ -373,7 +373,8 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 	
 	// 채집물 저장
 	SaveData->CollectedItemDropIds = CollectedItemDropIds.Array();
-	
+	// 파괴된 액터 저장
+	SaveData->DestroyedActorIds=DestroyedActorIds.Array();
 	// 안개 저장
 	if (UKOFogManagerSubsystem* FogSubsystem = UKOFogManagerSubsystem::Get(PC))
 	{
@@ -881,6 +882,17 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		);
 	}
 	
+	// 파괴된 액터 컨테이너 로드
+	DestroyedActorIds.Reset();
+
+	for (const FName& DestroyedId : SaveData->DestroyedActorIds)
+	{
+		if (!DestroyedId.IsNone())
+		{
+			DestroyedActorIds.Add(DestroyedId);
+		}
+	}
+	
 	// 채집물 로드
 	CollectedItemDropIds.Reset();
 
@@ -946,6 +958,7 @@ bool UKOSaveSubsystem::DeleteSave()
 	{
 		CollectedItemDropIds.Reset();
 		DeadMonsterIds.Reset();
+		DestroyedActorIds.Reset();
 	}
 
 	return bDeleted;
@@ -1055,4 +1068,19 @@ void UKOSaveSubsystem::MarkMonsterDead(FName MonsterSaveId)
 	}
 
 	DeadMonsterIds.Add(MonsterSaveId);
+}
+
+void UKOSaveSubsystem::MarkDestoryedActor(FName ActorSaveId)
+{
+	if (ActorSaveId.IsNone())
+	{
+		return;
+	}
+
+	DestroyedActorIds.Add(ActorSaveId);
+}
+
+bool UKOSaveSubsystem::CheckIsDestroyedActor(FName ActorSaveId)
+{
+	return DestroyedActorIds.Contains(ActorSaveId);
 }

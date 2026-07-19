@@ -287,6 +287,10 @@ public:
 	UPROPERTY()
 	TArray<FName> CollectedItemDropIds;	
 	
+	//파괴되는 액터 ID
+	UPROPERTY()
+	TArray<FName> DestroyedActorIds;
+	
 	// 안개 상태
 	UPROPERTY()
 	FKOSavedFogState FogState;

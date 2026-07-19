@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-19 00:25\n"
-"PO-Revision-Date: 2026-07-19 00:25\n"
+"POT-Creation-Date: 2026-07-19 09:45\n"
+"PO-Revision-Date: 2026-07-19 09:45\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -2518,6 +2518,48 @@ msgstr "Unsaved progress disappears. \r\nAre you sure you want to end the game?"
 msgctxt "Karon,InteractionLog"
 msgid "상호작용: {0}"
 msgstr "Interaction: {0}"
+
+#. Key:	NoLimit
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(187)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(187)
+msgctxt "KOOption,NoLimit"
+msgid "제한 없음"
+msgstr "NoLimit"
+
+#. Key:	Quality_Low
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(43)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(43)
+msgctxt "KOOption,Quality_Low"
+msgid "낮음"
+msgstr "Low"
+
+#. Key:	Quality_Medium
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(44)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(44)
+msgctxt "KOOption,Quality_Medium"
+msgid "보통"
+msgstr "Medium"
+
+#. Key:	Quality_High
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(45)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(45)
+msgctxt "KOOption,Quality_High"
+msgid "높음"
+msgstr "High"
+
+#. Key:	Quality_Epic
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(46)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(46)
+msgctxt "KOOption,Quality_Epic"
+msgid "최고"
+msgstr "Epic"
+
+#. Key:	Quality_Custom
+#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(56)
+#: Source/Karon/UI/Option/KOOptionWidget.cpp(56)
+msgctxt "KOOption,Quality_Custom"
+msgid "사용자 설정"
+msgstr "Custom"
 
 #. Key:	Active
 #. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)

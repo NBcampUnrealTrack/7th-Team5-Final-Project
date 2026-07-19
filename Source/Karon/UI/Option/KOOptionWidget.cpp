@@ -40,10 +40,10 @@ const TArray<int32> UKOOptionWidget::SupportedFrameLimits =
 
 const TArray<FString> UKOOptionWidget::QualityLabels =
 {
-	TEXT("낮음"),
-	TEXT("보통"),
-	TEXT("높음"),
-	TEXT("최고"),
+	TEXT("Low"),
+	TEXT("Medium"),
+	TEXT("High"),
+	TEXT("Epic"),
 };
 
 const TArray<FString> UKOOptionWidget::CultureLabels =
@@ -53,7 +53,7 @@ const TArray<FString> UKOOptionWidget::CultureLabels =
 };
 
 
-const FString UKOOptionWidget::CustomQualityLabel = TEXT("사용자 설정");
+const FString UKOOptionWidget::CustomQualityLabel = TEXT("Custom");
 
 // ---- 초기화 ----
 
@@ -186,7 +186,7 @@ void UKOOptionWidget::PopulateComboBoxes()
 		ComboBox_FrameLimit->ClearOptions();
 		for (int32 Limit : SupportedFrameLimits)
 		{
-			ComboBox_FrameLimit->AddOption(Limit == 0 ? TEXT("제한 없음") : FString::FromInt(Limit));
+			ComboBox_FrameLimit->AddOption(Limit == 0 ? TEXT("No Limit") : FString::FromInt(Limit));
 		}
 	}
 	
