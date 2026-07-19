@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-19 09:45\n"
-"PO-Revision-Date: 2026-07-19 09:45\n"
+"POT-Creation-Date: 2026-07-19 14:03\n"
+"PO-Revision-Date: 2026-07-19 14:03\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1060,8 +1060,8 @@ msgstr "Did you think the rat in the basement would still play with fire.."
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",E37514614BE44B1A917B9688EDD4AA93"
-msgid "이걸로 코어 1개.."
-msgstr "With this, one core.."
+msgid "땅의 코어인가.."
+msgstr "With this, Earth core.."
 
 #. Key:	42D50ECA409CB2C4A63920BAAF1C4712
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
@@ -2127,6 +2127,34 @@ msgctxt ",BAE0288440005CA1FDDBD58E5505A6F5"
 msgid "/"
 msgstr "/"
 
+#. Key:	D40A0A1B40E29DE1A428158D3D29694E
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillNode.Default__WBP_SkillNode_C.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillNode.Default__WBP_SkillNode_C.SkillNum
+msgctxt ",D40A0A1B40E29DE1A428158D3D29694E"
+msgid "00"
+msgstr "00"
+
+#. Key:	CB645F2444B96FB19F76EB9F617C1B81
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.CurrentTypeText.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.CurrentTypeText.Text
+msgctxt ",CB645F2444B96FB19F76EB9F617C1B81"
+msgid "Passive"
+msgstr "Passive"
+
+#. Key:	6E9A5AC641E67F0CDA199AA6A4A4F77A
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.NumberText.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.NumberText.Text
+msgctxt ",6E9A5AC641E67F0CDA199AA6A4A4F77A"
+msgid "00"
+msgstr "00"
+
+#. Key:	4D74CA1D43BF579924D677BEE28DE2DA
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.SkillNameText.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillNode.WBP_SkillNode_C:WidgetTree.SkillNameText.Text
+msgctxt ",4D74CA1D43BF579924D677BEE28DE2DA"
+msgid "플레시 스트라이크"
+msgstr "Flash Strike"
+
 #. Key:	8BFB339443809D2DD3D2DBB981A677CF
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
 #: /Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
@@ -2166,8 +2194,50 @@ msgstr "Skill Name"
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltipButton.WBP_SkillTooltipButton_C:WidgetTree.CommonTextBlock_49.Text
 #: /Game/Karon/UI/SkillPopup/WBP_SkillTooltipButton.WBP_SkillTooltipButton_C:WidgetTree.CommonTextBlock_49.Text
 msgctxt ",97D356BA4ECE9E68AB2BB5B7A0C7EB76"
-msgid "잠금 해제"
+msgid "습득"
 msgstr "Unlock"
+
+#. Key:	9E5CA4D74A887DAF844F16AF9FD1A475
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.BladeDanceSkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.BladeDanceSkillNode.SkillNum
+msgctxt ",9E5CA4D74A887DAF844F16AF9FD1A475"
+msgid "05"
+msgstr "05"
+
+#. Key:	4FC51BEC41D4F6AED006B49948C00857
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.DimensionSeverSkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.DimensionSeverSkillNode.SkillNum
+msgctxt ",4FC51BEC41D4F6AED006B49948C00857"
+msgid "06"
+msgstr "06"
+
+#. Key:	F17E70B447B963A149A379AE51134812
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.DiveSlashSkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.DiveSlashSkillNode.SkillNum
+msgctxt ",F17E70B447B963A149A379AE51134812"
+msgid "04"
+msgstr "04"
+
+#. Key:	1230160E4088D6857B7D4B96EB4AE9F2
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.FlashStrikeSkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.FlashStrikeSkillNode.SkillNum
+msgctxt ",1230160E4088D6857B7D4B96EB4AE9F2"
+msgid "02"
+msgstr "02"
+
+#. Key:	9ACB730C48D994D96A31858A23F49CB2
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.PassiveAttack1SkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.PassiveAttack1SkillNode.SkillNum
+msgctxt ",9ACB730C48D994D96A31858A23F49CB2"
+msgid "03"
+msgstr "03"
+
+#. Key:	7A73D3BE4C5DA7B9FB298D8F4526E277
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.PlungeSkillNode.SkillNum
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.PlungeSkillNode.SkillNum
+msgctxt ",7A73D3BE4C5DA7B9FB298D8F4526E277"
+msgid "01"
+msgstr "01"
 
 #. Key:	0DCB119943099D23CA50E5B80BEBF61B
 #. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
@@ -2519,47 +2589,12 @@ msgctxt "Karon,InteractionLog"
 msgid "상호작용: {0}"
 msgstr "Interaction: {0}"
 
-#. Key:	NoLimit
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(187)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(187)
-msgctxt "KOOption,NoLimit"
-msgid "제한 없음"
-msgstr "NoLimit"
-
-#. Key:	Quality_Low
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(43)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(43)
-msgctxt "KOOption,Quality_Low"
-msgid "낮음"
-msgstr "Low"
-
-#. Key:	Quality_Medium
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(44)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(44)
-msgctxt "KOOption,Quality_Medium"
-msgid "보통"
-msgstr "Medium"
-
-#. Key:	Quality_High
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(45)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(45)
-msgctxt "KOOption,Quality_High"
-msgid "높음"
-msgstr "High"
-
-#. Key:	Quality_Epic
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(46)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(46)
-msgctxt "KOOption,Quality_Epic"
-msgid "최고"
-msgstr "Epic"
-
-#. Key:	Quality_Custom
-#. SourceLocation:	Source/Karon/UI/Option/KOOptionWidget.cpp(56)
-#: Source/Karon/UI/Option/KOOptionWidget.cpp(56)
-msgctxt "KOOption,Quality_Custom"
-msgid "사용자 설정"
-msgstr "Custom"
+#. Key:	SkillType
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(79)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(79)
+msgctxt "KOSkillNodeWidget,SkillType"
+msgid "액티브"
+msgstr "Active"
 
 #. Key:	Active
 #. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)
