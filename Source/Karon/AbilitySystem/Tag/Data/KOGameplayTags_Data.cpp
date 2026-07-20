@@ -39,6 +39,7 @@ namespace KOGameplayTags
 	
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Guard, "Data.CoolTime.Guard");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Skill_CoolTime, "Data.Skill.CoolTime");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_LockOn, "Data.CoolTime.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Attack, "Data.CoolTime.Attack");

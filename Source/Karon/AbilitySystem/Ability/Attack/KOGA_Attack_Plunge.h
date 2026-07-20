@@ -78,7 +78,8 @@ private:
 
     
     UFUNCTION() void OnFallMontageCompleted();
-    UFUNCTION() void OnLandMontageCompleted();
     UFUNCTION() void OnMontageCancelled();
+    UFUNCTION() void OnMontageCompleted();
+    
     UFUNCTION() void OnLandEventReceived(FGameplayEventData Payload);
 };

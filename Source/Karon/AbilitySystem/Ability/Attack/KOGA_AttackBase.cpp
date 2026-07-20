@@ -9,8 +9,6 @@
 #include "AbilitySystem/Effect/KOGameplayEffectContext.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/KOCharacterBase.h"
-#include "Character/Enemy/KOBaseEnemy.h"
-#include "Character/Enemy/Boss/KOBossBase.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Data/KO_HitData.h"
@@ -23,7 +21,6 @@ UKOGA_AttackBase::UKOGA_AttackBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Skill);
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Drawing);
@@ -354,13 +351,13 @@ void UKOGA_AttackBase::OnTargetHit(const FHitResult& Hit)
 	AActor* HitActor = Hit.GetActor();
 	if (!Hit.bBlockingHit || !HitActor) return;
 	
-	KO_LOG(Combat, Warning, TEXT("HitActor : %s"), *HitActor->GetName());
-	
 	UAbilitySystemComponent* TargetASC = 
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 	
 	if (!TargetASC || TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead)) return;
 	TraceData.HitActors.Add(HitActor);
+	
+	KO_LOG(Combat, Warning, TEXT("HitActor : %s"), *HitActor->GetName());
 	
 	ApplyHitEffects(HitActor);
 	SendAttackEventsToTarget(HitActor);

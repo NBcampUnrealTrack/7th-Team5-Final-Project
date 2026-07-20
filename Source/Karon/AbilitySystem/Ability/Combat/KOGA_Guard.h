@@ -79,4 +79,7 @@ protected:
 	TSubclassOf<UGameplayEffect> GE_Guard_Reset; 
 	
 	FActiveGameplayEffectHandle GuardEffectHandle; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float LaunchAmount = 500.f;
 };

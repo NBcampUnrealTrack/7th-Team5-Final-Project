@@ -1,5 +1,6 @@
 ﻿#include "KOExecCalc_Damage.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "KOGameplayEffectContext.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Attribute/KOGuardSet.h"
@@ -155,7 +156,12 @@ void UKOExecCalc_Damage::RouteGuardDamage(
 			EventData.Target = TargetActor;
 			EventData.ContextHandle = Context;
 			
-			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_Success, &EventData);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+				TargetActor,
+				KOGameplayTags::Event_Guard_Success,
+				EventData
+			);
+			// TargetASC->HandleGameplayEvent(KOGameplayTags::Event_Guard_Success, &EventData);
 			
 			//방향이 맞는 상태에서 퍼펙트가드 성공시 해당 에너미 그로기
 			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard))

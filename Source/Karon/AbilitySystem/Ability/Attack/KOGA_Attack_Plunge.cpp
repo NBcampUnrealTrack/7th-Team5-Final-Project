@@ -50,6 +50,7 @@ void UKOGA_Attack_Plunge::ActivateAbility(
         this, NAME_None, ChargeMontage, 1.0f);
     CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
+    CurrentMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
     CurrentMontageTask->ReadyForActivation();
 }
 
@@ -130,7 +131,7 @@ void UKOGA_Attack_Plunge::StartLanding()
 
     CurrentMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, LandMontage, 1.0f);
-    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnLandMontageCompleted);
+    CurrentMontageTask->OnCompleted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCompleted);
     CurrentMontageTask->OnCancelled.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->OnInterrupted.AddDynamic(this, &UKOGA_Attack_Plunge::OnMontageCancelled);
     CurrentMontageTask->ReadyForActivation();
@@ -141,15 +142,15 @@ void UKOGA_Attack_Plunge::OnLandEventReceived(FGameplayEventData Payload)
     ApplyPlungeImpact(Payload);
 }
 
-void UKOGA_Attack_Plunge::OnLandMontageCompleted()
-{
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-}
 
 void UKOGA_Attack_Plunge::OnMontageCancelled()
 {
-    UE_LOG(LogTemp, Error, TEXT("[Plunge Debug] 몽타주가 재생되지 못하고 Cancel/Interrupt 되었습니다!")); // 로그 추가
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+
+void UKOGA_Attack_Plunge::OnMontageCompleted()
+{
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 // ── EndAbility: 중력 복구 보장 ────────────────────────────────────────────

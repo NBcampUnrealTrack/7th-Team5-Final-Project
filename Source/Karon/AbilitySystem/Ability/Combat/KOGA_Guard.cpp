@@ -8,6 +8,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Utility/Log/KOLogManager.h"
 
 UKOGA_Guard::UKOGA_Guard()
@@ -191,12 +192,22 @@ void UKOGA_Guard::OnGuardSuccess(FGameplayEventData Data)
 	ACharacter* Character = GetAvatarCharacter();
 	if (!Character) return;
 	
-	const FVector ForwardVector = Character->GetActorForwardVector();
-	Character->LaunchCharacter(ForwardVector * -100.f, true,false);
+	
+	
+	const FVector LaunchDir = -Character->GetActorForwardVector();
+	FVector FlatLaunchDir = FVector(LaunchDir.X, LaunchDir.Y, 0.f).GetSafeNormal();
+	
+	FVector LaunchVector = (FlatLaunchDir * LaunchAmount) + FVector(0.f, 0.f, 50.f);
+	
+	if (UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement())
+	{
+		MoveComp->StopMovementImmediately();
+	}
+	
+	Character->LaunchCharacter(LaunchVector, true,true);
 	
 	if (ASC->GetCurrentMontage() == GuardMontage)
-		ASC->CurrentMontageJumpToSection(TEXT("GuardUp"));
-	
+		ASC->CurrentMontageJumpToSection(FName("GuardUp"));
 	
 }
 
