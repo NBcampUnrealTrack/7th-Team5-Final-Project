@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
@@ -189,6 +190,24 @@ void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 		Boss->TriggerGroggy();
 	}
  
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters Params;
+		Params.EffectContext = ASC->MakeEffectContext();
+
+		UE_LOG(LogTemp, Log, TEXT("[DashAttack] ExecuteGameplayCue 호출 : %s"),
+			*KOGameplayTags::GameplayCue_CameraShake_BossAttack.GetTag().ToString());
+
+		ASC->ExecuteGameplayCue(
+			KOGameplayTags::GameplayCue_CameraShake_BossAttack,
+			Params
+		);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[DashAttack] ASC nullptr - GameplayCue 호출 실패"));
+	}
+	
 	StopDash();
 }
  

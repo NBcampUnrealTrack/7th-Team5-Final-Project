@@ -19,6 +19,10 @@ void AKOBossArcProjectile::BeginPlay()
 	{
 		CollisionComponent->MoveIgnoreActors.Add(OwnerActor);
 	}
+	if (APawn* InstigatorPawn = GetInstigator())
+	{
+		CollisionComponent->MoveIgnoreActors.AddUnique(InstigatorPawn);
+	}
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AKOBossArcProjectile::OnHit);
  
 	GetWorldTimerManager().SetTimer(
@@ -43,7 +47,14 @@ void AKOBossArcProjectile::OnHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (!OtherActor || OtherActor == GetOwner()) return;
+	if (!OtherActor)
+	{
+		return;
+	}
+	if (OtherActor == GetOwner() || OtherActor == GetInstigator())
+	{
+		return;
+	}
 	
 	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(OtherActor);
 	if (TargetASI && TargetASI->GetAbilitySystemComponent())

@@ -43,8 +43,11 @@ private:
 	int32 ProjectileCount = 6;
  
 	// 사출 속도
-	UPROPERTY(EditAnywhere, Category = "ArcProjectile")
-	float LaunchSpeedXY = 700.f;
+	UPROPERTY(EditAnywhere, Category = "ArcProjectile", meta = (ClampMin = "0.0"))
+	float MinLaunchSpeedXY = 500.f;
+
+	UPROPERTY(EditAnywhere, Category = "ArcProjectile", meta = (ClampMin = "0.0"))
+	float MaxLaunchSpeedXY = 900.f;
  
 	// 사출 높이
 	UPROPERTY(EditAnywhere, Category = "ArcProjectile")

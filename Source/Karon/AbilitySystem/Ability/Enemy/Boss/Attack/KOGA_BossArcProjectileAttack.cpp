@@ -104,8 +104,10 @@ void UKOGA_BossArcProjectileAttack::SpawnOneProjectile()
 		0.f
 	);
  
-	const FVector LaunchVelocity = HorizontalDir * LaunchSpeedXY + FVector::UpVector * LaunchSpeedZ;
-	const FVector SpawnLocation = Boss->GetActorLocation() + FVector(0.f, 0.f, 50.f);
+	const float RandomLaunchSpeedXY = FMath::RandRange(MinLaunchSpeedXY, MaxLaunchSpeedXY);
+	const FVector LaunchVelocity = HorizontalDir * RandomLaunchSpeedXY + FVector::UpVector * LaunchSpeedZ;
+	const float SpawnOffsetRadius = 50.f;
+	const FVector SpawnLocation = Boss->GetActorLocation() + FVector(0.f, 0.f, 50.f) + HorizontalDir * SpawnOffsetRadius;  // 발사 방향으로 밀어서 스폰
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = Boss;
