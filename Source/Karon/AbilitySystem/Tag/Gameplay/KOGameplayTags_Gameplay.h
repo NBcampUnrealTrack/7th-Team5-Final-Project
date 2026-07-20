@@ -43,4 +43,10 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sword_Hit); 
 	
+	// ───────────────────────── Core ─────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Lightning);
+	
 }

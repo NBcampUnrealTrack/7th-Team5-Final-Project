@@ -15,6 +15,7 @@
 #include "Items/KOItemLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Subsystem/KOQuestGuideSubsystem.h"
+#include "Subsystem/KOUnlockSubsystem.h"
 #include "UI/Craft/KOFactoryCraftCostEntryWidget.h"
 #include "UI/Craft/KOFactoryCraftEntryWidget.h"
 
@@ -27,6 +28,12 @@ UKOFactoryCraftWidget::UKOFactoryCraftWidget()
 void UKOFactoryCraftWidget::NativeConstruct()
 {
     Super::NativeConstruct();
+    
+    if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+    {
+        UnlockSubsystem->OnUnlockTagGranted.AddUObject(this, &UKOFactoryCraftWidget::HandleUnlockTagGranted);
+    }
+
 
     if (CraftButton)
     {
@@ -103,6 +110,11 @@ void UKOFactoryCraftWidget::NativeDestruct()
         IncreaseCraftCount10Button->OnClicked.RemoveDynamic(
             this, &UKOFactoryCraftWidget::HandleIncreaseCraftCount10Clicked
         );
+    }
+    
+    if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+    {
+        UnlockSubsystem->OnUnlockTagGranted.RemoveAll(this);
     }
 
     Super::NativeDestruct();
@@ -191,10 +203,20 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
             SelectedTarget = Target;
         }
     };
-
-    // 1. 설비 목록 추가
+    
+    // 해금 태그 확인
     FKOBuildMenuQuery Query;
 
+    if (const UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+    {
+        Query.OwnedUnlocks = UnlockSubsystem->GetOwnedUnlockTags();
+    }
+    else
+    {
+        Query.OwnedUnlocks.Reset();
+    }
+
+    // 1. 설비 목록 추가
     TArray<FName> FactoryIds;
     LoadSub->GetBuildableFactoryIds(Query, FactoryIds);
 
@@ -652,8 +674,16 @@ bool UKOFactoryCraftWidget::CraftSelectedTarget()
     return true;
 }
 
+void UKOFactoryCraftWidget::HandleUnlockTagGranted(FGameplayTag GrantedTag)
+{
+    SelectedTarget = FKOCraftTarget();
+    CraftCount = MinCraftCount;
+
+    Refresh();
+}
+
 bool UKOFactoryCraftWidget::BuildRequiredItems(const FKOCraftTarget& Target, int32 InCraftCount, 
-    TArray<TPair<FName, int32>>& OutRequiredItems) const
+                                               TArray<TPair<FName, int32>>& OutRequiredItems) const
 {
     OutRequiredItems.Reset();
 

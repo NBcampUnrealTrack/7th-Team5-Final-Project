@@ -29,6 +29,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Equipment,   "Item.Category.Equipment");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Consumable,   "Item.Category.Consumable");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Core, "Item.Category.Core");
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_BasicModule, "Item.BasicModule");
@@ -55,4 +56,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Herb,			"Item.Herb");
 	UE_DEFINE_GAMEPLAY_TAG(Item_HerbJuice,      "Item.HerbJuice");
 	UE_DEFINE_GAMEPLAY_TAG(Item_HealingPotion,  "Item.HealingPotion");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Item_Earth,  "Item.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Water,  "Item.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Fire,  "Item.Fire");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Lightning,  "Item.Lightning");
 }

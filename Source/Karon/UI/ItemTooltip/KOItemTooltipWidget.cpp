@@ -108,6 +108,11 @@ FText UKOItemTooltipWidget::ResolveCategoryText(EKOSlotKind Kind, FName Id) cons
 	{
 		return NSLOCTEXT("Karon", "EnergyResource", "에너지 자원");
 	}
+	
+	if (ItemRow->Categories.HasTagExact(KOGameplayTags::Item_Category_Core))
+	{
+		return NSLOCTEXT("Karon", "Core", "코어");
+	}
 
 	return NSLOCTEXT("Karon", "Others", "기타");
 }

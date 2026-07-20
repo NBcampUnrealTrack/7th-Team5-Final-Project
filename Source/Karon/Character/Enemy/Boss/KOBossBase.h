@@ -1,9 +1,9 @@
 #pragma once
  
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
-
 
 class UKOGroggySet;
 struct FOnAttributeChangeData;
@@ -105,6 +105,10 @@ protected:
 	// 기믹 준비 체력 비율
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss | Gimmick")
 	TArray<float> GimmickReadyRatios = {0.5f, 0.15f};
+	
+	/** 보스를 실제로 처치했을 때 획득할 영구 해금 태그 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Boss|Reward", meta = (Categories = "Unlock.Core"))
+	FGameplayTag GrantedUnlockTag;
  
 private:
 	TSharedPtr<FStreamableHandle> StreamableHandle;
@@ -115,6 +119,9 @@ private:
 	void ApplyAbilities();
 	
 	bool bPlayerDetected = false;
+	
+	// 태그 지급
+	void GrantBossUnlockReward();
  
 	// 페이즈 관리
 public:

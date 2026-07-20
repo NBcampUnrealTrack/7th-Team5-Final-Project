@@ -19,6 +19,7 @@
 #include "Subsystem/KOSaveSubsystem.h"
 #include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Subsystem/KOUnlockSubsystem.h"
 
 AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -74,6 +75,7 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	bIsDead = true;
 	NotifyPlayerLost();
 	
+	GrantBossUnlockReward();
 	OnBossDeath();
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
@@ -509,4 +511,30 @@ void AKOBossBase::ApplyAbilities()
 		FGameplayAbilitySpec Spec(AbilityClass, 1, INDEX_NONE, this);
 		AbilitySystemComponent->GiveAbility(Spec);
 	}
+}
+
+void AKOBossBase::GrantBossUnlockReward()
+{
+	if (!GrantedUnlockTag.IsValid())
+	{
+		return;
+	}
+
+	UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this);
+
+	if (!UnlockSubsystem)
+	{
+		return;
+	}
+
+	const bool bNewlyGranted = UnlockSubsystem->GrantUnlockTag(GrantedUnlockTag);
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("[Boss] 해금 보상 처리. Boss=%s, Tag=%s, New=%s"),
+		*GetName(),
+		*GrantedUnlockTag.ToString(),
+		bNewlyGranted ? TEXT("True") : TEXT("False")
+	);
 }

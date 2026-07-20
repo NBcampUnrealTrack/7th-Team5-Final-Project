@@ -49,6 +49,8 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Consumable); // 물약
 	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource); // 석탄
+	/** 코어 카테고리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Core); // 땅, 물, 불, 전기 코어
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
 	/** 기초 모듈 */
@@ -97,4 +99,10 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HerbJuice);
 	/** 회복약 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HealingPotion);
+	
+	// ─── 코어 아이템 ──────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Lightning);
 	}

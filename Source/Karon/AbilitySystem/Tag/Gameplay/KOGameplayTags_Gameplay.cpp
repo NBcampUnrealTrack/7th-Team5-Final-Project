@@ -26,4 +26,10 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Hammer_Overlay, "GameplayCue.Hammer.Overlay");
 	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sword_Hit, "GameplayCue.Sword.Hit"); 
+	
+	// ───────────────────────── Core ─────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Unlock_Core_Earth, "Unlock.Core.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Unlock_Core_Water, "Unlock.Core.Water"); 
+	UE_DEFINE_GAMEPLAY_TAG(Unlock_Core_Fire, "Unlock.Core.Fire"); 
+	UE_DEFINE_GAMEPLAY_TAG(Unlock_Core_Lightning, "Unlock.Core.Lightning"); 
 }

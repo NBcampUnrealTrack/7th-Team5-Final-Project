@@ -153,6 +153,8 @@ private:
     
     bool CraftSelectedTarget(); // 설비/장비 제작
     
+    void HandleUnlockTagGranted(FGameplayTag GrantedTag); // 해금 태그 추가 시 UI 갱신
+    
     void SetCraftCount(int32 NewCount);
     void RefreshCraftCountText();
     int32 GetMaxCraftableCount(const FKOCraftTarget& Target) const;
