@@ -23,9 +23,11 @@ UKOGA_AttackBase::UKOGA_AttackBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AttackEventTags.AddTag(KOGameplayTags::Event_HitReact); 
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Skill);
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Drawing);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Skill);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 

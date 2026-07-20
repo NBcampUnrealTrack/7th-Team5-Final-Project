@@ -16,7 +16,7 @@ namespace KOGameplayTags
 	
 	// ── State | Character | Attacking ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Attacking);
-
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Skill);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_Drawing);
 	// ── State | Character | OverClock ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_OverClock);
