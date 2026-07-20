@@ -322,6 +322,7 @@ void AKOBossCH01Platform::BreakApart()
 
 			DebrisComp->SetCollisionProfileName(TEXT("PhysicsActor"));
 			DebrisComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			DebrisComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			DebrisComp->SetSimulatePhysics(true);
 
 			// 무작위 방향으로 튕겨나가게
