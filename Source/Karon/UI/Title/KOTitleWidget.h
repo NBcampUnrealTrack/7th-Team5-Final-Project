@@ -39,6 +39,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Loading Widget")
 	TSubclassOf<UCommonActivatableWidget> LoadingWidget;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sound | StartButtonSound")
+	void PlayStartOrLoadButtonSound() const;
 private:
 	void OnStartGameClicked();
 	void OnQuitGameClicked();

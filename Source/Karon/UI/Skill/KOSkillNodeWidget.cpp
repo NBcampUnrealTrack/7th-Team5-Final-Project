@@ -7,6 +7,7 @@
 #include "UI/Skill/KOSkillDragDropOperation.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Framework/Application/SlateApplication.h"
 #include "InputCoreTypes.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -139,6 +140,12 @@ FReply UKOSkillNodeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeo
 		// 드래그 시작 시에도 클릭과 동일하게 이 노드 기준으로 Tooltip 갱신 및 선택 처리를 해준다.
 		NotifySkillNodeClicked();
 		SetIsSelected(GetSelected() == false, false);
+
+		// 이 경로는 SButton의 정상 클릭 처리를 거치지 않으므로 클릭 사운드도 직접 재생해준다.
+		if (IsInteractionEnabled())
+		{
+			FSlateApplication::Get().PlaySound(ClickedSlateSoundOverride);
+		}
 
 		FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this,
 		                                                                 EKeys::LeftMouseButton);

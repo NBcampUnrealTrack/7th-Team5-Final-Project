@@ -311,6 +311,8 @@ void UKOPlayerMenuWidget::HandleQuitGameClicked()
 
 void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
 {
+	PlayBackToTitleButtonSound();
+	
 	FName TargetLevelName = FName("L_MainMenu");
 	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
 	{

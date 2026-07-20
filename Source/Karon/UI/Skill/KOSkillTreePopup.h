@@ -40,18 +40,34 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category="Skill Tree")
 	UKOSkillSubsystem* GetSkillSubsystem() const { return SkillSubsystem; }
-
-	UPROPERTY(BlueprintReadOnly, Category="Skill Tree")
-	TObjectPtr<UKOSkillSubsystem> SkillSubsystem;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillNodeWidget*> BP_GetAllSkillNodes() const;
 
 	UFUNCTION(BlueprintImplementableEvent, Category= "Skill Tree")
 	TArray<UKOSkillTreeLink*> BP_GetAllSkillLinks() const;
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sound")
+	void PlayUnlockSuccessSound();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sound")
+	void PlayUnlockFauledSound();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly , Category="Skill Tree")
+	float TooltipInterval = 20.f;
+
+	// 팝업이 처음 생성될 때 SkillTooltipWidget을 갱신할 기준 노드의 인덱스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Skill Tree")
+	int32 InitialSkillNodeIndex = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Skill Tree")
+	TObjectPtr<UKOSkillSubsystem> SkillSubsystem;
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UKOSkillTooltipWidget> SkillTooltipWidget;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UKOToastMessageWidget> ToastMessageWidget;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UScrollBox> ScrollBox;
@@ -65,18 +81,8 @@ protected:
 	UPROPERTY()
 	TArray<UKOSkillTreeLink*> CachedSkillLinks;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly , Category="Skill Tree")
-	float TooltipInterval = 20.f;
-
-	// 팝업이 처음 생성될 때 SkillTooltipWidget을 갱신할 기준 노드의 인덱스
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Skill Tree")
-	int32 InitialSkillNodeIndex = 0;
-
 	UPROPERTY()
 	TObjectPtr<UKOSkillNodeWidget> ActiveTooltipNode;
-	
-	UPROPERTY(meta = (BindWidgetOptional))
-	TObjectPtr<UKOToastMessageWidget> ToastMessageWidget;
 
 private:
 	UPROPERTY()

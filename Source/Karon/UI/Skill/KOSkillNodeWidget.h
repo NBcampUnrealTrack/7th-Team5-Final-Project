@@ -35,14 +35,14 @@ public:
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	virtual void NativeOnSelected(bool bBroadcast) override;
-	virtual void NativeOnDeselected(bool bBroadcast) override;
 
 	FName GetSkillName() const { return SkillName; }
 	ESkillState GetCurrentState() const { return CurrentState; }
 
 protected:
 	virtual void NativeOnClicked() override;
+	virtual void NativeOnSelected(bool bBroadcast) override;
+	virtual void NativeOnDeselected(bool bBroadcast) override;
 
 	virtual FReply
 	NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;

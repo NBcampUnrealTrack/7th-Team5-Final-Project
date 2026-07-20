@@ -235,6 +235,8 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 
 	if (bUnlocked == false)
 	{
+		PlayUnlockFauledSound();
+		
 		const FText& ReasonText = SkillSubsystem->GetLastUnlockFailureReason();
 
 		if (!ReasonText.IsEmpty() && ToastMessageWidget)
@@ -243,6 +245,10 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 		}
 
 		return;
+	}
+	else
+	{
+		PlayUnlockSuccessSound();
 	}
 
 	RefreshAllSkillNodes();

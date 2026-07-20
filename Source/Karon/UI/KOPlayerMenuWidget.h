@@ -81,6 +81,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Loading Widget")
 	TSubclassOf<UCommonActivatableWidget> DefaultLoadingWidget;
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sound | BackToTitleButtonSound")
+	void PlayBackToTitleButtonSound() const;
+	
 private:
 	UFUNCTION()
 	void HandleInventoryClicked();

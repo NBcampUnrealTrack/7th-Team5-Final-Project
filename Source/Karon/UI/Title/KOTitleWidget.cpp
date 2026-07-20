@@ -53,6 +53,8 @@ void UKOTitleWidget::NativeDestruct()
 
 void UKOTitleWidget::StartGameConfirmation()
 {
+	PlayStartOrLoadButtonSound();
+	
 	// 기존 해금 태그 초기화
 	if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
 	{
@@ -138,7 +140,7 @@ void UKOTitleWidget::OnQuitGameClicked()
 void UKOTitleWidget::OnLoadClicked() const
 {
 	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
-	if (!SaveSubsystem)
+	if (SaveSubsystem == nullptr)
 	{
 		return;
 	}
@@ -155,6 +157,8 @@ void UKOTitleWidget::OnLoadClicked() const
 		}
 		return;
 	}
+	
+	PlayStartOrLoadButtonSound();
 
 	SaveSubsystem->RequestLobbyLoad();
 
