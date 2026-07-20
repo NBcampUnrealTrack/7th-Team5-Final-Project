@@ -4,6 +4,7 @@
 #include "GameFramework/SaveGame.h"
 #include "Items/KOItemSlot.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "GameplayTagContainer.h"
 #include "Component/Inventory/KOEquipmentComponent.h"
 #include "KOSaveGame.generated.h"
 
@@ -294,4 +295,8 @@ public:
 	// 안개 상태
 	UPROPERTY()
 	FKOSavedFogState FogState;
+	
+	// 영구 해금 태그
+	UPROPERTY(BlueprintReadWrite, SaveGame)
+	FGameplayTagContainer OwnedUnlockTags;
 };

@@ -6,6 +6,7 @@
 #include "UI/Loading/KOLoadingUiSubsystem.h"
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 #include "Subsystem/KOSaveSubsystem.h"
+#include "Subsystem/KOUnlockSubsystem.h"
 
 #include "CommonButtonBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,6 +53,12 @@ void UKOTitleWidget::NativeDestruct()
 
 void UKOTitleWidget::StartGameConfirmation()
 {
+	// 기존 해금 태그 초기화
+	if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+	{
+		UnlockSubsystem->ResetUnlockTags();
+	}
+	
 	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
 	{
 		// 이전 진행 세이브 삭제

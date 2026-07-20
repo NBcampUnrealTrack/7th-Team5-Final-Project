@@ -55,15 +55,12 @@ public:
     // 죽은 몬스터 목록
     void MarkMonsterDead(FName MonsterSaveId);
     
-    
-    
     // 파괴된 액터 목록
     UFUNCTION(BlueprintCallable)
     void MarkDestoryedActor(FName ActorSaveId);
     
     UFUNCTION(BlueprintCallable)
     bool CheckIsDestroyedActor(FName ActorSaveId);
- 
     
     UFUNCTION(BlueprintPure, Category = "KO|Save")
     bool HasLobbyLoadRequest() const { return bLobbyLoadRequested; }

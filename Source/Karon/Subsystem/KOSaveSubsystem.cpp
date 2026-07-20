@@ -16,6 +16,7 @@
 #include "KOEnemyDataSubsystem.h"
 #include "KOGridSubsystem.h"
 #include "KOQuestGuideSubsystem.h"
+#include "KOUnlockSubsystem.h"
 #include "Building/KOBaseBuilding.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
 #include "Character/Enemy/KOBaseEnemy.h"
@@ -280,6 +281,12 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 		}
 
 		SaveData->Buildings.Add(SavedBuilding);
+	}
+	
+	// 해금 태그 저장
+	if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+	{
+		SaveData->OwnedUnlockTags = UnlockSubsystem->GetOwnedUnlockTags();
 	}
 	
 	// 몬스터 상태 저장
@@ -660,6 +667,12 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 				ConveyorState.bHasSelectedOutputPort
 			);
 		}
+	}
+	
+	// 해금 태그 로드
+	if (UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this))
+	{
+		UnlockSubsystem->RestoreUnlockTags(SaveData->OwnedUnlockTags);
 	}
 	
 	// 몬스터 상태 로드
