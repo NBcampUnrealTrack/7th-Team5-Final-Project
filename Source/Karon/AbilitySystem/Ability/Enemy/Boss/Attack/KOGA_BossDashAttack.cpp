@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "Data/KO_HitData.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 UKOGA_BossDashAttack::UKOGA_BossDashAttack()
 {
@@ -188,6 +189,15 @@ void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 	if (Boss)
 	{
 		Boss->TriggerGroggy();
+		
+		if (GimmickSuccessSFX)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				GetWorld(),
+				GimmickSuccessSFX,
+				Boss->GetActorLocation()
+			);
+		}
 	}
  
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())

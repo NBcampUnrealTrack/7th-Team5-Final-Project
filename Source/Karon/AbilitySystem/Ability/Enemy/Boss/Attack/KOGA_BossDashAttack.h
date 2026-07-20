@@ -41,6 +41,9 @@ protected:
  
 	UPROPERTY(EditAnywhere, Instanced, Category = "Dash")
 	TObjectPtr<UKO_HitData> HitData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash|SFX")
+	TObjectPtr<USoundBase> GimmickSuccessSFX;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	TObjectPtr<UAnimMontage> PreDashMontage;
