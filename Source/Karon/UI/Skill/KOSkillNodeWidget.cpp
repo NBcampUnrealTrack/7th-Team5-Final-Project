@@ -102,15 +102,15 @@ void UKOSkillNodeWidget::SetCurrentTypeText()
 	switch (CurrentExType)
 	{
 	case ESkillExecutionType::Active:
-		CurrentTypeText->SetText(LOCTEXT("SkillType", "액티브"));
+		CurrentTypeText->SetText(LOCTEXT("SkillType_Active", "액티브"));
 		break;
 
 	case ESkillExecutionType::ActiveExtension:
-		CurrentTypeText->SetText(LOCTEXT("SkillType", "추가동작"));
+		CurrentTypeText->SetText(LOCTEXT("SkillType_Additional", "추가동작"));
 		break;
 
 	case ESkillExecutionType::PassiveStat:
-		CurrentTypeText->SetText(LOCTEXT("SkillType", "패시브"));
+		CurrentTypeText->SetText(LOCTEXT("SkillType_Passive", "패시브"));
 		break;
 	}
 }

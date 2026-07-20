@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-19 14:03\n"
-"PO-Revision-Date: 2026-07-19 14:03\n"
+"POT-Creation-Date: 2026-07-20 14:30\n"
+"PO-Revision-Date: 2026-07-20 14:30\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -26,6 +26,13 @@ msgstr "Needs to have "
 msgctxt ",F48CDDBE4CF4C502B9CB7DBFEB5EDED8"
 msgid "Skipping updating the trigger weight threshold for {0}  since we don't support UAnimNotifyStates for now."
 msgstr "Skipping updating the trigger weight threshold for {0}  since we don't support UAnimNotifyStates for now."
+
+#. Key:	0486E7024BFEF507F9592491A1D628F9
+#. SourceLocation:	/Game/Karon/Character/Enemy/L_TestEnemyLevel.L_TestEnemyLevel:PersistentLevel.BP_WorldOverlapNotice_C_2.WorldName
+#: /Game/Karon/Character/Enemy/L_TestEnemyLevel.L_TestEnemyLevel:PersistentLevel.BP_WorldOverlapNotice_C_2.WorldName
+msgctxt ",0486E7024BFEF507F9592491A1D628F9"
+msgid "폐광 지하"
+msgstr "abandoned mine"
 
 #. Key:	C5DBDE764EE15854AA3F68A48AE844B0
 #. SourceLocation:	/Game/Karon/Data/DT_Skill.DT_Skill.BladeDance.Description
@@ -1098,6 +1105,48 @@ msgctxt ",DEC18C4640D9217A3FC22CB429047C07"
 msgid "설계도는 아직 내 머릿속에 있어."
 msgstr "but the blueprint still remains in my mind."
 
+#. Key:	13AA101B422F9E51CD28F1AC2814D118
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",13AA101B422F9E51CD28F1AC2814D118"
+msgid "여기까지다.."
+msgstr "Is Over.."
+
+#. Key:	3F00D11C4E57787F7E9320B1CF1B4571
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",3F00D11C4E57787F7E9320B1CF1B4571"
+msgid "내 모든 군단을 풀어라.."
+msgstr "Unleash all my legions.."
+
+#. Key:	404CD8B04304EA5CBDB640992E059BDE
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",404CD8B04304EA5CBDB640992E059BDE"
+msgid "너에게 허락된 시간은.."
+msgstr "The time you're allowed.."
+
+#. Key:	7BCBFF9F4F49494F393B8AA1762A9032
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",7BCBFF9F4F49494F393B8AA1762A9032"
+msgid "여기를 네놈의 무덤으로 만들어주마.."
+msgstr "I'll make this your grave.."
+
+#. Key:	B7DAFBAB4EDF8406E41622B1548AE4A1
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",B7DAFBAB4EDF8406E41622B1548AE4A1"
+msgid "기어이 내 턱밑까지 칼날을 겨누었구나.."
+msgstr "Finally pointed the blade under my chin.."
+
+#. Key:	EA725BE7468BEA996E964183AA27C0D7
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
+msgctxt ",EA725BE7468BEA996E964183AA27C0D7"
+msgid "To be Continued.."
+msgstr "To be Continued.."
+
 #. Key:	WorldName_Cave
 #. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
 #: /Game/Karon/Localization/ST_WorldName.ST_WorldName
@@ -1202,6 +1251,69 @@ msgstr "SKill"
 msgctxt ",626052014365C8BD9FE53B963CFBE32F"
 msgid "7"
 msgstr "7"
+
+#. Key:	EFFDB9D046A7A60BC852438C7E4E7A4C
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.CraftButtonText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.CraftButtonText.Text
+msgctxt ",EFFDB9D046A7A60BC852438C7E4E7A4C"
+msgid "제작"
+msgstr "Craft"
+
+#. Key:	C3451F1B4F241BCD7B6C968EA7945A27
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.CraftCountText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.CraftCountText.Text
+msgctxt ",C3451F1B4F241BCD7B6C968EA7945A27"
+msgid "99"
+msgstr "99"
+
+#. Key:	09D31D5F4D0EF54DC9AEA7B5BD9AF137
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.FactoryDescriptionText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.FactoryDescriptionText.Text
+msgctxt ",09D31D5F4D0EF54DC9AEA7B5BD9AF137"
+msgid "석탄을 태워 압력을 생산하는 기계. 모든 설비 라인의 시작점이다."
+msgstr "A machine that generates pressure by burning coal. It's the starting point for any line of facilities."
+
+#. Key:	DA80413749418F6C22AEA4A38A75018F
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.FactoryNameText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.FactoryNameText.Text
+msgctxt ",DA80413749418F6C22AEA4A38A75018F"
+msgid "보일러"
+msgstr "Boiler"
+
+#. Key:	2F3157544F79CE64AAD9109CEF981267
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.OwnedCountText.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.OwnedCountText.Text
+msgctxt ",2F3157544F79CE64AAD9109CEF981267"
+msgid "보유 2 "
+msgstr "Have 2"
+
+#. Key:	76D7BD124B6A73F6E0BE97B9E500C353
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption.Text
+msgctxt ",76D7BD124B6A73F6E0BE97B9E500C353"
+msgid "레시피"
+msgstr "Recipe"
+
+#. Key:	D01357B747F4D6BD739B85ABF0FB4E41
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_1.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_1.Text
+msgctxt ",D01357B747F4D6BD739B85ABF0FB4E41"
+msgid "제작 정보"
+msgstr "Craft Info"
+
+#. Key:	EACC93F24D6C188F3DE2D29489F7E519
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_2.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_2.Text
+msgctxt ",EACC93F24D6C188F3DE2D29489F7E519"
+msgid "RECIPE"
+msgstr "RECIPE"
+
+#. Key:	8BC20F2F4B39C8F42A5E0EB56709D3BB
+#. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_3.Text
+#: /Game/Karon/UI/Factory/Craft/WBP_BuildFactoryCraftWidget.WBP_BuildFactoryCraftWidget_C:WidgetTree.Txt_Caption_3.Text
+msgctxt ",8BC20F2F4B39C8F42A5E0EB56709D3BB"
+msgid "DETAIL"
+msgstr "DETAIL"
 
 #. Key:	193135BB424D8853F423429FB126C9F3
 #. SourceLocation:	/Game/Karon/UI/Factory/Craft/WBP_FactoryCraftCostEntryWidget.WBP_FactoryCraftCostEntryWidget_C:WidgetTree.CountText.Text
@@ -1473,7 +1585,7 @@ msgstr "Crafted Item"
 #. SourceLocation:	/Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.BackToLastSaveButton.NewText
 #: /Game/Karon/UI/GameOver/WBP_GameOverMenu.WBP_GameOverMenu_C:WidgetTree.BackToLastSaveButton.NewText
 msgctxt ",8CFC343144923039CA780596435BF7D1"
-msgid "마지막 저장 지점으로 돌아가기"
+msgid "마지막 저장 불러오기"
 msgstr "Return to Last Save Point"
 
 #. Key:	288692F3457CA179D80CDF805419CCA1
@@ -1651,26 +1763,33 @@ msgctxt ",13059E384B1D2CFFB11D5BB98AB5EE70"
 msgid "메뉴"
 msgstr "Menu"
 
-#. Key:	21ABE77B4327E918122E8B94BD6FB1A1
+#. Key:	309A03804866CB47A8F10AA4B881C192
 #. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.CoolDownText.Text
 #: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.CoolDownText.Text
-msgctxt ",21ABE77B4327E918122E8B94BD6FB1A1"
+msgctxt ",309A03804866CB47A8F10AA4B881C192"
 msgid "00"
 msgstr "00"
 
-#. Key:	E60E27504603FD5595216DB138CF1260
-#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
-#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
-msgctxt ",E60E27504603FD5595216DB138CF1260"
-msgid "00"
-msgstr "00"
-
-#. Key:	5BF1DFBF43F39C50005139970929B089
-#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.TextBlock_53.Text
-#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.TextBlock_53.Text
-msgctxt ",5BF1DFBF43F39C50005139970929B089"
+#. Key:	AE7923924888E078A97264BB8F3EA116
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.KeyLabelText.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.KeyLabelText.Text
+msgctxt ",AE7923924888E078A97264BB8F3EA116"
 msgid "T"
 msgstr "T"
+
+#. Key:	C754E4654690ADD76AA881B342344C60
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText.Text
+msgctxt ",C754E4654690ADD76AA881B342344C60"
+msgid "00"
+msgstr "00"
+
+#. Key:	0522FC624F10532EC4757A986C397BBF
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText_1.Text
+#: /Game/Karon/UI/HUD/WBP_PotionHUDWidget.WBP_PotionHUDWidget_C:WidgetTree.PotionCountText_1.Text
+msgctxt ",0522FC624F10532EC4757A986C397BBF"
+msgid "0"
+msgstr "0"
 
 #. Key:	17E656C34C345DA54C3DA9858C2199EF
 #. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.DescriptionText.Text
@@ -1714,10 +1833,10 @@ msgctxt ",9BE25C6640AA9BD6254174AFE376F125"
 msgid "정보창"
 msgstr "Info Panel"
 
-#. Key:	69D0F93D4889CF360AF1F8A7072A79AF
+#. Key:	ADED557D4235651EBD21D4849ED59709
 #. SourceLocation:	/Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.KeyName.Text
 #: /Game/Karon/UI/HUD/WBP_ShortcutKeyIconBase.WBP_ShortcutKeyIconBase_C:WidgetTree.KeyName.Text
-msgctxt ",69D0F93D4889CF360AF1F8A7072A79AF"
+msgctxt ",ADED557D4235651EBD21D4849ED59709"
 msgid "Tab"
 msgstr "Tab"
 
@@ -1809,8 +1928,330 @@ msgstr "LV 2"
 #. SourceLocation:	/Game/Karon/UI/Loading/WBP_DefaultLoadingWidget.WBP_DefaultLoadingWidget_C:WidgetTree.CommonTextBlock_56.Text
 #: /Game/Karon/UI/Loading/WBP_DefaultLoadingWidget.WBP_DefaultLoadingWidget_C:WidgetTree.CommonTextBlock_56.Text
 msgctxt ",6B39323D4F5666155DEF969978A44B3D"
-msgid "Loading . . ."
+msgid "Loading ..."
 msgstr "Loading . . ."
+
+#. Key:	7959283C4017066BA7177BA8F246C5DD
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_1.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_1.Text
+msgctxt ",7959283C4017066BA7177BA8F246C5DD"
+msgid "김현석"
+msgstr "김현석"
+
+#. Key:	7B01D2D449452B2ECC6658800D3641E9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_103.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_103.Text
+msgctxt ",7B01D2D449452B2ECC6658800D3641E9"
+msgid "내일배움캠프"
+msgstr "내일배움캠프"
+
+#. Key:	E03DB611444C7AA3D77BDE92B2715A89
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_104.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_104.Text
+msgctxt ",E03DB611444C7AA3D77BDE92B2715A89"
+msgid "언리얼 7기"
+msgstr "Unreal7th"
+
+#. Key:	7AB0487F4FB2D66A8EFF1288719013AA
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_11.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_11.Text
+msgctxt ",7AB0487F4FB2D66A8EFF1288719013AA"
+msgid "김남태"
+msgstr "김남태"
+
+#. Key:	7C806FAF4A7A14A9374504822B41B516
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_15.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_15.Text
+msgctxt ",7C806FAF4A7A14A9374504822B41B516"
+msgid "정유나"
+msgstr "정유나"
+
+#. Key:	78CC6B5A4F4530FD02976FA0F70ABD2F
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_17.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_17.Text
+msgctxt ",78CC6B5A4F4530FD02976FA0F70ABD2F"
+msgid "Factory Lead"
+msgstr "Factory Lead"
+
+#. Key:	28B788224E0322F6218282BDC35DB5F7
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_19.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_19.Text
+msgctxt ",28B788224E0322F6218282BDC35DB5F7"
+msgid "박둘내"
+msgstr "박둘내"
+
+#. Key:	4DE19224425499BCB0A6AA82A7B594EC
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_21.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_21.Text
+msgctxt ",4DE19224425499BCB0A6AA82A7B594EC"
+msgid "Factory Programmer"
+msgstr "Factory Programmer"
+
+#. Key:	E80456DE492D21AFDFB0E0865385F8BA
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_23.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_23.Text
+msgctxt ",E80456DE492D21AFDFB0E0865385F8BA"
+msgid "최성훈"
+msgstr "최성훈"
+
+#. Key:	57889998401848DE32C2AAB1F12F1BFB
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_25.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_25.Text
+msgctxt ",57889998401848DE32C2AAB1F12F1BFB"
+msgid "Enemy Lead"
+msgstr "Enemy Lead"
+
+#. Key:	4BDCA1FA43B107D3A12777A155DE63DA
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_27.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_27.Text
+msgctxt ",4BDCA1FA43B107D3A12777A155DE63DA"
+msgid "신영섭"
+msgstr "신영섭"
+
+#. Key:	6BF99C2E426CF36E841286B5D8A381A0
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_29.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_29.Text
+msgctxt ",6BF99C2E426CF36E841286B5D8A381A0"
+msgid "Enemy Programmer"
+msgstr "Enemy Programmer"
+
+#. Key:	903DAD2A4E5BA50FA7EE3D80EA1D5B12
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_33.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_33.Text
+msgctxt ",903DAD2A4E5BA50FA7EE3D80EA1D5B12"
+msgid "김현석"
+msgstr "김현석"
+
+#. Key:	D8026C6143DE56A93D41E596031564D9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_35.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_35.Text
+msgctxt ",D8026C6143DE56A93D41E596031564D9"
+msgid "김태우"
+msgstr "김태우"
+
+#. Key:	B42E978A4F9BB2C9F1D7F8B2E0CB7E2A
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_36.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_36.Text
+msgctxt ",B42E978A4F9BB2C9F1D7F8B2E0CB7E2A"
+msgid "Designers"
+msgstr "Designers"
+
+#. Key:	9DFB438B4DE64D031F743A86AE12E8C9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_39.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_39.Text
+msgctxt ",9DFB438B4DE64D031F743A86AE12E8C9"
+msgid "UI Designer"
+msgstr "UI Designer"
+
+#. Key:	29D7B07D4D9ACED4EB53E8817B8E267B
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_4.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_4.Text
+msgctxt ",29D7B07D4D9ACED4EB53E8817B8E267B"
+msgid "Character Lead"
+msgstr "Character Lead"
+
+#. Key:	FBD6F89B41235BAFCC583BA1598CD32E
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_41.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_41.Text
+msgctxt ",FBD6F89B41235BAFCC583BA1598CD32E"
+msgid "UI Designer"
+msgstr "UI Designer"
+
+#. Key:	B1A830104FE03047C5A2159F07CE84B2
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_43.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_43.Text
+msgctxt ",B1A830104FE03047C5A2159F07CE84B2"
+msgid "MetaHuman"
+msgstr "MetaHuman"
+
+#. Key:	BA0ACEDB4CCF66B44DC4C8BCD0CBBF50
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_45.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_45.Text
+msgctxt ",BA0ACEDB4CCF66B44DC4C8BCD0CBBF50"
+msgid "CutScene"
+msgstr "CutScene"
+
+#. Key:	C3ACAEC9455054C3893A01A49F520E8C
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_47.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_47.Text
+msgctxt ",C3ACAEC9455054C3893A01A49F520E8C"
+msgid "Opening"
+msgstr "Opening"
+
+#. Key:	C7C004B144F1B0963C7EB68115604D3F
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_5.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_5.Text
+msgctxt ",C7C004B144F1B0963C7EB68115604D3F"
+msgid "권민성"
+msgstr "권민성"
+
+#. Key:	558540E0491022D83D863A87F99E06BB
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_51.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_51.Text
+msgctxt ",558540E0491022D83D863A87F99E06BB"
+msgid "박둘내"
+msgstr "박둘내"
+
+#. Key:	262B1DB34091F4E97DD910883BAED5B9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_53.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_53.Text
+msgctxt ",262B1DB34091F4E97DD910883BAED5B9"
+msgid "Level Design"
+msgstr "Level Design"
+
+#. Key:	4D4F18334156711C116554B06D3CEBD6
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_55.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_55.Text
+msgctxt ",4D4F18334156711C116554B06D3CEBD6"
+msgid "김현석"
+msgstr "김현석"
+
+#. Key:	1D372A7E4246E5443838FD8F8D660C9E
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_57.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_57.Text
+msgctxt ",1D372A7E4246E5443838FD8F8D660C9E"
+msgid "정유나"
+msgstr "정유나"
+
+#. Key:	9B1756494E0BBC99661CE08700AE6D1C
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_59.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_59.Text
+msgctxt ",9B1756494E0BBC99661CE08700AE6D1C"
+msgid "최성훈"
+msgstr "최성훈"
+
+#. Key:	D26946BB40A4A157F30D3FB90BD98861
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_61.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_61.Text
+msgctxt ",D26946BB40A4A157F30D3FB90BD98861"
+msgid "김조은"
+msgstr "김조은"
+
+#. Key:	3B796725401AA7080A0FD7925C1BF91F
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_63.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_63.Text
+msgctxt ",3B796725401AA7080A0FD7925C1BF91F"
+msgid "김현석"
+msgstr "김현석"
+
+#. Key:	33650A84444DA95BFDB181916ABB10A4
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_65.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_65.Text
+msgctxt ",33650A84444DA95BFDB181916ABB10A4"
+msgid "Lead"
+msgstr "Lead"
+
+#. Key:	88E2E9A54B6D161B43EE8B95822019FB
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_66.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_66.Text
+msgctxt ",88E2E9A54B6D161B43EE8B95822019FB"
+msgid "정유나"
+msgstr "정유나"
+
+#. Key:	5F22DFDE4E5C843CE3ED44ADA6035068
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_68.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_68.Text
+msgctxt ",5F22DFDE4E5C843CE3ED44ADA6035068"
+msgid "Assets(CC BY 4.0 Only)"
+msgstr "Assets(CC BY 4.0 Only)"
+
+#. Key:	A21346DA4C0533F7E26990A34C75805B
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_7.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_7.Text
+msgctxt ",A21346DA4C0533F7E26990A34C75805B"
+msgid "Character Programmer"
+msgstr "Character Programmer"
+
+#. Key:	E78AF76946EE31AC57A9BBAE87790D67
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_70.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_70.Text
+msgctxt ",E78AF76946EE31AC57A9BBAE87790D67"
+msgid "The Cave Of The Seven Heads"
+msgstr "The Cave Of The Seven Heads"
+
+#. Key:	DB9AED17494C37F21C6C8A860DAF64AB
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_71.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_71.Text
+msgctxt ",DB9AED17494C37F21C6C8A860DAF64AB"
+msgid "(Modified)"
+msgstr "(Modified)"
+
+#. Key:	72329ADE4D47C1A87CA0529D15961563
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_72.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_72.Text
+msgctxt ",72329ADE4D47C1A87CA0529D15961563"
+msgid "Thunder Icon"
+msgstr "Thunder Icon"
+
+#. Key:	2BC72E2D4E0EAC17F385ABB1E2E49A96
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_76.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_76.Text
+msgctxt ",2BC72E2D4E0EAC17F385ABB1E2E49A96"
+msgid "Advisor"
+msgstr "Advisor"
+
+#. Key:	46ADD3A94391916D6F8D828D1CCC936C
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_78.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_78.Text
+msgctxt ",46ADD3A94391916D6F8D828D1CCC936C"
+msgid "김조은"
+msgstr "김조은"
+
+#. Key:	6AEC20654AF7B66262F43CB9BA8A0C54
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_79.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_79.Text
+msgctxt ",6AEC20654AF7B66262F43CB9BA8A0C54"
+msgid "Special Thanks"
+msgstr "Special Thanks"
+
+#. Key:	7D4A1A7F46427CF091D260BE3812DC62
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_8.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_8.Text
+msgctxt ",7D4A1A7F46427CF091D260BE3812DC62"
+msgid "Programmers  "
+msgstr "Programmers  "
+
+#. Key:	ED35378C4B7F7C0E8CC6419B8A10A1B9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_82.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_82.Text
+msgctxt ",ED35378C4B7F7C0E8CC6419B8A10A1B9"
+msgid "And.. You"
+msgstr "And.. You"
+
+#. Key:	E78C35F2478A8B521509E188E4945827
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_84.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_84.Text
+msgctxt ",E78C35F2478A8B521509E188E4945827"
+msgid "Team Sparta"
+msgstr "Team Sparta"
+
+#. Key:	3CE650F446C59A31825E418201F4BE6E
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_88.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_88.Text
+msgctxt ",3CE650F446C59A31825E418201F4BE6E"
+msgid "artfletch"
+msgstr "artfletch"
+
+#. Key:	380B7272405323993C24D4A71D62FEF9
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_89.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_89.Text
+msgctxt ",380B7272405323993C24D4A71D62FEF9"
+msgid "(Fab)https://www.fab.com/listings/21a17e1b-8534-4e3d-b41a-37f49ee99d84"
+msgstr "(Fab)https://www.fab.com/listings/21a17e1b-8534-4e3d-b41a-37f49ee99d84"
+
+#. Key:	658AAF164F2C91D2248FEC9C2F1FB41A
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_92.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_92.Text
+msgctxt ",658AAF164F2C91D2248FEC9C2F1FB41A"
+msgid "<a href=\"https://www.flaticon.com/kr/free-icons/\" title=\"우뢰 아이콘\">우뢰 아이콘 제작자: prettycons - Flaticon</a>"
+msgstr "<a href=\"https://www.flaticon.com/kr/free-icons/\" title=\"우뢰 아이콘\">우뢰 아이콘 제작자: prettycons - Flaticon</a>"
+
+#. Key:	07E32D1445ED5FAF1D786BAF8577AFA5
+#. SourceLocation:	/Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_93.Text
+#: /Game/Karon/UI/LSUI/WBP_CreditText.WBP_CreditText_C:WidgetTree.TextBlock_93.Text
+msgctxt ",07E32D1445ED5FAF1D786BAF8577AFA5"
+msgid "Thank You For Playing!"
+msgstr "Thank You For Playing!"
 
 #. Key:	82C0885443D9FC648898128C57193DBD
 #. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock.Text
@@ -1833,10 +2274,10 @@ msgctxt ",EF7A27AF411F50A754F8E08413B4B8EF"
 msgid "Shoes"
 msgstr "Shoes"
 
-#. Key:	4719046A40CEEF6DB6475A9AA23B0D8D
-#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_191.Text
-#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_191.Text
-msgctxt ",4719046A40CEEF6DB6475A9AA23B0D8D"
+#. Key:	A7B92C1F4B530D52221016AC894148B7
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_145.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_145.Text
+msgctxt ",A7B92C1F4B530D52221016AC894148B7"
 msgid "Game Start"
 msgstr "Game Start"
 
@@ -1861,13 +2302,6 @@ msgctxt ",EB0A1CFE4B19F3F129AEC18A9A2BDA22"
 msgid "Accessories1"
 msgstr "Accessories1"
 
-#. Key:	241EAE7C42861DC43967EF8E53D4200F
-#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_439.Text
-#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_439.Text
-msgctxt ",241EAE7C42861DC43967EF8E53D4200F"
-msgid "OutFit Custom"
-msgstr "OutFit Custom"
-
 #. Key:	B0AB69AB4667F0C16193259E0604F213
 #. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_5.Text
 #: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TextBlock_5.Text
@@ -1875,12 +2309,26 @@ msgctxt ",B0AB69AB4667F0C16193259E0604F213"
 msgid "Accessories2"
 msgstr "Accessories2"
 
+#. Key:	749E012A4DB7E70F3C283896CE0292FE
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.TitleText.Text
+msgctxt ",749E012A4DB7E70F3C283896CE0292FE"
+msgid "옷 커스텀"
+msgstr "Custom Clothes"
+
+#. Key:	CE3979EF44B53D9073A6019562223F78
+#. SourceLocation:	/Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.Txt_Caption_2.Text
+#: /Game/Karon/UI/Mutable/WBP_OutfitSelect.WBP_OutfitSelect_C:WidgetTree.Txt_Caption_2.Text
+msgctxt ",CE3979EF44B53D9073A6019562223F78"
+msgid "OUTFIT CUSTOM"
+msgstr "OUTFIT CUSTOM"
+
 #. Key:	999FCDC748AF159FE2121D8E1751B9B7
 #. SourceLocation:	/Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
 #: /Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
 msgctxt ",999FCDC748AF159FE2121D8E1751B9B7"
-msgid "TEXT"
-msgstr "TEXT"
+msgid "상호작용: 아이템 이름"
+msgstr "Interaction: ItemName"
 
 #. Key:	006F8125473227B7997AC19D02C1AF4B
 #. SourceLocation:	/Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.TextBlock_80.Text
@@ -1889,12 +2337,12 @@ msgctxt ",006F8125473227B7997AC19D02C1AF4B"
 msgid " F"
 msgstr " F"
 
-#. Key:	AEEF232542DFA0E515CC14907150D2F4
-#. SourceLocation:	/Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TextBlock_65.Text
-#: /Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TextBlock_65.Text
-msgctxt ",AEEF232542DFA0E515CC14907150D2F4"
-msgid "NOTICE"
-msgstr "NOTICE"
+#. Key:	46E72C834E6555A1B531958C153F8DF1
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Notice/WBP_KeyNotice.WBP_KeyNotice_C:WidgetTree.TitleText.Text
+msgctxt ",46E72C834E6555A1B531958C153F8DF1"
+msgid "KEY NOTICE"
+msgstr "KEY NOTICE"
 
 #. Key:	29E6EEB6427D0208FFB0E2809B2E908B
 #. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock.Text
@@ -2155,19 +2603,40 @@ msgctxt ",4D74CA1D43BF579924D677BEE28DE2DA"
 msgid "플레시 스트라이크"
 msgstr "Flash Strike"
 
-#. Key:	8BFB339443809D2DD3D2DBB981A677CF
+#. Key:	247A20C844083330C3E6D2ABD629F679
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
 #: /Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.CoolDownText.Text
-msgctxt ",8BFB339443809D2DD3D2DBB981A677CF"
+msgctxt ",247A20C844083330C3E6D2ABD629F679"
 msgid "00"
 msgstr "00"
 
-#. Key:	044E70D74F4C3B605B6EA1A543552352
+#. Key:	9DABEEAD45E95D6C91F547945E528F13
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.KeyLabelText.Text
 #: /Game/Karon/UI/SkillPopup/WBP_SkillQuickSlotEntry.WBP_SkillQuickSlotEntry_C:WidgetTree.KeyLabelText.Text
-msgctxt ",044E70D74F4C3B605B6EA1A543552352"
+msgctxt ",9DABEEAD45E95D6C91F547945E528F13"
 msgid "Q"
 msgstr "Q"
+
+#. Key:	7EBE5719443D28E4DE24468ECC7A2547
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.CommonTextBlock_415.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.CommonTextBlock_415.Text
+msgctxt ",7EBE5719443D28E4DE24468ECC7A2547"
+msgid "보유 기어"
+msgstr "Have Gear"
+
+#. Key:	83CA89EC4F5C53CF5AFF5C97E2BA2BB6
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.CurrentItemAmount.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.CurrentItemAmount.Text
+msgctxt ",83CA89EC4F5C53CF5AFF5C97E2BA2BB6"
+msgid "64"
+msgstr "64"
+
+#. Key:	7C26BC33411FD285D43EF59889F18B1C
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.RequireItemAmount.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.RequireItemAmount.Text
+msgctxt ",7C26BC33411FD285D43EF59889F18B1C"
+msgid "15"
+msgstr "15"
 
 #. Key:	62AF8A0D4DD55B238930D1A78930DF65
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.SkillClassification.Text
@@ -2189,6 +2658,27 @@ msgstr "Charge Attack Active Skill"
 msgctxt ",8C3B2D654C427ABD496A05952B2FE884"
 msgid "스킬명"
 msgstr "Skill Name"
+
+#. Key:	21282EE54DEAA1EF5F5D34AC74D77F84
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.TextBlock_244.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.TextBlock_244.Text
+msgctxt ",21282EE54DEAA1EF5F5D34AC74D77F84"
+msgid "습득됨"
+msgstr "Acquired"
+
+#. Key:	AD6EE59F47574BE12620F29BC1D8DB6C
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.Txt_Caption_1.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.Txt_Caption_1.Text
+msgctxt ",AD6EE59F47574BE12620F29BC1D8DB6C"
+msgid "스킬 설명"
+msgstr "Skill Description"
+
+#. Key:	601FA1174A6FEAFF37726DBF9E66CD4C
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.Txt_Caption_3.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTooltip.WBP_SkillTooltip_C:WidgetTree.Txt_Caption_3.Text
+msgctxt ",601FA1174A6FEAFF37726DBF9E66CD4C"
+msgid "DETAIL"
+msgstr "DETAIL"
 
 #. Key:	97D356BA4ECE9E68AB2BB5B7A0C7EB76
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTooltipButton.WBP_SkillTooltipButton_C:WidgetTree.CommonTextBlock_49.Text
@@ -2238,6 +2728,34 @@ msgstr "03"
 msgctxt ",7A73D3BE4C5DA7B9FB298D8F4526E277"
 msgid "01"
 msgstr "01"
+
+#. Key:	50D965074FCED7415BEC36BDE743E446
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption.Text
+msgctxt ",50D965074FCED7415BEC36BDE743E446"
+msgid "스킬"
+msgstr "Skill"
+
+#. Key:	BBF160214C790CB2BC59CAA6FB4B03DE
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_1.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_1.Text
+msgctxt ",BBF160214C790CB2BC59CAA6FB4B03DE"
+msgid "스킬 슬롯"
+msgstr "Skill Slot"
+
+#. Key:	24A6633B437BFD4DE008029EF7548A40
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_3.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_3.Text
+msgctxt ",24A6633B437BFD4DE008029EF7548A40"
+msgid "SKILL TREE"
+msgstr "SKILL TREE"
+
+#. Key:	9DEFF74E4DEABA0485E5D2B190F5FF8A
+#. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_4.Text
+#: /Game/Karon/UI/SkillPopup/WBP_SkillTreePopup.WBP_SkillTreePopup_C:WidgetTree.Txt_Caption_4.Text
+msgctxt ",9DEFF74E4DEABA0485E5D2B190F5FF8A"
+msgid "SKILL SLOT"
+msgstr "SKILL SLOT"
 
 #. Key:	0DCB119943099D23CA50E5B80BEBF61B
 #. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
@@ -2411,8 +2929,8 @@ msgstr "Exit Game"
 #. SourceLocation:	/Game/Karon/UI/WBP_ToastMessage.WBP_ToastMessage_C:WidgetTree.MessageText.Text
 #: /Game/Karon/UI/WBP_ToastMessage.WBP_ToastMessage_C:WidgetTree.MessageText.Text
 msgctxt ",7A19DC634CFDB184993BE9921A87A9F4"
-msgid "저장 성공"
-msgstr "Save Successful"
+msgid "아직 스킬을 해금할 수 없습니다.\r\n튜토리얼을 먼저 진행하세요."
+msgstr "The skill cannot be lifted yet.\r\nPlease proceed with the tutorial first."
 
 #. Key:	ItemAcquiredLog
 #. SourceLocation:	Source/Karon/UI/Enemy/KOEnemyDropItemLogMessage.cpp(35)
@@ -2589,30 +3107,44 @@ msgctxt "Karon,InteractionLog"
 msgid "상호작용: {0}"
 msgstr "Interaction: {0}"
 
-#. Key:	SkillType
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(79)
-#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(79)
-msgctxt "KOSkillNodeWidget,SkillType"
+#. Key:	SkillType_Active
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(105)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(105)
+msgctxt "KOSkillNodeWidget,SkillType_Active"
 msgid "액티브"
 msgstr "Active"
 
+#. Key:	SkillType_Additional
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(109)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(109)
+msgctxt "KOSkillNodeWidget,SkillType_Additional"
+msgid "추가동작"
+msgstr "Additional"
+
+#. Key:	SkillType_Passive
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(113)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(113)
+msgctxt "KOSkillNodeWidget,SkillType_Passive"
+msgid "패시브"
+msgstr "Passive"
+
 #. Key:	Active
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)
-#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(19)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(22)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(22)
 msgctxt "KOSkill,Active"
 msgid "액티브"
 msgstr "Active"
 
 #. Key:	ActiveExtension
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(20)
-#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(20)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(23)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(23)
 msgctxt "KOSkill,ActiveExtension"
 msgid "행동 추가"
 msgstr "Add Action"
 
 #. Key:	Passive
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(21)
-#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(21)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillTreePopup.cpp(24)
+#: Source/Karon/UI/Skill/KOSkillTreePopup.cpp(24)
 msgctxt "KOSkill,Passive"
 msgid "패시브"
 msgstr "Passive"
