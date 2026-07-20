@@ -63,6 +63,22 @@ void UKOSkillTooltipWidget::RefreshConfirmButtonState(ESkillState CurrentState)
 	}
 }
 
+void UKOSkillTooltipWidget::RefreshGearAmountText()
+{
+	const int32 CurrentGearAmount = (CachedInventoryComp && !CachedGearItemId.IsNone())
+			? CachedInventoryComp->GetCountOf(CachedGearItemId) : 0;
+
+	if (CurrentItemAmount)
+	{
+		CurrentItemAmount->SetText(FText::AsNumber(CurrentGearAmount));
+	}
+
+	if (RequireItemAmount)
+	{
+		RequireItemAmount->SetText(FText::AsNumber(CachedRequiredGearAmount));
+	}
+}
+
 void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& SkillRow, ESkillState CurrentState,
                                                          const FText& ExecutionType,
                                                          const TArray<FKOItemRow>& CostItemRows)
@@ -81,9 +97,7 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 	UTexture2D* IconTexture = SkillRow.Icon.Get();
 	if (IconTexture && SkillIcon)
 	{
-		FSlateBrush SlateBrush;
-		SlateBrush.SetResourceObject(IconTexture);
-		SkillIcon->SetBrush(SlateBrush);
+		SkillIcon->SetBrushResourceObject(IconTexture);
 	}
 	else if (SkillRow.Icon.IsNull() && SkillIcon)
 	{
@@ -92,6 +106,22 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 
 	RefreshConfirmButtonState(CurrentState);
 
+	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
+	
+	CachedGearItemId = NAME_None;
+	CachedRequiredGearAmount = 0;
+	
+	if (!SkillRow.UnlockCosts.IsEmpty())
+	{
+		const FSkillCost& GearCost = SkillRow.UnlockCosts[0];
+
+		CachedGearItemId = LoadSubsystem ? LoadSubsystem->FindItemIdByTag(GearCost.ItemTag) : NAME_None;
+		CachedRequiredGearAmount = GearCost.Amount;
+	}
+
+	RefreshGearAmountText();
+
+	/*
 	if (CostListContainer == nullptr || CostWidget == nullptr)
 	{
 		return;
@@ -99,9 +129,7 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 
 	CostListContainer->ClearChildren();
 	CachedCostItemIds.Reset();
-
-	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
-
+	
 	for (const FSkillCost& CostData : SkillRow.UnlockCosts)
 	{
 		const FKOItemRow* MatchedItemRow = CostItemRows.FindByPredicate([&CostData](const FKOItemRow& ItemRow)
@@ -114,12 +142,16 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 		FName ItemId = LoadSubsystem ? LoadSubsystem->FindItemIdByTag(CostData.ItemTag) : NAME_None;
 
 		int32 CurrentAmount = (CachedInventoryComp && !ItemId.IsNone())
-			                      ? CachedInventoryComp->GetCountOf(ItemId)
-			                      : 0;
+			                      ? CachedInventoryComp->GetCountOf(ItemId) : 0;
+		
+		if (CachedGearItemId.IsNone())
+		{
+			CachedGearItemId = ItemId;
+			CachedRequiredGearAmount = CostData.Amount;
+		}
 
 		UTexture2D* ItemTexture = (LoadSubsystem && !ItemId.IsNone())
-			                          ? LoadSubsystem->ResolveItemIcon(ItemId)
-			                          : MatchedItemRow->Icon.Get();
+			                          ? LoadSubsystem->ResolveItemIcon(ItemId) : MatchedItemRow->Icon.Get();
 
 		UKOSkillCostEntryWidget* EntryWidget = CreateWidget<UKOSkillCostEntryWidget>(this, CostWidget);
 		if (EntryWidget == nullptr) continue;
@@ -135,12 +167,14 @@ void UKOSkillTooltipWidget::InitializeSkillTooltipWidget(const FKOSkillRow& Skil
 		CostListContainer->AddChildToVerticalBox(EntryWidget);
 		CachedCostItemIds.Add(ItemId);
 	}
+	*/
 }
 
 void UKOSkillTooltipWidget::RefreshCostWidget(ESkillState NewCurrentState, const TArray<FKOItemRow>& CostItemRows)
 {
 	RefreshConfirmButtonState(NewCurrentState);
 
+	/*
 	if (CostListContainer == nullptr)
 	{
 		return;
@@ -158,4 +192,6 @@ void UKOSkillTooltipWidget::RefreshCostWidget(ESkillState NewCurrentState, const
 
 		EntryWidget->RefreshEntryWidget(NewCurrentState, FText::AsNumber(CurrentAmount));
 	}
+	*/
+	RefreshGearAmountText();
 }

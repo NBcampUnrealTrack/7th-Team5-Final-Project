@@ -86,6 +86,11 @@ void UKOBuildInventoryWidget::SetActiveTab(EKOBuildInventoryTab Tab)
 	}
 
 	ContentSwitcher->SetActiveWidgetIndex(Index);
+	
+	if (TabButtonGroup && TabButtonGroup->GetSelectedButtonIndex() != Index)
+	{
+		TabButtonGroup->SelectButtonAtIndex(Index, false);
+	}
 }
 
 void UKOBuildInventoryWidget::HandleInventoryClicked()

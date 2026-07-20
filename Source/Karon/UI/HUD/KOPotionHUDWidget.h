@@ -14,6 +14,7 @@ class UKOInventoryComponent;
 class APawn;
 class UGameplayEffect;
 class UAbilitySystemComponent;
+class UWidgetSwitcher;
 struct FInstancedStruct;
 
 /**
@@ -33,6 +34,9 @@ protected:
 	// 표시할 포션의 아이템 태그 (기본값: Item.HealingPotion)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Potion", Meta = (Categories = "Item"))
 	FGameplayTag PotionItemTag;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWidgetSwitcher> PotionStateSwitcher;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> PotionIcon;

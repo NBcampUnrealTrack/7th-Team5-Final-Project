@@ -345,7 +345,7 @@ void AKOPlayerController::GiveStarterItems()
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
 		TEXT("HealingPotion"),
-		50
+		1
 	);
 #endif
 }

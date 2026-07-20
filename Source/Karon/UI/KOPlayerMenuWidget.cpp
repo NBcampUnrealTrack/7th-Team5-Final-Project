@@ -175,7 +175,7 @@ void UKOPlayerMenuWidget::SetActiveTab(EKOPlayerMenuTab Tab)
 
 	ContentSwitcher->SetActiveWidgetIndex(Index);
 
-	if (TabButtonGroup)
+	if (TabButtonGroup && TabButtonGroup->GetSelectedButtonIndex() != Index)
 	{
 		TabButtonGroup->SelectButtonAtIndex(Index, false);
 	}

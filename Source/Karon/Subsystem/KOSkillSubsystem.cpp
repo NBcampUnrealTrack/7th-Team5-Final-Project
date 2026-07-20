@@ -341,6 +341,35 @@ bool UKOSkillSubsystem::SetSkillQuickSlot(ESkillQuickSlotKey SlotKey, FName Skil
 		);
 		return false;
 	}
+	
+	// 같은 스킬이 들어 있는 다른 슬롯을 찾는다.
+	TArray<ESkillQuickSlotKey> DuplicateSlotKeys;
+
+	if (!SkillName.IsNone())
+	{
+		for (const TPair<ESkillQuickSlotKey, FName>& Pair : SkillQuickSlots)
+		{
+			if (Pair.Key == SlotKey)
+			{
+				continue;
+			}
+
+			if (Pair.Value == SkillName)
+			{
+				DuplicateSlotKeys.Add(Pair.Key);
+			}
+		}
+	}
+
+	// 다른 슬롯에 같은 스킬이 있으면 먼저 해제한다.
+	for (const ESkillQuickSlotKey DuplicateSlotKey : DuplicateSlotKeys)
+	{
+		FName& DuplicateSkillName = SkillQuickSlots.FindOrAdd(DuplicateSlotKey);
+
+		DuplicateSkillName = NAME_None;
+
+		BroadcastSkillQuickSlotChanged(DuplicateSlotKey, NAME_None);
+	}
 
 	FName& CurrentSkillName = SkillQuickSlots.FindOrAdd(SlotKey);
 

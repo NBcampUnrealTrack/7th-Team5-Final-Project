@@ -61,6 +61,12 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> ConfirmButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonTextBlock> CurrentItemAmount;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonTextBlock> RequireItemAmount;
 
 	/** CanUnlock 상태가 아닐 때(Locked/Unlocked) ConfirmButton 위를 덮어 클릭을 막는 잠금 표시 이미지. */
 	UPROPERTY(meta = (BindWidgetOptional))
@@ -72,8 +78,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	FSlateBrush DefaultBrush;
 private:
+	void RefreshGearAmountText();
+	
 	UPROPERTY()
 	TObjectPtr<UKOInventoryComponent> CachedInventoryComp;
 
 	TArray<FName> CachedCostItemIds;
+	
+	FName CachedGearItemId = NAME_None;
+	int32 CachedRequiredGearAmount = 0;
 };

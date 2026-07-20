@@ -14,6 +14,7 @@ class UInputAction;
 class UDragDropOperation;
 class UTexture2D;
 class UAbilitySystemComponent;
+class UWidgetSwitcher;
 
 /**
  * 스킬 퀵슬롯 한 칸 (Q / E / R / V 중 하나).
@@ -94,6 +95,9 @@ protected:
 	void BP_OnCooldownEnded();
 
 	// ── 바인딩 위젯 ────────────────────────────────────────────────
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWidgetSwitcher> SlotStateSwitcher;
+	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SkillIconImage;
 	
@@ -105,11 +109,11 @@ protected:
 	
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> KeyLabelText;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> WarningText;
 
 	// ── 에디터 설정 ────────────────────────────────────────────────
-	UPROPERTY(EditDefaultsOnly, Category = "SkillQuickSlot|Visual")
-	FVector2D SlotIconSize = FVector2D(64.f, 64.f);
-
 	UPROPERTY(EditDefaultsOnly, Category = "SkillQuickSlot|Drag")
 	FVector2D DragVisualSize = FVector2D(64.f, 64.f);
 
@@ -157,6 +161,8 @@ private:
 	void OnSlotKeyReleased();
 	void RefreshKeyLabel();
 	void BroadcastChanged();
+	
+	void RefreshSlotStateVisual();
 
 	/** CoolDownOverlay(진행률)/CoolDownText(남은 시간)를 현재 쿨타임 상태로 갱신. */
 	void RefreshCooldownVisual();

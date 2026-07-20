@@ -9,6 +9,7 @@
 #include "CommonTextBlock.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "AbilitySystemComponent.h"
@@ -99,28 +100,29 @@ void UKOPotionHUDWidget::RefreshPotionIcon()
 
 	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
 	UTexture2D* IconTexture = LoadSubsystem ? LoadSubsystem->ResolveItemIcon(CachedPotionItemId) : nullptr;
-	if (IconTexture == nullptr)
+	if (!IconTexture)
 	{
 		return;
 	}
 
-	FSlateBrush SlateBrush;
-	SlateBrush.SetResourceObject(IconTexture);
-	PotionIcon->SetBrush(SlateBrush);
+	PotionIcon->SetBrushResourceObject(IconTexture);
 }
 
 void UKOPotionHUDWidget::RefreshPotionCount()
 {
-	if (PotionCountText == nullptr)
+	const int32 Count = (CachedInventoryComponent && !CachedPotionItemId.IsNone())
+		? CachedInventoryComponent->GetCountOf(CachedPotionItemId) : 0;
+
+	if (PotionCountText)
 	{
-		return;
+		PotionCountText->SetText(FText::AsNumber(Count));
 	}
 
-	const int32 Count = (CachedInventoryComponent && !CachedPotionItemId.IsNone())
-		? CachedInventoryComponent->GetCountOf(CachedPotionItemId)
-		: 0;
-
-	PotionCountText->SetText(FText::AsNumber(Count));
+	if (PotionStateSwitcher)
+	{
+		const int32 SwitcherIndex = Count > 0 ? 1 : 0;
+		PotionStateSwitcher->SetActiveWidgetIndex(SwitcherIndex);
+	}
 }
 
 void UKOPotionHUDWidget::HandleInventoryChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)

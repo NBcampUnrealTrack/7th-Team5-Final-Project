@@ -15,6 +15,7 @@
 
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "GameFramework/PlayerController.h"
@@ -61,6 +62,7 @@ void UKOSkillQuickSlotEntryWidget::ClearSkill()
 	CachedInputTag    = FGameplayTag::EmptyTag;
 
 	ApplyIconToImage(nullptr);
+	RefreshSlotStateVisual();
 	RefreshCooldownVisual();
 	BroadcastChanged();
 }
@@ -119,11 +121,7 @@ void UKOSkillQuickSlotEntryWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	RefreshKeyLabel();
-
-	if (SkillIconImage && AssignedSkillName.IsNone())
-	{
-		SkillIconImage->SetVisibility(ESlateVisibility::Hidden);
-	}
+	RefreshSlotStateVisual();
 
 	// 위젯 재생성 시 이미 스킬이 배정돼 있으면 쿨타임 재구독
 	if (HasSkill())
@@ -207,6 +205,11 @@ FReply UKOSkillQuickSlotEntryWidget::NativeOnMouseButtonDown(
 		{
 			return FReply::Handled();
 		}
+		
+		if (IsOnCooldown())
+		{
+			return FReply::Handled();
+		}
 
 		if (UKOSkillSubsystem* SkillSubsystem = UKOSkillSubsystem::Get(this))
 		{
@@ -218,6 +221,11 @@ FReply UKOSkillQuickSlotEntryWidget::NativeOnMouseButtonDown(
 	
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton) && HasSkill())
 	{
+		if (IsOnCooldown())
+		{
+			return FReply::Handled();
+		}
+		
 		FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
 			InMouseEvent, this, EKeys::LeftMouseButton);
 		return Reply.NativeReply;
@@ -268,6 +276,11 @@ bool UKOSkillQuickSlotEntryWidget::NativeOnDrop(
 	if (!SkillOp || SkillOp->SkillName.IsNone())
 	{
 		return false;
+	}
+	
+	if (HasSkill() && IsOnCooldown())
+	{
+		return true;
 	}
 	
 	UKOSkillSubsystem* SkillSubsystem = UKOSkillSubsystem::Get(this);
@@ -340,6 +353,7 @@ void UKOSkillQuickSlotEntryWidget::SetSlotContent(
 	}
 
 	ApplyIconToImage(InIcon);
+	RefreshSlotStateVisual();
 	BindCooldownTracking();
 	RefreshCooldownVisual();
 }
@@ -508,17 +522,7 @@ void UKOSkillQuickSlotEntryWidget::ApplyIconToImage(UTexture2D* InIcon)
 		return;
 	}
 
-	if (InIcon)
-	{
-		SkillIconImage->SetBrushFromTexture(InIcon);
-		SkillIconImage->SetDesiredSizeOverride(SlotIconSize);
-		SkillIconImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	}
-	else
-	{
-		SkillIconImage->SetBrushFromTexture(nullptr);
-		SkillIconImage->SetVisibility(ESlateVisibility::Hidden);
-	}
+	SkillIconImage->SetBrushFromTexture(InIcon);
 }
 
 void UKOSkillQuickSlotEntryWidget::RefreshCooldownVisual()
@@ -565,4 +569,16 @@ void UKOSkillQuickSlotEntryWidget::BroadcastChanged()
 		KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
 		FInstancedStruct::Make<FKOSkillQuickSlotChangedMessage>(Msg)
 	);
+}
+
+void UKOSkillQuickSlotEntryWidget::RefreshSlotStateVisual()
+{
+	if (!SlotStateSwitcher)
+	{
+		return;
+	}
+
+	const int32 StateIndex = HasSkill() ? 1 : 0;
+
+	SlotStateSwitcher->SetActiveWidgetIndex(StateIndex);
 }
