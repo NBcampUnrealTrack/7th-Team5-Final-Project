@@ -60,6 +60,7 @@ public:
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 
 protected:
 	// ---- 탭 스위처 ----
@@ -225,6 +226,10 @@ private:
 	UFUNCTION()
 	void HandleQualityOptionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 
+	/** 사운드 슬라이더는 그래픽과 달리 Apply 없이도 팝업이 열려있는 동안 바로 미리듣기로 반영된다. */
+	UFUNCTION()
+	void HandleSoundSliderChanged(float Value);
+
 	static const TArray<FIntPoint> SupportedResolutions;
 	static const TArray<int32> SupportedFrameLimits;
 	static const TArray<FString> QualityLabels;
@@ -233,4 +238,10 @@ private:
 
 	/** true인 동안은 콤보박스 OnSelectionChanged가 프로그램적 변경을 사용자 입력으로 오인해 재귀 갱신하지 않도록 막는다 */
 	bool bSuppressQualitySync = false;
+
+	/** true인 동안은 슬라이더 OnValueChanged(SetValue로 인한 프로그램적 갱신)가 미리듣기를 다시 트리거하지 않도록 막는다 */
+	bool bSuppressSoundPreview = false;
+
+	/** 마지막으로 저장(Apply/Reset)된 사운드 값. Apply 없이 팝업이 닫히면 이 값으로 실제 출력을 되돌린다. */
+	FKOSoundOptions LastSavedSound;
 };

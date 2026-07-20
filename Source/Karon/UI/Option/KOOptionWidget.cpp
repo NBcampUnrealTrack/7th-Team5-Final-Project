@@ -129,6 +129,21 @@ void UKOOptionWidget::NativeOnInitialized()
 	BindQualityOptionChanged(ComboBox_TextureQuality);
 	BindQualityOptionChanged(ComboBox_EffectsQuality);
 	BindQualityOptionChanged(ComboBox_ShadingQuality);
+
+	// 사운드는 그래픽과 달리 Apply 없이도 슬라이더를 움직이는 즉시 미리듣기로 반영한다.
+	auto BindSoundSliderChanged = [this](USlider* Slider)
+	{
+		if (Slider)
+		{
+			Slider->OnValueChanged.AddDynamic(this, &ThisClass::HandleSoundSliderChanged);
+		}
+	};
+
+	BindSoundSliderChanged(Slider_Master);
+	BindSoundSliderChanged(Slider_BGM);
+	BindSoundSliderChanged(Slider_SE);
+	BindSoundSliderChanged(Slider_UI);
+	BindSoundSliderChanged(Slider_Environment);
 }
 
 void UKOOptionWidget::NativeOnActivated()
@@ -137,6 +152,15 @@ void UKOOptionWidget::NativeOnActivated()
 
 	SetActiveTab(EKOOptionTab::Graphic);
 	LoadAndRefreshUI();
+}
+
+void UKOOptionWidget::NativeOnDeactivated()
+{
+	// 사운드는 Apply 없이 팝업이 열려있는 동안 미리듣기로 반영되므로,
+	// Apply를 누르지 않고 닫으면 마지막으로 저장된 값으로 실제 출력을 되돌린다.
+	ApplySoundOptions(LastSavedSound);
+
+	Super::NativeOnDeactivated();
 }
 
 void UKOOptionWidget::SetActiveTab(EKOOptionTab Tab)
@@ -247,6 +271,9 @@ void UKOOptionWidget::LoadAndRefreshUI()
 	ApplySoundOptions(Data->Sound);
 	ApplyGraphicsOptions(Data->Graphics);
 	ApplyCultureLanguageOptions(Data->LanguageOption);
+
+	// Apply 없이 팝업을 닫았을 때 되돌아갈 기준값
+	LastSavedSound = Data->Sound;
 }
 
 void UKOOptionWidget::SyncSavedOptionsToRuntime(APlayerController* OwningPlayer)
@@ -283,11 +310,15 @@ void UKOOptionWidget::SyncSavedOptionsToRuntime(APlayerController* OwningPlayer)
 
 void UKOOptionWidget::RefreshSoundUI(const FKOSoundOptions& Sound)
 {
+	// SetValue는 값이 바뀌면 OnValueChanged(Direct)를 발생시키므로, 아래 프로그램적 갱신 도중에는
+	// HandleSoundSliderChanged가 중간값으로 미리듣기를 적용하지 않도록 막는다.
+	bSuppressSoundPreview = true;
 	if (Slider_Master)     Slider_Master->SetValue(Sound.Master);
 	if (Slider_BGM)        Slider_BGM->SetValue(Sound.BGM);
 	if (Slider_SE)         Slider_SE->SetValue(Sound.SE);
 	if (Slider_UI)         Slider_UI->SetValue(Sound.UI);
 	if (Slider_Environment) Slider_Environment->SetValue(Sound.Environment);
+	bSuppressSoundPreview = false;
 }
 
 void UKOOptionWidget::RefreshGraphicsUI(const FKOGraphicsOptions& Graphics)
@@ -529,6 +560,8 @@ void UKOOptionWidget::HandleApplyClicked()
 		Data->LanguageOption = CultureLanguage;
 		UKOSaveGameOption::Save(this, Data);
 	}
+
+	LastSavedSound = Sound;
 }
 
 void UKOOptionWidget::HandleResetClicked()
@@ -545,6 +578,8 @@ void UKOOptionWidget::HandleResetClicked()
 	UKOSaveGameOption* Data = Cast<UKOSaveGameOption>(
 		UGameplayStatics::CreateSaveGameObject(UKOSaveGameOption::StaticClass()));
 	UKOSaveGameOption::Save(this, Data);
+
+	LastSavedSound = DefaultSound;
 }
 
 void UKOOptionWidget::HandleGraphicTabClicked()
@@ -646,6 +681,17 @@ void UKOOptionWidget::HandleQualityOptionChanged(FString SelectedItem, ESelectIn
 	}
 
 	RefreshOverallQualityUI(GatherGraphicsFromUI());
+}
+
+void UKOOptionWidget::HandleSoundSliderChanged(float Value)
+{
+	if (bSuppressSoundPreview)
+	{
+		return;
+	}
+
+	// 저장하지 않고 실제 출력에만 즉시 반영(미리듣기). 저장은 Apply를 눌러야만 일어난다.
+	ApplySoundOptions(GatherSoundFromUI());
 }
 
 // ---- 헬퍼: 해상도 인덱스 변환 ----
