@@ -23,6 +23,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_BeltConnect,    "UI.Widget.BeltConnect");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_KeyNotice,    "UI.Widget.KeyNotice");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_LevelSequenceText,    "UI.Widget.LevelSequenceText");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_CreditText,    "UI.Widget.CreditText");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_InteractionNotice,    "UI.Widget.InteractionNotice");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Map_MainMap,    "UI.Widget.Map.MainMap");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_InGameHUD,         "UI.Widget.InGameHUD");
