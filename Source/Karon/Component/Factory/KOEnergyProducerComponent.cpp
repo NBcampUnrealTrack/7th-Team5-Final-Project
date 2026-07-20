@@ -206,7 +206,19 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     const float Dt = World ? World->GetDeltaSeconds() : 0.f;
     LastOutputRate = (Dt > KINDA_SMALL_NUMBER) ? (FMath::Max(0.f, Amount) / Dt) : 0.f;
 
-    if (Amount <= 0.f || PowerPerFuelUnit <= 0.f || !bHasActiveFuel)
+    AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(GetOwner());
+
+    const bool bActuallyProducing = 
+        Amount > KINDA_SMALL_NUMBER &&
+        PowerPerFuelUnit > KINDA_SMALL_NUMBER &&
+        bHasActiveFuel;
+
+    if (Building)
+    {
+        Building->SetOperatingSoundActive(bActuallyProducing);
+    }
+
+    if (!bActuallyProducing)
     {
         return;
     }
@@ -227,6 +239,11 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
         }
 
         BroadcastFuelChanged();
+        
+        if (Building && !bHasActiveFuel)
+        {
+            Building->SetOperatingSoundActive(false);
+        }
     }
 }
 

@@ -15,6 +15,24 @@ class AKOBaseBuilding;
 class AKOConveyorBelt;
 class UKOInventoryComponent;
 class AKOGridVisual;
+class USoundBase;
+class USoundAttenuation;
+class USoundConcurrency;
+
+USTRUCT(BlueprintType)
+struct FKOBuildSoundSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundBase> Sound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float Volume = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float StartTime = 0.0f;
+};
 
 UENUM(BlueprintType)
 enum class EKOGridBuildMode : uint8
@@ -197,6 +215,21 @@ protected:
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
 	EKOGridBuildMode CurrentMode = EKOGridBuildMode::None;
+	
+	// 일반 설비
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Factory")
+	FKOBuildSoundSettings FactoryInstallSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Factory")
+	FKOBuildSoundSettings FactoryDestroySound;
+
+	// 컨베이어
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Conveyor")
+	FKOBuildSoundSettings ConveyorInstallSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Conveyor")
+	FKOBuildSoundSettings ConveyorDestroySound;
+
 
 private:
 	UPROPERTY()
@@ -239,4 +272,7 @@ private:
 	bool bHasLastPreviewBuildableState = false;
 	// 마지막 설치 가능 상태
 	bool bLastPreviewBuildableState = false;
+	
+	// 사운드
+	void PlayBuildSound(const FKOBuildSoundSettings& SoundSettings, const FVector& Location) const;
 };

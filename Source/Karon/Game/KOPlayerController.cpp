@@ -243,6 +243,36 @@ void AKOPlayerController::GiveStarterItems()
 		TEXT("GearPress"),
 		1
 	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("RollingMill"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("PipeWorkshop"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("HerbFarm"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("JuicePress"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("PotionBrewer"),
+		1
+	);
 	// 아이템 -----------------------------------------
 
 	FoundInventoryComponent->TryAddItem(
@@ -274,6 +304,12 @@ void AKOPlayerController::GiveStarterItems()
 		TEXT("Tin"),
 		50
 	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("BronzePlate"),
+		50
+	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
@@ -284,6 +320,12 @@ void AKOPlayerController::GiveStarterItems()
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
 		TEXT("Gear"),
+		50
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("DamagedMiningPipe"),
 		50
 	);
 

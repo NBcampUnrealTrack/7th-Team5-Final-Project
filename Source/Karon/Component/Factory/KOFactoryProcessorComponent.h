@@ -131,4 +131,7 @@ private:
 
     UPROPERTY()
     TMap<FName, int32> OutputBuffer;
+    
+    /** 직전 압력 부족 상태. 경고음 반복 재생 방지용 */
+    bool bWasPressureShortage = false;
 };

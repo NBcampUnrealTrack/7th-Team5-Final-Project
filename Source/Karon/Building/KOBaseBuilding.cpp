@@ -18,11 +18,23 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
+#include "TimerManager.h"
+
 AKOBaseBuilding::AKOBaseBuilding()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.TickInterval = 0.2f;
+	
+	OperatingAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("OperatingAudioComponent"));
+	OperatingAudioComponent->SetupAttachment(RootComponent);
+	// 설비가 스폰되자마자 자동으로 소리가 나지 않도록 한다.
+	OperatingAudioComponent->bAutoActivate = false;
+	// 플레이어가 일시정지해도 소리가 계속 날 필요가 없다면 false.
+	OperatingAudioComponent->bIsUISound = false;
 }
 
 void AKOBaseBuilding::BeginPlay()
@@ -46,6 +58,13 @@ void AKOBaseBuilding::BeginPlay()
 	if (PressureWarningWidget)
 	{
 		PressureWarningWidget->SetHiddenInGame(true);
+	}
+	
+	if (OperatingAudioComponent)
+	{
+		OperatingAudioComponent->SetSound(OperatingSound);
+		OperatingAudioComponent->SetVolumeMultiplier(OperatingSoundVolume);
+		OperatingAudioComponent->SetPitchMultiplier(OperatingSoundPitch);
 	}
 }
 
@@ -155,6 +174,54 @@ void AKOBaseBuilding::UpdatePressureWarningFacingCamera()
 	PressureWarningWidget->SetWorldRotation(LookAtRotation);
 }
 
+void AKOBaseBuilding::ReleaseOperatingSoundBlock()
+{
+	bOperatingSoundBlocked = false;
+
+	// 설치음이 끝난 시점에도 실제 가동 상태라면 가동음을 시작한다.
+	StartOperatingSoundIfAllowed();
+}
+
+void AKOBaseBuilding::StartOperatingSoundIfAllowed()
+{
+	if (!bOperatingSoundRequested)
+	{
+		return;
+	}
+
+	// 설치 사운드가 끝나지 않았으면 가동음을 시작하지 않는다.
+	if (bOperatingSoundBlocked)
+	{
+		return;
+	}
+
+	if (!OperatingAudioComponent || !OperatingSound)
+	{
+		return;
+	}
+
+	if (OperatingAudioComponent->IsPlaying())
+	{
+		OperatingAudioComponent->Stop();
+	}
+
+	OperatingAudioComponent->SetSound(OperatingSound);
+	OperatingAudioComponent->SetPitchMultiplier(OperatingSoundPitch);
+
+	if (OperatingSoundFadeInTime > 0.0f)
+	{
+		OperatingAudioComponent->FadeIn(
+			OperatingSoundFadeInTime,
+			OperatingSoundVolume
+		);
+	}
+	else
+	{
+		OperatingAudioComponent->SetVolumeMultiplier(OperatingSoundVolume);
+		OperatingAudioComponent->Play();
+	}
+}
+
 bool AKOBaseBuilding::IsPressureAvailable() const
 {
 	if (!CachedProcessor)
@@ -253,4 +320,124 @@ FText AKOBaseBuilding::GetInteractionPrompt() const
 		return Row->DisplayName;
 	}
 	return FText::GetEmpty();
+}
+
+void AKOBaseBuilding::SetOperatingSoundActive(bool bActive)
+{	
+	if (!OperatingAudioComponent || !OperatingSound)
+	{
+		return;
+	}
+	
+	// 요청 상태가 변하지 않은 경우
+	if (bOperatingSoundRequested == bActive)
+	{
+		// 재생 요청 상태인데 실제 소리가 멈췄다면 다시 시작
+		if (bActive &&
+			!bOperatingSoundBlocked &&
+			!OperatingAudioComponent->IsPlaying())
+		{
+			StartOperatingSoundIfAllowed();
+		}
+
+		return;
+	}
+
+	bOperatingSoundRequested = bActive;
+
+	if (!bActive)
+	{
+		if (!OperatingAudioComponent->IsPlaying())
+		{
+			return;
+		}
+
+		if (OperatingSoundFadeOutTime > 0.0f)
+		{
+			OperatingAudioComponent->FadeOut(
+				OperatingSoundFadeOutTime,
+				0.0f
+			);
+		}
+		else
+		{
+			OperatingAudioComponent->Stop();
+		}
+
+		return;
+	}
+
+	StartOperatingSoundIfAllowed();
+}
+
+bool AKOBaseBuilding::IsOperatingSoundActive() const
+{
+	return OperatingAudioComponent && OperatingAudioComponent->IsPlaying();
+}
+
+void AKOBaseBuilding::PlayOperationBlockedSound()
+{
+	if (OperatingAudioComponent)
+	{
+		OperatingAudioComponent->Stop();
+	}
+	
+	if (!PressureShortageSound)
+	{
+		return;
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(
+		this,
+		PressureShortageSound,
+		GetActorLocation(),
+		FRotator::ZeroRotator,
+		PressureShortageSoundVolume,
+		PressureShortageSoundPitch,
+		PressureShortageSoundStartTime
+	);
+}
+
+void AKOBaseBuilding::BlockOperatingSound(float Duration)
+{
+	GetWorldTimerManager().ClearTimer(OperatingSoundBlockTimer);
+
+	if (Duration <= KINDA_SMALL_NUMBER)
+	{
+		bOperatingSoundBlocked = false;
+		StartOperatingSoundIfAllowed();
+		return;
+	}
+
+	bOperatingSoundBlocked = true;
+
+	// 혹시 이미 가동음이 시작됐다면 설치음 전에 즉시 끈다.
+	if (OperatingAudioComponent &&
+		OperatingAudioComponent->IsPlaying())
+	{
+		OperatingAudioComponent->Stop();
+	}
+
+	GetWorldTimerManager().SetTimer(
+		OperatingSoundBlockTimer,
+		this,
+		&AKOBaseBuilding::ReleaseOperatingSoundBlock,
+		Duration,
+		false
+	);
+}
+
+void AKOBaseBuilding::StopOperatingSoundImmediately()
+{
+	bOperatingSoundRequested = false;
+	bOperatingSoundBlocked = false;
+
+	GetWorldTimerManager().ClearTimer(
+		OperatingSoundBlockTimer
+	);
+
+	if (OperatingAudioComponent)
+	{
+		OperatingAudioComponent->Stop();
+	}
 }

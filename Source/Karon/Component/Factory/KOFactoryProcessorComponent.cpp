@@ -275,6 +275,27 @@ void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float R
     LastSupplyRatio = (RequestedAmount > KINDA_SMALL_NUMBER)
         ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f)
         : 1.f;
+    
+    AKOBaseBuilding* Building = GetOwnerBuilding();
+    if (!Building)
+    {
+        return;
+    }
+
+    const bool bIsRunning = State == EKOFactoryState::Running;
+    const bool bRequiresPressure = bIsRunning && RequestedAmount > KINDA_SMALL_NUMBER;
+    const bool bHasPressure = SuppliedAmount > KINDA_SMALL_NUMBER;
+    const bool bPressureShortage = bRequiresPressure && !bHasPressure;
+    const bool bActuallyOperating = bRequiresPressure && bHasPressure;
+
+    Building->SetOperatingSoundActive(bActuallyOperating);
+
+    if (bPressureShortage && !bWasPressureShortage)
+    {
+        Building->PlayOperationBlockedSound();
+    }
+
+    bWasPressureShortage = bPressureShortage;
 }
 
 void UKOFactoryProcessorComponent::GetEnergyOccupiedCells(TArray<FIntPoint>& OutCells) const
@@ -680,11 +701,35 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
     if (State == NewState)
     {
         SetComponentTickEnabled(State == EKOFactoryState::Running);
+        
+        if (State != EKOFactoryState::Running)
+        {
+            if (AKOBaseBuilding* Building = GetOwnerBuilding())
+            {
+                Building->SetOperatingSoundActive(false);
+            }
+
+            bWasPressureShortage = false;
+        }
         return;
     }
+    
     State = NewState;
+    const bool bIsRunning = State == EKOFactoryState::Running;
     // 제작 중에만 Tick 활성화
-    SetComponentTickEnabled(State == EKOFactoryState::Running);
+    SetComponentTickEnabled(bIsRunning);
+
+    if (!bIsRunning)
+    {
+        // 재료 부족, 레시피 없음, 출력 막힘
+        // 모두 경고음 없이 가동음만 정지
+        if (AKOBaseBuilding* Building = GetOwnerBuilding())
+        {
+            Building->SetOperatingSoundActive(false);
+        }
+
+        bWasPressureShortage = false;
+    }
     BroadcastStateChanged();
     BroadcastProcessorChanged();
 }

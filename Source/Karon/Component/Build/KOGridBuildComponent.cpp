@@ -30,6 +30,11 @@
 #include "CommonActivatableWidget.h"
 #include "Subsystem/KOQuestGuideSubsystem.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundConcurrency.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuild, Log, All);
 
 UKOGridBuildComponent::UKOGridBuildComponent()
@@ -497,6 +502,25 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize.X,
 		CurrentBuildingSize.Y
 	);
+	
+	// 사운드
+	const bool bIsConveyor = Cast<AKOConveyorBelt>(NewBuilding) != nullptr;
+	const FKOBuildSoundSettings& InstallSoundSettings = bIsConveyor ? ConveyorInstallSound : FactoryInstallSound;
+	// StartTime으로 건너뛴 부분을 제외한 실제 남은 재생 시간
+	float InstallSoundDuration = 0.0f;
+
+	if (InstallSoundSettings.Sound)
+	{
+		InstallSoundDuration = FMath::Max(
+			0.0f,
+			InstallSoundSettings.Sound->GetDuration()
+				- InstallSoundSettings.StartTime
+		);
+	}
+
+	// 설치음보다 가동음이 먼저 또는 동시에 나오지 않도록 차단
+	NewBuilding->BlockOperatingSound(InstallSoundDuration);
+	PlayBuildSound(InstallSoundSettings, NewBuilding->GetActorLocation());
 
 	// 설치된 게 벨트면, 인접한 포트 보유 공장들과의 연결 팝업을 띄운다(없으면 무동작).
 	// (CurrentAnchor/Size 가 아래 분기에서 리셋되기 전에 스냅샷 사용)
@@ -643,8 +667,26 @@ AKOGridVisual* UKOGridBuildComponent::FindGridVisualActor()
 	return nullptr;
 }
 
+void UKOGridBuildComponent::PlayBuildSound(const FKOBuildSoundSettings& SoundSettings, const FVector& Location) const
+{
+	if (!SoundSettings.Sound)
+	{
+		return;
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(
+		this,
+		SoundSettings.Sound,
+		Location,
+		FRotator::ZeroRotator,
+		SoundSettings.Volume,
+		1.0f,			// Pitch
+		SoundSettings.StartTime
+	);
+}
+
 bool UKOGridBuildComponent::FindConnectableOutputFactoriesForBelt(AKOConveyorBelt* Belt,
-	TArray<AKOBaseBuilding*>& OutFactories) const
+                                                                  TArray<AKOBaseBuilding*>& OutFactories) const
 {
 	OutFactories.Reset();
 
@@ -1010,14 +1052,24 @@ void UKOGridBuildComponent::RequestDestroy()
 		*TargetBuilding->GetName()
 	);
 	
+	
 	if (AKOGridVisual* GridVisual = FindGridVisualActor())
 	{
 		GridVisual->RefreshInstalledPowerCoverage();
 	}
 
+	// 사운드
+	const FVector DestroySoundLocation = TargetBuilding->GetActorLocation();
+	const bool bIsConveyor = Cast<AKOConveyorBelt>(TargetBuilding) != nullptr;
+	const FKOBuildSoundSettings& DestroySoundSettings = bIsConveyor ? ConveyorDestroySound : FactoryDestroySound;
+	TargetBuilding->StopOperatingSoundImmediately(); // 해제음이 나오기 전에 가동음을 Fade 없이 즉시 정지
+	
 	ClearDestroyTargetActor();
 
-	TargetBuilding->Destroy();
+	if (TargetBuilding->Destroy())
+	{
+		PlayBuildSound(DestroySoundSettings, DestroySoundLocation);
+	}
 }
 
 void UKOGridBuildComponent::RefundStoredItems(AKOBaseBuilding* TargetBuilding, UKOInventoryComponent& InventoryComponent) const
