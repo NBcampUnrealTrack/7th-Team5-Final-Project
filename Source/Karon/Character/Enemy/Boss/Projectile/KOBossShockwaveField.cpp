@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -79,5 +80,15 @@ void AKOBossShockwaveField::BeginPlay()
 		ApplyDamageToTarget(HitActor);
 	}
 
+	if (ShockwaveVFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			ShockwaveVFX,
+			GetActorLocation(),
+			FRotator::ZeroRotator
+		);
+	}
+	
 	Destroy();
 }
