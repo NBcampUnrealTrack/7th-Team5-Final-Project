@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UWidget> BuildKeyGuide;
 	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UWidget> WBP_ClockGauge;
 private:
 	float CachedCurrentHealth  = 0.f;
 	float CachedMaxHealth      = 0.f;

@@ -28,33 +28,28 @@ void UKOGA_Charge_Skill::ActivateAbility(
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
     
-    if (!IsActive()) return; 
-    
     if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
     {
        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
        return;
     }
+	
+	if (!ChargeMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] ChargeMontage가 없음"), *GetName());
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
     
-    if (ChargeMontage)
-    {
-       ChargeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-          this, NAME_None, ChargeMontage, 1.0f, NAME_None, true
-       );
-       
-       if (ChargeMontageTask)
-       {
-          ChargeMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
-          ChargeMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
-          ChargeMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
-          ChargeMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
-          ChargeMontageTask->ReadyForActivation();
-       }
-    }
-    else
-    {
-       UE_LOG(LogTemp, Warning, TEXT("[%s] ChargeMontage가 없음"), *GetName());
-    }
+    ChargeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+       this, NAME_None, ChargeMontage, 1.0f, NAME_None, true
+    );
+
+    ChargeMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
+    ChargeMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
+    ChargeMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
+    ChargeMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnChargeMontageInterrupted);
+    ChargeMontageTask->ReadyForActivation();
     
     StartCharging();
 }
@@ -66,12 +61,6 @@ void UKOGA_Charge_Skill::EndAbility(
     bool bReplicateEndAbility, bool bWasCancelled)
 {
     StopCharging();
-    
-    if (TickTask)
-    {
-       TickTask->StopTask();
-       TickTask = nullptr;
-    }
     
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

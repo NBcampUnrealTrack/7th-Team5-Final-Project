@@ -21,6 +21,14 @@ void UKOInGameHUD::SetBuildKeyGuideMode(bool bBuildMode)
 				: ESlateVisibility::HitTestInvisible
 		);
 	}
+	
+	if (WBP_ClockGauge)
+	{
+		WBP_ClockGauge->SetVisibility(
+			bBuildMode ? 
+			ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible
+		);
+	}
 
 	if (BuildKeyGuide)
 	{
