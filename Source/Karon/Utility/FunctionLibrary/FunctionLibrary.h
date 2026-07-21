@@ -21,4 +21,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	static void SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FText Text);
+	
+	UFUNCTION(BlueprintCallable)
+	static void DropItem(UObject* WorldContextObject, FName ItemName);
 };

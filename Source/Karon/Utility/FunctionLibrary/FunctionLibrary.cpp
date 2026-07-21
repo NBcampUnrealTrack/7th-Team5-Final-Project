@@ -54,4 +54,25 @@ void UFunctionLibrary::SetUITextBlock(UObject* WorldContextObject,FGameplayTag T
 	Message.InText=Text;
 	
 	UGMRouterSubsystem::BroadcastMessage(World,Tag,FInstancedStruct::Make(Message));
+}
+
+void UFunctionLibrary::DropItem(UObject* WorldContextObject, FName ItemName)
+{
+	if (WorldContextObject&&WorldContextObject->GetWorld())
+	{
+			
+		FKODropItemMessage ItemMessage;
+		ItemMessage.ItemId = ItemName;
+		ItemMessage.Count = 1;
+
+	
+	
+		UGMRouterSubsystem::BroadcastMessage(
+			WorldContextObject->GetWorld(),
+			KOGameplayTags::Event_DropItem,
+			FInstancedStruct::Make(ItemMessage)
+		);
+	}
+
 };
+

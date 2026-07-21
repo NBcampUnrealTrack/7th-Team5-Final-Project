@@ -421,6 +421,15 @@ void AKOPlayerController::GiveStarterItems()
 	);
 	
 #endif
+	
+	//불의 코어는 초기 지급
+	FoundInventoryComponent->TryAddItem(
+	EKOSlotKind::Factory,
+	TEXT("Fire"),
+	1
+);
+	
+	
 }
 
 float AKOPlayerController::GetTimeSinceLastLookInput() const
