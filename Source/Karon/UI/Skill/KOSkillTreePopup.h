@@ -51,7 +51,7 @@ protected:
 	void PlayUnlockSuccessSound();
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Sound")
-	void PlayUnlockFauledSound();
+	void PlayUnlockFailedSound();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly , Category="Skill Tree")
 	float TooltipInterval = 20.f;

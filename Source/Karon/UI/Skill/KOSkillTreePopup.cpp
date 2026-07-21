@@ -235,7 +235,7 @@ void UKOSkillTreePopup::HandleTooltipConfirmed()
 
 	if (bUnlocked == false)
 	{
-		PlayUnlockFauledSound();
+		PlayUnlockFailedSound();
 		
 		const FText& ReasonText = SkillSubsystem->GetLastUnlockFailureReason();
 
