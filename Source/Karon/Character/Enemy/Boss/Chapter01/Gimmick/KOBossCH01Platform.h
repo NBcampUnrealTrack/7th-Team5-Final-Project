@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "KOBossCH01Platform.generated.h"
 
+class UNiagaraSystem;
 class UGameplayEffect;
 class UBoxComponent;
 class AStaticMeshActor;
@@ -52,11 +53,17 @@ protected:
 	// 착지 시 SFX
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | SFX")
 	TObjectPtr<USoundBase> LandSFX;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | VFX")
+	TObjectPtr<UNiagaraSystem> LandVFX;
 
 	// 파괴 시 SFX
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | SFX")
 	TObjectPtr<USoundBase> BreakSFX;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | VFX")
+	TObjectPtr<UNiagaraSystem> BreakVFX;
+	
 	// 파괴 연출용 파편 메시 (비워두면 발판 자체 메시를 축소해서 사용)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | Break")
 	TObjectPtr<UStaticMesh> DebrisMesh;
@@ -85,6 +92,9 @@ private:
 	bool bLanded = false;
 	bool bFalling = false;
 	bool bBroken = false;
+
+	// ─── 추가 : Ease In 낙하용 경과 시간 ─────────────────────
+	float FallElapsedTime = 0.f;
 	
 	UPROPERTY()
 	TObjectPtr<AActor> PlayerOnPlatform;

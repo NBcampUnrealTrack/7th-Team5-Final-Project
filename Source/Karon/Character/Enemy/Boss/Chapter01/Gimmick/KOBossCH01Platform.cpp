@@ -1,6 +1,7 @@
 #include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01Platform.h"
 
 #include "AbilitySystemInterface.h"
+#include "NiagaraFunctionLibrary.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Components/BoxComponent.h"
@@ -79,22 +80,32 @@ void AKOBossCH01Platform::Tick(float DeltaTime)
 	}
  
 	FVector NewLocation = GetActorLocation();
-	NewLocation.Z -= FallSpeed * DeltaTime;
+
+	// ─── 수정 : Ease In 낙하 ─────────────────────────────────
+	// FallElapsedTime을 누적해 EaseIn 커브 적용
+	// 처음엔 느리다가 점점 빠르게 가속 → 묵직한 착지감
+	FallElapsedTime += DeltaTime;
+	const float EasedSpeed = FallSpeed * FMath::Pow(FallElapsedTime, 1.5f);
+	NewLocation.Z -= EasedSpeed * DeltaTime;
 
 	FHitResult GroundHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
  
 	const float MeshHalfHeight = PlatformMesh->Bounds.BoxExtent.Z;
- 
+
+	// ─── 수정 : 이동 전→후 전체 구간 트레이스 ──────────────
+	// 속도가 빠를 때 한 프레임에 지면을 통과하는 문제 방지
+	const FVector TraceStart = GetActorLocation() - FVector(0.f, 0.f, MeshHalfHeight);
+	const FVector TraceEnd   = NewLocation - FVector(0.f, 0.f, MeshHalfHeight);
+
 	if (GetWorld()->LineTraceSingleByChannel(
 		GroundHit,
-		NewLocation,
-		NewLocation - FVector(0.f, 0.f, MeshHalfHeight + 1.f),
+		TraceStart,
+		TraceEnd,
 		ECC_WorldStatic,
 		QueryParams))
 	{
-		// 바닥 위에 정확히 위치 고정
 		NewLocation.Z = GroundHit.ImpactPoint.Z + MeshHalfHeight;
 		SetActorLocation(NewLocation);
 		if (!bLanded) { OnLanded(); }
@@ -206,6 +217,7 @@ void AKOBossCH01Platform::SpawnIndicatorOnGround()
 void AKOBossCH01Platform::StartFall()
 {
 	bFalling = true;
+	FallElapsedTime = 0.f;
 	IndicatorMesh->SetVisibility(false);
 }
 
@@ -244,6 +256,16 @@ void AKOBossCH01Platform::OnLanded()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, LandSFX, GetActorLocation());
 	}
+	
+	if (LandVFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			LandVFX,
+			GetActorLocation(),
+			FRotator::ZeroRotator
+		);
+	}
  
 	GetWorldTimerManager().SetTimer(
 		LifeSpanTimerHandle,
@@ -273,6 +295,16 @@ void AKOBossCH01Platform::BreakApart()
 	if (BreakSFX)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, BreakSFX, GetActorLocation());
+	}
+	
+	if (BreakVFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			BreakVFX,
+			GetActorLocation(),
+			FRotator::ZeroRotator
+		);
 	}
 	
 	PlatformMesh->SetVisibility(false);
