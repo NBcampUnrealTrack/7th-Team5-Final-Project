@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-20 14:30\n"
-"PO-Revision-Date: 2026-07-20 14:30\n"
+"POT-Creation-Date: 2026-07-21 13:30\n"
+"PO-Revision-Date: 2026-07-21 13:30\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -405,6 +405,34 @@ msgctxt "DT_Item,DamagedMiningPipe_DisplayName"
 msgid "파손된 채광 파이프"
 msgstr "Damaged Mining Pipe"
 
+#. Key:	6DA79AC844FD4BD561A8C592467ECD78
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Earth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Earth.Description
+msgctxt ",6DA79AC844FD4BD561A8C592467ECD78"
+msgid "대지의 힘이 응축된 코어. 땅 속 깊은 곳의 에너지가 느껴진다."
+msgstr "A core where the power of the earth is condensed. I can feel the energy deep in the ground."
+
+#. Key:	A6123B7446C11803F60371A8DC67EF8D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Earth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Earth.DisplayName
+msgctxt ",A6123B7446C11803F60371A8DC67EF8D"
+msgid "땅의 코어"
+msgstr "The core of earth"
+
+#. Key:	C5F0EDE64D2D903BD08927A04AFB8CBF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Fire.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Fire.Description
+msgctxt ",C5F0EDE64D2D903BD08927A04AFB8CBF"
+msgid "꺼지지 않는 불꽃이 담긴 코어. 손에 쥐면 뜨거운 기운이 전해진다."
+msgstr "Core with an indelible flame. When you hold it in your hand, the hot energy is delivered."
+
+#. Key:	41856C7F4CC79AFD777EB18A452670ED
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Fire.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Fire.DisplayName
+msgctxt ",41856C7F4CC79AFD777EB18A452670ED"
+msgid "불의 코어"
+msgstr "The core of fire"
+
 #. Key:	FD219A6D483121AE31E464AF0AA27160
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.Description
 #: /Game/Karon/Data/Factory/DT_Item.DT_Item.Gear.Description
@@ -517,6 +545,20 @@ msgctxt ",108D5A7747A15AF24F28C8B72C568851"
 msgid "약초 씨앗"
 msgstr "Herb Seed"
 
+#. Key:	DC79F84A40714EC49970AE97C49A7C0A
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Lightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Lightning.Description
+msgctxt ",DC79F84A40714EC49970AE97C49A7C0A"
+msgid "전기의 힘이 응축된 코어. 가만히 있어도 손끝이 찌릿하다."
+msgstr "A core that is condensed with the power of electricity. My fingertips are tingling even when I'm still."
+
+#. Key:	D7E10FA24662D2ED90BC54A303519470
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Lightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Lightning.DisplayName
+msgctxt ",D7E10FA24662D2ED90BC54A303519470"
+msgid "전기의 코어"
+msgstr "The core of lightning"
+
 #. Key:	AA41FE8047EB8367798B22B0B6682225
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
 #: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
@@ -607,6 +649,20 @@ msgstr "Defense: 10"
 msgctxt ",40E4646F4EF6225BA4C8868AB99F9CAD"
 msgid "상의"
 msgstr "Chest Armor"
+
+#. Key:	9F44451A4D7D3613FA6D5C98ADA719B9
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Water.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Water.Description
+msgctxt ",9F44451A4D7D3613FA6D5C98ADA719B9"
+msgid "흐르는 물의 힘이 담긴 코어. 차갑고 투명한 빛을 발한다."
+msgstr "A core containing the power of flowing water. It emits a cold, transparent light."
+
+#. Key:	F38262F646F0F0A43F419F89A02A866C
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Water.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Water.DisplayName
+msgctxt ",F38262F646F0F0A43F419F89A02A866C"
+msgid "물의 코어"
+msgstr "The core of water"
 
 #. Key:	Alloy_Bronze_DisplayName
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Recipe.DT_Recipe.Alloy_Bronze.DisplayName
@@ -1153,6 +1209,13 @@ msgstr "To be Continued.."
 msgctxt "ST_WorldName,WorldName_Cave"
 msgid "버려진 폐광"
 msgstr "Abandoned Mine"
+
+#. Key:	WorldName_SecondDemention
+#. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
+#: /Game/Karon/Localization/ST_WorldName.ST_WorldName
+msgctxt "ST_WorldName,WorldName_SecondDemention"
+msgid "변형된 공간"
+msgstr "Modified Space"
 
 #. Key:	WorldName_SnowTown
 #. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
@@ -3023,9 +3086,16 @@ msgctxt "Karon,EnergyResource"
 msgid "에너지 자원"
 msgstr "Energy Resources"
 
+#. Key:	Core
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
+msgctxt "Karon,Core"
+msgid "코어"
+msgstr "Core"
+
 #. Key:	Others
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(112)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(112)
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(117)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(117)
 msgctxt "Karon,Others"
 msgid "기타"
 msgstr "Others"
@@ -3108,22 +3178,22 @@ msgid "상호작용: {0}"
 msgstr "Interaction: {0}"
 
 #. Key:	SkillType_Active
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(105)
-#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(105)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(106)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(106)
 msgctxt "KOSkillNodeWidget,SkillType_Active"
 msgid "액티브"
 msgstr "Active"
 
 #. Key:	SkillType_Additional
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(109)
-#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(109)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(110)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(110)
 msgctxt "KOSkillNodeWidget,SkillType_Additional"
 msgid "추가동작"
 msgstr "Additional"
 
 #. Key:	SkillType_Passive
-#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(113)
-#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(113)
+#. SourceLocation:	Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(114)
+#: Source/Karon/UI/Skill/KOSkillNodeWidget.cpp(114)
 msgctxt "KOSkillNodeWidget,SkillType_Passive"
 msgid "패시브"
 msgstr "Passive"
@@ -3150,43 +3220,43 @@ msgid "패시브"
 msgstr "Passive"
 
 #. Key:	StartNewGameTitle
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(103)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(103)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(112)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(112)
 msgctxt "KOTitleWidget,StartNewGameTitle"
 msgid "새 게임 시작"
 msgstr "New Game"
 
 #. Key:	StartNewGameDescription
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(104)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(104)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(113)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(113)
 msgctxt "KOTitleWidget,StartNewGameDescription"
 msgid "기존 저장 데이터가 있습니다.\n새 게임을 시작하면 기존 저장 데이터가 삭제됩니다. 계속하시겠습니까?"
 msgstr "Existing stored data exists.\nIf you start a new game, your existing saved data will be deleted. Do you want to continue?"
 
 #. Key:	QuitGameTitle
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(125)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(125)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(134)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(134)
 msgctxt "KOTitleWidget,QuitGameTitle"
 msgid "게임 종료"
 msgstr "End Game"
 
 #. Key:	QuitGameDescription
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(126)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(126)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(135)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(135)
 msgctxt "KOTitleWidget,QuitGameDescription"
 msgid "게임을 종료하시겠습니까?"
 msgstr "Are you sure you want to close the game?"
 
 #. Key:	NoSaveFileTitle
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(145)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(145)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(154)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(154)
 msgctxt "KOTitleWidget,NoSaveFileTitle"
 msgid "알림"
 msgstr "Notification"
 
 #. Key:	NoSaveFileDescription
-#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(146)
-#: Source/Karon/UI/Title/KOTitleWidget.cpp(146)
+#. SourceLocation:	Source/Karon/UI/Title/KOTitleWidget.cpp(155)
+#: Source/Karon/UI/Title/KOTitleWidget.cpp(155)
 msgctxt "KOTitleWidget,NoSaveFileDescription"
 msgid "불러올 세이브 파일이 없습니다."
 msgstr "There are no save files to import."
