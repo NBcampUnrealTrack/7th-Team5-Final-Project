@@ -64,6 +64,12 @@ public:
     
     UFUNCTION(BlueprintPure, Category = "KO|Save")
     bool HasLobbyLoadRequest() const { return bLobbyLoadRequested; }
+    
+    // 장비 제작 완료 기록
+    void MarkEquipmentCrafted(FName EquipmentId);
+
+    // 이미 제작한 장비인지 확인
+    bool HasCraftedEquipment(FName EquipmentId) const;
 
 private:
     static const FString DefaultSlotName;
@@ -93,4 +99,6 @@ private:
     TSet<FName> DeadMonsterIds;
     // 액터
     TSet<FName> DestroyedActorIds;
+    // 제작한 장비
+    TSet<FName> CraftedEquipmentIds;
 };

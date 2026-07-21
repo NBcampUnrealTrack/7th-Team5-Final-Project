@@ -18,6 +18,7 @@ UENUM()
 enum class EKOFactoryCraftAvailability : uint8
 {
     CanCraft,                   // 제작
+    AlreadyCrafted,             // 이미 제작한 장비
     NotEnoughMaterials,         // 재료 부족
     NotEnoughInventorySpace,    // 인벤토리 공간 부족
     Invalid

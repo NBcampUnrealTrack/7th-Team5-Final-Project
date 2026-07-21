@@ -382,6 +382,9 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 	SaveData->CollectedItemDropIds = CollectedItemDropIds.Array();
 	// 파괴된 액터 저장
 	SaveData->DestroyedActorIds=DestroyedActorIds.Array();
+	// 장비 제작 이력 저장
+	SaveData->CraftedEquipmentIds = CraftedEquipmentIds.Array();
+	
 	// 안개 저장
 	if (UKOFogManagerSubsystem* FogSubsystem = UKOFogManagerSubsystem::Get(PC))
 	{
@@ -666,6 +669,17 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 				ConveyorState.BoundOutputItemId,
 				ConveyorState.bHasSelectedOutputPort
 			);
+		}
+	}
+	
+	// 장비 제작 이력 로드
+	CraftedEquipmentIds.Reset();
+
+	for (const FName& EquipmentId : SaveData->CraftedEquipmentIds)
+	{
+		if (!EquipmentId.IsNone())
+		{
+			CraftedEquipmentIds.Add(EquipmentId);
 		}
 	}
 	
@@ -972,6 +986,7 @@ bool UKOSaveSubsystem::DeleteSave()
 		CollectedItemDropIds.Reset();
 		DeadMonsterIds.Reset();
 		DestroyedActorIds.Reset();
+		CraftedEquipmentIds.Reset();
 	}
 
 	return bDeleted;
@@ -1096,4 +1111,24 @@ void UKOSaveSubsystem::MarkDestoryedActor(FName ActorSaveId)
 bool UKOSaveSubsystem::CheckIsDestroyedActor(FName ActorSaveId)
 {
 	return DestroyedActorIds.Contains(ActorSaveId);
+}
+
+void UKOSaveSubsystem::MarkEquipmentCrafted(FName EquipmentId)
+{
+	if (EquipmentId.IsNone())
+	{
+		return;
+	}
+
+	CraftedEquipmentIds.Add(EquipmentId);
+}
+
+bool UKOSaveSubsystem::HasCraftedEquipment(FName EquipmentId) const
+{
+	if (EquipmentId.IsNone())
+	{
+		return false;
+	}
+
+	return CraftedEquipmentIds.Contains(EquipmentId);
 }

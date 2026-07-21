@@ -261,6 +261,10 @@ public:
 	UPROPERTY()
 	TArray<FKOSavedBuilding> Buildings;
 	
+	// 한 번 이상 제작한 장비 ID
+	UPROPERTY()
+	TArray<FName> CraftedEquipmentIds;
+	
 	// 스킬 해금 상태
 	UPROPERTY()
 	FKOSavedSkillState SkillState;

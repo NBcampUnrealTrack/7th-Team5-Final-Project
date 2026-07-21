@@ -14,6 +14,7 @@
 #include "Data/KODataTableTypes.h"
 #include "Items/KOItemLibrary.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOSaveSubsystem.h"
 #include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Subsystem/KOUnlockSubsystem.h"
 #include "UI/Craft/KOFactoryCraftCostEntryWidget.h"
@@ -405,6 +406,28 @@ void UKOFactoryCraftWidget::RefreshDetail()
             FString::Printf(TEXT("보유: %d"), OwnedCount)
         ));
     }
+    
+    const bool bIsEquipment = SelectedTarget.Type == EKOCraftTargetType::Equipment;
+
+    if (DecreaseCraftCountButton)
+    {
+        DecreaseCraftCountButton->SetIsEnabled(!bIsEquipment);
+    }
+
+    if (IncreaseCraftCountButton)
+    {
+        IncreaseCraftCountButton->SetIsEnabled(!bIsEquipment);
+    }
+
+    if (DecreaseCraftCount10Button)
+    {
+        DecreaseCraftCount10Button->SetIsEnabled(!bIsEquipment);
+    }
+
+    if (IncreaseCraftCount10Button)
+    {
+        IncreaseCraftCount10Button->SetIsEnabled(!bIsEquipment);
+    }
 
     RebuildCostList();
     RefreshCraftButtonState();
@@ -479,8 +502,7 @@ void UKOFactoryCraftWidget::RebuildCostList()
 
 bool UKOFactoryCraftWidget::CanCraftTarget(const FKOCraftTarget& Target, int32 InCraftCount) const
 {
-    return GetCraftAvailability(Target, InCraftCount)
-        == EKOFactoryCraftAvailability::CanCraft;
+    return GetCraftAvailability(Target, InCraftCount) == EKOFactoryCraftAvailability::CanCraft;
 }
 
 EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(const FKOCraftTarget& Target, int32 InCraftCount) const
@@ -500,6 +522,26 @@ EKOFactoryCraftAvailability UKOFactoryCraftWidget::GetCraftAvailability(const FK
     if (InCraftCount <= 0)
     {
         return EKOFactoryCraftAvailability::Invalid;
+    }
+    
+    if (Target.Type == EKOCraftTargetType::Equipment)
+    {
+        const UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+
+        if (!SaveSubsystem)
+        {
+            return EKOFactoryCraftAvailability::Invalid;
+        }
+
+        if (SaveSubsystem->HasCraftedEquipment(Target.Id))
+        {
+            return EKOFactoryCraftAvailability::AlreadyCrafted;
+        }
+
+        if (InCraftCount != 1)
+        {
+            return EKOFactoryCraftAvailability::Invalid;
+        }
     }
 
     TArray<TPair<FName, int32>> RequiredItems; // 제작 시 제거될 아이템
@@ -560,6 +602,10 @@ void UKOFactoryCraftWidget::RefreshCraftButtonState()
 
     case EKOFactoryCraftAvailability::NotEnoughInventorySpace:
         ButtonText = FText::FromString(TEXT("인벤토리 공간 부족"));
+        break;
+        
+    case EKOFactoryCraftAvailability::AlreadyCrafted:
+        ButtonText = FText::FromString(TEXT("제작 완료"));
         break;
 
     case EKOFactoryCraftAvailability::Invalid:
@@ -657,6 +703,15 @@ bool UKOFactoryCraftWidget::CraftSelectedTarget()
         UE_LOG(LogTemp, Warning, TEXT("[FactoryCraft] 설비 지급 실패: %s"), *SelectedTarget.Id.ToString());
         Refresh();
         return false;
+    }
+    
+    // 세이브 로드
+    if (SelectedTarget.Type == EKOCraftTargetType::Equipment)
+    {
+        if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+        {
+            SaveSubsystem->MarkEquipmentCrafted(SelectedTarget.Id);
+        }
     }
     
     // 퀘스트
@@ -781,6 +836,11 @@ int32 UKOFactoryCraftWidget::GetMaxCraftableCount(const FKOCraftTarget& Target) 
     if (!Inventory || !Target.IsValid())
     {
         return 0;
+    }
+    
+    if (Target.Type == EKOCraftTargetType::Equipment)
+    {
+        return CanCraftTarget(Target, 1) ? 1 : 0;
     }
     
     TArray<TPair<FName, int32>> RequiredItemsPerOne;
