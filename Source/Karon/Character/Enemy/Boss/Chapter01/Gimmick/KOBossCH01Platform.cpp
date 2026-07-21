@@ -80,9 +80,7 @@ void AKOBossCH01Platform::Tick(float DeltaTime)
 	}
  
 	FVector NewLocation = GetActorLocation();
-
-	// ─── 수정 : Ease In 낙하 ─────────────────────────────────
-	// FallElapsedTime을 누적해 EaseIn 커브 적용
+	
 	// 처음엔 느리다가 점점 빠르게 가속 → 묵직한 착지감
 	FallElapsedTime += DeltaTime;
 	const float EasedSpeed = FallSpeed * FMath::Pow(FallElapsedTime, 1.5f);
@@ -93,8 +91,7 @@ void AKOBossCH01Platform::Tick(float DeltaTime)
 	QueryParams.AddIgnoredActor(this);
  
 	const float MeshHalfHeight = PlatformMesh->Bounds.BoxExtent.Z;
-
-	// ─── 수정 : 이동 전→후 전체 구간 트레이스 ──────────────
+	
 	// 속도가 빠를 때 한 프레임에 지면을 통과하는 문제 방지
 	const FVector TraceStart = GetActorLocation() - FVector(0.f, 0.f, MeshHalfHeight);
 	const FVector TraceEnd   = NewLocation - FVector(0.f, 0.f, MeshHalfHeight);

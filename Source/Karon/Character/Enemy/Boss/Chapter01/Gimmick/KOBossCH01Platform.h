@@ -92,8 +92,7 @@ private:
 	bool bLanded = false;
 	bool bFalling = false;
 	bool bBroken = false;
-
-	// ─── 추가 : Ease In 낙하용 경과 시간 ─────────────────────
+	
 	float FallElapsedTime = 0.f;
 	
 	UPROPERTY()
