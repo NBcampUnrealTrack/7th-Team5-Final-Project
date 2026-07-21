@@ -32,6 +32,7 @@ void UKOBossAttackNotifyState::NotifyBegin(
  
 	PrevSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
 	HittedActors.Empty();
+	bHitDetected = false;
 }
  
 void UKOBossAttackNotifyState::NotifyTick(
@@ -66,6 +67,27 @@ void UKOBossAttackNotifyState::NotifyTick(
 	}
  
 	const FVector CurrSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
+ 
+	// ─── 추가 : 이미 피격됐으면 트레이스 스킵 ───────────────
+	if (bHitDetected)
+	{
+		// 디버그는 계속 출력
+		const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
+		if (bShowDebug)
+		{
+			UKismetSystemLibrary::DrawDebugSphere(
+				Owner->GetWorld(),
+				CurrSocketLocation,
+				TraceRadius,
+				12,
+				FLinearColor::Gray,
+				2.0f
+			);
+		}
+ 
+		PrevSocketLocation = CurrSocketLocation;
+		return;
+	}
 	
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ActorsToIgnore;
@@ -146,6 +168,9 @@ void UKOBossAttackNotifyState::NotifyTick(
 		}
 		
 		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &HitReactData);
+
+		// ─── 추가 : 피격 성공 → 이후 트레이스 중단 ──────────
+		bHitDetected = true;
 	}
 }
  
@@ -188,3 +213,4 @@ void UKOBossAttackNotifyState::ApplyDamageToTarget(
 		OwnerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
 }
+ 

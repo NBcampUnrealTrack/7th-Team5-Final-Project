@@ -69,6 +69,8 @@ private:
 	FVector PrevSocketLocation = FVector::ZeroVector;
 	
 	TArray<TWeakObjectPtr<AActor>> HittedActors;
+	
+	bool bHitDetected = false;
 
 	// 데미지 직접 적용
 	void ApplyDamageToTarget(
