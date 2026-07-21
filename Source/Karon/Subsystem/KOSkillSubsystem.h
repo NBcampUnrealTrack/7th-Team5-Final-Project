@@ -14,6 +14,7 @@ class UKOInventoryComponent;
 class AKOPlayerState;
 class UAbilitySystemComponent;
 class UGameplayAbility;
+class UKOUnlockSubsystem;
 
 UCLASS()
 class KARON_API UKOSkillSubsystem : public ULocalPlayerSubsystem, public IKOGMSInterface
@@ -51,9 +52,13 @@ private:
 	UPROPERTY()
 	TObjectPtr<UKOLoadSubsystem> CachedLoadSubsystem;
 	UPROPERTY()
+	TObjectPtr<UKOUnlockSubsystem> CachedUnlockSubsystem;
+	UPROPERTY()
 	TObjectPtr<UKOInventoryComponent> CachedInventoryComponent;
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> CachedASC;
+	
+	void HandleUnlockTagGranted(FGameplayTag GrantedTag);
 
 	TMap<FName, ESkillState> SkillStates;
 

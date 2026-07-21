@@ -27,12 +27,18 @@ void UKOSkillTooltipWidget::NativeConstruct()
 
 	if (ConfirmButton)
 	{
+		ConfirmButton->OnClicked().RemoveAll(this);
 		ConfirmButton->OnClicked().AddUObject(this, &UKOSkillTooltipWidget::HandleConfirmButtonClicked);
 	}
 }
 
 void UKOSkillTooltipWidget::NativeDestruct()
 {
+	if (ConfirmButton)
+	{
+		ConfirmButton->OnClicked().RemoveAll(this);
+	}
+	
 	CachedInventoryComp = nullptr;
 
 	Super::NativeDestruct();

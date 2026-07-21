@@ -10,6 +10,7 @@
 #include "Game/KOPlayerState.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
+#include "Subsystem/KOUnlockSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 #include "StructUtils/InstancedStruct.h"
 
@@ -22,6 +23,12 @@ void UKOSkillSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (UGameInstance* GI = GetLocalPlayer()->GetGameInstance())
 	{
 		CachedLoadSubsystem = GI->GetSubsystem<UKOLoadSubsystem>();
+		CachedUnlockSubsystem = GI->GetSubsystem<UKOUnlockSubsystem>();
+	}
+	
+	if (CachedUnlockSubsystem)
+	{
+		CachedUnlockSubsystem->OnUnlockTagGranted.AddUObject(this, &UKOSkillSubsystem::HandleUnlockTagGranted);
 	}
 
 	InitializeSkillStates();
@@ -29,9 +36,15 @@ void UKOSkillSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UKOSkillSubsystem::Deinitialize()
 {
+	if (CachedUnlockSubsystem)
+	{
+		CachedUnlockSubsystem->OnUnlockTagGranted.RemoveAll(this);
+	}
+	
 	GrantedPassiveEffectHandles.Empty();
 	
 	CachedLoadSubsystem = nullptr;
+	CachedUnlockSubsystem = nullptr;
 	CachedInventoryComponent = nullptr;
 	CachedASC = nullptr;
 
@@ -50,6 +63,12 @@ UKOSkillSubsystem* UKOSkillSubsystem::Get(const UObject* WorldContext)
 
 	ULocalPlayer* LP = GI->GetFirstGamePlayer();
 	return LP ? LP->GetSubsystem<UKOSkillSubsystem>() : nullptr;
+}
+
+void UKOSkillSubsystem::HandleUnlockTagGranted(FGameplayTag GrantedTag)
+{
+	TryResolveCaches();
+	ReevaluateAllSkillStates();
 }
 
 void UKOSkillSubsystem::TryResolveCaches()
@@ -473,7 +492,7 @@ void UKOSkillSubsystem::ReevaluateAllSkillStates()
 {
 	if (CachedLoadSubsystem == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ReevaluateAllSkillStates: LS가 없습니다."))
+		UE_LOG(LogTemp, Warning, TEXT("ReevaluateAllSkillStates: LS가 없습니다."));
 		return;
 	}
 
@@ -496,12 +515,32 @@ void UKOSkillSubsystem::ReevaluateAllSkillStates()
 
 bool UKOSkillSubsystem::ArePrerequisitesMet(const FKOSkillRow& Row) const
 {
-	if (Row.PrerequisiteSkillTags.IsEmpty())
+	// 선행 스킬 검사
+	if (!Row.PrerequisiteSkillTags.IsEmpty())
 	{
-		return true;
+		if (!GetUnlockedSkillTags().HasAll(Row.PrerequisiteSkillTags))
+		{
+			return false;
+		}
 	}
 
-	return GetUnlockedSkillTags().HasAll(Row.PrerequisiteSkillTags);
+	// 해금 태그 검사
+	if (!Row.RequiredUnlockTags.IsEmpty())
+	{
+		const UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this);
+
+		if (!UnlockSubsystem)
+		{
+			return false;
+		}
+
+		if (!UnlockSubsystem->HasAllUnlockTags(Row.RequiredUnlockTags))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 const ESkillState* UKOSkillSubsystem::GetSkillInfo(FName SkillName) const

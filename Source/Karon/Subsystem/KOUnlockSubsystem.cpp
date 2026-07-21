@@ -1,5 +1,10 @@
 ﻿#include "KOUnlockSubsystem.h"
 
+#include "AbilitySystemComponent.h"
+#include "Game/KOPlayerController.h"
+#include "Game/KOPlayerState.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -34,12 +39,18 @@ bool UKOUnlockSubsystem::GrantUnlockTag(FGameplayTag UnlockTag)
 		return false;
 	}
 
-	if (OwnedUnlockTags.HasTagExact(UnlockTag))
+	UAbilitySystemComponent* ASC = GetPlayerASC();
+	if (!ASC)
 	{
 		return false;
 	}
 
-	OwnedUnlockTags.AddTag(UnlockTag);
+	if (ASC->HasMatchingGameplayTag(UnlockTag))
+	{
+		return false;
+	}
+
+	ASC->AddLooseGameplayTag(UnlockTag);
 
 	UE_LOG(LogTemp, Log, TEXT("[Unlock] 태그 획득: %s"), *UnlockTag.ToString());
 
@@ -54,21 +65,107 @@ bool UKOUnlockSubsystem::HasUnlockTag(FGameplayTag UnlockTag) const
 	{
 		return false;
 	}
-
-	return OwnedUnlockTags.HasTagExact(UnlockTag);
+	
+	const UAbilitySystemComponent* ASC = GetPlayerASC();
+	return ASC && ASC->HasMatchingGameplayTag(UnlockTag);
 }
 
 bool UKOUnlockSubsystem::HasAllUnlockTags(const FGameplayTagContainer& RequiredTags) const
 {
-	return OwnedUnlockTags.HasAll(RequiredTags);
+	const UAbilitySystemComponent* ASC = GetPlayerASC();
+	return ASC && ASC->HasAllMatchingGameplayTags(RequiredTags);
+}
+
+FGameplayTagContainer UKOUnlockSubsystem::GetOwnedUnlockTags() const
+{
+	FGameplayTagContainer Result;
+
+	const UAbilitySystemComponent* ASC = GetPlayerASC();
+	if (!ASC)
+	{
+		return Result;
+	}
+
+	const FGameplayTag UnlockRootTag = FGameplayTag::RequestGameplayTag(FName(TEXT("Unlock.Core")),false);
+
+	if (!UnlockRootTag.IsValid())
+	{
+		return Result;
+	}
+
+	FGameplayTagContainer AllOwnedTags;
+	ASC->GetOwnedGameplayTags(AllOwnedTags);
+
+	for (const FGameplayTag& OwnedTag : AllOwnedTags)
+	{
+		if (OwnedTag.MatchesTag(UnlockRootTag))
+		{
+			Result.AddTag(OwnedTag);
+		}
+	}
+
+	return Result;
 }
 
 void UKOUnlockSubsystem::RestoreUnlockTags(const FGameplayTagContainer& InUnlockTags)
 {
-	OwnedUnlockTags = InUnlockTags;
+	UAbilitySystemComponent* ASC = GetPlayerASC();
+	if (!ASC)
+	{
+		return;
+	}
+
+	ResetUnlockTags();
+
+	for (const FGameplayTag& UnlockTag : InUnlockTags)
+	{
+		if (!UnlockTag.IsValid())
+		{
+			continue;
+		}
+
+		ASC->AddLooseGameplayTag(UnlockTag);
+	}
 }
 
 void UKOUnlockSubsystem::ResetUnlockTags()
 {
-	OwnedUnlockTags.Reset();
+	UAbilitySystemComponent* ASC = GetPlayerASC();
+	if (!ASC)
+	{
+		return;
+	}
+
+	const FGameplayTagContainer UnlockTags = GetOwnedUnlockTags();
+
+	for (const FGameplayTag& UnlockTag : UnlockTags)
+	{
+		ASC->SetLooseGameplayTagCount(UnlockTag, 0);
+	}
+}
+
+UAbilitySystemComponent* UKOUnlockSubsystem::GetPlayerASC() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	AKOPlayerController* PlayerController = Cast<AKOPlayerController>(
+			UGameplayStatics::GetPlayerController(World, 0));
+
+	if (!PlayerController)
+	{
+		return nullptr;
+	}
+
+	AKOPlayerState* PlayerState = PlayerController->GetPlayerState<AKOPlayerState>();
+
+	if (!PlayerState)
+	{
+		return nullptr;
+	}
+
+	return PlayerState->GetAbilitySystemComponent();
 }

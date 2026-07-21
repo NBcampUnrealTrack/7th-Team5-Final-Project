@@ -237,12 +237,12 @@ struct KARON_API FKOSkillRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     FGameplayTagContainer PrerequisiteSkillTags;
     
-    /** 코어 별 분리를 위한 카테고리*/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
-    FGameplayTagContainer Categories;
-    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     TSoftObjectPtr<UTexture2D> Icon;
+    
+    /** 코어 해금 태그*/
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Unlock", meta = (Categories = "Unlock.Core"))
+    FGameplayTagContainer RequiredUnlockTags;
 };
 
 USTRUCT(BlueprintType)
