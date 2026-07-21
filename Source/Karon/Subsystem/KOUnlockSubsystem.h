@@ -15,8 +15,10 @@ class KARON_API UKOUnlockSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
 	static UKOUnlockSubsystem* Get(const UObject* WorldContextObject);
-
+	
+	UFUNCTION(BlueprintCallable)
 	bool GrantUnlockTag(FGameplayTag UnlockTag);
 
 	bool HasUnlockTag(FGameplayTag UnlockTag) const;

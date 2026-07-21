@@ -8,6 +8,8 @@
 #include "Utility/Interface/KOInteractableInterface.h"
 #include "KOItemDropActor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FItemDrop);
+
 UCLASS()
 class KARON_API AKOItemDropActor : public AActor,public IKOInteractableInterface
 {
@@ -39,6 +41,9 @@ protected:
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="KO|Save")
 	FName DropSaveId = NAME_None;
+	
+	UPROPERTY(BlueprintAssignable)
+	FItemDrop OnItemDrop;
 	
 private:
 	void MarkCollectedForSave();

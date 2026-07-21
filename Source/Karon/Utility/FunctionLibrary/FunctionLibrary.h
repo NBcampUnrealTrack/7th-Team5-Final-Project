@@ -24,4 +24,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	static void DropItem(UObject* WorldContextObject, FName ItemName);
+	
+	UFUNCTION(BlueprintCallable)
+	static bool HasMatchingTags(ACharacter* Character, TArray<FGameplayTag> Tags);
 };

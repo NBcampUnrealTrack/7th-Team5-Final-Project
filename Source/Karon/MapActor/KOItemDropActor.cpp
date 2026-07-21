@@ -48,6 +48,7 @@ void AKOItemDropActor::OnInteract(AActor* Interactor)
 			KOGameplayTags::Event_DropItem,
 			FInstancedStruct::Make(ItemMessage)
 		);
+		OnItemDrop.Broadcast();
 	}
 	
 	ApplyCollectedFromSave();

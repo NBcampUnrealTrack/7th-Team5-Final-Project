@@ -44,6 +44,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Hammer_Overlay);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sword_Hit); 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Heal); 
 	
 	// ───────────────────────── Core ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Earth);

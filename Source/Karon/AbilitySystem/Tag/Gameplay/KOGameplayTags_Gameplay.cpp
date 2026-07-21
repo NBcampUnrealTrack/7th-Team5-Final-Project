@@ -27,6 +27,9 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Hammer_Overlay, "GameplayCue.Hammer.Overlay");
 	
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Sword_Hit, "GameplayCue.Sword.Hit"); 
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Heal, "GameplayCue.Heal"); 
+
+	
 	
 	// ───────────────────────── Core ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Unlock_Core_Earth, "Unlock.Core.Earth");

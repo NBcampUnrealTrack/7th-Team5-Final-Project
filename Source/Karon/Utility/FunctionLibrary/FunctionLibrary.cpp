@@ -74,5 +74,29 @@ void UFunctionLibrary::DropItem(UObject* WorldContextObject, FName ItemName)
 		);
 	}
 
+}
+
+bool UFunctionLibrary::HasMatchingTags(ACharacter* Character, TArray<FGameplayTag> Tags)
+{
+	if (Character)
+	{
+		if (UAbilitySystemComponent* ASC=Character->GetComponentByClass<UAbilitySystemComponent>())
+		{
+			for (auto& Tag:Tags)
+			{
+				if (ASC->HasMatchingGameplayTag(Tag))
+				{
+					continue;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+	
 };
 

@@ -73,4 +73,7 @@ namespace KOGameplayTags
 	
 	/** 사망 시 분기 선택 위젯*/
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_GameOverMenu);
+	
+	/** 비디오 재생 위젯*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Video);
 }
