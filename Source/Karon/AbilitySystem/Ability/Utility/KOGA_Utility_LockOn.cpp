@@ -358,23 +358,19 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
-	// Yaw 특이점 폴백에 사용하기 위해 앞으로 당겨서 계산
+	// Yaw 급변 완화 기준점으로 사용
 	const FRotator CurrentRot = PC->GetControlRotation();
 
 	const FVector EyeLoc = OwnerChar->GetActorLocation();
 	const FVector TargetLoc = LockedTarget->GetActorLocation();
-	//FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, GetTargetSocketLocation());
 	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, TargetLoc);
 
-	// 수평 거리가 너무 가까우면(보스 점프 근접, 콤보 모션워핑 밀착 등) FindLookAtRotation의
-	// Yaw가 atan2 특이점 근처로 들어가 프레임마다 크게 튈 수 있어, 직전까지 유지되던
-	// ControlRotation의 Yaw를 그대로 사용해 흔들림을 막는다.
-	const FVector ToTargetHorizontal(TargetLoc.X - EyeLoc.X, TargetLoc.Y - EyeLoc.Y, 0.f);
-	constexpr float MinHorizontalDistanceForYaw = 50.f; // cm
-	if (ToTargetHorizontal.SizeSquared() < FMath::Square(MinHorizontalDistanceForYaw))
-	{
-		AnchorRot.Yaw = CurrentRot.Yaw;
-	}
+	// 타겟이 근접(atan2 특이점)하거나 점프 중 실제 위치가 지그재그로 흔들릴 때,
+	// 앵커 Yaw 자체가 프레임마다 크게 튀는 것을 막기 위해 초당 최대 변화폭을 제한한다.
+	constexpr float MaxAnchorYawSpeed = 180.f; // 초당 최대 앵커 Yaw 변화(도)
+	const float MaxYawDeltaThisFrame = MaxAnchorYawSpeed * DeltaTime;
+	const float RawYawDelta = FRotator::NormalizeAxis(AnchorRot.Yaw - CurrentRot.Yaw);
+	AnchorRot.Yaw = CurrentRot.Yaw + FMath::Clamp(RawYawDelta, -MaxYawDeltaThisFrame, MaxYawDeltaThisFrame);
 
 	const bool bTargetIsBoss =
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
