@@ -23,8 +23,6 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	
-
-	
 private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> ItemIconImage;

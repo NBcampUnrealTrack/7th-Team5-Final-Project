@@ -23,7 +23,7 @@ void UKOEnemyDropItemLogMessage::NativeDestruct()
 void UKOEnemyDropItemLogMessage::SetLogMessage(FName ItemId, int32 Count)
 {
 	FText CachedDisplayName = UKOItemLibrary::GetDisplayName(this, EKOSlotKind::Item, ItemId);
-	UTexture2D* CachedIcon        = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemId);
+	UTexture2D* CachedIcon = UKOItemLibrary::GetIcon(this, EKOSlotKind::Item, ItemId);
 	
 	if (ItemIconImage)
 	{
