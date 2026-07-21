@@ -239,6 +239,11 @@ void AKOBossCH01Platform::OnLanded()
 	DamageCollision->OnComponentBeginOverlap.RemoveAll(this);
  
 	PlatformMesh->SetCollisionProfileName(TEXT("BlockAll"));
+	
+	if (LandSFX)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, LandSFX, GetActorLocation());
+	}
  
 	GetWorldTimerManager().SetTimer(
 		LifeSpanTimerHandle,
@@ -263,6 +268,11 @@ void AKOBossCH01Platform::BreakApart()
 	{
 		SetOnPlatformTag(PlayerOnPlatform, false);
 		PlayerOnPlatform = nullptr;
+	}
+	
+	if (BreakSFX)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, BreakSFX, GetActorLocation());
 	}
 	
 	PlatformMesh->SetVisibility(false);

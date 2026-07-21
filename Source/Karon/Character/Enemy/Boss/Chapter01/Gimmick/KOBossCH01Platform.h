@@ -48,6 +48,14 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | Debug")
 	bool bShowDebug = true;
+	
+	// 착지 시 SFX
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | SFX")
+	TObjectPtr<USoundBase> LandSFX;
+
+	// 파괴 시 SFX
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | SFX")
+	TObjectPtr<USoundBase> BreakSFX;
 
 	// 파괴 연출용 파편 메시 (비워두면 발판 자체 메시를 축소해서 사용)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Platform | Break")

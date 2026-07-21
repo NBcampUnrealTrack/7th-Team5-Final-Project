@@ -67,11 +67,9 @@ void UKOBossAttackNotifyState::NotifyTick(
 	}
  
 	const FVector CurrSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
- 
-	// ─── 추가 : 이미 피격됐으면 트레이스 스킵 ───────────────
+	
 	if (bHitDetected)
 	{
-		// 디버그는 계속 출력
 		const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 		if (bShowDebug)
 		{
@@ -168,8 +166,7 @@ void UKOBossAttackNotifyState::NotifyTick(
 		}
 		
 		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &HitReactData);
-
-		// ─── 추가 : 피격 성공 → 이후 트레이스 중단 ──────────
+		
 		bHitDetected = true;
 	}
 }
