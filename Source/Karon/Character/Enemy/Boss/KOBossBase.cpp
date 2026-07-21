@@ -515,18 +515,11 @@ void AKOBossBase::ApplyAbilities()
 
 void AKOBossBase::GrantBossUnlockReward()
 {
-	if (!GrantedUnlockTag.IsValid())
-	{
-		return;
-	}
-
+	if (!GrantedUnlockTag.IsValid()) return;
+	
 	UKOUnlockSubsystem* UnlockSubsystem = UKOUnlockSubsystem::Get(this);
-
-	if (!UnlockSubsystem)
-	{
-		return;
-	}
-
+	if (!UnlockSubsystem) return;
+	
 	const bool bNewlyGranted = UnlockSubsystem->GrantUnlockTag(GrantedUnlockTag);
 
 	UE_LOG(

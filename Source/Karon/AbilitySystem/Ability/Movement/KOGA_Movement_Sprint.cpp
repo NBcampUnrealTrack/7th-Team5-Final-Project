@@ -90,7 +90,7 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 	CachedCharacter->UpdateGait(EGait::Sprint);
 	
 	// 3. Stamina 감소시 마다 달리기 조건 체크 Task 
-	UAbilityTask_WaitAttributeChange* CheckStaminaTask =
+	StaminaTask =
 		UAbilityTask_WaitAttributeChange::WaitForAttributeChange(
 			this,
 			UKOStaminaSet::GetStaminaAttribute(),
@@ -99,10 +99,10 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 			false
 		);
 	
-	if (CheckStaminaTask)
+	if (StaminaTask)
 	{
-		CheckStaminaTask->OnChange.AddDynamic(this, &ThisClass::OnStaminaChanged);
-		CheckStaminaTask->ReadyForActivation(); 
+		StaminaTask->OnChange.AddDynamic(this, &ThisClass::OnStaminaChanged);
+		StaminaTask->ReadyForActivation(); 
 	}
 }
 
@@ -112,7 +112,13 @@ void UKOGA_Movement_Sprint::EndAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	GetWorld()->GetTimerManager().ClearTimer(GraceTimer);
+	ClearGraceTimer();
+	
+	if (StaminaTask)
+	{
+		StaminaTask->EndTask();
+		StaminaTask = nullptr;
+	}
 	
 	if (SprintEffectHandle.IsValid())
 	{
@@ -162,12 +168,13 @@ void UKOGA_Movement_Sprint::OnStaminaChanged()
 		return; 
 	}
 	
-	GetWorld()->GetTimerManager().ClearTimer(GraceTimer);
+	ClearGraceTimer();
 }
 
 void UKOGA_Movement_Sprint::TryStartGraceTimer()
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(GraceTimer)) return;
+	UWorld* World = GetWorld();
+	if (!World || World->GetTimerManager().IsTimerActive(GraceTimer)) return;
 	
 	TWeakObjectPtr<UKOGA_Movement_Sprint> WeakThis(this);
 	GetWorld()->GetTimerManager().SetTimer(
@@ -188,3 +195,10 @@ void UKOGA_Movement_Sprint::TryStartGraceTimer()
 	);
 }
 
+void UKOGA_Movement_Sprint::ClearGraceTimer()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(GraceTimer);
+	}
+}

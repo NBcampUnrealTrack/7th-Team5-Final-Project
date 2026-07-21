@@ -51,6 +51,9 @@ public:
 	
 	void TryStartGraceTimer();
 	
+	void ClearGraceTimer();
+	
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UGameplayEffect> SprintEffect;
@@ -73,4 +76,7 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UCharacterMovementComponent> CachedMovement;
+	
+	UPROPERTY()
+	class UAbilityTask_WaitAttributeChange* StaminaTask;
 };
