@@ -698,7 +698,7 @@ void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
 		{
-			KO_LOG(Input, Log, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
+			KO_LOG(Input, Verbose, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
 			KOASC->AbilityInputTagPressed(InputTag);
 		}
 	}
@@ -712,7 +712,7 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 	UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent());
 	if (!KOASC) return;
 
-	KO_LOG(Input, Log, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
+	KO_LOG(Input, Verbose, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
 	KOASC->AbilityInputTagReleased(InputTag);
 }
 

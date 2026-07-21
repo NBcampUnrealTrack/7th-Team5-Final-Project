@@ -49,6 +49,7 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Attack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_CoolTime_Sprint);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_DebuffTime);
 	

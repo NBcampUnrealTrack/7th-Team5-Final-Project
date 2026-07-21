@@ -53,6 +53,9 @@ public:
 	
 	void ClearGraceTimer();
 	
+	UFUNCTION()
+	void OnInputReleased(float TimeHeld);
+	
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
@@ -78,5 +81,8 @@ protected:
 	TObjectPtr<UCharacterMovementComponent> CachedMovement;
 	
 	UPROPERTY()
-	class UAbilityTask_WaitAttributeChange* StaminaTask;
+	TObjectPtr<class UAbilityTask_WaitAttributeChange> StaminaTask;
+	
+	UPROPERTY()
+	TObjectPtr<class UAbilityTask_WaitInputRelease> InputReleaseTask;
 };

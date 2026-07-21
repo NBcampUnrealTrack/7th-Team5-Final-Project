@@ -1,11 +1,13 @@
 ﻿#include "KOGA_Movement_Sprint.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Utility/Log/KOLogManager.h"
 
 UKOGA_Movement_Sprint::UKOGA_Movement_Sprint()
 {
@@ -24,7 +26,8 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	const FGameplayTagContainer* TargetTags,
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false;
+	if (IsActive() || !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+		return false;
 	
 	ACharacter* Character = GetAvatarCharacter();
 	UAbilitySystemComponent* ASC = GetASC();
@@ -61,8 +64,7 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
-	// 1. Info 확인 
+
 	CachedCharacter = Cast<AKOHeroCharacter>(GetAvatarCharacter()); 
 	if (!CachedCharacter)
 	{
@@ -77,7 +79,24 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 		return;
 	}
 	
-	// 2. Effect 적용 
+	if (ActorInfo->IsLocallyControlled())
+	{
+		const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
+		
+		if (!Spec || !Spec->InputPressed)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+	}
+	
+	// InputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this, true);
+	// if (InputReleaseTask)
+	// {
+	// 	InputReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
+	// 	InputReleaseTask->ReadyForActivation();
+	// }
+	
 	if (SprintEffect)
 	{
 		SprintEffectHandle = ApplyEffectSetByCallerToSelf(
@@ -118,6 +137,12 @@ void UKOGA_Movement_Sprint::EndAbility(
 	{
 		StaminaTask->EndTask();
 		StaminaTask = nullptr;
+	}
+	
+	if (InputReleaseTask)
+	{
+		InputReleaseTask->EndTask();
+		InputReleaseTask = nullptr;
 	}
 	
 	if (SprintEffectHandle.IsValid())
@@ -200,5 +225,13 @@ void UKOGA_Movement_Sprint::ClearGraceTimer()
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().ClearTimer(GraceTimer);
+	}
+}
+
+void UKOGA_Movement_Sprint::OnInputReleased(float TimeHeld)
+{
+	if (IsActive())
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
 }
