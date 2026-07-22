@@ -3,6 +3,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Engine/StaticMeshActor.h"
 #include "Karon/AbilitySystem/Tag/KOGameplayTags.h"
+#include "Engine/StaticMeshActor.h"
 
 AKOBossCH01GimmickPillar::AKOBossCH01GimmickPillar()
 {

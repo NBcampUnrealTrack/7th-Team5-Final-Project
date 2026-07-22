@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-21 13:30\n"
-"PO-Revision-Date: 2026-07-21 13:30\n"
+"POT-Creation-Date: 2026-07-21 15:50\n"
+"PO-Revision-Date: 2026-07-21 15:50\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -3142,31 +3142,73 @@ msgctxt "Karon,Armor"
 msgid "장비"
 msgstr "Armor"
 
+#. Key:	SaveFailed
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(215)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(215)
+msgctxt "KOPlayerMenu,SaveFailed"
+msgid "저장 실패"
+msgstr "Failed to save"
+
+#. Key:	CannotSaveInCombat
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(221)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(221)
+msgctxt "KOPlayerMenu,CannotSaveInCombat"
+msgid "전투 중에는 저장할 수 없습니다."
+msgstr "You cannot save it during the battle."
+
+#. Key:	SaveComplete
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(228)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(228)
+msgctxt "KOPlayerMenu,SaveComplete"
+msgid "저장 완료"
+msgstr "Save complete"
+
+#. Key:	LoadFailed
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(237)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(237)
+msgctxt "KOPlayerMenu,LoadFailed"
+msgid "로드 실패"
+msgstr "Load failed"
+
+#. Key:	CannotLoadInCombat
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(243)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(243)
+msgctxt "KOPlayerMenu,CannotLoadInCombat"
+msgid "전투 중에는 로드할 수 없습니다."
+msgstr "Cannot be loaded during combat."
+
+#. Key:	NoSaveExists
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(250)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(250)
+msgctxt "KOPlayerMenu,NoSaveExists"
+msgid "저장된 게임이 없습니다."
+msgstr "No saved games."
+
 #. Key:	Back To Title
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(291)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(291)
-msgctxt "KOPlayerMenuWidget,Back To Title"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(294)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(294)
+msgctxt "KOPlayerMenu,Back To Title"
 msgid "타이틀로 돌아가기"
 msgstr "Return to the title"
 
 #. Key:	Back To Title Description
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(292)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(292)
-msgctxt "KOPlayerMenuWidget,Back To Title Description"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(295)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(295)
+msgctxt "KOPlayerMenu,Back To Title Description"
 msgid "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"
 msgstr "Unsaved progress will disappear. Do you want to return to the title?"
 
 #. Key:	Quit Game
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(304)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(304)
-msgctxt "KOPlayerMenuWidget,Quit Game"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(307)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(307)
+msgctxt "KOPlayerMenu,Quit Game"
 msgid "게임 종료"
-msgstr "Game End"
+msgstr "Game over"
 
 #. Key:	Quit Game Description
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(305)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(305)
-msgctxt "KOPlayerMenuWidget,Quit Game Description"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(308)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(308)
+msgctxt "KOPlayerMenu,Quit Game Description"
 msgid "저장하지 않은 진행 상황은 사라집니다. \n정말 게임을 종료하시겠습니까?"
 msgstr "Unsaved progress disappears. \r\nAre you sure you want to end the game?"
 

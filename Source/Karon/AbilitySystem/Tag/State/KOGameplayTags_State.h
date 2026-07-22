@@ -41,6 +41,7 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_WeaponDrawn)
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_SuperArmor)
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Character_JumpIncrease)
 	
 	// ─── Enemy Attack ──────────────────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attack_Normal);

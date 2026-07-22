@@ -424,7 +424,7 @@ void AKOPlayerController::GiveStarterItems()
 	
 	//불의 코어는 초기 지급
 	FoundInventoryComponent->TryAddItem(
-	EKOSlotKind::Factory,
+	EKOSlotKind::Item,
 	TEXT("Fire"),
 	1
 );
@@ -698,7 +698,7 @@ void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
 		{
-			KO_LOG(Input, Verbose, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
+			KO_LOG(Input, Log, TEXT("[PlayerController] : %s Pressed."), *InputTag.GetTagName().ToString());
 			KOASC->AbilityInputTagPressed(InputTag);
 		}
 	}

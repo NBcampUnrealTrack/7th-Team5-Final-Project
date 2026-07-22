@@ -12,6 +12,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystem/KOSaveSubsystem.h"
+#define LOCTEXT_NAMESPACE "KOPlayerMenu"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -208,66 +209,68 @@ void UKOPlayerMenuWidget::HandleOpenOptionWidgetClicked()
 
 void UKOPlayerMenuWidget::HandleSaveClicked()
 {
-	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
-	if (!SaveSubsystem)
-	{
-		ShowLocalMessage(FText::FromString(TEXT("저장 실패")));
-		return;
-	}
-	
-	if (!SaveSubsystem->CanSaveOrLoad())
-	{
-		ShowLocalMessage(FText::FromString(TEXT("전투 중에는 저장할 수 없습니다.")));
-		return;
-	}
-
-	const bool bSaved =	SaveSubsystem && SaveSubsystem->SaveCurrentGame();
-
-	ShowLocalMessage(bSaved ? FText::FromString(TEXT("저장 완료")) : FText::FromString(TEXT("저장 실패")));
-}
-
-void UKOPlayerMenuWidget::HandleLoadClicked()
-{
-	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
-	if (!SaveSubsystem)
-	{
-		ShowLocalMessage(FText::FromString(TEXT("로드 실패")));
-		return;
-	}
-
-	if (!SaveSubsystem->CanSaveOrLoad())
-	{
-		ShowLocalMessage(FText::FromString(TEXT("전투 중에는 로드할 수 없습니다.")));
-		return;
-	}
-	
-	// 저장 파일이 없으면 로딩 화면을 띄우지 않고 종료
-	if (!SaveSubsystem->DoesSaveExist())
-	{
-		ShowLocalMessage(FText::FromString(TEXT("저장된 게임이 없습니다.")));
-		return;
-	}
-	
-	UKOLoadingUiSubsystem* LoadingSubsystem =
-		GetGameInstance()
-		? GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>()
-		: nullptr;
-
-	if (LoadingSubsystem)
-	{
-		LoadingSubsystem->ShowLoadingScreen(DefaultLoadingWidget);
-	}
-
-	const bool bLoaded = SaveSubsystem && SaveSubsystem->LoadCurrentGame();
-	
-	if (!bLoaded)
-	{
-		if (LoadingSubsystem)
-		{
-			LoadingSubsystem->HideLoadingScreen();
-		}
-		
-		ShowLocalMessage(FText::FromString(TEXT("로드 실패")));
+	 UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+        if (!SaveSubsystem)
+        {
+            ShowLocalMessage(LOCTEXT("SaveFailed", "저장 실패"));
+            return;
+        }
+    
+        if (!SaveSubsystem->CanSaveOrLoad())
+        {
+            ShowLocalMessage(LOCTEXT("CannotSaveInCombat", "전투 중에는 저장할 수 없습니다."));
+            return;
+        }
+    
+        const bool bSaved = SaveSubsystem && SaveSubsystem->SaveCurrentGame();
+    
+        ShowLocalMessage(bSaved
+            ? LOCTEXT("SaveComplete", "저장 완료")
+            : LOCTEXT("SaveFailed", "저장 실패"));
+    }
+    
+    void UKOPlayerMenuWidget::HandleLoadClicked()
+    {
+        UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+        if (!SaveSubsystem)
+        {
+            ShowLocalMessage(LOCTEXT("LoadFailed", "로드 실패"));
+            return;
+        }
+    
+        if (!SaveSubsystem->CanSaveOrLoad())
+        {
+            ShowLocalMessage(LOCTEXT("CannotLoadInCombat", "전투 중에는 로드할 수 없습니다."));
+            return;
+        }
+    
+        // 저장 파일이 없으면 로딩 화면을 띄우지 않고 종료
+        if (!SaveSubsystem->DoesSaveExist())
+        {
+            ShowLocalMessage(LOCTEXT("NoSaveExists", "저장된 게임이 없습니다."));
+            return;
+        }
+    
+        UKOLoadingUiSubsystem* LoadingSubsystem =
+            GetGameInstance()
+            ? GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>()
+            : nullptr;
+    
+        if (LoadingSubsystem)
+        {
+            LoadingSubsystem->ShowLoadingScreen(DefaultLoadingWidget);
+        }
+    
+        const bool bLoaded = SaveSubsystem && SaveSubsystem->LoadCurrentGame();
+    
+        if (!bLoaded)
+        {
+            if (LoadingSubsystem)
+            {
+                LoadingSubsystem->HideLoadingScreen();
+            }
+    
+            ShowLocalMessage(LOCTEXT("LoadFailed", "로드 실패"));
 		return;
 	}
 
@@ -360,3 +363,5 @@ void UKOPlayerMenuWidget::ShowLocalMessage(const FText& Message, bool bCloseAfte
 		UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

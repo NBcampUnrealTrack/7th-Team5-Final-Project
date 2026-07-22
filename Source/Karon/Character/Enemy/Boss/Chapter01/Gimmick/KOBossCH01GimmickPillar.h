@@ -5,6 +5,7 @@
 #include "KOBossCH01GimmickPillar.generated.h"
 
 class UNiagaraSystem;
+class AStaticMeshActor;
 
 UCLASS()
 class KARON_API AKOBossCH01GimmickPillar : public AActor

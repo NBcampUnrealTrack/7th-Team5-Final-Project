@@ -13,6 +13,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Attacking, "State.Character.Attacking");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Skill, "State.Character.Skill");
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_Drawing, "State.Character.Drawing");
+	UE_DEFINE_GAMEPLAY_TAG(State_Character_JumpIncrease, "State.Character.JumpIncrease");
 	
 	// ── State | Character | OverClock ─────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(State_Character_OverClock, "State.Character.OverClock");

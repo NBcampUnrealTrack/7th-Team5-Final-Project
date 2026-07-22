@@ -536,6 +536,12 @@ void UKOOptionWidget::ApplyGraphicsOptions(const FKOGraphicsOptions& Graphics)
 	Settings->SetTextureQuality(Graphics.TextureQuality);
 	Settings->SetVisualEffectQuality(Graphics.EffectsQuality);
 	Settings->SetShadingQuality(Graphics.ShadingQuality);
+	
+	// UI에 비노출되는 항목도 명시적으로 반영
+	Settings->SetGlobalIlluminationQuality(0); 
+	Settings->SetPostProcessingQuality(3);
+	Settings->SetReflectionQuality(0);
+	Settings->SetFoliageQuality(3);
 
 	Settings->ApplySettings(/*bCheckForCommandLineOverrides=*/false);
 }
