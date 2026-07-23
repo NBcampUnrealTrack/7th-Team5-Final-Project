@@ -10,10 +10,10 @@ struct FKOEffectContext
 {
 	GENERATED_BODY()
 
-	UAbilitySystemComponent* SourceASC        = nullptr;
-	AActor*                  SourceActor       = nullptr;
-	AController*             SourceController  = nullptr;
-	ACharacter*              SourceCharacter   = nullptr;
+	UAbilitySystemComponent* InstigatorASC        = nullptr;
+	AActor*                  InstigatorActor       = nullptr;
+	AController*             InstigatorController  = nullptr;
+	ACharacter*              InstigatorCharacter   = nullptr;
 
 	UAbilitySystemComponent* TargetASC        = nullptr;
 	AActor*                  TargetActor       = nullptr;

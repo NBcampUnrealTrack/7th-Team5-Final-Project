@@ -19,5 +19,8 @@ public:
     static UAbilityTask_Tick* CreateTickTask(UGameplayAbility* OwningAbility);
     
     virtual void Activate() override;
+	
     virtual void TickTask(float DeltaTime) override;
+	
+	void StopTask();
 };

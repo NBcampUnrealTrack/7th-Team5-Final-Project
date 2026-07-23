@@ -10,8 +10,7 @@
 
 void UPlayerEnvQueryContext::ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const
 {
-	AActor* QueryOwner=Cast<AActor>(QueryInstance.Owner.Get());
-	AActor* PlayerActor= UGameplayStatics::GetPlayerPawn(this, 0);
-	
+	AActor* QueryOwner = Cast<AActor>(QueryInstance.Owner.Get());
+	AActor* PlayerActor = UGameplayStatics::GetPlayerPawn(QueryOwner, 0);
 	UEnvQueryItemType_Actor::SetContextHelper(ContextData, PlayerActor);
 }

@@ -1,17 +1,20 @@
 #include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossDashAttack.h"
 
-#include "AbilitySystemInterface.h"
-#include "AIController.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
+#include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Tag/State/KOGameplayTags_State.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "Data/KO_HitData.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 UKOGA_BossDashAttack::UKOGA_BossDashAttack()
 {
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Dashing);
 	
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Attacking);
@@ -31,47 +34,72 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		return;
 	}
 	
-	if (!IsActive())
-	{
-		return;
-	}
- 
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	ACharacter* Character = GetAvatarCharacter();
 	if (!Character)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	AAIController* AIC = Cast<AAIController>(Character->GetController());
-	if (!AIC)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
+	AKOBossBase* Boss = Cast<AKOBossBase>(Character);
+	AActor* Target = Boss ? Boss->CurrentTarget : nullptr;
  
-	UBlackboardComponent* BB = AIC->GetBlackboardComponent();
-	if (!BB)
+	DashDirection = Target ?
+		(Target->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal() :
+		Character->GetActorForwardVector();
+	DashDirection.Z = 0.f;
+	
+	DashedActors.Empty();
+	
+	if (PreDashMontage)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
- 
-	AActor* Target = Cast<AActor>(
-		BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
- 
-	if (Target)
-	{
-		DashDirection = (Target->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal();
-		DashDirection.Z = 0.f;
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, PreDashMontage, 1.f, NAME_None, false);
+
+		MontageTask->OnCompleted.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCompleted);
+		MontageTask->OnCancelled.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCancelled);
+		MontageTask->OnInterrupted.AddDynamic(this, &UKOGA_BossDashAttack::OnPreDashMontageCancelled);
+		MontageTask->ReadyForActivation();
 	}
 	else
 	{
+		// 전조 몽타주 없으면 즉시 돌진
+		StartDash();
+	}
+}
+ 
+void UKOGA_BossDashAttack::OnPreDashMontageCompleted()
+{
+	if (ACharacter* Character = GetAvatarCharacter())
+	{
 		DashDirection = Character->GetActorForwardVector();
 		DashDirection.Z = 0.f;
+		DashDirection.Normalize();
 	}
  
-	// 충돌 이벤트 바인딩
+	StartDash();
+}
+ 
+void UKOGA_BossDashAttack::OnPreDashMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+ 
+void UKOGA_BossDashAttack::StartDash()
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+	
+	if (AKOBossBase* Boss = Cast<AKOBossBase>(Character))
+	{
+		Boss->OnDashSmokeBegin();
+	}
+ 
 	Character->GetCapsuleComponent()->OnComponentHit.AddDynamic(
 		this, &UKOGA_BossDashAttack::OnDashHit
 	);
@@ -84,18 +112,14 @@ void UKOGA_BossDashAttack::ActivateAbility(
 		DashDuration,
 		false
 	);
-	
-	ACharacter* CharacterRef = Character;
+ 
 	GetWorld()->GetTimerManager().SetTimer(
 		DashVelocityTimerHandle,
-		FTimerDelegate::CreateLambda([this, CharacterRef]()
+		FTimerDelegate::CreateLambda([this]()
 		{
-			if (!IsActive() || !CharacterRef)
-			{
-				return;
-			}
-			
-			CharacterRef->GetCharacterMovement()->Velocity = DashDirection * DashSpeed;
+			ACharacter* Char = GetAvatarCharacter();
+			if (!IsActive() || !Char) return;
+			Char->GetCharacterMovement()->Velocity = DashDirection * DashSpeed;
 		}),
 		0.016f,
 		true
@@ -113,51 +137,90 @@ void UKOGA_BossDashAttack::OnDashHit(
 	{
 		return;
 	}
- 
-	// 기믹 돌진 기둥 태그 확인 
+	
 	if (bIsGimmickDash && OtherActor->ActorHasTag(FName("Object_BossCH01_Gimmick_Pillar")))
 	{
-		HandleGimmickPillarHit(OtherActor);
+		HandleGimmickPillarHit(OtherActor); 
 		return;
 	}
- 
-	// 플레이어 충돌
-	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(OtherActor);
-	if (ASI)
+	
+	// 데미지 주고 계속 돌진
+	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(OtherActor);
+	if (TargetASI && TargetASI->GetAbilitySystemComponent())
 	{
-		ApplyDamageToTarget(OtherActor);
-		return;
+		// 중복 방지
+		bool bAlreadyHit = DashedActors.ContainsByPredicate(
+			[OtherActor](const TWeakObjectPtr<AActor>& Weak)
+			{
+				return Weak.IsValid() && Weak.Get() == OtherActor;
+			});
+
+		if (!bAlreadyHit)
+		{
+			DashedActors.Add(OtherActor);
+			ApplyHitEffects(OtherActor);
+
+			UAbilitySystemComponent* TargetASC =
+				TargetASI->GetAbilitySystemComponent();
+			FGameplayEventData EventData;
+			EventData.Instigator = GetAvatarCharacter();
+			EventData.Target = OtherActor;
+			if (HitData)
+			{
+				EventData.OptionalObject = HitData.Get();
+			}
+
+			TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &EventData);
+		}
+		return; // 돌진 계속
 	}
- 
-	// 일반 벽 충돌
 	StopDash();
 }
  
 // 기믹 기둥 처리
 void UKOGA_BossDashAttack::HandleGimmickPillarHit(AActor* PillarActor)
 {
-	if (PillarActor)
+	if (AKOBossCH01GimmickPillar* Pillar = Cast<AKOBossCH01GimmickPillar>(PillarActor))
 	{
-		PillarActor->Destroy();
+		Pillar->BreakPillar();
 	}
 	
-	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-	if (Pawn)
+	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());
+	if (Boss)
 	{
-		AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-		if (AIC)
+		Boss->TriggerGroggy();
+		
+		if (GimmickSuccessSFX)
 		{
-			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
-			}
+			UGameplayStatics::PlaySoundAtLocation(
+				GetWorld(),
+				GimmickSuccessSFX,
+				Boss->GetActorLocation()
+			);
 		}
 	}
  
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters Params;
+		Params.EffectContext = ASC->MakeEffectContext();
+
+		UE_LOG(LogTemp, Log, TEXT("[DashAttack] ExecuteGameplayCue 호출 : %s"),
+			*KOGameplayTags::GameplayCue_CameraShake_BossAttack.GetTag().ToString());
+
+		ASC->ExecuteGameplayCue(
+			KOGameplayTags::GameplayCue_CameraShake_BossAttack,
+			Params
+		);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[DashAttack] ASC nullptr - GameplayCue 호출 실패"));
+	}
+	
 	StopDash();
 }
  
-// 돌진 종료
 void UKOGA_BossDashAttack::StopDash()
 {
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
@@ -165,10 +228,17 @@ void UKOGA_BossDashAttack::StopDash()
 	{
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 		Character->GetCapsuleComponent()->OnComponentHit.RemoveAll(this);
+
+		if (AKOBossBase* Boss = Cast<AKOBossBase>(Character))
+		{
+			Boss->OnDashSmokeEnd();
+		}
 	}
  
 	GetWorld()->GetTimerManager().ClearTimer(DashTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(DashVelocityTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(DashHitScanTimerHandle);
+	DashedActors.Empty();
  
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
@@ -190,30 +260,25 @@ void UKOGA_BossDashAttack::EndAbility(
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DashTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(DashVelocityTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(DashHitScanTimerHandle);
 	}
+	DashedActors.Empty();
  
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	ACharacter* Character = GetAvatarCharacter();
 	if (Character)
 	{
 		Character->GetCapsuleComponent()->OnComponentHit.RemoveAll(this);
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
-	}
-	
-	// 기믹 돌진시 BBkey값 변경
-	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-	if (Pawn)
-	{
-		if (bIsGimmickDash){
-			AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-			if (AIC)
+		
+		if (bIsGimmickDash)
+		{
+			AKOBossBase* Boss = Cast<AKOBossBase>(Character);
+			if (Boss)
 			{
-				if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-				{
-					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGimmickReadyKey, false);
-				}
+				Boss->NotifyGimmickDashEnd();
 			}
 		}
 	}
- 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo,bReplicateEndAbility, bWasCancelled);
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

@@ -7,6 +7,8 @@
 
 class UKOGridBuildComponent;
 class UKOInventoryComponent;
+class UKOBuildKeyGuideWidget;
+class UKOInGameHUD;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOBuildUIComponent : public UActorComponent, public IKOGMSInterface
@@ -59,11 +61,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	void CloseQuickSlotBar();
 	
-	// X 키
+	// 해제 모드
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void StartDestroyBuildMode();
 
-	// X 키 토글: DestroyMode이면 취소, 아니면 진입.
+	// 해재 모드 : DestroyMode이면 취소, 아니면 진입.
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void ToggleDestroyBuildMode();
 	// 좌클릭
@@ -72,9 +74,24 @@ public:
 	// 우클릭
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void CancelBuildAction();
+	// F키 상호작용 여부
+	UFUNCTION(BlueprintCallable, Category = "Build|Action")
+	bool CancelDestroyModeForInteract();
 	// 회전
 	UFUNCTION(BlueprintCallable, Category = "Build|Action")
 	void RotateBuildPreview(int32 Direction);
+	
+	void SetHUDKeyGuideMode(bool bBuildMode);
+	UKOInGameHUD* GetHUDWidget() const;
+	
+	// 세이브 로드
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void LoadBuildQuickSlotsFromSave(const TArray<FName>& InBuildQuickSlots);
+
+	const TArray<FName>& GetBuildQuickSlotsForSave() const { return BuildQuickSlots; }
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	bool ClearBuildQuickSlot(int32 SlotIndex);
 
 private:
 	APlayerController* GetOwningPlayerController() const;
@@ -93,4 +110,7 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Build|QuickSlot")
 	int32 SelectedQuickSlotIndex = INDEX_NONE;
+	
+	UPROPERTY()
+	TObjectPtr<UKOInGameHUD> HUDWidget;
 };

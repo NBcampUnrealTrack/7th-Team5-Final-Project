@@ -4,12 +4,67 @@
 #include "Character/Hero/KOHeroCharacter.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
+#include "Utility/Messaging/KOMessageTypes.h"
+#include "StructUtils/InstancedStruct.h"
 
 #include "Components/ProgressBar.h"
+
+void UKOInGameHUD::SetBuildKeyGuideMode(bool bBuildMode)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[HUD] SetBuildKeyGuideMode bBuildMode=%d"), bBuildMode ? 1 : 0);
+	if (NormalKeyGuide)
+	{
+		NormalKeyGuide->SetVisibility(
+			bBuildMode
+				? ESlateVisibility::Collapsed
+				: ESlateVisibility::HitTestInvisible
+		);
+	}
+	
+	if (WBP_ClockGauge)
+	{
+		WBP_ClockGauge->SetVisibility(
+			bBuildMode ? 
+			ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible
+		);
+	}
+
+	if (BuildKeyGuide)
+	{
+		BuildKeyGuide->SetVisibility(
+			bBuildMode
+				? ESlateVisibility::HitTestInvisible
+				: ESlateVisibility::Collapsed
+		);
+	}
+}
+
+void UKOInGameHUD::BP_OnSkillQuickSlotChanged_Implementation(ESkillQuickSlotKey SlotKey, FName SkillName)
+{
+	// Blueprint에서 오버라이드해 HUD 내 스킬 슬롯 UI를 갱신한다.
+}
+
+void UKOInGameHUD::HandleSkillQuickSlotChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+	const FKOSkillQuickSlotChangedMessage* Msg = Payload.GetPtr<FKOSkillQuickSlotChangedMessage>();
+	if (!Msg)
+	{
+		return;
+	}
+
+	BP_OnSkillQuickSlotChanged(Msg->SlotKey, Msg->SkillName);
+}
 
 void UKOInGameHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	SkillQuickSlotChangedCallback.BindDynamic(
+		this, &UKOInGameHUD::HandleSkillQuickSlotChangedMessage);
+	SkillQuickSlotChangedHandle = Subscribe(
+		KOGameplayTags::Data_Message_Skill_QuickSlotChanged,
+		SkillQuickSlotChangedCallback);
 
 	AKOHeroCharacter* HeroCharacter = Cast<AKOHeroCharacter>(GetOwningPlayerPawn());
 	if (HeroCharacter == nullptr)
@@ -42,6 +97,7 @@ void UKOInGameHUD::NativeConstruct()
 
 		CachedStaminaSet->OnStaminaChanged.AddDynamic(this, &UKOInGameHUD::OnCurrentStaminaChanged);
 		CachedStaminaSet->OnMaxStaminaChanged.AddDynamic(this, &UKOInGameHUD::OnMaxStaminaChanged);
+		CachedStaminaSet->OnStaminaExhaustedChanged.AddDynamic(this, &UKOInGameHUD::OnStaminaExhausted);
 	}
 	else
 	{
@@ -51,6 +107,9 @@ void UKOInGameHUD::NativeConstruct()
 
 void UKOInGameHUD::NativeDestruct()
 {
+	Unsubscribe(SkillQuickSlotChangedHandle);
+	SkillQuickSlotChangedCallback.Clear();
+
 	if (IsValid(CachedHealthSet))
 	{
 		CachedHealthSet->OnHealthChanged.RemoveDynamic(this, &UKOInGameHUD::OnCurrentHealthChanged);
@@ -61,6 +120,8 @@ void UKOInGameHUD::NativeDestruct()
 	{
 		CachedStaminaSet->OnStaminaChanged.RemoveDynamic(this, &UKOInGameHUD::OnCurrentStaminaChanged);
 		CachedStaminaSet->OnMaxStaminaChanged.RemoveDynamic(this, &UKOInGameHUD::OnMaxStaminaChanged);
+		
+		CachedStaminaSet->OnStaminaExhaustedChanged.RemoveDynamic(this, &UKOInGameHUD::OnStaminaExhausted);
 	}
 	
 	CachedHealthSet  = nullptr;
@@ -100,6 +161,20 @@ void UKOInGameHUD::OnMaxStaminaChanged(float OldValue, float NewValue)
 {
 	CachedMaxStamina = NewValue;
 	RefreshStaminaBar();
+}
+
+void UKOInGameHUD::OnStaminaExhausted(bool bStaminaExhausted)
+{
+	if (!StaminaBar) return;
+	
+	FLinearColor CurrentColor = StaminaBar->GetFillColorAndOpacity();
+	FLinearColor HSV = CurrentColor.LinearRGBToHSV();
+	HSV.B = bStaminaExhausted ? 0.07f : 1.f;
+	
+	FLinearColor Result = HSV.HSVToLinearRGB();
+	Result.A = bStaminaExhausted ? .8f : 1.f;
+	
+	StaminaBar->SetFillColorAndOpacity(Result);
 }
 
 void UKOInGameHUD::RefreshStaminaBar()

@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "Character/KOCharacterBase.h"
 #include "KOBaseEnemy.generated.h"
 
+
+class UKOGroggySet;
+class UKOEnemyDataSubsystem;
 class UGameplayEffect;
 class UWidgetComponent;
 class UKOAnimNotifyComponent;
@@ -17,7 +21,8 @@ struct FOnAttributeChangeData;
 DECLARE_DELEGATE(FOnGameplayAbilityEnd)
 DECLARE_DELEGATE(FOnCharacterEvent)
 DECLARE_DELEGATE_TwoParams(FOnUIChangeEvent, float ProgressPercent,float Damage)
-DECLARE_DELEGATE_OneParam(FOnUIBattleEvent,bool bIsBattle)
+DECLARE_DELEGATE_OneParam(FOnUIVisibleEvent,bool bShouldVisible)
+DECLARE_DELEGATE_OneParam(FOnTriggerEvent,bool bIsTriggered)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeadEvent);
 
 UCLASS()
@@ -26,38 +31,65 @@ class KARON_API AKOBaseEnemy : public AKOCharacterBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AKOBaseEnemy(const FObjectInitializer& ObjectInitializer);
 	
-	void SetupEnemy(UKOEnemyDataAsset);
+	void SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level);
 	FVector GetSocketLocation();
 	float GetAttackPoint();
 	void OnBattleChanged(bool bIsBattle);
+	void ChangeLockOnGroggy(bool bIsGroggied);
+	
+	// 세이브 로드
+	FName GetMonsterSaveId() const { return MonsterSaveId; }
+	bool IsDeadForSave() const { return bDeadForSave; }
+	
+	FName GetClusterSaveIdForSave() const { return ClusterSaveId; }
+	int32 GetEnemyLevelForSave() const { return EnemyLevel; }
+
+	void SetMonsterSaveInfoForLoad(FName InClusterSaveId, FName InMonsterSaveId);
+	void RestoreMonsterFromSave(const FTransform& SavedTransform);
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
+	FORCEINLINE float GetAttackPower() const
+	{if (CombatSet){return CombatSet->GetAttackPower();} return 0.f;}
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void InitializeAttributes() override;
 	
-
+	
 private:
-	void OnHitCallback(const FOnAttributeChangeData& Data);
+	UFUNCTION()
+	void OnHealthChanged(float OldValue, float NewValue);
+	
+	void DropItem();
+	
+	UFUNCTION()
+	void OnGroggyBegin();
 
 	
 public:
-	//TODO: 토큰&티켓 패턴으로 티켓을 받아 공격가능한지 여부(현재는 BP에서 설정)
-	UPROPERTY(EditAnywhere)
 	bool bCanAttack=true;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
+	bool bCanPatrol=true;
+	
+	//Projectile
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	TObjectPtr<UStaticMesh> ProjectileMesh;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Projectile")
 	TSubclassOf<UGameplayEffect> ProjectileDamageEffectClass;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Projectile")
 	FVector ProjectileScale=FVector(1.f,1.f,1.f);
 	
-	//TODO: PDA로 세팅
+	UPROPERTY(EditAnywhere, Category="Projectile")
+	FGameplayTag ProjectileTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	class UNiagaraSystem* ProjectileImpactEffect;
+	
 	UPROPERTY(EditDefaultsOnly,Category="Attribute")
 	float EnemyAttackRadius=150.f;
 	
@@ -75,35 +107,66 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag EnemyNameTag;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	int32 EnemyLevel=1;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float MaxGroggyHealth=50.f;
+	
+	UPROPERTY()
+	AActor* TargetActor=nullptr;
 
 protected:
-	UPROPERTY()
-	TObjectPtr<UKOCombatSet> CombatSet;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> EnemyHPBarWidgetComponent;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> EnemyLockOnWidgetComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> EnemyParriedWidgetComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Groggy")
+	TObjectPtr<UKOGroggySet> GroggySet;
+	
 	FName HandSocketName=TEXT("hand_r_Socket");
 	FName WeaponSocketName=TEXT("Weapon_Socket");
 	FName SkeletonSocketName=TEXT("Skeleton_Socket");
-
-private:
-
+	FName LockOnSocketName=FName("LockOnSocket");
 	
-	//Delegates
+	FVector LocalLockOnInitialLocation=FVector(0,0,100.f);;
+	FVector LocalLockOnOffset=FVector(0,40.f,-80.f);
+	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName ClusterSaveId = NAME_None;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName MonsterSaveId = NAME_None;
+
+	UPROPERTY()
+	bool bDeadForSave = false;
+	
+private:
+	bool bHadSendEvent=false;
+	
 public:
 	FOnGameplayAbilityEnd OnGameplayAbilityEnd;
-	
-	FOnCharacterEvent OnCharacterHit;
-
 	FOnCharacterEvent OnCharacterReset;
-	
 	FOnUIChangeEvent OnHPChangedEvent;
-	FOnUIBattleEvent OnBattleEvent;
+	FOnUIVisibleEvent OnBattleEvent;
+	FOnUIVisibleEvent OnLockOnEvent;
+	FOnUIVisibleEvent OnParriedEvent;
+	FOnTriggerEvent OnHitEvent;
+	FOnTriggerEvent OnCounterAttackEvent;
+	FOnTriggerEvent OnCanAttackEvent;
+	FOnTriggerEvent OnHalfHealthEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDeadEvent OnEnemyDead;
+
+	
 };

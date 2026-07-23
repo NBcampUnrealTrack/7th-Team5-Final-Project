@@ -7,6 +7,7 @@
 #include "KOEnemyProjectileAttackNotify.generated.h"
 
 class AKOEnemyProjectileActor;
+class UKO_HitData;
 /**
  * 
  */
@@ -25,4 +26,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	float DamageMultiplier=1.f;
+	
+	UPROPERTY(EditAnywhere, Instanced, Category = "HitData")
+	TObjectPtr<UKO_HitData> HitData;
 };

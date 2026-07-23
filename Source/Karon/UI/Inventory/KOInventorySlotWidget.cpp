@@ -9,7 +9,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "UI/Inventory/KOItemDragDropOperation.h"
 #include "UI/Inventory/KOItemDragSource.h"
-#include "UI/Inventory/KOInventoryWidget.h"
+#include "Components/WidgetSwitcher.h"
 #include "UI/ItemTooltip/KOItemTooltipWidget.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 
@@ -38,19 +38,26 @@ void UKOInventorySlotWidget::SetSlotData(const FKOItemSlot& InSlot)
 void UKOInventorySlotWidget::ApplyVisuals()
 {
     const bool bHasItem = SlotData.HasItem();
+    
+    constexpr int32 ItemOverlayIndex = 0;
+    constexpr int32 EmptyOverlayIndex = 1;
+    
+    if (Switcher)
+    {
+        Switcher->SetActiveWidgetIndex(bHasItem ? ItemOverlayIndex : EmptyOverlayIndex);
+    }
 
     if (IconImage)
     {
-        UTexture2D* TextureToShow = bHasItem ? CachedIcon.Get() : EmptySlotIcon.Get();
-
-        if (TextureToShow)
+        if (bHasItem && CachedIcon)
         {
-            IconImage->SetBrushFromTexture(TextureToShow);
+            IconImage->SetBrushFromTexture(CachedIcon.Get());
             IconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
             IconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
         }
         else
         {
+            IconImage->SetBrushFromTexture(nullptr);
             IconImage->SetVisibility(ESlateVisibility::Hidden);
         }
     }
@@ -65,7 +72,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         else
         {
             CountText->SetText(FText::GetEmpty());
-            CountText->SetVisibility(bHideCountWhenEmpty ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+            CountText->SetVisibility(ESlateVisibility::Collapsed);
         }
     }
 
@@ -82,8 +89,7 @@ void UKOInventorySlotWidget::ApplyVisuals()
         return;
     }
 
-    UKOItemTooltipWidget* Tooltip =
-        CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+    UKOItemTooltipWidget* Tooltip = CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
 
     if (Tooltip)
     {
@@ -108,6 +114,35 @@ FReply UKOInventorySlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
         );
 
         return Reply.NativeReply;
+    }
+
+    if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+    {
+        if (SlotData.HasItem())
+        {
+            if (InMouseEvent.IsShiftDown())
+            {
+                // Shift+우클릭: 스택을 절반으로 나눠 빈 슬롯에 배치.
+                if (SlotData.Count > 1)
+                {
+                    if (UKOInventoryWidget* Owner = OwningInventory.Get())
+                    {
+                        if (UKOInventoryComponent* Inventory = Owner->GetInventoryComponent())
+                        {
+                            const int32 SplitCount = SlotData.Count / 2;
+                            Inventory->SplitStack(SlotIndex, SplitCount);
+                        }
+                    }
+                }
+            }
+            else if (UKOInventoryWidget* Owner = OwningInventory.Get())
+            {
+                // 우클릭 장착: 패널(부모)이 알맞은 EquipmentSlot을 찾아 장착을 시도한다.
+                Owner->NotifySlotRightClicked(SlotIndex, SlotData);
+            }
+        }
+
+        return FReply::Handled();
     }
 
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
@@ -139,6 +174,7 @@ void UKOInventorySlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, c
         DragVisualOpacity,
         nullptr
     );
+    
     if (DragOp && InventoryComponent)
     {
         UKOInventorySlotItemSource* Src = NewObject<UKOInventorySlotItemSource>(DragOp);

@@ -9,6 +9,7 @@
 class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
+class UKOWeaponDefinition;
 
 /**
  * UKOLoadSubsystem
@@ -49,6 +50,8 @@ public:
     void GetAllEquipmentIds(TArray<FName>& Out) const;
     void GetAllSkillIds(TArray<FName>& Out) const;
     void GetAllSkillExecutionIds(TArray<FName>& Out) const;
+    /** 제작 가능한 EquipmentId 목록 반환. */
+    void GetCraftableEquipmentIds(TArray<FName>& Out) const;
 
     /**
      * 빌드 메뉴에 노출할 FactoryId 목록을 SortOrder 오름차순으로 반환.
@@ -67,6 +70,9 @@ public:
     
     /** Factory Row의 BuildingClass 소프트 레퍼런스를 동기 로드 */
     UClass* ResolveBuildingClass(FName FactoryId) const;
+    
+    /** WeaponDefinition Row의 ItemId 소프트 레퍼런스를 동기 로드 */
+    UKOWeaponDefinition* ResolveWeaponDefinitionByItemId(FName ItemId) const;
     
 private:
     void LoadAll();

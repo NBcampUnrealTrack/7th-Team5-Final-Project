@@ -29,6 +29,9 @@ protected:
 	TObjectPtr<UProgressBar> BossHealthYellow;
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> BossGroggy;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> BossName;
 	
 	// 노란 체력바 지연 시간
@@ -39,10 +42,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "HealthBar")
 	float YellowDecreaseSpeed = 0.8f;
 	
+	// 체력바 표시 최대 거리
+	UPROPERTY(EditAnywhere, Category = "HealthBar")
+	float MaxVisibleDistance = 5000.f;
+	
 private:
 	UFUNCTION()
 	void OnHealthChanged(float OldVal, float NewVal);
 	void UpdateHealthBar(float Current, float Max);
+	
+	UFUNCTION()
+	void OnGroggyChanged(float OldVal, float NewVal);
 	
 	UFUNCTION()
 	void OnBossDetected(AKOBossBase* DetectedBoss);
@@ -59,6 +69,9 @@ private:
 	float CurrentHP = 0.f;
 	float YellowHP = 0.f;
 	
+	float MaxGroggy = 0.f;
+	float CurrentGroggy = 0.f;
+	
 	// UI Param
 	float TimeSinceLastHit = 0.f;
 	bool bYellowDecreasing = false;
@@ -70,5 +83,4 @@ private:
 	TObjectPtr<UWidgetAnimation> FadeOut;
 	
 	FTimerHandle FadeOutTimerHandle;
-	
 };

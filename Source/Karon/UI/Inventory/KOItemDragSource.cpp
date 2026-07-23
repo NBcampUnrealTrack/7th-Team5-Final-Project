@@ -5,6 +5,7 @@
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Items/KOItemSlot.h"
+#include "UI/Inventory/KOEquipmentSlotWidget.h"
 
 int32 UKOInventorySlotItemSource::Extract(FName ItemId, int32 Count)
 {
@@ -25,6 +26,20 @@ void UKOInventorySlotItemSource::Restore(FName ItemId, int32 Count)
     }
     // 정확한 슬롯 복원 API가 없으므로 TryAddItem에 위임 (앞쪽 빈 슬롯에 들어감).
     Inv->TryAddItem(EKOSlotKind::Item, ItemId, Count);
+}
+
+int32 UKOEquipmentSlotItemSource::Extract(FName ItemId, int32 Count)
+{
+    UKOEquipmentSlotWidget* Slot = EquipmentSlot.Get();
+    return Slot ? Slot->ExtractEquippedItem(ItemId, Count) : 0;
+}
+
+void UKOEquipmentSlotItemSource::Restore(FName ItemId, int32 Count)
+{
+    if (UKOEquipmentSlotWidget* Slot = EquipmentSlot.Get())
+    {
+        Slot->RestoreEquippedItem(ItemId, Count);
+    }
 }
 
 int32 UKOProcessorInputItemSource::Extract(FName ItemId, int32 Count)

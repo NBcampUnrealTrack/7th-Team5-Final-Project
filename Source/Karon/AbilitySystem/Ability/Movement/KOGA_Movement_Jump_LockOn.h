@@ -35,9 +35,8 @@ private:
 	void OnCharacterLanded(EMovementMode NewMovementMode);
 
 	EJumpDirection DetermineJumpDirection(ACharacter* Character) const;
+	
 private:
-
-
 	UPROPERTY(EditDefaultsOnly, Category = "Jump|Montage")
 	TMap<EJumpDirection, TObjectPtr<UAnimMontage>> JumpMontages;
 	

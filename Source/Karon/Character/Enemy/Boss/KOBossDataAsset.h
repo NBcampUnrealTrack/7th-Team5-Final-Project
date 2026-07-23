@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Asset")
 	TSoftObjectPtr<USoundBase> BossBGM;
  
+	// TODO:
+	// GrantSet 으로 어빌리티 / 스탯 부여 방식 으로 변경
+	
 	// 스탯 (동기 로드)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float MaxHealth = 5000.f;

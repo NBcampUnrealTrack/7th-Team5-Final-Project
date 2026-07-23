@@ -1,11 +1,14 @@
 #include "KOBossAttackNotifyState.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "AbilitySystem/Ability/Enemy/Boss/Attack/KOGA_BossMeleeAttackBase.h"
+#include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
+#include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
 
+#include "Data/KO_HitData.h"
 #include "Kismet/KismetSystemLibrary.h"
  
 void UKOBossAttackNotifyState::NotifyBegin(
@@ -24,12 +27,12 @@ void UKOBossAttackNotifyState::NotifyBegin(
 	// 소켓 존재 여부 확인
 	if (!MeshComp->DoesSocketExist(AttackSocketName))
 	{
-		UE_LOG(LogTemp, Warning,TEXT("[BossMeleeNotify] 소켓 없음 : %s"), *AttackSocketName.ToString());
 		return;
 	}
  
 	PrevSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
 	HittedActors.Empty();
+	bHitDetected = false;
 }
  
 void UKOBossAttackNotifyState::NotifyTick(
@@ -65,10 +68,30 @@ void UKOBossAttackNotifyState::NotifyTick(
  
 	const FVector CurrSocketLocation = MeshComp->GetSocketLocation(AttackSocketName);
 	
+	if (bHitDetected)
+	{
+		const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
+		if (bShowDebug)
+		{
+			UKismetSystemLibrary::DrawDebugSphere(
+				Owner->GetWorld(),
+				CurrSocketLocation,
+				TraceRadius,
+				12,
+				FLinearColor::Gray,
+				2.0f
+			);
+		}
+ 
+		PrevSocketLocation = CurrSocketLocation;
+		return;
+	}
+	
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
- 
+	
+	const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
  
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
@@ -120,11 +143,31 @@ void UKOBossAttackNotifyState::NotifyTick(
 		}
 	}
  
+	// 식별 액터 필터링 및 데미지 적용
 	for (AActor* TargetActor : ActorsToHit)
 	{
-		FGameplayEventData HitGameplayEventData;
-		HitGameplayEventData.Target = TargetActor;
-		ASC->HandleGameplayEvent(KOGameplayTags::Event_SkillHit,&HitGameplayEventData);
+		IAbilitySystemInterface* TargetASCInterface = Cast<IAbilitySystemInterface>(TargetActor);
+		if (!TargetASCInterface || !TargetASCInterface->GetAbilitySystemComponent())
+		{
+			continue;
+		}
+		
+		ApplyDamageToTarget(ASC, TargetActor);
+		
+		UAbilitySystemComponent* TargetASC =
+			TargetASCInterface->GetAbilitySystemComponent();
+		FGameplayEventData HitReactData;
+		HitReactData.Instigator = Owner;
+		HitReactData.Target = TargetActor;
+		
+		if (HitData)
+		{
+			HitReactData.OptionalObject = HitData.Get();
+		}
+		
+		TargetASC->HandleGameplayEvent(KOGameplayTags::Event_HitReact, &HitReactData);
+		
+		bHitDetected = true;
 	}
 }
  
@@ -136,3 +179,35 @@ void UKOBossAttackNotifyState::NotifyEnd(
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	HittedActors.Empty();
 }
+
+void UKOBossAttackNotifyState::ApplyDamageToTarget(
+	UAbilitySystemComponent* OwnerASC,
+	AActor* TargetActor)
+{
+	if (!OwnerASC || !TargetActor) return;
+
+	UAbilitySystemComponent* TargetASC =
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!TargetASC) return;
+	
+	const UKOCombatSet* CombatSet = OwnerASC->GetSet<UKOCombatSet>();
+	const float AttackPower = CombatSet ? CombatSet->GetAttackPower() : 1.f;
+
+	FGameplayEffectContextHandle Context = OwnerASC->MakeEffectContext();
+
+	for (const FKOBossAttackEffectData& Effect : DamageEffects)
+	{
+		if (!Effect.EffectClass) continue;
+
+		FGameplayEffectSpecHandle Spec =
+			OwnerASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
+		if (!Spec.IsValid()) continue;
+
+		Spec.Data->SetSetByCallerMagnitude(
+			KOGameplayTags::Data_AttackCoefficient,
+			AttackPower * Effect.AttackCoefficient);
+
+		OwnerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+	}
+}
+ 

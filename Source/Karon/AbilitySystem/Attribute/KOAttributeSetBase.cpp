@@ -10,7 +10,8 @@ void UKOAttributeSetBase::PostAttributeChange(const FGameplayAttribute& Attribut
 	
 	if (FMath::Abs(NewValue - OldValue) < MinLogThreshold) return; 
 	
-	KO_LOGS(GAS, Attribute, Log, TEXT("[%s] %s : %.1f → %.1f"),
+	KO_LOGS(GAS, Attribute, Log, TEXT("[%s] %s | %s : %.1f → %.1f"),
+		*GetOwningActor()->GetName(),
 		*GetClass()->GetName(),
 		*Attribute.GetName(),
 		OldValue,
@@ -49,10 +50,10 @@ FKOEffectContext UKOAttributeSetBase::CacheEffectContext(const FGameplayEffectMo
 	
 	if (SourceASC && SourceASC->AbilityActorInfo.IsValid())
 	{
-		Context.SourceASC        = SourceASC;
-		Context.SourceActor      = SourceASC->GetAvatarActor();
-		Context.SourceController = SourceASC->AbilityActorInfo->PlayerController.Get();
-		Context.SourceCharacter  = Cast<ACharacter>(Context.SourceActor);
+		Context.InstigatorASC        = SourceASC;
+		Context.InstigatorActor      = SourceASC->GetAvatarActor();
+		Context.InstigatorController = SourceASC->AbilityActorInfo->PlayerController.Get();
+		Context.InstigatorCharacter  = Cast<ACharacter>(Context.InstigatorActor);
 	}
 	
 	// Target 

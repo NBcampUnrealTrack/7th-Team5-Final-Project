@@ -3,6 +3,7 @@
 
 #include "Building/KOBaseBuilding.h"
 #include "Data/KODataRegistrySettings.h"
+#include "Data/Equipment/KOWeaponDefinition.h"
 #include "Engine/DataTable.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Texture2D.h"
@@ -50,6 +51,7 @@ void UKOLoadSubsystem::Deinitialize()
     ResolvedFactoryIcons.Empty();
     ResolvedSkillIcons.Empty();
     LoadedTables.Empty();
+    ResolvedItemMeshes.Empty();
 
     Super::Deinitialize();
 }
@@ -131,9 +133,8 @@ void UKOLoadSubsystem::LoadAll()
     IndexTableRowsByName<FKOFactoryRow>   (Settings->FactoryTables,   FactoryCache,   TEXT("Factory"));
     IndexTableRowsByName<FKORecipeRow>    (Settings->RecipeTables,    RecipeCache,    TEXT("Recipe"));
     IndexTableRowsByName<FKOEquipmentRow> (Settings->EquipmentTables, EquipmentCache, TEXT("Equipment"));
-    IndexTableRowsByName<FKOSkillRow>     (Settings->SkillTables,     SkillCache,     TEXT("Skill"));
-    IndexTableRowsByName<FKOSkillExecutionRow>  (Settings->SkillTables,
-        SkillExecutionCache,   TEXT("SkillExecution"));
+    IndexTableRowsByName<FKOSkillRow>          (Settings->SkillTables,          SkillCache,          TEXT("Skill"));
+    IndexTableRowsByName<FKOSkillExecutionRow> (Settings->SkillExecutionTables, SkillExecutionCache, TEXT("SkillExecution"));
     
     // ItemTag → ItemId 역인덱스 빌드
     ItemTagToId.Reset();
@@ -353,6 +354,47 @@ UClass* UKOLoadSubsystem::ResolveBuildingClass(FName FactoryId) const
     return Loaded;
 }
 
+UKOWeaponDefinition* UKOLoadSubsystem::ResolveWeaponDefinitionByItemId(FName ItemId) const
+{
+    if (ItemId.IsNone())
+    {
+        return nullptr;
+    }
+
+    const FKOItemRow* ItemRow = FindItemRow(ItemId);
+    if (!ItemRow)
+    {
+        UE_LOG(LogKOLoad, Warning, TEXT("[LoadSubsystem] ItemRow 없음: %s"), *ItemId.ToString());
+        return nullptr;
+    }
+
+    const FKOEquipmentRow* EquipmentRow =
+        FindEquipmentRowByItemTag(ItemRow->ItemTag);
+
+    if (!EquipmentRow)
+    {
+        UE_LOG(LogKOLoad, Warning,
+            TEXT("[LoadSubsystem] EquipmentRow 없음: ItemId=%s, ItemTag=%s"),
+            *ItemId.ToString(),
+            *ItemRow->ItemTag.ToString()
+        );
+        return nullptr;
+    }
+
+    if (EquipmentRow->SlotType != EKOEquipmentSlotType::Weapon)
+    {
+        return nullptr;
+    }
+
+    if (EquipmentRow->WeaponDefinition.IsNull())
+    {
+        UE_LOG(LogKOLoad, Warning, TEXT("[LoadSubsystem] WeaponDefinition 미설정: %s"), *ItemId.ToString());
+        return nullptr;
+    }
+
+    return EquipmentRow->WeaponDefinition.LoadSynchronous();
+}
+
 void UKOLoadSubsystem::GetAllItemIds(TArray<FName>& Out) const
 {
     ItemCache.GetKeys(Out);
@@ -371,6 +413,46 @@ void UKOLoadSubsystem::GetAllRecipeIds(TArray<FName>& Out) const
 void UKOLoadSubsystem::GetAllEquipmentIds(TArray<FName>& Out) const
 {
     EquipmentCache.GetKeys(Out);
+}
+
+void UKOLoadSubsystem::GetCraftableEquipmentIds(TArray<FName>& Out) const
+{
+    Out.Reset();
+
+    struct FCandidate
+    {
+        FName Id;
+    };
+
+    TArray<FCandidate> Candidates;
+    Candidates.Reserve(EquipmentCache.Num());
+
+    for (const TPair<FName, const FKOEquipmentRow*>& Pair : EquipmentCache)
+    {
+        const FKOEquipmentRow* Row = Pair.Value;
+        if (!Row)
+        {
+            continue;
+        }
+
+        if (!Row->bCraftable)
+        {
+            continue;
+        }
+
+        Candidates.Add({ Pair.Key });
+    }
+
+    Candidates.Sort([](const FCandidate& A, const FCandidate& B)
+    {
+        return A.Id.LexicalLess(B.Id);
+    });
+
+    Out.Reserve(Candidates.Num());
+    for (const FCandidate& Candidate : Candidates)
+    {
+        Out.Add(Candidate.Id);
+    }
 }
 
 void UKOLoadSubsystem::GetBuildableFactoryIds(const FKOBuildMenuQuery& Query, TArray<FName>& Out) const
@@ -512,3 +594,4 @@ void UKOLoadSubsystem::GetAllSkillExecutionIds(TArray<FName>& Out) const
 {
     SkillExecutionCache.GetKeys(Out);
 }
+

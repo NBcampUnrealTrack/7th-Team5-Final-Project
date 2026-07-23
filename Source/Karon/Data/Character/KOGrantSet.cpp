@@ -1,6 +1,8 @@
 ﻿#include "KOGrantSet.h"
 #include "AbilitySystemComponent.h"
+#include "KOCharacterStatRow.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Tag/Data/KOGameplayTags_Data.h"
 #include "Utility/Log/KOLogManager.h"
 
 void FKOAbilitySetHandles::RemoveFromASC(UAbilitySystemComponent* ASC)
@@ -26,16 +28,23 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 {
 	if (!ASC) return;
 	
-	// Passive 어빌리티 부여 
-	for (const FKOPassiveAbilityEntry& Entry : PassiveAbilities)
+	// Sub 어빌리티 부여 
+	for (const FKOSubAbilityEntry& Entry : SubAbilities)
 	{
 		if (!IsValid(Entry.Ability)) continue;
 
 		FGameplayAbilitySpec Spec(Entry.Ability, Entry.AbilityLevel);
+		
+		// 영구적으로 Ability Spec을 부여
+		const FGameplayAbilitySpecHandle AbilityHandle = ASC->GiveAbility(Spec);
+		OutHandles.AbilityHandles.Add(AbilityHandle);
+		
+		if (Entry.bStartActivated)
+		{
+			ASC->TryActivateAbility(AbilityHandle);
+		}
 
-		OutHandles.AbilityHandles.Add(ASC->GiveAbility(Spec));
-
-		KO_LOG(GAS, Log, TEXT("[Passive] Ability   | %-30s | Lv.%d "),
+		KO_LOG(GAS, Log, TEXT("[Sub] Ability   | %-30s | Lv.%d "),
 			*Spec.Ability->GetName(), Entry.AbilityLevel
 		);
 	}
@@ -54,6 +63,43 @@ void UKOGrantSet::GiveToAsc(UAbilitySystemComponent* ASC, FKOAbilitySetHandles& 
 		KO_LOG(GAS, Log, TEXT("[Active] Ability  | %-30s | Lv.%d | Tag: %s"),
 			*Spec.Ability->GetName(), Entry.AbilityLevel,
 			Entry.InputTag.IsValid() ? *Entry.InputTag.ToString() : TEXT("None"));
+	}
+	
+
+	if (AttributeInitializationEffect)
+	{
+		if (const FKOCharacterStatRow* Row = StatRow.GetRow<FKOCharacterStatRow>(TEXT("GiveToAsc")))
+		{
+			FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+			EffectContext.AddSourceObject(this);
+        
+			FGameplayEffectSpecHandle Handle =
+				ASC->MakeOutgoingSpec(AttributeInitializationEffect, 1.0f, EffectContext);
+			if (Handle.IsValid())
+			{
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Current, Row->MaxHP);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Max, Row->MaxHP);
+				
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Stamina_Current, Row->MaxStamina);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Stamina_Max, Row->MaxStamina);
+				
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_AttackPower, Row->Combat.Attack);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_AttackSpeed, Row->Combat.AttackSpeed);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_CritChance, Row->Combat.CritChance);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_CritMultiplier, Row->Combat.CritMultiplier);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Combat_Defense, Row->Combat.Defense);
+				
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_WalkSpeed, Row->Movement.MaxWalkSpeed);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_MaxAcceleration, Row->Movement.MaxAcceleration);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_GroundFriction, Row->Movement.GroundFriction);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_BrakingDeceleration, Row->Movement.BrakingDecelerationWalking);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_MaxWalkSpeedCrouch, Row->Movement.MaxWalkSpeedCrouched);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_JumpStrength, Row->Movement.JumpStrength);
+				Handle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Movement_GravityScale, Row->Movement.GravityScale);
+				
+				ASC->ApplyGameplayEffectSpecToSelf(*Handle.Data.Get());
+			}
+		}
 	}
 	
 	// GE 부여 

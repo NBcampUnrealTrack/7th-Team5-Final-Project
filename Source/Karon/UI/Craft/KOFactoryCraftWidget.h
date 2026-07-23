@@ -2,24 +2,53 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
+#include "UI/Craft/KOFactoryCraftEntryWidget.h"
 #include "KOFactoryCraftWidget.generated.h"
 
 class UButton;
+class UCommonButtonBase;
 class UImage;
 class UPanelWidget;
 class UTextBlock;
 class UKOInventoryComponent;
-class UKOFactoryCraftEntryWidget;
 class UKOFactoryCraftCostEntryWidget;
-struct FKOFactoryRow;
+class UUniformGridPanel;
 
 UENUM()
 enum class EKOFactoryCraftAvailability : uint8
 {
     CanCraft,                   // 제작
+    AlreadyCrafted,             // 이미 제작한 장비
     NotEnoughMaterials,         // 재료 부족
     NotEnoughInventorySpace,    // 인벤토리 공간 부족
     Invalid
+};
+
+USTRUCT()
+struct FKOCraftTarget
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    EKOCraftTargetType Type = EKOCraftTargetType::Factory;
+
+    UPROPERTY()
+    FName Id = NAME_None;
+
+    FKOCraftTarget()
+    {
+    }
+
+    FKOCraftTarget(EKOCraftTargetType InType, FName InId)
+        : Type(InType)
+        , Id(InId)
+    {
+    }
+
+    bool IsValid() const
+    {
+        return !Id.IsNone();
+    }
 };
 
 UCLASS(Abstract, BlueprintType, Blueprintable)
@@ -34,6 +63,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "KO|FactoryCraft")
     void Refresh();
+    
+    void SetHideEquipmentCraftables(bool bInHide);
 
 protected:
     virtual void NativeConstruct() override;
@@ -49,7 +80,7 @@ protected:
     TObjectPtr<UPanelWidget> FactoryListBox;
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UPanelWidget> CostListBox;
+    TObjectPtr<UUniformGridPanel> CostListBox;
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UImage> FactoryIconImage; 
@@ -64,7 +95,7 @@ protected:
     TObjectPtr<UTextBlock> OwnedCountText; 
 
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> CraftButton; 
+    TObjectPtr<UCommonButtonBase> CraftButton; 
     
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> CraftButtonText;
@@ -92,7 +123,7 @@ protected:
 
 private:
     UPROPERTY()
-    FName SelectedFactoryId = NAME_None;
+    FKOCraftTarget SelectedTarget;
 
     UPROPERTY()
     TWeakObjectPtr<UKOInventoryComponent> CachedInventory;
@@ -105,26 +136,32 @@ private:
     
     UPROPERTY()
     int32 MaxCraftCountLimit = 999;
+    
+    bool bHideEquipmentCraftables = false;
 
 private:
-    void RebuildFactoryList(); // 설비 목록 만듦 (왼쪽)
-    void RefreshDetail(); // 선택된 설비의 상세 정보 영역을 갱신 (오른쪽)
-    void RebuildCostList(const FKOFactoryRow* FactoryRow); // 선택된 설비의 필요 재료 목록을 만듦
+    void RebuildFactoryList(); // 설비/장비 목록 만듦 (왼쪽)
+    void RefreshEntrySelection(); // 버튼 선택
+    void RefreshDetail(); // 선택된 설비/장비의 상세 정보 영역을 갱신 (오른쪽)
+    void RebuildCostList(); // 선택된 설비/장비의 필요 재료 목록을 만듦
     void RefreshCraftButtonState();
 
     // 제작 가능 여부 검사
-    bool CanCraftFactory(FName FactoryId, int32 InCraftCount) const;
-    EKOFactoryCraftAvailability GetCraftAvailability(FName FactoryId, int32 InCraftCount) const;
-    bool BuildRequiredItems(FName FactoryId, int32 InCraftCount, TArray<TPair<FName, int32>>& OutRequiredItems) const;
+    bool CanCraftTarget(const FKOCraftTarget& Target, int32 InCraftCount) const;
+    EKOFactoryCraftAvailability GetCraftAvailability(const FKOCraftTarget& Target, int32 InCraftCount) const;
+    bool BuildRequiredItems(const FKOCraftTarget& Target, int32 InCraftCount, 
+        TArray<TPair<FName, int32>>& OutRequiredItems) const;
     
-    bool CraftSelectedFactory(); // 설비 제작
+    bool CraftSelectedTarget(); // 설비/장비 제작
+    
+    void HandleUnlockTagGranted(FGameplayTag GrantedTag); // 해금 태그 추가 시 UI 갱신
     
     void SetCraftCount(int32 NewCount);
     void RefreshCraftCountText();
-    int32 GetMaxCraftableCount(FName FactoryId) const;
+    int32 GetMaxCraftableCount(const FKOCraftTarget& Target) const;
 
     UFUNCTION()
-    void HandleFactoryEntryClicked(FName InFactoryId);
+    void HandleCraftEntryClicked(EKOCraftTargetType InTargetType, FName InTargetId);
 
     UFUNCTION()
     void HandleCraftButtonClicked();

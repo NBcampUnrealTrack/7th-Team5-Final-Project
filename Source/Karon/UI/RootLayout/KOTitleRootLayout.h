@@ -17,4 +17,8 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonActivatableWidgetContainerBase> TitleLayer;
+
+	/** 확인 다이얼로그, 옵션 팝업 등 최상위 모달 레이어. */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCommonActivatableWidgetContainerBase> ModalLayer;
 };

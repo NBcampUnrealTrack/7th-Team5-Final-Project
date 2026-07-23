@@ -19,22 +19,31 @@ public:
 	AKOBaseEnemyAIController();
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 	FORCEINLINE virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
+	
+	void ResetPlayerDetection(); // 타겟 초기화
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
-	UFUNCTION()
-	void OnGameplayAbilityEnd();
 	
 	UFUNCTION()
-	void HitEvent();
+	void HitEvent(bool bIsHit);
+	
+	UFUNCTION()
+	void CounterAttackEvent(bool bIsTriggered);
+	
+	UFUNCTION()
+	void CanAttackEvent(bool bIsTriggered);
 	
 	UFUNCTION()
 	void DeadEvent();
 	
 	UFUNCTION()
 	void ResetEvent();
+	
+	UFUNCTION()
+	void LevelUpEvent(bool bIsTriggered);
 	
 	UFUNCTION()
 	void SetAI(
@@ -52,6 +61,7 @@ private:
 	void StopBT();
 	void SetTargetActor(AActor* TargetActor);
 	
+	
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
@@ -62,7 +72,6 @@ protected:
 	//bool BB 키(FName)
 	const FName bIsDeadKey=TEXT("bIsDead");
 	const FName bIsHitKey = TEXT("bIsHit");
-	const FName bIsMontageEndKey = TEXT("bIsMontageEnd");
 	const FName bIsLongRangeKey = TEXT("bIsLongRange");
 	const FName SelfActorKey = TEXT("SelfActor");
 	const FName AttackRadiusKey = TEXT("AttackRadius");
@@ -70,7 +79,11 @@ protected:
 	const FName StrafeSpeedKey = TEXT("StrafeSpeed");
 	const FName EnemyAttackDelayTimeKey = TEXT("EnemyAttackDelayTime");
 	const FName bCanAttackKey = TEXT("bCanAttack");
-	
+	const FName bCanPatrolKey = TEXT("bCanPatrol");
+	const FName InitialLocationKey = TEXT("InitialLocation");
+	const FName MaxDistanceKey = TEXT("MaxDistance");
+	const FName bIsCounterAttackKey = TEXT("bIsCounterAttack");
+	const FName LevelKey = TEXT("Level");
 	
 	UPROPERTY()
 	TObjectPtr<AKOBaseEnemy> Enemy;
@@ -85,10 +98,15 @@ protected:
 	//HP가 0이 된 이후 해당 딜레이 이후에 BT를 멈춥니다.
 	float StopBTDelay=1.f;
 	
+	UPROPERTY(EditDefaultsOnly,Category="Attribute")
+	float MaxDistanceFromInit= 3000.f; 
+	
 private:
 	FGenericTeamId TeamId;
 	FTimerHandle TimerHandle;
 	bool bIsDead=false;
+	
+	FVector InitialLocation=FVector::ZeroVector;
 	
 
 };

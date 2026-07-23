@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "KOBaseEnemyAIController.h"
+﻿#include "KOBaseEnemyAIController.h"
 
 #include "KOBaseEnemy.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -13,12 +10,29 @@
 #include "Perception/AISense_Prediction.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISense_Team.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 
-// Sets default values
 AKOBaseEnemyAIController::AKOBaseEnemyAIController()
 {
 	AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+}
+
+void AKOBaseEnemyAIController::ResetPlayerDetection()
+{
+	SetTargetActor(nullptr);
+	ClearFocus(EAIFocusPriority::Gameplay);
+
+	if (AIPerceptionComp)
+	{
+		AIPerceptionComp->ForgetAll();
+	}
+
+	if (BBComp)
+	{
+		BBComp->ClearValue(TEXT("TargetActor"));
+		BBComp->ClearValue(TEXT("DetectLocation"));
+	}
 }
 
 void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
@@ -30,17 +44,23 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	{
 		return;
 	}
+	
 	//Bindings
-	Enemy->OnCharacterHit.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
+	Enemy->OnHitEvent.BindUObject(this, &AKOBaseEnemyAIController::HitEvent);
+	Enemy->OnCounterAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CounterAttackEvent);
+	Enemy->OnCanAttackEvent.BindUObject(this, &AKOBaseEnemyAIController::CanAttackEvent);
 	Enemy->OnEnemyDead.AddDynamic(this, &AKOBaseEnemyAIController::DeadEvent);
 	Enemy->OnCharacterReset.BindUObject(this, &AKOBaseEnemyAIController::ResetEvent);
-	//TODO: SetAI 구현
-	//Enemy->OnCharacterSetAI.AddDynamic(this,&AKOBaseEnemyAIController::SetAI);
-	Enemy->OnGameplayAbilityEnd.BindUObject(this,&AKOBaseEnemyAIController::OnGameplayAbilityEnd);
+	Enemy->OnHalfHealthEvent.BindUObject(this,&AKOBaseEnemyAIController::LevelUpEvent);
+	
 	AIPerceptionComp->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AKOBaseEnemyAIController::OnTargetPerceptionUpdated);
 
 	//TeamId 설정
 	TeamId = FGenericTeamId(1);
+	
+	InitialLocation=InPawn->GetActorLocation();
+
+	
 	//임시 설정. 풀 관리시 사용
 	SetAI(EnemyBehaviorTree,
 		Enemy->EnemyAttackRadius,
@@ -48,48 +68,62 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 		Enemy->EnemySpeed,
 		Enemy->EnemyStrafeSpeed,
 		Enemy->EnemyAttackDelayTime);
+	
 }
+
+
 
 ETeamAttitude::Type AKOBaseEnemyAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	const APawn* OtherPawn = Cast<APawn>(&Other);
-	const ACharacter* OtherCharacter = Cast<ACharacter>(&Other);
-	if (OtherCharacter==nullptr)
-	{
-		return ETeamAttitude::Neutral;
-	}
-	if (const AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(&Other))
+	if (const AKOHeroCharacter* Player = Cast<AKOHeroCharacter>(&Other))
 	{
 		return ETeamAttitude::Hostile;
 	}
-	else if (const AKOBaseEnemy* OtherEnemy=Cast<AKOBaseEnemy>(&Other))
+	else if (const AKOBaseEnemy* OtherEnemy = Cast<AKOBaseEnemy>(&Other))
 	{
 		return ETeamAttitude::Friendly;
 	}
+	
 	return ETeamAttitude::Neutral;
 }
 
-void AKOBaseEnemyAIController::OnGameplayAbilityEnd()
+void AKOBaseEnemyAIController::HitEvent(bool bIsHit)
 {
-	if (BBComp!=nullptr)
+	if (BBComp != nullptr)
 	{
-		BBComp->SetValueAsBool(bIsMontageEndKey, true);
+		BBComp->SetValueAsBool(bIsHitKey, bIsHit);
 	}
 }
 
-void AKOBaseEnemyAIController::HitEvent()
+void AKOBaseEnemyAIController::CounterAttackEvent(bool bIsTriggered)
 {
-	if (BBComp!=nullptr)
+	if (BBComp != nullptr)
 	{
-		BBComp->SetValueAsBool(bIsHitKey, true);
+		BBComp->SetValueAsBool(bIsCounterAttackKey,bIsTriggered);
+	}
+}
+
+void AKOBaseEnemyAIController::CanAttackEvent(bool bIsTriggered)
+{
+	if (BBComp != nullptr)
+	{
+		BBComp->SetValueAsBool(bCanAttackKey,bIsTriggered);
+		Enemy->bCanAttack=bIsTriggered;
 	}
 }
 
 void AKOBaseEnemyAIController::DeadEvent()
 {
-	if (BBComp!=nullptr&&!bIsDead)
+	if (BBComp != nullptr && !bIsDead)
 	{
-		bIsDead=true;
+		bIsDead = true;
+		SetTargetActor(nullptr);
+		
+		if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+		{
+			SaveSubsystem->NotifyActorStoppedTargetingPlayer(IsValid(Enemy) ? Enemy : GetPawn());
+		}
+		
 		BBComp->SetValueAsBool(bIsDeadKey, true);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&AKOBaseEnemyAIController::StopBT,StopBTDelay,false);
 	}
@@ -99,19 +133,29 @@ void AKOBaseEnemyAIController::ResetEvent()
 {
 	if (BBComp!=nullptr)
 	{
+		SetTargetActor(nullptr);
 		BBComp->InitializeBlackboard(*EnemyBehaviorTree->BlackboardAsset);
 		//명시적 초기화
 		BBComp->SetValueAsBool(bIsDeadKey,false);
 		BBComp->SetValueAsBool(bIsHitKey,false);
+		bIsDead = false;
 		RunBehaviorTree(EnemyBehaviorTree);
 	}
 }
 
-void AKOBaseEnemyAIController::SetAI(UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
+void AKOBaseEnemyAIController::LevelUpEvent(bool bIsTriggered)
+{
+	if (bIsTriggered)
+	{
+		BBComp->SetValueAsInt(LevelKey,BBComp->GetValueAsInt(LevelKey)+1);
+	}
+}
+
+void AKOBaseEnemyAIController::SetAI(
+	UBehaviorTree* ParamBT, float AttackRadius, bool bIsLongRange, float Speed,
 	float StrafeSpeed, float EnemyAttackDelay)
 {
-	//TODO: 비동기 로드시 AIController세팅
-	
+
 	EnemyBehaviorTree = ParamBT;
 	
 	if (UseBlackboard(EnemyBehaviorTree->GetBlackboardAsset(), BBComp))
@@ -126,10 +170,16 @@ void AKOBaseEnemyAIController::SetAI(UBehaviorTree* ParamBT, float AttackRadius,
 		BBComp->SetValueAsFloat(SpeedKey, Speed);
 		BBComp->SetValueAsFloat(StrafeSpeedKey, StrafeSpeed);
 		BBComp->SetValueAsFloat(EnemyAttackDelayTimeKey, EnemyAttackDelay);
+		BBComp->SetValueAsVector(InitialLocationKey,InitialLocation);
+		BBComp->SetValueAsFloat(MaxDistanceKey, MaxDistanceFromInit);
+		
+		// 초기 시작 레벨은 1
+		BBComp->SetValueAsInt(LevelKey,1);
 		
 		if (Enemy)
 		{
 			BBComp->SetValueAsBool(bCanAttackKey,Enemy->bCanAttack);
+			BBComp->SetValueAsBool(bCanPatrolKey,Enemy->bCanPatrol);
 		}
 		
 		RunBehaviorTree(EnemyBehaviorTree);
@@ -150,7 +200,7 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 		{
 			if (AKOHeroCharacter* Player=Cast<AKOHeroCharacter>(Actor))
 			{
-				BBComp->SetValueAsObject(TEXT("TargetActor"), Player);
+				SetTargetActor(Player);
 				//팀에게도 전달
 				MakeAIPerceptionTeamEvent(Player);
 			}
@@ -234,11 +284,22 @@ void AKOBaseEnemyAIController::StopBT()
 
 void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 {
+	if (!BBComp)
+	{
+		return;
+	}
+
+	AActor* PreviousTarget = Cast<AActor>(BBComp->GetValueAsObject(TEXT("TargetActor")));
+
+	const bool bWasTargetingPlayer = Cast<AKOHeroCharacter>(PreviousTarget) != nullptr;
+	const bool bIsTargetingPlayer = Cast<AKOHeroCharacter>(TargetActor) != nullptr;
+	
 	if (TargetActor!=nullptr)
 	{
 		BBComp->SetValueAsObject(TEXT("TargetActor"), TargetActor);
 		if (IsValid(Enemy))
 		{
+			Enemy->TargetActor=TargetActor;
 			Enemy->OnBattleChanged(true);
 		}
 	}
@@ -247,9 +308,24 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 		BBComp->ClearValue(TEXT("TargetActor"));
 		if (IsValid(Enemy))
 		{
+			Enemy->TargetActor=nullptr;
 			Enemy->OnBattleChanged(false);
 		}
 	}
+	
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (!bWasTargetingPlayer && bIsTargetingPlayer)
+		{
+			SaveSubsystem->NotifyActorTargetingPlayer(GetPawn());
+		}
+		else if (bWasTargetingPlayer && !bIsTargetingPlayer)
+		{
+			SaveSubsystem->NotifyActorStoppedTargetingPlayer(GetPawn());
+		}
+	}
 }
+
+
 
 

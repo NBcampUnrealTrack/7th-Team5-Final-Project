@@ -21,6 +21,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "TimerManager.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "UI/Interaction/KOFactorySlotWidget.h"
 #include "UI/Interaction/KOFactoryRecipeEntryWidget.h"
 #include "UI/Inventory/KOInventoryWidget.h"
@@ -100,6 +101,17 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
                 InventoryWidget->SetInventoryComponent(PlayerInv);
             }
         }
+        
+        if (!InventoryWidget->OnSlotRightClicked.IsAlreadyBound(
+            this,
+            &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+        ))
+            {
+                InventoryWidget->OnSlotRightClicked.AddDynamic(
+                    this,
+                    &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+                );
+            }
     }
 
     BuildIOSlots();
@@ -119,6 +131,7 @@ void UKOFactoryProcessorWidget::NativeOnActivated()
     RefreshStaticInfo();
     RefreshEventDriven();
     TickRefresh();
+    RefreshRecipeButtonState();
 
     if (UWorld* World = GetWorld())
     {
@@ -147,6 +160,7 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
     {
         RecipeButton->OnClicked.RemoveDynamic(this, &UKOFactoryProcessorWidget::HandleRecipeButtonClicked);
     }
+    
     if (RecipeSelectPanel) RecipeSelectPanel->ClearChildren();
     for (UKOFactoryRecipeEntryWidget* Entry : RecipeEntryWidgets)
     {
@@ -156,6 +170,14 @@ void UKOFactoryProcessorWidget::NativeOnDeactivated()
         }
     }
     RecipeEntryWidgets.Reset();
+    
+    if (InventoryWidget)
+    {
+        InventoryWidget->OnSlotRightClicked.RemoveDynamic(
+            this,
+            &UKOFactoryProcessorWidget::HandleInventorySlotClicked
+        );
+    }
 
     Unsubscribe(ProcessorChangedHandle);
     ProcessorChangedHandle = FGameplayMessageHandle();
@@ -394,31 +416,14 @@ void UKOFactoryProcessorWidget::TickRefresh()
             LOCTEXT("NetworkProductionFormat", "{0} /s"),
             FText::AsNumber(FMath::RoundToInt(Production))));
     }
+    
+    RefreshRecipeButtonState();
 }
 
 void UKOFactoryProcessorWidget::RefreshEventDriven()
 {
     UKOFactoryProcessorComponent* Proc = Processor.Get();
     if (!Proc) return;
-
-    if (RecipeText)
-    {
-        FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
-        const FName ActiveId   = Proc->GetActiveRecipeId();
-        const FName SelectedId = Proc->GetSelectedRecipe();
-        const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
-        if (!ShownId.IsNone())
-        {
-            if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
-            {
-                if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
-                {
-                    RecipeName = Row->DisplayName;
-                }
-            }
-        }
-        RecipeText->SetText(RecipeName);
-    }
 
     if (StateText)
     {
@@ -447,6 +452,112 @@ void UKOFactoryProcessorWidget::HandleProcessorChangedMessage(FGameplayTag Chann
     if (Msg->Processor.Get() != Processor.Get()) return;
 
     RefreshEventDriven();
+}
+
+void UKOFactoryProcessorWidget::RefreshRecipeButtonState()
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc)
+    {
+        return;
+    }
+    
+    const bool bPressureAvailable = IsPressureAvailable();
+
+    if (RecipeButton)
+    {
+        RecipeButton->SetIsEnabled(bPressureAvailable);
+
+        RecipeButton->SetBackgroundColor(
+            bPressureAvailable
+                ? RecipeButtonNormalColor
+                : RecipeButtonPressureBlockedColor
+        );
+    }
+    
+    if (NotCraftableImage)
+    {
+        NotCraftableImage->SetVisibility(bPressureAvailable 
+            ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+    }
+    
+    if (RecipeText)
+    {
+        if (!IsPressureAvailable())
+        {
+            RecipeText->SetText(LOCTEXT("RecipePressureBlocked", "압력 부족"));
+        }
+        else
+        {
+            FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
+            
+            const FName ActiveId   = Proc->GetActiveRecipeId();
+            const FName SelectedId = Proc->GetSelectedRecipe();
+            const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
+            if (!ShownId.IsNone())
+            {
+                if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
+                {
+                    if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
+                    {
+                        RecipeName = Row->DisplayName;
+                    }
+                }
+            }
+            RecipeText->SetText(RecipeName);
+        }
+    }
+
+    if (!bPressureAvailable)
+    {
+        bShowingRecipePanel = false;
+        ApplyPanelSwitch();
+    }
+}
+
+bool UKOFactoryProcessorWidget::IsPressureAvailable() const
+{
+    UKOFactoryProcessorComponent* Proc = Processor.Get();
+    if (!Proc)
+    {
+        return false;
+    }
+
+    UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this);
+    if (!Energy)
+    {
+        return false;
+    }
+
+    return Energy->GetConsumerNetworkProductionRate(Proc) > KINDA_SMALL_NUMBER;
+}
+
+void UKOFactoryProcessorWidget::HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    if (!InventoryWidget)
+    {
+        return;
+    }
+
+    UKOInventoryComponent* Inventory = InventoryWidget->GetInventoryComponent();
+    if (!Inventory)
+    {
+        return;
+    }
+
+    for (UKOFactorySlotWidget* InputSlotWidget : InputSlotWidgets)
+    {
+        if (!InputSlotWidget)
+        {
+            continue;
+        }
+
+        if (InputSlotWidget->TryMoveInventorySlotToThis(Inventory, SlotIndex, InSlot))
+        {
+            RefreshIOSlots();
+            return;
+        }
+    }
 }
 
 #undef LOCTEXT_NAMESPACE

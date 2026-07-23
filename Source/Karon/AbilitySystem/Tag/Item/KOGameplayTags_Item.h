@@ -28,20 +28,29 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PressurePipe);
 	/** 압연기 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_RollingMill);
+	/** 약초 재배소 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_HerbFarm);
+	/** 착즙기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_JuicePress);
+	/** 조제기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Factory_PotionBrewer);
+	
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	/** 기초 모듈 카테고리 (BasicModule) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module);
-	/** 석탄 카테고리 (Coal) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Coal);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Module); // 기초 모듈
 	/** 자원 카테고리 (CoalDust, Copper, Tin, Bronze) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Resource); // 구리, 주석, 청동, 약초 씨앗, 약초
 	/** 가공 재료 카테고리 (BronzePlate, MiningPipe, Gear 등) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material);
-	/** 무기 카테고리 (BronzeSword) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Weapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Material); // 석탄 가루, 구리판, 청동판, 파손된 채파, 채파, 기어, 약초즙
+	/** 장비 카테고리 (Sword) */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Equipment); // 장비들
+	/** 소모품 카테고리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Consumable); // 물약
 	/** 에너지 자원 카테고리 (Producer 연료 후보 — Coal 등) */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_EnergyResource); // 석탄
+	/** 코어 카테고리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Category_Core); // 땅, 물, 불, 전기 코어
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
 	/** 기초 모듈 */
@@ -64,12 +73,36 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_MiningPipe);
 	/** 기어 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
-	/** 청동검 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BronzeSword);
+	/** 무기 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hameer);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_GreatSword);
+	/** 투구 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head);
+	/** 상의 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody);
+	/** 하의 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody);
+	/** 신발 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes);
 	/** 기초 화약 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicGunpowder);
 	/** 구리판 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_CopperPlate);
 	/** 황 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sulfur);
-}
+	/** 약초 씨앗 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HerbSeed);
+	/** 약초 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Herb);
+	/** 약초 즙 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HerbJuice);
+	/** 회복약 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_HealingPotion);
+	
+	// ─── 코어 아이템 ──────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Lightning);
+	}

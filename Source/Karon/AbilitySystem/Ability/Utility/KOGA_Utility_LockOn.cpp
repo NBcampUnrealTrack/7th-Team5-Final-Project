@@ -1,29 +1,23 @@
 #include "KOGA_Utility_LockOn.h"
 #include "Character/Hero/KOHeroCharacter.h"
+#include "Character/Enemy/Boss/KOBossBase.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "Character/Enemy/KOBaseEnemy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Game/KOPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/OverlapResult.h"
-
-
+#include "Camera/CameraComponent.h"
 
 UKOGA_Utility_LockOn::UKOGA_Utility_LockOn()
 {
-	// 어빌리티 인스턴스를 액터당 1개 유지
-	// → bIsLockedOn, LockedTarget 등 멤버 변수를 안전하게 보관 가능
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
- 
-	// 이 어빌리티를 발동시킬 입력 태그 등록
-	//AbilityTags.AddTag(KOGameplayTags::Input_Ability_LockOn);
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_LockOn));
-	// ★ ActivationOwnedTags 는 여기서 추가하지 않음 ★
-	// ApplyLockOnGameplayTag()에서 직접 AddLooseGameplayTag / RemoveLooseGameplayTag 로 관리
-	// → 두 곳에서 동시에 태그를 추가하면 참조 카운트가 꼬이는 문제 방지
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -37,32 +31,55 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// 캐릭터 유효성 확인
-	AKOHeroCharacter* Character = Cast<AKOHeroCharacter>(GetAvatarCharacter());
-	if (!Character)
+	AKOHeroCharacter* HeroChar = Cast<AKOHeroCharacter>(GetAvatarCharacter());
+	if (!HeroChar)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
 		return;
 	}
 
-	// 락온 활성화 시도
-	ActivateLockOn();
-	
-	// 타겟을 찾지 못했으면 어빌리티 바로 종료
-	if (!bIsLockedOn)
+	// 1. 먼저 가장 적합한 타겟을 탐색
+	AActor* BestTarget = FindBestTarget();
+	if (!BestTarget)
+	{
+		if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("[LockOn] 타겟이 없어 활성화 실패"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+		return;
+	}
+
+	// 2. 타겟을 찾은 경우에만 코스트 및 쿨타임 커밋 (12번 해결)
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
 		return;
+	}
+
+	// 3. 락온 상태 설정 및 활성화
+	LockedTarget = BestTarget;
+	bIsLockedOn = true;
+	
+	SetCanBeCanceled(false);
+	
+	// 에너미 락온 UI 활성화
+	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
+	{
+		Enemy->OnLockOnEvent.ExecuteIfBound(true);
+	}
+	// 보스 락온 UI 활성화
+	if (AKOBossBase* Boss=Cast<AKOBossBase>(LockedTarget))
+	{
+		Boss->OnLockOnEvent.Broadcast(true);
 	}
  
-	// ★ EndAbility를 호출하지 않고 여기서 반환 ★
-	// → 어빌리티가 Active 상태로 유지되어 InputPressed()가 동작함
-	GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
-
-	//TODO: 락온이 유지되는 동안 어빌리티 유지 
-	// 현재는 끄거나 킬때만 잠시 어빌리티가 활성화되는 방식 . 
-	// 컴포넌트에서 처리하는걸 여기로 옮기면 굳이 컴포넌트까지도 필요 없어질 가능성 있음. 
-	
+	if (UWorld* World = GetWorld())
+	{
+		LockOnActivationTime = World->GetTimeSeconds();
+		if (bShowDebugMessages && GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
+		}
+	}
+	ActivateLockOn();
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -73,16 +90,23 @@ void UKOGA_Utility_LockOn::InputPressed(
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	// 락온 상태 해제
-	DeactivateLockOn();
+	if (UWorld* World = GetWorld())
+	{
+		float CurrentTime = World->GetTimeSeconds();
+		if (CurrentTime - LockOnActivationTime < 0.15f)
+		{
+			return; 
+		}
+	}
+	
+	DeactivateLockOn(); //
  
-	// 어빌리티 종료 → EndAbility에서 타이머도 함께 정리됨
-	//EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
- 
-	GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Red, TEXT("[LockOn] Deactivated (Button)"));
+	if (bShowDebugMessages)
+	{
+		GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Red, TEXT("[LockOn] Deactivated (Button)")); //
+	}
 
-    EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("LockOn Deactivated"));
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -95,16 +119,10 @@ void UKOGA_Utility_LockOn::EndAbility(
     bool bReplicateEndAbility,
     bool bWasCancelled)
 {
-	// 타이머 두 개 모두 정지
+	// 모든 타이머 정지 및 상태 복구
 	StopCameraUpdate();
 	StopLockOnDistanceCheck();
- 
-	// 혹시 락온이 아직 켜져 있으면 여기서 반드시 끔
-	// (외부에서 EndAbility가 강제 호출되는 경우 대비)
-	if (bIsLockedOn)
-	{
-		DeactivateLockOn();
-	}
+	DeactivateLockOn();
  
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -114,29 +132,24 @@ void UKOGA_Utility_LockOn::EndAbility(
 // ─────────────────────────────────────────────────────────────────────
 void UKOGA_Utility_LockOn::ActivateLockOn()
 {
-    // 가장 적합한 타겟 탐색
-    AActor* BestTarget = FindBestTarget();
-    if (!BestTarget) return;  // 타겟 없으면 락온 안 함
+	ACharacter* OwnerChar = GetAvatarCharacter();
+	if (!OwnerChar) return;
  
-    LockedTarget = BestTarget;
-    bIsLockedOn  = true;
+	// 락온 회전 제어 설정
+	OwnerChar->bUseControllerRotationYaw = true;
+	if (UCharacterMovementComponent* MoveComp = OwnerChar->GetCharacterMovement())
+	{
+		MoveComp->bOrientRotationToMovement = false;
+	}
  
-    // 캐릭터 회전 설정 변경
-    ACharacter* OwnerChar = Cast<ACharacter>(GetAvatarCharacter());
-    if (OwnerChar)
-    {
-        // 락온 중: 카메라 Yaw 방향으로 캐릭터 회전 ON
-        OwnerChar->bUseControllerRotationYaw = true;
-        // 락온 중: 이동 방향 자동 회전 OFF
-        OwnerChar->GetCharacterMovement()->bOrientRotationToMovement = false;
-    }
- 
-    // GAS 태그 부여
-    ApplyLockOnGameplayTag(true);
- 
-    // 타이머 시작
-    StartCameraUpdate();           // 카메라 회전 (≈60fps)
-    StartLockOnDistanceCheck();    // 거리 체크 (0.2초)
+	if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
+	{
+		DefaultCameraRelLocation = Cam->GetRelativeLocation(); // 해제 시 복구용
+	}
+	
+	ApplyLockOnGameplayTag(true);
+	StartCameraUpdate();
+	StartLockOnDistanceCheck();
 }
  
  
@@ -145,21 +158,40 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 // ─────────────────────────────────────────────────────────────────────
 void UKOGA_Utility_LockOn::DeactivateLockOn()
 {
-    bIsLockedOn  = false;
-    LockedTarget = nullptr;
- 
-    // 캐릭터 회전 설정 복구
-    ACharacter* OwnerChar = GetAvatarCharacter();
-    if (OwnerChar)
-    {
-        // 락온 해제: 카메라 Yaw 회전 OFF
-        OwnerChar->bUseControllerRotationYaw = false;
-        // 락온 해제: 이동 방향 자동 회전 ON
-        OwnerChar->GetCharacterMovement()->bOrientRotationToMovement = true;
-    }
+	if (!bIsLockedOn) return;
 	
-    // GAS 태그 제거
-    ApplyLockOnGameplayTag(false);
+	// 에너미 락온 UI 비활성화
+	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
+	{
+		Enemy->OnLockOnEvent.ExecuteIfBound(false);
+	}
+	
+	// 보스 락온 UI 비활성화
+	if (AKOBossBase* Boss=Cast<AKOBossBase>(LockedTarget))
+	{
+		Boss->OnLockOnEvent.Broadcast(false);
+	}
+	
+	bIsLockedOn = false;
+	LockedTarget = nullptr;
+ 
+	ACharacter* OwnerChar = GetAvatarCharacter();
+	if (OwnerChar)
+	{
+		OwnerChar->bUseControllerRotationYaw = false;
+		if (UCharacterMovementComponent* MoveComp = OwnerChar->GetCharacterMovement())
+		{
+			MoveComp->bOrientRotationToMovement = true;
+		}
+		
+		if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
+		{
+			Cam->SetRelativeLocation(DefaultCameraRelLocation);
+		}
+	}
+	
+	
+	ApplyLockOnGameplayTag(false);
 }
  
  
@@ -168,64 +200,106 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 // ─────────────────────────────────────────────────────────────────────
 AActor* UKOGA_Utility_LockOn::FindBestTarget() const
 {
-    ACharacter* OwnerChar = Cast<ACharacter>(GetAvatarCharacter());
+    ACharacter* OwnerChar = GetAvatarCharacter();
     if (!OwnerChar) return nullptr;
- 
-	// 콜리전 스피어로 반경 내 Pawn 감지
-	TArray<FOverlapResult> OverlapResults;
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(SearchRadius);
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(OwnerChar);  // 자기 자신 제외
 
-	GetWorld()->OverlapMultiByChannel(
-		OverlapResults,
-		OwnerChar->GetActorLocation(),  // 중심점
-		FQuat::Identity,
-		ECC_Pawn,                       // Pawn 채널
-		Sphere,
-		Params
-	);
+    APlayerController* PC = Cast<APlayerController>(OwnerChar->GetController());
 
-	AActor* BestTarget = nullptr;
-	float   BestDistance = FLT_MAX;    // 가장 가까운 거리 추적
+    TArray<FOverlapResult> OverlapResults;
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(SearchRadius);
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(OwnerChar);
 
-	for (auto& Result : OverlapResults)
-	{
-		AActor* HitActor = Result.GetActor();
-		if (!IsValid(HitActor)) continue;
+    FCollisionObjectQueryParams ObjParams;
+    ObjParams.AddObjectTypesToQuery(ECC_Pawn);
 
-		// "Enemy" 태그 확인
-		if (!HitActor->ActorHasTag(FName("Enemy"))) continue;
+    GetWorld()->OverlapMultiByObjectType(
+        OverlapResults,
+        OwnerChar->GetActorLocation(),
+        FQuat::Identity,
+        ObjParams,
+        Sphere,
+        Params
+    );
 
-		float Distance = FVector::Dist(OwnerChar->GetActorLocation(), HitActor->GetActorLocation());
+    // ── 진단 로그 1: Overlap 결과 총 개수
+    GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::White,
+        FString::Printf(TEXT("[LockOn] Overlap 결과: %d개 (반경 %.0f)"),
+                        OverlapResults.Num(), SearchRadius));
 
-		// 가장 가까운 적 선택
-		if (Distance < BestDistance)
-		{
-			BestDistance = Distance;
-			BestTarget   = HitActor;
-		}
-	}
+    AActor* BestTarget = nullptr;
+    float BestScore = -FLT_MAX;
 
-	return BestTarget;
+    for (auto& Result : OverlapResults)
+    {
+        AActor* HitActor = Result.GetActor();
+        if (!IsValid(HitActor)) continue;
+
+    	// 죽은 적은 후보에서 제외 (시체에 다시 락온되는 것 방지)
+    	if (IAbilitySystemInterface* DeadIface = Cast<IAbilitySystemInterface>(HitActor))
+    	{
+    		if (UAbilitySystemComponent* DeadASC = DeadIface->GetAbilitySystemComponent())
+    		{
+    			if (DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead) ||
+					DeadASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Dead))
+    			{
+    				continue;
+    			}
+    		}
+    	}
+        // 1. 일반 액터 태그 검사
+    	bool bIsEnemy = HitActor->ActorHasTag(EnemyActorTag) || HitActor->IsA(AKOBaseEnemy::StaticClass());
+    	bool bIsBoss  = HitActor->ActorHasTag(BossActorTag)  || HitActor->IsA(AKOBossBase::StaticClass());
+   
+        if (!bIsEnemy && !bIsBoss) continue;
+
+        float NormDist = FVector::Dist(OwnerChar->GetActorLocation(), HitActor->GetActorLocation()) / SearchRadius;
+        float Score    = 1.f - NormDist;
+
+        if (Score > BestScore)
+        {
+            BestScore  = Score;
+            BestTarget = HitActor;
+        }
+    }
+
+    // ── 진단 로그 3: 최종 선택된 타겟
+    GEngine->AddOnScreenDebugMessage(21, 3.f, BestTarget ? FColor::Green : FColor::Red,
+        FString::Printf(TEXT("[LockOn] 선택된 타겟: %s"),
+            BestTarget ? *BestTarget->GetName() : TEXT("없음")));
+	
+    return BestTarget;
 }
- 
  
 // ─────────────────────────────────────────────────────────────────────
 // IsTargetValid  ―  타겟이 아직 유효한지 확인
 // ─────────────────────────────────────────────────────────────────────
 bool UKOGA_Utility_LockOn::IsTargetValid() const
 {
-    // IsValid: 가비지 컬렉션 되었거나 Pending Kill 상태면 false
-    if (!IsValid(LockedTarget)) return false;
- 
-    float Distance = FVector::Dist(
-        GetAvatarCharacter()->GetActorLocation(),
-        LockedTarget->GetActorLocation()
-    );
- 
-    // SearchRadius의 1.2배까지는 유효 (약간의 여유)
-    return Distance <= SearchRadius * 1.2f;
+	if (!LockedTarget.IsValid()) return false;
+
+	AActor* TargetActor = LockedTarget.Get();
+	ACharacter* OwnerChar = GetAvatarCharacter();
+
+	// 2. GAS 사망 태그 여부 체크
+	if (IAbilitySystemInterface* ASCIface = Cast<IAbilitySystemInterface>(TargetActor))
+	{
+		UAbilitySystemComponent* TargetASC = ASCIface->GetAbilitySystemComponent();
+		if (TargetASC)
+		{
+			if (TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Dead) ||
+				TargetASC->HasMatchingGameplayTag(KOGameplayTags::State_Boss_Dead))
+			{
+				if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(30, 1.f, FColor::Red, TEXT("[Valid] Dead 태그 감지됨"));
+				return false;
+			}
+		}
+	}
+
+	
+	// 3. 거리 체크
+	float Distance = FVector::Dist(GetAvatarCharacter()->GetActorLocation(), TargetActor->GetActorLocation());
+	return Distance <= LockOnBreakDistance;
 }
  
  
@@ -234,19 +308,18 @@ bool UKOGA_Utility_LockOn::IsTargetValid() const
 // ─────────────────────────────────────────────────────────────────────
 FVector UKOGA_Utility_LockOn::GetTargetSocketLocation() const
 {
-    if (!LockedTarget) return FVector::ZeroVector;
+	if (!LockedTarget.IsValid()) return FVector::ZeroVector;
  
-    if (ACharacter* TargetChar = Cast<ACharacter>(LockedTarget))
-    {
-        USkeletalMeshComponent* Mesh = TargetChar->GetMesh();
-        // 소켓이 있으면 소켓 위치, 없으면 액터 위치
-        if (Mesh && Mesh->DoesSocketExist(TargetSocketName))
-        {
-            return Mesh->GetSocketLocation(TargetSocketName);
-        }
-    }
+	if (ACharacter* TargetChar = Cast<ACharacter>(LockedTarget.Get()))
+	{
+		USkeletalMeshComponent* Mesh = TargetChar->GetMesh();
+		if (Mesh && Mesh->DoesSocketExist(TargetSocketName))
+		{
+			return Mesh->GetSocketLocation(TargetSocketName);
+		}
+	}
  
-    return LockedTarget->GetActorLocation();
+	return LockedTarget->GetActorLocation();
 }
  
  
@@ -255,80 +328,139 @@ FVector UKOGA_Utility_LockOn::GetTargetSocketLocation() const
 // ─────────────────────────────────────────────────────────────────────
 void UKOGA_Utility_LockOn::UpdateCameraRotation()
 {
-    // 타겟이 사라졌으면 락온 해제
-    if (!IsTargetValid())
-    {
-    	AActor* CurrentTarget = LockedTarget; // 현재 타겟 임시 저장
-    	LockedTarget = nullptr;               // 먼저 nullptr로 초기화
+	if (!IsTargetValid())
+	{
+		// 타겟이 유효하지 않으면 즉시 타겟 재탐색 시도
+		AActor* NewTarget = FindBestTarget();
+		if (NewTarget)
+		{
+			LockedTarget = NewTarget;
+		}
+		else
+		{
+			// 정말 주변에 타겟이 없을 때 안전하게 예약 종료 (1번 해결)
+			StopCameraUpdate();
+			StopLockOnDistanceCheck();
+			
+			GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+			{
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+			});
+			return;
+		}
+	}
 
-    	AActor* NewTarget = FindBestTarget(); // 탐색 (죽은 타겟 제외됨)
-    	if (NewTarget && NewTarget != CurrentTarget)
-    	{
-    		LockedTarget = NewTarget;
-    		GEngine->AddOnScreenDebugMessage(12, 2.f, FColor::Cyan, TEXT("[LockOn] Target Switched"));
-    	}
-    	else
-    	{
-    		DeactivateLockOn();
-    		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-    		GEngine->AddOnScreenDebugMessage(12, 2.f, FColor::Orange, TEXT("[LockOn] No Target Found"));
-    	}
-    	return;
-    }
- 
-    ACharacter* OwnerChar = Cast<ACharacter>(GetAvatarCharacter());
-    if (!OwnerChar) return;
- 
-    APlayerController* PC = Cast<APlayerController>(OwnerChar->GetController());
-    if (!PC) return;
- 
-    // 카메라 현재 위치
-    FVector  CameraLoc;
-    FRotator CameraRot;
-    PC->GetPlayerViewPoint(CameraLoc, CameraRot);
- 
-    // 카메라 → 타겟 소켓을 바라보는 목표 회전값 계산
-    FRotator TargetRot = UKismetMathLibrary::FindLookAtRotation(
-        CameraLoc,
-        GetTargetSocketLocation()
-    );
+	ACharacter* OwnerChar = GetAvatarCharacter();
+	if (!OwnerChar) return;
+
+	AKOPlayerController* PC = Cast<AKOPlayerController>(OwnerChar->GetController());
+	if (!PC) return;
+
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+
+	// Yaw 급변 완화 기준점으로 사용
+	const FRotator CurrentRot = PC->GetControlRotation();
+
+	const FVector EyeLoc = OwnerChar->GetActorLocation();
+	const FVector TargetLoc = LockedTarget->GetActorLocation();
+	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, TargetLoc);
+
+	// 타겟이 근접(atan2 특이점)하거나 점프 중 실제 위치가 지그재그로 흔들릴 때,
+	// 앵커 Yaw 자체가 프레임마다 크게 튀는 것을 막기 위해 초당 최대 변화폭을 제한한다.
+	constexpr float MaxAnchorYawSpeed = 180.f; // 초당 최대 앵커 Yaw 변화(도)
+	const float MaxYawDeltaThisFrame = MaxAnchorYawSpeed * DeltaTime;
+	const float RawYawDelta = FRotator::NormalizeAxis(AnchorRot.Yaw - CurrentRot.Yaw);
+	AnchorRot.Yaw = CurrentRot.Yaw + FMath::Clamp(RawYawDelta, -MaxYawDeltaThisFrame, MaxYawDeltaThisFrame);
+
+	const bool bTargetIsBoss =
+		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());
+
+	AnchorRot.Pitch = bTargetIsBoss ? BossLockOnCameraPitch : LockOnCameraPitch;
 	
-	TargetRot.Pitch = -35.f; // 원하는 하향 각도 (숫자가 작을수록 더 수직으로 내려다봄)
+	if (UCameraComponent* Cam = OwnerChar->FindComponentByClass<UCameraComponent>())
+	{
+		// 일반 몬스터: 카메라 기본 위치 유지(= 현재 동작과 동일).
+		FVector TargetRelLoc = DefaultCameraRelLocation;
+
+		// 보스만: 오프셋 + 뒤로 빼기(줌아웃) 적용
+		if (bTargetIsBoss)
+		{
+			TargetRelLoc = LockOnCameraOffset;
+
+			// 타겟이 가까울수록 카메라를 더 뒤로 뺀다 (0 ~ MaxCloseExtraArmLength)
+			const float DistToTarget = FVector::Dist(EyeLoc, LockedTarget->GetActorLocation());
+			float CloseExtra = 0.f;
+			if (DistToTarget < CloseDistanceThreshold)
+			{
+				const float Alpha = 1.f - (DistToTarget / CloseDistanceThreshold);
+				CloseExtra = Alpha * MaxCloseExtraArmLength;
+			}
+
+			// 카메라를 뒤로(-X) 빼서 보스 덩치가 화면에 들어오게 함
+			TargetRelLoc.X -= (BossLockOnExtraArmLength + CloseExtra);
+		}
+
+		const FVector NewRelLoc = FMath::VInterpTo(
+			Cam->GetRelativeLocation(), TargetRelLoc, DeltaTime, CameraOffsetInterpSpeed);
+		Cam->SetRelativeLocation(NewRelLoc);
+	}
+
 	
-    // 현재 회전에서 목표 회전으로 부드럽게 보간
-    // RInterpTo: DeltaTime 없이 고정 간격으로 호출되므로 0.016f 사용
-    FRotator NewRot = FMath::RInterpTo(
-        PC->GetControlRotation(),
-        TargetRot,
-        0.016f,             // 타이머 간격과 동일
-        CameraInterpSpeed
-    );
- 
-    PC->SetControlRotation(NewRot);
+	// 현재 시점(이번 프레임 마우스 입력이 이미 반영된 상태)
+	//const FRotator CurrentRot = PC->GetControlRotation();
+
+	// 최근 마우스 조작 여부
+	const bool bRecentering = PC->GetTimeSinceLastLookInput() > ReactivateDelay;
+
+	FRotator TargetRot;
+	if (bRecentering)
+	{
+		// 손을 뗐으면 → 앵커(정면)로 복귀
+		TargetRot = AnchorRot;
+	}
+	else
+	{
+		// 조작 중이면 → 리시 범위 안으로만 클램프
+		const float YawDelta   = FMath::Clamp(FRotator::NormalizeAxis(CurrentRot.Yaw   - AnchorRot.Yaw),   -LeashYaw,   LeashYaw);
+		const float PitchDelta = FMath::Clamp(FRotator::NormalizeAxis(CurrentRot.Pitch - AnchorRot.Pitch), -LeashPitch, LeashPitch);
+		TargetRot = AnchorRot + FRotator(PitchDelta, YawDelta, 0.f);
+	}
+
+	const float Speed = bRecentering ? RecenterInterpSpeed : CameraInterpSpeed;
+	const FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, Speed);
+	PC->SetControlRotation(NewRot);
+
+	// 몸통은 계속 타겟을 향하도록 수동 회전 (bUseControllerRotationYaw=false 이므로)
+	FRotator BodyRot = OwnerChar->GetActorRotation();
+	BodyRot.Yaw = FMath::RInterpTo(BodyRot, FRotator(0.f, AnchorRot.Yaw, 0.f), DeltaTime, CameraInterpSpeed).Yaw;
+	
 }
  
 void UKOGA_Utility_LockOn::StartCameraUpdate()
 {
-    UWorld* World = GetWorld();
-    if (!World) return;
- 
-    // ≈ 60fps 간격으로 카메라 회전 갱신
-    World->GetTimerManager().SetTimer(
-        CameraUpdateTimerHandle,
-        this,
-        &UKOGA_Utility_LockOn::UpdateCameraRotation,
-        0.016f,
-        true   // 반복
-    );
+	StopCameraUpdate(); // 중복 등록 방지
+
+	CameraTickHandle = FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateUObject(this, &UKOGA_Utility_LockOn::CameraTick));
 }
- 
+
+bool UKOGA_Utility_LockOn::CameraTick(float /*DeltaTime*/)
+{
+	// UpdateCameraRotation 내부에서 GetWorld()->GetDeltaSeconds()로
+	// 실제 프레임 델타를 사용하므로 여기선 그대로 호출만 한다.
+	UpdateCameraRotation();
+	return true; // true를 반환해야 다음 프레임에도 계속 틱
+}
+
+
+
 void UKOGA_Utility_LockOn::StopCameraUpdate()
 {
-    UWorld* World = GetWorld();
-    if (World)
-    {
-        World->GetTimerManager().ClearTimer(CameraUpdateTimerHandle);
-    }
+	if (CameraTickHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(CameraTickHandle);
+		CameraTickHandle.Reset();
+	}
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -336,38 +468,43 @@ void UKOGA_Utility_LockOn::StopCameraUpdate()
 // ─────────────────────────────────────────────────────────────────────
 void UKOGA_Utility_LockOn::CheckLockOnDistance()
 {
-    if (!LockedTarget) return;
+	if (!LockedTarget.IsValid()) return;
  
-    float Distance = FVector::Dist(
-        GetAvatarCharacter()->GetActorLocation(),
-        LockedTarget->GetActorLocation()
-    );
+	float Distance = FVector::Dist(GetAvatarCharacter()->GetActorLocation(), LockedTarget->GetActorLocation());
  
-    // 디버그 화면에 현재 거리 표시 (ID 1 = 항상 같은 줄에 덮어씀)
-    GEngine->AddOnScreenDebugMessage(1, 0.3f, FColor::Yellow,
-        FString::Printf(TEXT("[LockOn] Distance: %.0f / Break: %.0f"), Distance, LockOnBreakDistance));
+	if (bShowDebugMessages)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.3f, FColor::Yellow,
+			FString::Printf(TEXT("[LockOn] Distance: %.0f / Break: %.0f"), Distance, LockOnBreakDistance));
+	}
  
-    // 거리 초과 시 락온 자동 해제
-    if (Distance >= LockOnBreakDistance)
-    {
-        DeactivateLockOn();
-        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, TEXT("[LockOn] Deactivated (Distance)"));
-    }
+	if (Distance >= LockOnBreakDistance)
+	{
+		StopCameraUpdate();
+		StopLockOnDistanceCheck();
+        
+		if (bShowDebugMessages) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, TEXT("[LockOn] 거리 초과로 해제"));
+
+		// 안전하게 다음 틱에 어빌리티 종료 예약 (1번 해결)
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+		});
+	}
 }
  
 void UKOGA_Utility_LockOn::StartLockOnDistanceCheck()
 {
-    UWorld* World = GetWorld();
-    if (!World) return;
+	UWorld* World = GetWorld();
+	if (!World) return;
  
-    World->GetTimerManager().SetTimer(
-        LockOnDistanceTimerHandle,
-        this,
-        &UKOGA_Utility_LockOn::CheckLockOnDistance,
-        0.2f,
-        true   // 반복
-    );
+	World->GetTimerManager().SetTimer(
+		LockOnDistanceTimerHandle,
+		this,
+		&UKOGA_Utility_LockOn::CheckLockOnDistance,
+		0.2f,
+		true
+	);
 }
  
 void UKOGA_Utility_LockOn::StopLockOnDistanceCheck()
@@ -382,18 +519,18 @@ void UKOGA_Utility_LockOn::StopLockOnDistanceCheck()
 // ─────────────────────────────────────────────────────────────────────
 // ApplyLockOnGameplayTag  ―  State.Character.LockOn 태그 추가/제거
 // ─────────────────────────────────────────────────────────────────────
-void UKOGA_Utility_LockOn::ApplyLockOnGameplayTag(bool bApply) const
+void UKOGA_Utility_LockOn::ApplyLockOnGameplayTag(bool bApply)
 {
-    IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetAvatarCharacter());
-    if (!ASCInterface) return;
+	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetAvatarCharacter());
+	if (!ASCInterface) return;
  
-    UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
-    if (!ASC) return;
+	UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
+	if (!ASC) return;
  
-    if (bApply)
-        ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_LockOn);
-    else
-        ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_LockOn);
+	if (bApply)
+		ASC->AddLooseGameplayTag(KOGameplayTags::State_Character_LockOn);
+	else
+		ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_LockOn);
 }
 
 

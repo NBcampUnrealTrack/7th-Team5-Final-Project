@@ -1,0 +1,51 @@
+# IDE Files
+.vs/
+.idea/
+*.vsconfig
+*.suo
+*.user
+*.opensdf
+
+# Generated Project Files
+*.xcodeproj
+*.xcworkspace
+*.sln
+*.vcxproj
+*.csproj.*
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Build Outputs
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+/Build/
+
+# Binary/Data Files
+*_BuiltData.uasset
+*.exp
+
+# Config
+Config/DefaultEditorPerProjectUserSettings.ini
+p4config.txt
+
+# Logs & Temp
+*.tmp
+*.autosave
+WorldPartitionConversionLog.txt
+
+# Backup Files
+backup/*.hipnc
+*~
+.DS_Store
+
+# Crash Reports
+crashinfo--*
+
+# Other
+*.target.xml
+*.exe.config
+*.exe.manifest
+*.mdb

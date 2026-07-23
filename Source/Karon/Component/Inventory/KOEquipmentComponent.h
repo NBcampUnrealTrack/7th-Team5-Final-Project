@@ -3,10 +3,14 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Data/Character/KOGrantSet.h"
+#include "Data/KODataTableTypes.h"
 #include "KOEquipmentComponent.generated.h"
 
 class UKOWeaponDefinition;
 class AKOWeaponBase;
+class UGameplayEffect;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChangeBlocked);
 
 UENUM(BlueprintType)
 enum class EWeaponSlot : uint8
@@ -16,8 +20,7 @@ enum class EWeaponSlot : uint8
 };
 
 
-
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class KARON_API UKOEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -31,9 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
 	void EquipWeapon(UKOWeaponDefinition* Def);
 
-	// 현재 무기 해제: GAS 회수, 액터 제거
+	// 현재 무기 해제: GAS 회수, 액터 제거. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	void UnequipWeapon();
+	bool UnequipWeapon();
 	
 	// 뽑기: 칼집(Holster) → 손(Hand)
 	void DrawWeapon();
@@ -53,6 +56,42 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Equipment")
 	UKOWeaponDefinition* GetCurrentWeaponConfig() const { return CurrentWeaponConfig; }
 	
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	void ToggleWeaponDrawState();
+	
+	FName GetCurrentWeaponItemId() const { return CurrentWeaponItemId; }
+	EWeaponSlot GetCurrentWeaponSlot() const { return CurrentWeaponSlot; }
+
+	// 무기 장착
+	bool EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponDefinition* Def);
+	
+	void AttachWeaponToSocket(bool bDrawn);
+	
+	// 방어구 장착. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
+	bool EquipArmorFromItem(EKOEquipmentSlotType SlotType, FName ItemId);
+
+	// 방어구 장착 해제. 스킬 GA 활성 중이면 아무 것도 하지 않고 false를 반환한다.
+	bool UnequipArmor(EKOEquipmentSlotType SlotType);
+
+	// 스킬 등 공격 계열 GA가 활성화 중(State.Character.Attacking)인지 확인. true면 장비(무기/방어구) 변경을 막아야 한다.
+	UFUNCTION(BlueprintPure, Category = "Equipment")
+	bool CanEquip() const;
+
+	UFUNCTION(BlueprintPure, Category = "Equipment|Armor")
+	FName GetEquippedArmorItemId(EKOEquipmentSlotType SlotType) const;
+
+	int32 GetTotalArmorDefense() const { return TotalArmorDefense; }
+	const TMap<EKOEquipmentSlotType, FName>& GetEquippedArmorItemIds() const {return EquippedArmorItemIds;}
+
+	// 방어력 총합 계산
+	void RecalculateArmorDefense();
+	
+	// 세이브 로드
+	bool RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot);
+	void LoadArmorFromSave(const TMap<EKOEquipmentSlotType, FName>& SavedArmorItemIds);
+	
+	FOnEquipmentChangeBlocked OnEquipmentChangeBlocked;
+	
 protected:
 	void SetWeaponSlot(EWeaponSlot NewSlot);
 	
@@ -68,7 +107,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EWeaponSlot CurrentWeaponSlot = EWeaponSlot::Holster;
 	
-protected: 
+	// 무기
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	FName CurrentWeaponItemId = NAME_None;
+	
+	// 방어구
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment|Armor")
+	TMap<EKOEquipmentSlotType, FName> EquippedArmorItemIds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment|Armor")
+	int32 TotalArmorDefense = 0;
+
+	// 장착 방어구 총합을 Defense 어트리뷰트(Data.Attribute.Combat.Defense, SetByCaller)에 반영하는 GE.
+	// 무한 지속 + Add 방식이어야 하며, 방어구가 바뀔 때마다 제거 후 새 총합으로 재적용된다.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor")
+	TSubclassOf<UGameplayEffect> ArmorDefenseEffectClass;
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	
@@ -77,4 +132,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UAnimInstance> DefaultAnimLayerClass;
+	
+private:
+	void SyncWeaponDrawnTagToASC();
+
+	// TotalArmorDefense를 ArmorDefenseEffectClass GE로 ASC에 반영 (기존 적용분은 제거 후 재적용).
+	void ApplyArmorDefenseEffect();
+
+	FActiveGameplayEffectHandle ArmorDefenseEffectHandle;
 };

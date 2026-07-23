@@ -20,7 +20,10 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PatrolLocationKey;
-
-	UPROPERTY(EditAnywhere, Category = "AI")
-	float SearchRadius = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector InitialLocationKey;
+	
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector MaxDistanceKey;
 };

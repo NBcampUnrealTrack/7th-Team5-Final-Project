@@ -8,15 +8,63 @@
 class UKOGrantSet;
 
 USTRUCT(BlueprintType)
-struct KARON_API FWeaponBaseStats
+struct KARON_API FWeaponAnimationSet
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> DrawMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> SheatheMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> WeaponABP_Sheathed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> WeaponABP_Carrying;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> WeaponABP_Combat;
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FKOAttachSocket
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName SocketName = NAME_None;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FTransform Transform = FTransform::Identity;
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FWeaponAttachSockets
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FKOAttachSocket EquipSocket; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FKOAttachSocket UnequipSocket; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FKOAttachSocket GripSocket;
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FWeaponTraceSockets
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats")
-	float BaseATK = 100.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName TraceStartSocket = TEXT("TraceStart");
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats")
-	float AttackSpeed = 1.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName TraceEndSocket = TEXT("TraceEnd"); 
 };
 
 UCLASS(BlueprintType)
@@ -31,45 +79,17 @@ public:
 	// 무기 스태틱 메시
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Visuals")
 	TSoftObjectPtr<UStaticMesh> WeaponMesh;
-
-	// 뽑은 상태: 손 소켓 (예: "hand_r")
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
-	FName EquipSocket = TEXT("hand_r");
-
-	// 넣은 상태: 칼집/등 소켓 (예: "spine_02")
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
-	FName UnEquipSocket = TEXT("spine_02");
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
-	FName GripSocket = TEXT("grip"); 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket | Trace")
-	FName TraceStartSocket = TEXT("TraceStart");
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket | Trace")
-	FName TraceEndSocket = TEXT("TraceStart");
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Stats")
-	FWeaponBaseStats BaseStats;
-
 	// 장착 시 부여할 어빌리티, GE 묶음
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon| Grant")
 	TObjectPtr<UKOGrantSet> GrantedSet;
 
-	// 뽑기 몽타주 (칼집 → 손)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation | Montage")
-	TObjectPtr<UAnimMontage> DrawMontage;
-
-	// 넣기 몽타주 (손 → 칼집)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
-	TObjectPtr<UAnimMontage> SheatheMontage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FWeaponAnimationSet WeaponAnimationSet;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
-	TSubclassOf<UAnimInstance> WeaponABP_Sheathed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FWeaponAttachSockets AttachSockets;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
-	TSubclassOf<UAnimInstance> WeaponABP_Carrying;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon|Animation")
-	TSubclassOf<UAnimInstance> WeaponABP_Combat;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FWeaponTraceSockets TraceSockets;
 };

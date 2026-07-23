@@ -26,7 +26,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FKOPassiveAbilityEntry
+struct FKOSubAbilityEntry
 {
 	GENERATED_BODY()
 public:
@@ -35,6 +35,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 AbilityLevel = 1;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bStartActivated = false;
 };
 
 USTRUCT(BlueprintType)
@@ -76,8 +79,14 @@ public:
 	TArray<FKOActiveAbilityEntry> ActiveAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Ability"))
-	TArray<FKOPassiveAbilityEntry> PassiveAbilities;
+	TArray<FKOSubAbilityEntry> SubAbilities;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Effect"))
 	TArray<FKOEffectEntry> GrantedEffects;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> AttributeInitializationEffect;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "Attribute"))
+	FDataTableRowHandle StatRow;
 };

@@ -4,12 +4,13 @@
 #include "KOEnemyProjectileAttackNotify.h"
 
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Enemy/Projectile/KOEnemyProjectileActor.h"
 #include "Data/Type/KOEnemyType.h"
-#include "Game/KOProjectilePoolSubsystem.h"
+#include "Subsystem/KOProjectilePoolSubsystem.h"
 #include "SubSystem/KOEnemyDataSubsystem.h"
+#include "Data/KO_HitData.h"
 
 UKOEnemyProjectileAttackNotify::UKOEnemyProjectileAttackNotify()
 {
@@ -58,13 +59,22 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 			EnemyProjectile->SetActorTransform(ProjectileTransform);
 			UE_LOG(LogTemp,Warning,TEXT("%s"),*ProjectileTransform.GetLocation().ToString());
 			
+			if (HitData)
+			{
+				EnemyProjectile->SetHitData(HitData.Get());
+			}
+			else
+			{
+				EnemyProjectile->SetHitData(nullptr);	
+			}
+			
 			//현재 활성화된 GA를 가져온다,
 			UAbilitySystemComponent* AbilitySystemComponent = Enemy->GetAbilitySystemComponent();
 			if (!AbilitySystemComponent)
 			{
 				return;
 			}
-			UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
+			UKOEnemyGameplayAbility* EnemyGA = Cast<UKOEnemyGameplayAbility>(
 				AbilitySystemComponent->GetAnimatingAbility());
 			if (!EnemyGA)
 			{
@@ -83,7 +93,7 @@ void UKOEnemyProjectileAttackNotify::BranchingPointNotify(FBranchingPointNotifyP
 				DamageMultiplier=SkillSubsystem->GetSkillData(SkillInfoTag);
 			}
 			
-			UE_LOG(LogTemp,Warning,TEXT("%f"),DamageMultiplier);
+			UE_LOG(LogTemp,Warning,TEXT("%f, %f"),Enemy->GetAttackPoint(),DamageMultiplier);
 			//노티파이 순간의 Enemy의 AttackPoint, DamageMultiplier를 세팅한다. 
 			EnemyProjectile->SetProjectile(Enemy,Enemy->GetAttackPoint(),DamageMultiplier);
 			EnemyProjectile->SetActiveAndCollision(true);

@@ -1,52 +1,62 @@
 #include "KOGA_BossGroggyBase.h"
 
-#include "AIController.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 
 UKOGA_BossGroggyBase::UKOGA_BossGroggyBase()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
- 
-	// 그로기 중 재발동 방지
-	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
-	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_Groggy);
+	AbilityTags.AddTag(KOGameplayTags::State_Boss_Groggy);
+	
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Boss_InGroggy);
 }
-
-void UKOGA_BossGroggyBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+ 
+void UKOGA_BossGroggyBase::ActivateAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	UGameplayAbility::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+ 
+	if (!IsActive()) return;
  
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
- 
-	// 보스 그로기 진입
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar)
+	
+	// 그로기 진입 시 모든 공격 GA 즉시 종료
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
+		UGameplayAbility* GroggyInstance = GetCurrentAbilitySpec() ?
+			GetCurrentAbilitySpec()->GetPrimaryInstance() : nullptr;
+		ASC->CancelAbilities(nullptr, nullptr, GroggyInstance);
 	}
  
-	AKOBossBase* Boss = Cast<AKOBossBase>(Avatar);
+	AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter());
 	if (!Boss)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	
+	if (GroggyMontage)
+	{
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this, NAME_None, GroggyMontage, 1.f, GroggySection, false);
  
-	Boss->OnGroggyBegin();
- 
-	UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 진입 / 유지시간 : %.1f초"), GroggyDuration);
- 
-	// 그로기 유지 타이머
+		MontageTask->OnCompleted.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCompleted);
+		MontageTask->OnCancelled.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCancelled);
+		MontageTask->OnInterrupted.AddDynamic(this, &UKOGA_BossGroggyBase::OnMontageCancelled);
+		MontageTask->ReadyForActivation();
+	}
+	
 	GetWorld()->GetTimerManager().SetTimer(
 		GroggyTimerHandle,
 		this,
@@ -55,49 +65,45 @@ void UKOGA_BossGroggyBase::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		false
 	);
 }
-
-void UKOGA_BossGroggyBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility, bool bWasCancelled)
+ 
+void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
 {
-	// 타이머 정리
+	ACharacter* Character = GetAvatarCharacter();
+	if (Character && GroggyMontage)
+	{
+		if (UAnimInstance* AnimInst = Character->GetMesh()->GetAnimInstance())
+		{
+			AnimInst->Montage_JumpToSection(RestoreSection, GroggyMontage);
+		}
+	}
+}
+ 
+void UKOGA_BossGroggyBase::OnMontageCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+ 
+void UKOGA_BossGroggyBase::OnMontageCancelled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+}
+ 
+void UKOGA_BossGroggyBase::EndAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, 
+	bool bWasCancelled)
+{
 	if (GetWorld())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(GroggyTimerHandle);
 	}
- 
-	// 보스 그로기 종료
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (Avatar)
-	{
-		if (AKOBossBase* Boss = Cast<AKOBossBase>(Avatar))
-		{
-			Boss->OnGroggyEnd();
-			UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 종료"));
-		}
-	}
- 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-		bReplicateEndAbility, bWasCancelled);
-}
-
-void UKOGA_BossGroggyBase::OnGroggyTimerEnd()
-{
-	UE_LOG(LogTemp, Log, TEXT("[BossGroggy] 그로기 타이머 종료"));
 	
-	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-	if (Pawn)
+	if (AKOBossBase* Boss = Cast<AKOBossBase>(GetAvatarCharacter()))
 	{
-		AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-		if (AIC)
-		{
-			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-			{
-				BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, false);
-			}
-		}
+		Boss->OnGroggyEnd();
 	}
  
-	EndAbility(CurrentSpecHandle, CurrentActorInfo,
-		CurrentActivationInfo, true, false);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

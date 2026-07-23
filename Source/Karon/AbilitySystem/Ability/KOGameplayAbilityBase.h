@@ -17,6 +17,13 @@ public:
 		const FGameplayEventData* TriggerEventData
 	) override;
 	
+	virtual void CancelAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateCancelAbility
+	) override; 
+	
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -79,6 +86,10 @@ public:
 		float Amount,
 		float Level = 1.f
 	);
+	
+	virtual void ApplyGameplayCue(FGameplayTag CueTag, FGameplayCueParameters& Parameters);
+	
+	virtual void ApplyGameplayCues(FGameplayTagContainer CueTag, FGameplayCueParameters& Parameters);
 protected:
 	// ─── Cooldown ─────────────────────────────────────────────────────
 	virtual UGameplayEffect* GetCooldownGameplayEffect() const override;
@@ -99,6 +110,24 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
 	float CooldownDuration = 0.f;
+	
+	
+	// ─── Cost ────────────────────────────────────────────────────────
+	virtual UGameplayEffect* GetCostGameplayEffect() const override;
+	
+	virtual void ApplyCost(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo
+	) const override;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Cost")
+	TSubclassOf<UGameplayEffect> CostGEClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category=GameplayCue, meta=(Categories="GameplayCue"))
+	FGameplayTagContainer CueTags;
+	
+	mutable FActiveGameplayEffectHandle CostEffectHandle;
 	
 private:
 	mutable FGameplayTagContainer CachedCooldownTags;

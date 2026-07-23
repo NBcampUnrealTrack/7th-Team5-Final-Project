@@ -74,6 +74,7 @@ void UKOEnemyHPBar::OnHPChanged(float ProgressPercent,float Damage)
 	if (DamageTextBlock!=nullptr)
 	{
 		AccumulateDamage+=Damage;
+		AccumulateDamage=FMath::RoundToInt(AccumulateDamage);
 		DamageTextBlock->SetText(FText::AsNumber(AccumulateDamage));
 		GetWorld()->GetTimerManager().SetTimer(BattleTimerHandle,this,&UKOEnemyHPBar::BattleDamageInit,DamageDelayMaxTime,false);
 	}

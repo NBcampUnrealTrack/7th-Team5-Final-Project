@@ -24,4 +24,10 @@ void UKOTitleRootLayout::NativeConstruct()
 	{
 		UISubsystem->RegisterPrimaryLayout(KOGameplayTags::UI_Layer_Menu, TitleLayer);
 	}
+
+	// 2. 옵션 팝업 등 최상위 모달 위젯을 위한 레이어 등록.
+	if (ModalLayer)
+	{
+		UISubsystem->RegisterPrimaryLayout(KOGameplayTags::UI_Layer_Modal, ModalLayer);
+	}
 }

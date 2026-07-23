@@ -8,6 +8,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/WrapBox.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
 void UKOInventoryWidget::SetInventoryComponent(UKOInventoryComponent* InComponent)
 {
@@ -18,6 +19,11 @@ void UKOInventoryWidget::SetInventoryComponent(UKOInventoryComponent* InComponen
 void UKOInventoryWidget::NotifySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
 {
     OnSlotClicked.Broadcast(SlotIndex, InSlot);
+}
+
+void UKOInventoryWidget::NotifySlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    OnSlotRightClicked.Broadcast(SlotIndex, InSlot);
 }
 
 void UKOInventoryWidget::NativeConstruct()
@@ -82,6 +88,7 @@ bool UKOInventoryWidget::NativeOnDrop(
     {
         Source->Restore(ItemId, Rejected);
     }
+    
     return true;
 }
 

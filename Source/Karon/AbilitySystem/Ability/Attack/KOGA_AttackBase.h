@@ -4,8 +4,146 @@
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
 #include "KOGA_AttackBase.generated.h"
 
+class UKOCombatSet;
+class UAbilityTask_Tick;
+class UKO_HitData;
 
-UCLASS()
+USTRUCT(BlueprintType, Blueprintable)
+struct FKODamageEffectData // 데미지 용 
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> EffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Level = 1.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AttackCoefficient = 1.f;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct KARON_API FKOEffectData // 추가 효과용 
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> EffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Level = 1.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, float> SetByCallerValues;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct KARON_API FKOAttackMontageData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* Montage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float PlayRate = 1.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DamageRate = 1.f; 
+};
+
+USTRUCT(BlueprintType)
+struct KARON_API FKOTraceSocketPair
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName StartSocket = FName("StartTrace");
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName EndSocket = FName("EndTrace");
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct KARON_API FKOTraceData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bShowDebug = true;
+	
+	UPROPERTY()
+	UMeshComponent* TraceMesh = nullptr; 
+	
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FKOTraceSocketPair> SocketPairs = {FKOTraceSocketPair{}};
+	
+	int32 CurrentSocketIndex = 0;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TraceRadius = 45.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MaxHitCount = 1; 
+	
+	UPROPERTY()
+	TArray<AActor*> HitActors;
+	
+	FVector PrevStartLocation = FVector::ZeroVector;
+	FVector PrevEndLocation = FVector::ZeroVector;
+	
+	bool bIsFirstTick = true; 
+	
+	FName GetStartSocket() const
+	{
+		if (SocketPairs.IsEmpty()) return FName(""); 
+		
+		if (SocketPairs.IsValidIndex(CurrentSocketIndex))
+			return SocketPairs[CurrentSocketIndex].StartSocket;
+		
+		return SocketPairs[0].StartSocket; 
+	}
+
+	FName GetEndSocket() const
+	{
+		if (SocketPairs.IsEmpty()) return FName(""); 
+		
+		if (SocketPairs.IsValidIndex(CurrentSocketIndex))
+			return SocketPairs[CurrentSocketIndex].EndSocket;
+		
+		return SocketPairs[0].EndSocket; 
+	}
+	
+	void SwapSocket()
+	{
+		if (SocketPairs.IsEmpty()) return;
+		CurrentSocketIndex = (CurrentSocketIndex + 1) % SocketPairs.Num();
+	}
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct KARON_API FKOMotionWarpData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bUseMotionWarping = true; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float TargetSearchRange = 150.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxWarpDistance = 150.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float ReachMargin = 50.f; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FName TargetName = TEXT("AttackTarget");
+};
+
+UCLASS(Abstract)
 class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 {
 	GENERATED_BODY()
@@ -13,28 +151,96 @@ class KARON_API UKOGA_AttackBase : public UKOGameplayAbilityBase
 public:
 	UKOGA_AttackBase();
 	
-protected:	
-	// ─── Ability Life Cycle ───────────────────────────────────────────────────
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
-	)	override;
-	
-	virtual void EndAbility(
-		const FGameplayAbilitySpecHandle Handle, 
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		bool bReplicateEndAbility, 
-		bool bWasCancelled
 	) override;
 	
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Damage")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-    
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Event")
-	FGameplayTag AttackEventTag;
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility, bool bWasCancelled
+	) override;
 
+	virtual void SendAttackEventsToTarget(FGameplayEventData* InEventData);
+	
+	virtual void SendAttackEventsToTarget(AActor* TargetActor); 
+	
+	virtual void ApplyHitEffects(FGameplayEventData* InEventData);
+	
+	virtual void ApplyHitEffects(AActor* TargetActor);
+	
+	UKOCombatSet* GetCombatSet();
+
+protected:
+	UFUNCTION()
+	virtual void PerformWeaponTrace(float DeltaTime);
+
+	UFUNCTION()
+	void OnHitDataEventReceived(FGameplayEventData Payload);
+	
+	UFUNCTION()
+	virtual void ResetHitActors();
+	
+	UMeshComponent* FindTraceMesh(); 
+	
+	UFUNCTION()
+	virtual void OnTargetHit(const FHitResult& Hit);
+	
+protected:	
+	UPROPERTY()
+	TObjectPtr<const UKO_HitData> CachedHitData;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ToolTip = "타격 성공 시 역경직 지속시간(초)"))
+	float HitStopDuration = 0.08f;
+    
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ClampMin = "0.0", ClampMax = "1.0", ToolTip="0에 가까울수록 완전 정지"))
+	float HitStopTimeDilation = 0.01f;
+	
+	// 역경직 사용 여부
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop")
+	bool bUseHitStop = true;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace")
+	FKOTraceData TraceData; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
+	TArray<FKOAttackMontageData> MontageData;
+	
+	int32 CurrentMontageIndex = 0;
+	
+	// 데미지 GE
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	TArray<FKODamageEffectData> DamageEffects;
+	
+	// 추가 효과 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	TArray<FKOEffectData> AdditionalEffects;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Event")
+	FGameplayTagContainer AttackEventTags; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
+	FGameplayTag HitImpactAttackerCueTag; 
+	
+	float CurrentDamageMultiplier = 1.0f;
+	
+	UAbilityTask_Tick* TickTask;
+	
+
+protected:
+	// MotionWrapping 
+	AActor* FindMotionWarpTarget() const;
+
+	void UpdateMotionWarpTarget();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MotionWarp")
+	FKOMotionWarpData MotionWarpData;
+
+private:
+	//자신 효과 핸들
+	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;
 };

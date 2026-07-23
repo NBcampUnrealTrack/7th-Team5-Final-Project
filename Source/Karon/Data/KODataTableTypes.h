@@ -8,11 +8,13 @@
 #include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
+class ULevelSequence;
 class UGameplayAbility;
 class UGameplayEffect;
 class UTexture2D;
 class UStaticMesh;
 class AKOBaseBuilding;
+class UKOWeaponDefinition;
 
 USTRUCT(BlueprintType)
 struct KARON_API FKOBuildMenuQuery
@@ -171,6 +173,16 @@ struct KARON_API FKORecipeRow : public FTableRowBase
     float PowerPerSecond = 0.f;
 };
 
+UENUM(BlueprintType)
+enum class EKOEquipmentSlotType : uint8
+{
+    Head       UMETA(DisplayName = Head),
+    UpperBody  UMETA(DisplayName = UpperBody),
+    LowerBody  UMETA(DisplayName = LowerBody),
+    Shoes      UMETA(DisplayName = Shoes),
+    Weapon     UMETA(DisplayName = Weapon)
+};
+
 USTRUCT(BlueprintType)
 struct KARON_API FKOEquipmentRow : public FTableRowBase
 {
@@ -179,6 +191,26 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     /** 장비로 취급할 아이템 태그. */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
     FGameplayTag ItemTag;
+    
+    /** 이 장비가 들어갈 장비 슬롯 타입 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+    EKOEquipmentSlotType SlotType = EKOEquipmentSlotType::Weapon;
+    
+    /** 장비 관련 데이터 에셋 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Weapon")
+    TSoftObjectPtr<UKOWeaponDefinition> WeaponDefinition;
+    
+    /** 방어력 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor")
+    int32 Defense = 0;
+
+    /** 제작에 필요한 재료 */
+   UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    TMap<FGameplayTag, int32> CraftCosts;
+
+    /** 제작 목록에 표시할지 여부 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
+    bool bCraftable = true;
 };
 
 USTRUCT(BlueprintType)
@@ -189,6 +221,9 @@ struct KARON_API FKOSkillRow : public FTableRowBase
     /** UI에 표시되는 이름*/
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     FText DisplayName;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+    FText Description;
     
     /** 스킬 식별용 태그*/
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
@@ -202,60 +237,43 @@ struct KARON_API FKOSkillRow : public FTableRowBase
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     FGameplayTagContainer PrerequisiteSkillTags;
     
-    /** 코어 별 분리를 위한 카테고리*/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
-    FGameplayTagContainer Categories;
-    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
     TSoftObjectPtr<UTexture2D> Icon;
+    
+    /** 코어 해금 태그*/
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Unlock", meta = (Categories = "Unlock.Core"))
+    FGameplayTagContainer RequiredUnlockTags;
 };
 
 USTRUCT(BlueprintType)
 struct KARON_API FKOSkillExecutionRow : public FTableRowBase
 {
     GENERATED_BODY()
-    
-    /** 활성화 된 스킬 태그*/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
-    FGameplayTag ActivatedSkillTag;
-    /** 스킬 유형 타입*/
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution")
     ESkillExecutionType ExecutionType;
 
-    /**
-     * 액티브 스킬 정보 데이터
-     */
+    // Active
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
     TSubclassOf<UGameplayAbility> AbilityClass;
-    
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-        meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CastTime;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CooldownDuration;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Active",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides))
-    float CostOverheat;
-    
-    /** 행동 추가용 태그*/
+        meta = (EditCondition = "ExecutionType == ESkillExecutionType::Active", EditConditionHides,
+                Categories = "Input.Ability.Skill"))
+    FGameplayTag InputTag;
+
+    // ActiveExtension
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Extension",
-    meta = (EditCondition = "ExecutionType == ESkillExecutionType::ActiveExtension", EditConditionHides))
+        meta = (EditCondition = "ExecutionType == ESkillExecutionType::ActiveExtension", EditConditionHides))
     FGameplayTag ActivationTriggerTag;
-    /**
-     * 패시브 정보 데이터
-     */
+
+    // PassiveStat
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Passive",
         meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
     TSubclassOf<UGameplayEffect> PassiveEffectClass;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill Execution|Passive",
-        meta = (EditCondition = "ExecutionType == ESkillExecutionType::PassiveStat", EditConditionHides))
-    float StatModifierValue;
 };
+//Enemy 스킬 데이터
 USTRUCT(BlueprintType)
 struct FKOEnemySkillRow : public FTableRowBase
 {
@@ -268,6 +286,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float SkillMultiplier=1.f;
 };
+//Enemy 데이터
 USTRUCT(BlueprintType)
 struct FKOEnemyDataRow : public FTableRowBase
 {
@@ -279,4 +298,28 @@ public:
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FEnemyInfo EnemyInfo;
+};
+//Enemy 아이템드랍테이블
+USTRUCT(BlueprintType)
+struct FKOEnemyDropItemRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyNameLevelInfo NameLevelData;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FEnemyDropItemInfo DropItemInfo;
+};
+
+//레벨시퀀스 데이터베이스
+USTRUCT(BlueprintType)
+struct FKOLevelSequenceRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<ULevelSequence> LevelSequence;
 };

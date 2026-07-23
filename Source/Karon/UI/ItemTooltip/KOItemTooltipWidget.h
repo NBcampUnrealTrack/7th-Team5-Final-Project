@@ -22,4 +22,14 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> DescriptionText;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TxtCategory;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TxtAmount;
+	
+private:
+	FText ResolveCategoryText(EKOSlotKind Kind, FName Id) const;
+	int32 ResolveOwnedCount(FName Id) const;
 };

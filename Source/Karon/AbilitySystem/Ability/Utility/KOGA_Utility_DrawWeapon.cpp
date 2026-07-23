@@ -15,9 +15,14 @@ UKOGA_Utility_DrawWeapon::UKOGA_Utility_DrawWeapon()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Utility_DrawWeapon));
-
+	
+	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Drawing);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
 	
+	FAbilityTriggerData Trigger;
+	Trigger.TriggerTag = KOGameplayTags::Event_Weapon_ShouldDraw;
+	Trigger.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	AbilityTriggers.Add(Trigger);
 }
 
 void UKOGA_Utility_DrawWeapon::ActivateAbility(
@@ -57,7 +62,7 @@ void UKOGA_Utility_DrawWeapon::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* Montage = Config->DrawMontage;
+	UAnimMontage* Montage = Config->WeaponAnimationSet.DrawMontage;
 	if (!Montage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -65,23 +70,13 @@ void UKOGA_Utility_DrawWeapon::ActivateAbility(
 	}
 
 	UAbilityTask_WaitGameplayEvent* EventTask =
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-			this,
-			KOGameplayTags::Event_Weapon_Draw
-		);
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, KOGameplayTags::Event_Weapon_Draw);
 
 	EventTask->EventReceived.AddDynamic(this, &ThisClass::OnDrawAttachEvent);
 	EventTask->ReadyForActivation();
 
 	UAbilityTask_PlayMontageAndWait* MontageTask =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.0f,
-			NAME_None,
-			true
-		);
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, Montage);
 
 	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);

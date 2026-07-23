@@ -12,12 +12,13 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOFactoryProcessorComponent::UKOFactoryProcessorComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
-    PrimaryComponentTick.bStartWithTickEnabled = true;
+    PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
 void UKOFactoryProcessorComponent::BeginPlay()
@@ -64,6 +65,12 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
     {
         return Count;
     }
+    
+    // 레시피 미선택 / input이 아닌 아이템은 전부 거절
+    if (!CanAcceptInputItemForSelectedRecipe(ItemId))
+    {
+        return Count;
+    }
 
     int32& Current = InputBuffer.FindOrAdd(ItemId);
     const int32 Space = FMath::Max(0, MaxBufferPerItem - Current);
@@ -76,6 +83,11 @@ int32 UKOFactoryProcessorComponent::TryInsertItem(FName ItemId, int32 Count)
     {
         BroadcastProcessorChanged();
         EvaluateAutoStart();
+        
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyProcessorInputInserted(ItemId, ToAdd);
+        }
     }
     return Remaining;
 }
@@ -118,6 +130,15 @@ void UKOFactoryProcessorComponent::SetSelectedRecipe(FName RecipeId)
     SelectedRecipeId = RecipeId;
     BroadcastProcessorChanged();
     EvaluateAutoStart();
+    
+    // 퀘스트
+    if (!SelectedRecipeId.IsNone())
+    {
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyRecipeSelected(SelectedRecipeId);
+        }
+    }
 }
 
 void UKOFactoryProcessorComponent::RestoreOutputBuffer(FName ItemId, int32 Count)
@@ -254,6 +275,27 @@ void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float R
     LastSupplyRatio = (RequestedAmount > KINDA_SMALL_NUMBER)
         ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f)
         : 1.f;
+    
+    AKOBaseBuilding* Building = GetOwnerBuilding();
+    if (!Building)
+    {
+        return;
+    }
+
+    const bool bIsRunning = State == EKOFactoryState::Running;
+    const bool bRequiresPressure = bIsRunning && RequestedAmount > KINDA_SMALL_NUMBER;
+    const bool bHasPressure = SuppliedAmount > KINDA_SMALL_NUMBER;
+    const bool bPressureShortage = bRequiresPressure && !bHasPressure;
+    const bool bActuallyOperating = bRequiresPressure && bHasPressure;
+
+    Building->SetOperatingSoundActive(bActuallyOperating);
+
+    if (bPressureShortage && !bWasPressureShortage)
+    {
+        Building->PlayOperationBlockedSound();
+    }
+
+    bWasPressureShortage = bPressureShortage;
 }
 
 void UKOFactoryProcessorComponent::GetEnergyOccupiedCells(TArray<FIntPoint>& OutCells) const
@@ -327,6 +369,12 @@ bool UKOFactoryProcessorComponent::CanAcceptItem(const FKOConveyorItem& Item) co
     {
         return false;
     }
+
+    if (!CanAcceptInputItemForSelectedRecipe(Item.ItemId))
+    {
+        return false;
+    }
+
     const int32* Current = InputBuffer.Find(Item.ItemId);
     return (Current ? *Current : 0) < MaxBufferPerItem;
 }
@@ -339,6 +387,56 @@ bool UKOFactoryProcessorComponent::PushItem(const FKOConveyorItem& Item)
     }
     // TryInsertItem 은 받지 못한 잔여를 반환. 1개 전부 받았으면 잔여 0.
     return TryInsertItem(Item.ItemId, 1) == 0;
+}
+
+void UKOFactoryProcessorComponent::LoadProcessorStateFromSave(
+    FName InSelectedRecipeId,
+    const TMap<FName, int32>& InInputBuffer,
+    const TMap<FName, int32>& InOutputBuffer,
+    FName InActiveRecipeId,
+    float InCurrentCycleSeconds,
+    float InProgress
+)
+{
+    SelectedRecipeId = InSelectedRecipeId;
+    InputBuffer = InInputBuffer;
+    OutputBuffer = InOutputBuffer;
+
+    for (auto It = InputBuffer.CreateIterator(); It; ++It)
+    {
+        if (It.Key().IsNone() || It.Value() <= 0)
+        {
+            It.RemoveCurrent();
+        }
+    }
+
+    for (auto It = OutputBuffer.CreateIterator(); It; ++It)
+    {
+        if (It.Key().IsNone() || It.Value() <= 0)
+        {
+            It.RemoveCurrent();
+        }
+    }
+
+    if (!InActiveRecipeId.IsNone() && InCurrentCycleSeconds > KINDA_SMALL_NUMBER)
+    {
+        ActiveRecipeId = InActiveRecipeId;
+        CurrentCycleSeconds = InCurrentCycleSeconds;
+        Progress = FMath::Clamp(InProgress, 0.f, CurrentCycleSeconds);
+        LastSupplyRatio = 0.f; // 로드 직후 압력/전력 공급을 다시 받을 때까지 진행 방지
+        SetState(EKOFactoryState::Running);
+    }
+    else
+    {
+        ActiveRecipeId = NAME_None;
+        CurrentCycleSeconds = 0.f;
+        Progress = 0.f;
+        LastSupplyRatio = 1.f;
+        SetState(EKOFactoryState::Idle);
+    }
+
+    BroadcastProcessorChanged();
+    BroadcastStateChanged();
 }
 
 // Internal Function
@@ -452,8 +550,16 @@ void UKOFactoryProcessorComponent::OnCycleComplete()
                     *Out.Key.ToString());
                 continue;
             }
+            const int32 ProducedCount = Out.Value;
+            
             int32& Current = OutputBuffer.FindOrAdd(ItemId);
             Current += Out.Value;
+            
+            // 퀘스트
+            if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+            {
+                QuestGuide->NotifyItemCrafted(ItemId, ProducedCount);
+            }
         }
     }
 
@@ -526,6 +632,44 @@ float UKOFactoryProcessorComponent::GetActiveRecipePowerPerSecond() const
     return Recipe ? FMath::Max(0.f, Recipe->PowerPerSecond) : 0.f;
 }
 
+bool UKOFactoryProcessorComponent::CanAcceptInputItemForSelectedRecipe(FName ItemId) const
+{
+    if (ItemId.IsNone())
+    {
+        return false;
+    }
+
+    // 레시피가 선택되지 않은 설비는 어떤 input도 받지 않는다.
+    if (SelectedRecipeId.IsNone())
+    {
+        return false;
+    }
+    
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    if (!LoadSub)
+    {
+        return false;
+    }
+
+    const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId);
+    if (!Selected)
+    {
+        return false;
+    }
+
+    // 선택된 레시피의 Inputs에 포함된 아이템인지 확인한다.
+    for (const TPair<FGameplayTag, int32>& In : Selected->Inputs)
+    {
+        const FName RequiredItemId = LoadSub->FindItemIdByTag(In.Key);
+        if (RequiredItemId == ItemId)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void UKOFactoryProcessorComponent::EvaluateAutoStart()
 {
     if (!bAutoStart || State == EKOFactoryState::Running)
@@ -556,9 +700,36 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
 {
     if (State == NewState)
     {
+        SetComponentTickEnabled(State == EKOFactoryState::Running);
+        
+        if (State != EKOFactoryState::Running)
+        {
+            if (AKOBaseBuilding* Building = GetOwnerBuilding())
+            {
+                Building->SetOperatingSoundActive(false);
+            }
+
+            bWasPressureShortage = false;
+        }
         return;
     }
+    
     State = NewState;
+    const bool bIsRunning = State == EKOFactoryState::Running;
+    // 제작 중에만 Tick 활성화
+    SetComponentTickEnabled(bIsRunning);
+
+    if (!bIsRunning)
+    {
+        // 재료 부족, 레시피 없음, 출력 막힘
+        // 모두 경고음 없이 가동음만 정지
+        if (AKOBaseBuilding* Building = GetOwnerBuilding())
+        {
+            Building->SetOperatingSoundActive(false);
+        }
+
+        bWasPressureShortage = false;
+    }
     BroadcastStateChanged();
     BroadcastProcessorChanged();
 }

@@ -39,14 +39,25 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
 	bool bIsGimmickDash = false;
  
+	UPROPERTY(EditAnywhere, Instanced, Category = "Dash")
+	TObjectPtr<UKO_HitData> HitData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash|SFX")
+	TObjectPtr<USoundBase> GimmickSuccessSFX;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dash")
+	TObjectPtr<UAnimMontage> PreDashMontage;
+	
 private:
-	// 발동 시점에 고정된 돌진 방향
 	FVector DashDirection = FVector::ZeroVector;
  
 	FTimerHandle DashTimerHandle;
 	FTimerHandle DashVelocityTimerHandle;
- 
-	// 충돌 이벤트
+	
+	FTimerHandle DashHitScanTimerHandle;
+	
+	TArray<TWeakObjectPtr<AActor>> DashedActors;
+	
 	UFUNCTION()
 	void OnDashHit(
 		UPrimitiveComponent* HitComponent,
@@ -58,6 +69,14 @@ private:
  
 	void StopDash();
 	void OnDashTimeOut();
+
+	void StartDash();
+
+	UFUNCTION()
+	void OnPreDashMontageCompleted();
+
+	UFUNCTION()
+	void OnPreDashMontageCancelled();
  
 	// 기믹 처리
 	void HandleGimmickPillarHit(AActor* PillarActor);

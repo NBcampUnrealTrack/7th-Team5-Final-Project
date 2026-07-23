@@ -1,10 +1,11 @@
 #pragma once
  
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Character/KOCharacterBase.h"
 #include "KOBossBase.generated.h"
 
-
+class UKOGroggySet;
 struct FOnAttributeChangeData;
 struct FStreamableHandle;
 class AKOBossBase;
@@ -15,7 +16,9 @@ class UStreamableHandle;
 DECLARE_MULTICAST_DELEGATE(FOnBossReady);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBossDetectedPlayer, AKOBossBase*);
 DECLARE_MULTICAST_DELEGATE(FOnBossDeathAnimEnd);
-DECLARE_MULTICAST_DELEGATE(FOnBossDied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossUIVisibleEvent,bool, bShouldVisible);
+
  
 UCLASS()
 class KARON_API AKOBossBase : public AKOCharacterBase
@@ -28,22 +31,60 @@ public:
 	// 외부 호출
 	UFUNCTION(BlueprintCallable, Category = "Boss")
 	void StartAsyncLoad(UKOBossDataAsset* InDataAsset);
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Groggy")
+	TObjectPtr<UKOGroggySet> GroggySet;
  
 	// 델리게이트
 	FOnBossReady OnBossReady;
 	FOnBossDetectedPlayer OnBossDetectedPlayer;
 	FOnBossDeathAnimEnd OnBossDeathAnimEnd;
+	
+	UPROPERTY(BlueprintAssignable)
 	FOnBossDied OnBossDied;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnBossUIVisibleEvent OnLockOnEvent;
 	
 	UKOBossDataAsset* GetDataAsset() const { return DataAsset; }
 	
 	void NotifyPlayerDetected();
+	void NotifyPlayerLost();
 	
 	void NotifyDeathAnimEnd();
 	
 	virtual void OnGroggyEnd() {}
 	
 	virtual void OnGroggyBegin() {}
+	
+	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
+	virtual void NotifyGimmickDashEnd() {}
+	
+	virtual void OnGimmickReady() {}
+	
+	virtual void TriggerGroggy() { OnGroggyBegin(); }
+	
+	virtual void OnDashSmokeBegin() {}
+	virtual void OnDashSmokeEnd() {}
+	
+	void RestoreToFull();
+	
+	// GA에서 타겟 읽기용 캐시
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentTarget;
+	
+	UPROPERTY()
+	FVector JumpTargetLocation = FVector::ZeroVector;
+	
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "KO|Save")
+	FName BossSaveId = NAME_None;
+	
+	// 세이브 로드
+	FName GetBossSaveId() const { return BossSaveId; }
+	void SetBossSaveIdForLoad(FName InBossSaveId) { BossSaveId = InBossSaveId; }
+	bool IsDeadForSave() const { return bIsDead; }
+	void RestoreBossFromSave(const FTransform& SavedTransform, bool bWasAlive);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -54,9 +95,6 @@ protected:
 	
 	virtual void OnBossDeath() {}
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attribute | Combat")
-	TObjectPtr<UKOCombatSet> CombatSet;
- 
 	UPROPERTY()
 	TObjectPtr<UKOBossDataAsset> DataAsset;
 	
@@ -67,6 +105,10 @@ protected:
 	// 기믹 준비 체력 비율
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss | Gimmick")
 	TArray<float> GimmickReadyRatios = {0.5f, 0.15f};
+	
+	/** 보스를 실제로 처치했을 때 획득할 영구 해금 태그 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KO|Boss|Reward", meta = (Categories = "Unlock.Core"))
+	FGameplayTag GrantedUnlockTag;
  
 private:
 	TSharedPtr<FStreamableHandle> StreamableHandle;
@@ -77,6 +119,9 @@ private:
 	void ApplyAbilities();
 	
 	bool bPlayerDetected = false;
+	
+	// 태그 지급
+	void GrantBossUnlockReward();
  
 	// 페이즈 관리
 public:

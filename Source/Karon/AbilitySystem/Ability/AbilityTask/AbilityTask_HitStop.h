@@ -15,12 +15,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta=(HidePin="OwningAbility", DefaultToSelf="OwningAbility"))
 	static UAbilityTask_HitStop* HitStop(
 		UGameplayAbility* OwningAbility,
+		AActor* TargetActor,
 		float Duration          = 0.06f,
 		float TimeDilation      = 0.0f,
 		bool  bAffectInstigator = true
 	);
 	
 	virtual void Activate() override;
+	
+	virtual void OnDestroy(bool bInOwnerFinished) override;
 	
 private:
 	void SetMeshAnimRate(USkeletalMeshComponent* Mesh, float Rate);
@@ -34,7 +37,7 @@ public:
 private:
 	float StopDuration;
 	float StopDilation;
-	bool  bAffectInstigatorToo;
+	bool bAffectInstigatorToo;
 	
 	FTimerHandle RecoveryTimer;
 	

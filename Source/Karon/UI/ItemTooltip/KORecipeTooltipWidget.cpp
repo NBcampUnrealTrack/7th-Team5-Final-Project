@@ -8,12 +8,15 @@
 
 void UKORecipeTooltipWidget::SetRecipe(FName RecipeId)
 {
-	if (!RecipeText)
+	if (RecipeinputText)
 	{
-		return;
+		RecipeinputText->SetText(FText::GetEmpty());
 	}
-
-	RecipeText->SetText(FText::GetEmpty());
+	
+	if (RecipeoutputText)
+	{
+		RecipeoutputText->SetText(FText::GetEmpty());
+	}
 
 	if (RecipeId.IsNone())
 	{
@@ -48,7 +51,6 @@ void UKORecipeTooltipWidget::SetRecipe(FName RecipeId)
 	const FString InputText = MakeItemListText(Recipe->Inputs);
 	const FString OutputText = MakeItemListText(Recipe->Outputs);
 
-	RecipeText->SetText(
-		FText::FromString(
-			FString::Printf(TEXT("%s  →  %s"), *InputText, *OutputText)));
+	RecipeinputText->SetText(FText::FromString(InputText));
+	RecipeoutputText->SetText(FText::FromString(OutputText));
 }

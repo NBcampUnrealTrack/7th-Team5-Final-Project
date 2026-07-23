@@ -11,10 +11,18 @@ class UImage;
 class UBorder;
 class UTexture2D;
 class UTextBlock;
+class UWidgetSwitcher;
 class UDragDropOperation;
 class UKOBuildUIComponent;
 class UKOInventoryComponent;
 class UKOItemTooltipWidget;
+
+UENUM(BlueprintType)
+enum class EKOQuickSlotBarDisplayMode : uint8
+{
+	Inventory,
+	BuildMode
+};
 
 UCLASS()
 class KARON_API UKOBuildQuickSlotWidget : public UUserWidget, public IKOGMSInterface
@@ -31,6 +39,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
 	void RefreshSlot();
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|QuickSlot")
+	void SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode);
+
+	UFUNCTION(BlueprintPure, Category = "Build|QuickSlot")
+	EKOQuickSlotBarDisplayMode GetDisplayMode() const { return DisplayMode; }
+
+	bool IsBuildModeVisualEnabled() const{ return DisplayMode == EKOQuickSlotBarDisplayMode::BuildMode; }
 
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -50,13 +66,16 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot", meta = (ExposeOnSpawn = "true"))
 	int32 SlotIndex = 0;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
-	TObjectPtr<UTexture2D> EmptySlotIcon = nullptr;
+	EKOQuickSlotBarDisplayMode DisplayMode = EKOQuickSlotBarDisplayMode::BuildMode;
 
 	/** SlotIconImage에 강제할 Desired Size (정사각). SetBrushFromTexture가 텍스처 원본 해상도로 ImageSize를 덮어쓰는 문제 방지용. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build|QuickSlot")
 	float SlotIconSize = 64.f;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWidgetSwitcher> SlotStateSwitcher;
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> SlotIconImage;
@@ -79,6 +98,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Tooltip")
 	TSubclassOf<UKOItemTooltipWidget> TooltipClass;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UBorder> QuestHighlightBorder;
 	
 private:
 	UKOBuildUIComponent* GetBuildUIComponent() const;

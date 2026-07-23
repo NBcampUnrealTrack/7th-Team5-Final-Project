@@ -14,23 +14,25 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleBuildMode);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Confirm);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_ToggleDestroy);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleInventory);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Cancel);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Escape);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot1);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot2);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleSKillTree);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot3);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot4);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_QuickSlot5);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_Build_Rotate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleMap);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleFactoryCraft);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_OpenPlayerMenu);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_BuildInventory);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Native_ToggleESC);
 	
 	// ── Input | Ability | Movement ────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Sprint);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Roll);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Movement_Dodge);
+	
 
     // ── Input | Ability | Attack ──────────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Combo);
@@ -38,16 +40,25 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Heavy);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Charge);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Attack_Dash);
+	
 
     // ── Input | Ability | Interaction ─────────────────────────────
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Interaction);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Combat_Guard);
 	
 	// ── Input | Ability | Utility ─────────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_DrawWeapon);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_SheatheWeapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Utility_UsePotion);
 	
     // ── Input | Ability | CoreSkill ───────────────────────────────
-    // UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_CoreSkill_);
-
+	
+    // ── Input | Ability | Skill ───────────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_Plunge);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DimensionSever);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_DiveSlash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_FlashStrike);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Skill_BladeDance);
 }

@@ -13,6 +13,9 @@ UKOGA_Movement_Jump::UKOGA_Movement_Jump()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	 SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Jump)); 
+	
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
 }
 
 bool UKOGA_Movement_Jump::CanActivateAbility(
@@ -49,21 +52,6 @@ void UKOGA_Movement_Jump::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
-	// 1. 락온 중인 경우 
-	if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_LockOn))
-	{
-		FGameplayTag EventTag = KOGameplayTags::Event_Movement_Jump_LockOn;
-		FGameplayEventData EventData;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Character, EventTag, EventData);
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	// TODO: 
-	// 2. 파쿠르 
-	
 	
 	
 	// 3. 그냥 점프 

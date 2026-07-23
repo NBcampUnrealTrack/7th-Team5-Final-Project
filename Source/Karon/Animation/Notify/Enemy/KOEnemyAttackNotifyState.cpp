@@ -2,11 +2,13 @@
 
 #include "AbilitySystemComponent.h"
 #include "Karon.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "AbilitySystem/Ability/Enemy/KOEnemyAttackGameplayAbility.h"
+#include "AbilitySystem/Ability/Enemy/KOEnemyGameplayAbility.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
-
+#include "Data/Character/Enemy/KOEnemyDebugUserSettings.h"
+#include "Data/KO_HitData.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -19,23 +21,25 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyBegin(FBranchingPointNotifyP
 {
 	Super::BranchingPointNotifyBegin(BranchingPointPayload);
 	USkeletalMeshComponent* MeshComp = BranchingPointPayload.SkelMeshComponent;
-	if (!MeshComp ||
-		!MeshComp->GetOwner() ||
-		!MeshComp->GetAnimInstance())
+	
+	if (!MeshComp || !MeshComp->GetOwner() || !MeshComp->GetAnimInstance())
 	{
 		return;
 	}
+	
 	AKOBaseEnemy* Enemy = Cast<AKOBaseEnemy>(MeshComp->GetOwner());
 	if (!Enemy)
 	{
 		return;
 	}
+	
 	UAbilitySystemComponent* AbilitySystemComponent = Enemy->GetAbilitySystemComponent();
 	if (!AbilitySystemComponent)
 	{
 		return;
 	}
-	UKOEnemyAttackGameplayAbility* EnemyGA = Cast<UKOEnemyAttackGameplayAbility>(
+	
+	UKOEnemyGameplayAbility* EnemyGA = Cast<UKOEnemyGameplayAbility>(
 		AbilitySystemComponent->GetAnimatingAbility());
 	if (EnemyGA)
 	{
@@ -61,8 +65,11 @@ void UKOEnemyAttackNotifyState::BranchingPointNotifyEnd(FBranchingPointNotifyPay
 	CachedAbilities.Remove(MeshComp);
 }
 
-void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                           float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
+void UKOEnemyAttackNotifyState::NotifyTick(
+	USkeletalMeshComponent* MeshComp,
+	UAnimSequenceBase* Animation,
+	float FrameDeltaTime, 
+	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
@@ -87,6 +94,8 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 	FHitResult HitResult;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Enemy);
+	//에디터 개인설정(Editor Preferences > Karon > Enemy Debug)에서 일괄 컨트롤
+	const bool bShowDebug = GetDefault<UKOEnemyDebugUserSettings>()->bShowAttackTraceDebug;
 	EDrawDebugTrace::Type DebugType = bShowDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
 
 	//ECC_Player 채널로 Single Trace, 플레이어만 콜리전 가능
@@ -106,6 +115,7 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 		FLinearColor::Green, // TraceHitColor
 		2.0f // DrawTime
 	);
+	
 	//이전 소켓의 위치를 갱신
 	CachedAbilities[MeshComp]->PresentAttackSocketLocation = CachedAbilities[MeshComp]->CurrentAttackSocketLocation;
 	//피격되지 않았으면 Early Return
@@ -129,8 +139,33 @@ void UKOEnemyAttackNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAn
 	//Event_SkillHit 태그로 전달
 	FGameplayEventData HitGameplayEventData;
 	HitGameplayEventData.Target = HittedActor;
-	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_SkillHit, &HitGameplayEventData);
+	
+	if (HitData)
+	{
+		HitGameplayEventData.OptionalObject = HitData.Get();
+	}
+	
+	Enemy->GetAbilitySystemComponent()->HandleGameplayEvent(KOGameplayTags::Event_Hit, &HitGameplayEventData);
 	//재타격 방지
 	CachedAbilities[MeshComp]->bIsAttacked=true;
+	
+	//히트 이펙트
+	if (ImpactEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ImpactEffect: %s"), *ImpactEffect->GetName());
+		FVector SpawnLocation = HitResult.ImpactPoint;
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			Enemy->GetWorld(),
+			ImpactEffect,
+			SpawnLocation,
+			SpawnRotation,
+			FVector(1.f),
+			true
+		);
+		
+		UE_LOG(LogTemp,Warning,TEXT("%s"),*SpawnLocation.ToString());
+	}
 }
 

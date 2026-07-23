@@ -26,7 +26,7 @@ public:
 	float CurrentValue = 0.f;
 };
 
-#if WITH_EDITOR
+
 
 UCLASS()
 class KARON_API UUKOGASDebugLibrary : public UBlueprintFunctionLibrary
@@ -75,4 +75,4 @@ public:
 	static void SetAttributeBaseValue(AActor* TargetActor, const FString& AttributeName, float NewValue);
 };
 
-#endif
+

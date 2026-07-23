@@ -3,12 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "KOEnemyProjectileActor.generated.h"
+class UGameplayAbility;
+class UNiagaraComponent;
 class UGameplayEffect;
 class UProjectileMovementComponent;
 class USphereComponent;
 class AKOBaseEnemy;
+class UKO_HitData;
 /**
  * 소환한 대상의 정면 방향으로 날아가며 Sphere Trace를 진행해, 맞으면 데미지를 입힙니다.
  */
@@ -22,6 +26,16 @@ public:
 	AKOEnemyProjectileActor();
 	void SetActiveAndCollision(bool InActive);
 	void SetProjectile(AKOBaseEnemy* InEnemy,float AttackPoint,float DamageMultiplier);
+	
+	FORCEINLINE void SetHitData(const UKO_HitData* InHitData) 
+	{ 
+		CachedHitData = InHitData; 
+	}
+	
+	FORCEINLINE FGameplayTag GetProjectileTag() const
+	{
+		return ProjectileTag;
+	}
 	
 protected:
 	// Called when the game starts or when spawned
@@ -38,6 +52,9 @@ protected:
 	void LifeTimeEnd();
 	void ReturnToPool();
 
+	UPROPERTY()
+	const UKO_HitData* CachedHitData;
+	
 private:
 	UPROPERTY(VisibleAnywhere)
 	float ProjectileSpeed=1000.0f;	
@@ -61,6 +78,11 @@ private:
 	UPROPERTY()
 	FTimerHandle TimerHandle;
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UNiagaraComponent> TrailEffectComponent;
+	
+	UPROPERTY()
+	FGameplayTag ProjectileTag;
 	
 	float ProjectileDamage=0.0f;	
 };

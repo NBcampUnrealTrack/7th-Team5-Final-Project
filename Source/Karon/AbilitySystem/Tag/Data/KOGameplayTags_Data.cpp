@@ -4,17 +4,55 @@ namespace KOGameplayTags
 {
 	// ───────────────────────── Data ───────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health, "Data.Attribute.Health");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Damage, "Data.Attribute.Health.Damage");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Healing, "Data.Attribute.Health.Healing");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Current, "Data.Attribute.Health.Current");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Health_Max, "Data.Attribute.Health.Max");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Healing, "Data.Healing");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_AttackCoefficient, "Data.AttackCoefficient"); 
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina, "Data.Attribute.Stamina");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Current, "Data.Attribute.Stamina.Current");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Stamina_Max, "Data.Attribute.Stamina.Max");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_StaminaDrain, "Data.StaminaDrain");
+	UE_DEFINE_GAMEPLAY_TAG(Data_StaminaRegen, "Data.StaminaRegen");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement, "Data.Attribute.Movement");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_WalkSpeed, "Data.Attribute.Movement.WalkSpeed");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_MaxAcceleration, "Data.Attribute.Movement.MaxAcceleration");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_GroundFriction, "Data.Attribute.Movement.GroundFriction");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_BrakingDeceleration, "Data.Attribute.Movement.BrakingDeceleration");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_MaxWalkSpeedCrouch, "Data.Attribute.Movement.MaxWalkSpeedCrouch");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_JumpStrength, "Data.Attribute.Movement.JumpStrength");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Movement_GravityScale, "Data.Attribute.Movement.GravityScale");
+	
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat, "Data.Attribute.Combat");
-
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_AttackPower, "Data.Attribute.Combat.AttackPower");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_AttackSpeed, "Data.Attribute.Combat.AttackSpeed");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritChance, "Data.Attribute.Combat.CritChance");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_CritMultiplier, "Data.Attribute.Combat.CritMultiplier");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_Defense, "Data.Attribute.Combat.Defense");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Attribute_Combat_Clock, "Data.Attribute.Combat.Clock");
+	
+	
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime, "Data.CoolTime");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Guard, "Data.CoolTime.Guard");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Skill_CoolTime, "Data.Skill.CoolTime");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_LockOn, "Data.CoolTime.LockOn");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Attack, "Data.CoolTime.Attack");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Sprint, "Data.CoolTime.Sprintw");
 	UE_DEFINE_GAMEPLAY_TAG(Data_DebuffTime, "Data.DebuffTime");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Damage, "Data.Damage");
+	
+	// ───────────────────────── Character Skill Cool Time Data ────────────────────────────
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_Plunge, "Data.CoolTime.Character.Plunge");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_DimensionSever, "Data.CoolTime.Character.DimensionSever");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_DiveSlash, "Data.CoolTime.Character.DiveSlash");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_FlashStrike, "Data.CoolTime.Character.FlashStrike");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_Character_BladeDance, "Data.CoolTime.Character.BladeDance");
 	
 	// ───────────────────────── Boss Cool Time Data ────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundSlap, "Data.CoolTime.BossCH01.GroundSlap");
@@ -22,6 +60,15 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_GroundHitL, "Data.CoolTime.BossCH01.GroundHit");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_ShockWave, "Data.CoolTime.BossCH01.ShockWave");
 	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_Dash, "Data.CoolTime.BossCH01.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH01_Jump, "Data.CoolTime.BossCH01.Jump");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_Smash, "Data.CoolTime.BossCH02.Smash");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_SmashSlam, "Data.CoolTime.BossCH02.SmashSlam");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_GroundExplosion, "Data.CoolTime.BossCH02.GroundExplosion");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_GroundFall, "Data.CoolTime.BossCH02.GroundFall");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_ScatterFlame, "Data.CoolTime.BossCH02.ScatterFlame");
+	UE_DEFINE_GAMEPLAY_TAG(Data_CoolTime_BossCH02_Jump, "Data.CoolTime.BossCH02.Jump");
+	
 	
 	// ─── Data / Message Channels ──────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Inventory_Changed,    "Data.Message.Inventory.Changed");
@@ -33,6 +80,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Producer_FuelChanged,   "Data.Message.Producer.FuelChanged");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Processor_Changed,      "Data.Message.Processor.Changed");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_QuickSlotSelectionChanged, "Data.Message.Build.QuickSlotSelectionChanged");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_ModeChanged, "Data.Message.Build.ModeChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Build_ModeChanged,          "Data.Message.Build.ModeChanged");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Message_Skill_QuickSlotChanged,     "Data.Message.Skill.QuickSlotChanged");
 
 }

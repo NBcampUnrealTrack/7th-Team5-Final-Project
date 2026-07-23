@@ -14,6 +14,7 @@ void UKOGA_Skill_DimensionSever::ExecuteAttack(float ChargePercentage)
 	
 	if (AttackMontage)
 	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] 실행."), *GetName());
 		AttackMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
 			NAME_None,

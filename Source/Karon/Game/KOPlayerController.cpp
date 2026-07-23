@@ -3,20 +3,27 @@
 #include "AbilitySystemInterface.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/KOAbilitySystemComponent.h"
+#include "Character/KOCharacterBase.h"
 #include "Component/Input/KOInputComponent.h"
 #include "Component/Interaction/KOInteractionComponent.h"
 #include "Component/Build/KOGridBuildComponent.h"
 #include "Component/Inventory/KOInventoryComponent.h"
-#include "Component/Skill/KOSkillComponent.h"
 #include "Component/Build/KOBuildUIComponent.h"
+#include "Component/Camera/KOCameraManager.h"
 #include "UI/Map/KOMapUIComponent.h"
 #include "UI/KOUISubsystem.h"
+#include "UI/KOPlayerMenuWidget.h"
+#include "UI/Loading/KOLoadingUiSubsystem.h"
+#include "UI/Option/KOOptionWidget.h"
 #include "Utility/Log/KOLogManager.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 #include "StructUtils/InstancedStruct.h"
 #include "Engine/GameInstance.h"
 #include "Items/KOItemSlot.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
+#include "AudioDevice.h"
 
 class AKOMapUIComponent;
 struct FKOBuildModeChangedMessage;
@@ -24,18 +31,28 @@ struct FKOBuildModeChangedMessage;
 AKOPlayerController::AKOPlayerController()
 {
 	InteractionComponent = CreateDefaultSubobject<UKOInteractionComponent>(TEXT("InteractionComponent"));
-	GridBuildComponent   = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
-	BuildUIComponent     = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
-	InventoryComponent   = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
-	SkillComponent       = CreateDefaultSubobject<UKOSkillComponent>(TEXT("SkillComponent"));
-	MapUIComponent		 = CreateDefaultSubobject<UKOMapUIComponent>(TEXT("MapUIComponent"));
+	GridBuildComponent = CreateDefaultSubobject<UKOGridBuildComponent>(TEXT("GridBuildComponent"));
+	BuildUIComponent = CreateDefaultSubobject<UKOBuildUIComponent>(TEXT("BuildUIComponent"));
+	InventoryComponent = CreateDefaultSubobject<UKOInventoryComponent>(TEXT("InventoryComponent"));
+	MapUIComponent = CreateDefaultSubobject<UKOMapUIComponent>(TEXT("MapUIComponent"));
+}
+
+void AKOPlayerController::OnItemReceived(FGameplayTag Channel, const FInstancedStruct& Payload)
+{
+	//원하는 구조체로 형변환
+	if (const FKODropItemMessage* ItemMessage = Payload.GetPtr<FKODropItemMessage>())
+	{
+		//아이템 추가
+		TryAddItemWithUI(ItemMessage->ItemId, ItemMessage->Count);
+	}
 }
 
 void AKOPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultIMC, 0);
 	}
@@ -45,7 +62,7 @@ void AKOPlayerController::BeginPlay()
 	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 	{
 		UISubsystem->SetRootLayout(KOGameplayTags::UI_Layout_InGame);
-		
+
 		if (GetPawn())
 		{
 			UISubsystem->OpenWidget(GetWorld(), KOGameplayTags::UI_Widget_InGameHUD);
@@ -69,138 +86,41 @@ void AKOPlayerController::BeginPlay()
 		KOGameplayTags::Data_Message_Build_ModeChanged,
 		BuildModeChangedCallback);
 
-#if !(UE_BUILD_SHIPPING)
-	if (UKOInventoryComponent* FoundInventoryComponent  = FindComponentByClass<UKOInventoryComponent>())
+	GiveStarterItems();
+
+	FGameplayTag Channel = KOGameplayTags::Event_DropItem;
+	FGameplayMessageCallback Callback;
+	Callback.BindDynamic(this, &AKOPlayerController::OnItemReceived);
+	FGameplayMessageHandle MessageHandle = UGMRouterSubsystem::Subscribe(GetWorld(), Channel, Callback);
+	
+	if (IsLocalController() && DefaultSoundMix)
 	{
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("ModuleDismantler"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("Boiler"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("PressurePipe"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("AlloyMaker"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("GearPress"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("PipeWorkshop"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("UndergroundMiningModule"),
-			1
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("WeaponWorkbench"),
-			1
-		);
-		
-		// 아이템 -----------------------------------------
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BasicModule"),
-			50
-		);
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Coal"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("CoalDust"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Copper"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Tin"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Bronze"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BronzePlate"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("DamagedMiningPipe"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("MiningPipe"),
-			50
-		);
-
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("StraightBelt"),
-			20
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Factory,
-			TEXT("CornerBelt"),
-			20
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("Gear"),
-			50
-		);
-		
-		FoundInventoryComponent ->TryAddItem(
-			EKOSlotKind::Item,
-			TEXT("BronzeSword"),
-			1
-		);
+		if (FAudioDevice* AudioDevice = GetWorld()->GetAudioDeviceRaw())
+		{
+			AudioDevice->PushSoundMixModifier(DefaultSoundMix);
+			
+			UE_LOG(LogTemp, Log, TEXT("Default Sound Mix (%s) successfully pushed"), *DefaultSoundMix->GetName());
+		}
 	}
-#endif
+	
+	// 게임 로드
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (SaveSubsystem->ConsumeLobbyLoadRequest())
+		{
+			GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this]()
+				{
+					if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+					{
+						SaveSubsystem->LoadCurrentGame();
+					}
+				})
+			);
+		}
+	}
+
+	// 저장된 옵션(사운드/그래픽스)을 게임 시작 시점에 실제 출력에 동기화.
+	UKOOptionWidget::SyncSavedOptionsToRuntime(this);
 }
 
 void AKOPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -228,9 +148,20 @@ void AKOPlayerController::OnBuildModeChanged(FGameplayTag /*Channel*/, const FIn
 	{
 		return;
 	}
+	
+	if (Message->NewMode != EKOGridBuildMode::BuildMenu)
+	{
+		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+		{
+			if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_BuildInventory))
+			{
+				UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+			}
+		}
+	}
 
 	const bool bWasActive = Message->PreviousMode != EKOGridBuildMode::None;
-	const bool bIsActive  = Message->NewMode != EKOGridBuildMode::None;
+	const bool bIsActive = Message->NewMode != EKOGridBuildMode::None;
 
 	if (bIsActive && !bWasActive)
 	{
@@ -240,6 +171,270 @@ void AKOPlayerController::OnBuildModeChanged(FGameplayTag /*Channel*/, const FIn
 	{
 		ExitBuildIMC();
 	}
+}
+
+void AKOPlayerController::LoadOrCreateNewGame()
+{
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (SaveSubsystem->LoadCurrentGame())
+		{
+			return;
+		}
+	}
+
+	GiveStarterItems();
+}
+
+void AKOPlayerController::GiveStarterItems()
+{
+	UKOInventoryComponent* FoundInventoryComponent = FindComponentByClass<UKOInventoryComponent>();
+
+	if (!FoundInventoryComponent)
+	{
+		return;
+	}
+
+#if !UE_BUILD_SHIPPING
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("Boiler"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("UndergroundMiningModule"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("MiningPipe"),
+		50
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("GearPress"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Gear"),
+		14
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("ModuleDismantler"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("AlloyMaker"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("GearPress"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("RollingMill"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("PipeWorkshop"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("HerbFarm"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("JuicePress"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Factory,
+		TEXT("PotionBrewer"),
+		1
+	);
+	// 아이템 -----------------------------------------
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("BasicModule"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Coal"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Copper"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("CopperPlate"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Tin"),
+		50
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("BronzePlate"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Bronze"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Gear"),
+		50
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("DamagedMiningPipe"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Sword"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Hammer"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("GreatSword"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Head"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("UpperBody"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("LowerBody"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Shoes"),
+		1
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HerbSeed"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Herb"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HerbJuice"),
+		50
+	);
+
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("HealingPotion"),
+		1
+	);
+	
+	// 코어 -----------------------------------------
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Earth"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Water"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Fire"),
+		1
+	);
+	
+	FoundInventoryComponent->TryAddItem(
+		EKOSlotKind::Item,
+		TEXT("Lightning"),
+		1
+	);
+	
+#endif
+	
+	//불의 코어는 초기 지급
+	FoundInventoryComponent->TryAddItem(
+	EKOSlotKind::Item,
+	TEXT("Fire"),
+	1
+);
+	
+	
+}
+
+float AKOPlayerController::GetTimeSinceLastLookInput() const
+{
+	return GetWorld()->GetTimeSeconds() - LastLookInputTime;
 }
 
 void AKOPlayerController::SetupInputComponent()
@@ -262,12 +457,12 @@ void AKOPlayerController::SetupInputComponent()
 		);
 
 		KOIC->BindNativeAction(
-		InputConfig,
-		KOGameplayTags::Input_Native_Look,
-		ETriggerEvent::Triggered,
-		this,
-		&ThisClass::Input_Look,
-		true
+			InputConfig,
+			KOGameplayTags::Input_Native_Look,
+			ETriggerEvent::Triggered,
+			this,
+			&ThisClass::Input_Look,
+			true
 		);
 
 		KOIC->BindNativeAction(
@@ -323,7 +518,7 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_SelectBuildQuickSlot1,
 			true
 		);
-		
+
 		KOIC->BindNativeAction(
 			InputConfig,
 			KOGameplayTags::Input_Native_Build_QuickSlot2,
@@ -362,10 +557,19 @@ void AKOPlayerController::SetupInputComponent()
 
 		KOIC->BindNativeAction(
 			InputConfig,
-			KOGameplayTags::Input_Native_ToggleInventory,
+			KOGameplayTags::Input_Native_OpenPlayerMenu,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_OpenInventory,
+			&ThisClass::Input_OpenPlayerMenu,
+			true
+		);
+
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_BuildInventory,
+			ETriggerEvent::Started,
+			this,
+			&ThisClass::Input_BuildInventory,
 			true
 		);
 
@@ -378,16 +582,7 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_AbilityReleased,
 			BindHandles
 		);
-		
-		KOIC->BindNativeAction(
-			InputConfig,
-			KOGameplayTags::Input_Native_ToggleSKillTree,
-			ETriggerEvent::Started,
-			this,
-			&ThisClass::Input_OpenSkillTree,
-			true
-		);
-		
+
 		KOIC->BindNativeAction(
 			InputConfig,
 			KOGameplayTags::Input_Native_Build_Rotate,
@@ -396,7 +591,7 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_BuildRotate,
 			true
 		);
-		
+
 		KOIC->BindNativeAction(
 			InputConfig,
 			KOGameplayTags::Input_Native_ToggleMap,
@@ -405,15 +600,55 @@ void AKOPlayerController::SetupInputComponent()
 			&ThisClass::Input_ToggleMap,
 			true
 		);
-		
-		KOIC->BindNativeAction(
-			InputConfig,
-			KOGameplayTags::Input_Native_ToggleFactoryCraft,
+
+		KOIC->BindAction(
+			IAWeapon,
 			ETriggerEvent::Started,
 			this,
-			&ThisClass::Input_OpenFactoryCraft,
+			&ThisClass::Input_Weapon
+		);
+
+		// ESC: 모든 위젯이 닫힌 상태에서 눌리면 PlayerMenu의 Option 탭을 연다.
+		// 위젯이 열려 있을 때의 ESC는 CommonUI Back이 먼저 소비하므로 이 바인딩까지 도달하지 않는다.
+		KOIC->BindNativeAction(
+			InputConfig,
+			KOGameplayTags::Input_Native_ToggleESC,
+			ETriggerEvent::Triggered,
+			this,
+			&ThisClass::Input_OpenOptionMenu,
 			true
 		);
+	}
+}
+
+void AKOPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	if (auto* LoadingSubsystem = GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>())
+	{
+		LoadingSubsystem->HideLoadingScreen();
+	}
+	
+	if (AKOCameraManager* CameraManager = Cast<AKOCameraManager>(PlayerCameraManager))
+	{
+		if (ACharacter* MyChar = Cast<ACharacter>(InPawn))
+		{
+			CameraManager->InitModifiersWithCharacter(MyChar);
+		}
+	}
+}
+
+void AKOPlayerController::UpdateRotation(float DeltaTime)
+{
+	Super::UpdateRotation(DeltaTime);
+	
+	if (AKOCameraManager* Manager = Cast<AKOCameraManager>(PlayerCameraManager))
+	{
+		FRotator BaseRotation = GetControlRotation();
+		FRotator ModifiedRotation = Manager->GetModifiedControlRotation(DeltaTime, BaseRotation);
+		
+		SetControlRotation(ModifiedRotation);
 	}
 }
 
@@ -422,6 +657,18 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 	APawn* ControlledPawn = GetPawn();
 	if (!ControlledPawn) return;
 
+	if (IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(ControlledPawn))
+	{
+		if (UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent())
+		{
+			if (ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_HitReacting) 
+				|| ASC->HasMatchingGameplayTag(KOGameplayTags::State_Character_Attacking))
+			{
+				return; 
+			}
+		}
+	}
+	
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator MoveRotation(0.f, GetControlRotation().Yaw, 0.f);
 
@@ -435,13 +682,18 @@ void AKOPlayerController::Input_Move(const FInputActionValue& Value)
 void AKOPlayerController::Input_Look(const FInputActionValue& Value)
 {
 	const FVector2D LookValue = Value.Get<FVector2D>();
+	
+	if (LookValue.SizeSquared() > 0.01f)
+	{
+		LastLookInputTime = GetWorld()->GetTimeSeconds();
+	}
 
-	AddYawInput(LookValue.X);
-	AddPitchInput(LookValue.Y);
+	AddYawInput(LookValue.X * LookLeftRightRate);
+	AddPitchInput(LookValue.Y * LookUpDownRate);
 }
 
 void AKOPlayerController::Input_AbilityPressed(FGameplayTag InputTag)
-{	
+{
 	if (IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(GetPawn()))
 	{
 		if (UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent()))
@@ -460,15 +712,15 @@ void AKOPlayerController::Input_AbilityReleased(FGameplayTag InputTag)
 	UKOAbilitySystemComponent* KOASC = Cast<UKOAbilitySystemComponent>(ASI->GetAbilitySystemComponent());
 	if (!KOASC) return;
 
-	KO_LOG(Input, Log, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
+	KO_LOG(Input, Verbose, TEXT("[PlayerController] : %s Released."), *InputTag.GetTagName().ToString());
 	KOASC->AbilityInputTagReleased(InputTag);
 }
 
 void AKOPlayerController::Input_Interact(const FInputActionValue& /*Value*/)
 {
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
+	if (BuildUIComponent)
 	{
-		BuildUIComponent->CloseBuildMenu();
+		BuildUIComponent->CancelDestroyModeForInteract();
 	}
 	
 	if (InteractionComponent)
@@ -487,11 +739,9 @@ void AKOPlayerController::Input_OpenBuildMode(const FInputActionValue& /*Value*/
 	// 열기 전용. 이미 열려 있으면 무시(닫기는 Back). IMC 전환은 OnBuildModeChanged가 담당.
 	if (BuildUIComponent->IsBuildMenuOpen())
 	{
+		BuildUIComponent->CloseBuildMenu();
 		return;
 	}
-
-	// 건설 진입 시 인벤토리는 닫는다.
-	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
 
 	BuildUIComponent->OpenBuildMenu();
 }
@@ -583,15 +833,72 @@ void AKOPlayerController::Input_BuildRotate(const FInputActionValue& Value)
 	BuildUIComponent->RotateBuildPreview(Direction);
 }
 
-void AKOPlayerController::Input_OpenInventory(const FInputActionValue& /*Value*/)
+void AKOPlayerController::Input_BuildInventory(const FInputActionValue& Value)
 {
-	// 건설 중에는 인벤토리를 열지 않는다.
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
+	if (!GridBuildComponent && !BuildUIComponent)
+	{
+		return;
+	}
+	
+	const EKOGridBuildMode CurrentMode = GridBuildComponent->GetCurrentMode();
+
+	if (CurrentMode == EKOGridBuildMode::Placing || CurrentMode == EKOGridBuildMode::Destroying)
+	{
+		BuildUIComponent->CancelBuildAction();
+	}
+
+	if (GridBuildComponent->GetCurrentMode() != EKOGridBuildMode::BuildMenu)
 	{
 		return;
 	}
 
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Inventory);
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_BuildInventory))
+		{
+			UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+			return;
+		}
+	}
+
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_BuildInventory);
+}
+
+void AKOPlayerController::Input_OpenPlayerMenu(const FInputActionValue& /*Value*/)
+{
+	if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+	{
+		if (UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_PlayerMenu))
+		{
+			UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+			return;
+		}
+	}
+
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_PlayerMenu);
+}
+
+void AKOPlayerController::Input_OpenOptionMenu()
+{
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
+	if (UISubsystem == nullptr)
+	{
+		return;
+	}
+
+	// 이미 열려 있는 메뉴/모달이 있으면 CommonUI Back이 ESC를 처리하므로 개입하지 않는다.
+	if (!UISubsystem->AreAllMenusClosed())
+	{
+		return;
+	}
+
+	UCommonActivatableWidget* Widget = UISubsystem->OpenWidget(KOGameplayTags::UI_Widget_PlayerMenu);
+
+	// NativeOnActivated가 Inventory 탭으로 초기화하므로, 활성화 직후 Option 탭으로 전환한다.
+	if (UKOPlayerMenuWidget* PlayerMenu = Cast<UKOPlayerMenuWidget>(Widget))
+	{
+		PlayerMenu->SetActiveTab(EKOPlayerMenuTab::Option);
+	}
 }
 
 void AKOPlayerController::EnterBuildIMC()
@@ -600,13 +907,25 @@ void AKOPlayerController::EnterBuildIMC()
 	{
 		return;
 	}
-	
+
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	if (Subsystem && BuildIMC)
+	if (!Subsystem)
 	{
-		Subsystem->AddMappingContext(BuildIMC, 1);
+		return;
+	}
+
+	// 기본 입력 제거
+	if (DefaultIMC)
+	{
+		Subsystem->RemoveMappingContext(DefaultIMC);
+	}
+
+	// 빌드 입력 추가
+	if (BuildIMC)
+	{
+		Subsystem->AddMappingContext(BuildIMC, 0);
 	}
 
 	bBuildIMCActive = true;
@@ -622,18 +941,46 @@ void AKOPlayerController::ExitBuildIMC()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	if (Subsystem && BuildIMC)
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	// 빌드 입력 제거
+	if (BuildIMC)
 	{
 		Subsystem->RemoveMappingContext(BuildIMC);
+	}
+
+	// 기본 입력 복구
+	if (DefaultIMC)
+	{
+		Subsystem->AddMappingContext(DefaultIMC, 0);
 	}
 
 	bBuildIMCActive = false;
 }
 
-void AKOPlayerController::Input_OpenSkillTree(const FInputActionValue& /*Value*/)
+void AKOPlayerController::TryAddItemWithUI(FName ItemId, int32 Count)
 {
-	// 열기 전용. 닫기는 Back(스킬트리 팝업의 bIsBackHandler).
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_SkillTree);
+	if (UKOInventoryComponent* FoundInventoryComponent = FindComponentByClass<UKOInventoryComponent>())
+	{
+		const int32 Rejected = FoundInventoryComponent->TryAddItem(
+			EKOSlotKind::Item,
+			ItemId,
+			Count
+		);
+		
+		const int32 Added = Count - Rejected;
+
+		if (Added > 0)
+		{
+			if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+			{
+				QuestGuide->NotifyItemCollected(ItemId, Added);
+			}
+		}
+	}
 }
 
 void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
@@ -644,17 +991,7 @@ void AKOPlayerController::Input_ToggleMap(const FInputActionValue& Value)
 	}
 }
 
-void AKOPlayerController::Input_OpenFactoryCraft(const FInputActionValue& Value)
+void AKOPlayerController::Input_Weapon(const FInputActionValue& Value)
 {
-	// 건설 중에는 설비 제작 UI를 열지 않는다.
-	if (BuildUIComponent && BuildUIComponent->IsBuildMenuOpen())
-	{
-		return;
-	}
-
-	// 인벤토리가 열려 있으면 닫는다.
-	UKOUISubsystem::CloseWidget(this, KOGameplayTags::UI_Widget_Inventory);
-
-	// 설비 제작 UI 열기
-	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_FactoryCraft);
+	OnWeaponCreate.Broadcast();
 }

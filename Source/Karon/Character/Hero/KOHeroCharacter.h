@@ -7,12 +7,13 @@
 
 class UMotionWarpingComponent;
 class UKOLockOnComponent;
-class USpringArmComponent;
-class UCameraComponent;
+class UKOSpringArmComponent;
+class UKOCameraComponent;
 class UKOPreCMCTickComponent;
 class UCharacterTrajectoryComponent;
-class UKOStaminaSet; 
+class UKOStaminaSet;
 class UKOCombatSet;
+class UKOVisionComponent;
 
 
 UCLASS()
@@ -31,8 +32,12 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	
+	virtual void InitializeAttributes() override;
 	
 	virtual void OnCharacterDead(AActor* DeathInstigator) override;
+	
+	void RespawnWithoutSave(const FTransform& RespawnTransform);
+	void ReactivateOverClockAfterRespawn();
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -40,6 +45,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	UKOVisionComponent* GetVisionComponent() const { return VisionComponent; }
 	
 	UFUNCTION(BlueprintCallable)
 	UKOStaminaSet* GetStaminaSet() const { return StaminaSet; }
@@ -75,10 +83,10 @@ public:
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<USpringArmComponent> SpringArm;
+	TObjectPtr<UKOSpringArmComponent> SpringArm;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	TObjectPtr<UCameraComponent> Camera;
+	TObjectPtr<UKOCameraComponent> Camera;
 		
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UKOPreCMCTickComponent> PreCMCTick;
@@ -86,16 +94,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UCharacterTrajectoryComponent> Trajectory;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
-	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UKOVisionComponent> VisionComponent;
 
 protected:
 	UPROPERTY()
 	TObjectPtr<UKOStaminaSet> StaminaSet;
-	
-	UPROPERTY()
-	TObjectPtr<UKOCombatSet> CombatSet;
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Reference")
 	TObjectPtr<UAnimInstance> MainAnimInstance;

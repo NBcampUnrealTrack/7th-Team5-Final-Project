@@ -44,11 +44,7 @@ protected:
 	// 충격파 간격
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | AoE")
 	float ShockwaveInterval = 0.3f;
- 
-	// 디버그 표시 여부
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attack | AoE")
-	bool bShowDebug = true;
- 
+	
 private:
 	// 애님 노티파이 이벤트 수신 시 충격파 시작
 	UFUNCTION()
@@ -59,7 +55,4 @@ private:
  
 	int32 CurrentShockwaveCount = 0;
 	FTimerHandle ShockwaveTimerHandle;
- 
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_WaitGameplayEvent> WaitEventTask;
 };

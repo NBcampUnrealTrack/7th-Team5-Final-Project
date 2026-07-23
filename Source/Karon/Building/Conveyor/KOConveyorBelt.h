@@ -9,6 +9,7 @@
 class UInstancedStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UStaticMesh;
+class UWidgetComponent;
 
 /**
  * 벨트 기하 형태. BP/DT 가 지정.
@@ -36,8 +37,11 @@ class KARON_API AKOConveyorBelt : public AKOBaseBuilding, public IKOItemSource, 
 public:
     AKOConveyorBelt();
 
-    /** 서브시스템이 매 프레임 호출. 누적 후 정수 step 만큼 StepOnce. */
+    /** 서브시스템이 호출. 누적 후 정수 step 만큼 이동. */
     void AdvanceBelt(float DeltaTime);
+    
+    /** 벨트 아이템의 화면상 위치만 갱신 */
+    void RefreshBeltVisual();
 
     /**
      * 코너 흐름 반전(좌/우 코너 전환)을 직접 지정. 변경 시 입구/출구 방향 즉시 재계산.
@@ -68,16 +72,28 @@ public:
     bool GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const;
 
     // ─── 머신 포트 바인딩 (벨트 연결 팝업에서 설정) ──────────────────────────
-    /** 이 벨트를 머신의 특정 포트 슬롯(Kind+ItemId)에 묶는다. 벨트당 단일 바인딩(재호출 시 덮어씀). */
+    /** Output 슬롯 선택 시, 이 벨트가 꺼낼 Output 아이템을 저장한다. Input 슬롯은 무시한다. */
     void BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot);
 
-    /** 이 벨트가 정확히 (Machine, Kind, PortIndex) 포트에 바인딩돼 있는가. 점유 질의용. */
+    /** 이 벨트가 특정 설비의 특정 Output 슬롯을 선택했는지 확인한다. */
     bool IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const;
 
-    /** 머신 포트 바인딩 보유 여부. */
-    bool HasMachineBinding() const { return BoundMachine.IsValid() && BoundPortIndex != INDEX_NONE; }
+    /** Output 설비 연결 정보가 있는지. 선택 완료 여부와는 별개다. */
+    bool HasOutputMachineBinding() const { return BoundOutputMachine.IsValid() && BoundOutputPortIndex != INDEX_NONE; }
+    
+    /** Output 선택 없이 위젯을 닫았을 때 호출한다. 설비 정보는 유지하고 선택값만 비운다. */
+    void CancelOutputPortSelection();
 
-    // ─── IKOInteractableInterface (재편집) ───────────────────────────────────
+    /** Output 슬롯 선택 완료 여부. */
+    bool HasSelectedOutputPort() const { return bHasSelectedOutputPort; }
+    
+    /** Output 선택 위젯이 열린 상태. 아직 슬롯은 선택하지 않은 상태로 기록한다. */
+    void BeginOutputPortSelection(AKOBaseBuilding* Machine);
+
+    // ─── IKOInteractableInterface (재편집) ───────────────────────────────────    
+    /** 설치된 벨트와 상호작용 가능 여부. 연결 가능한 Output 설비가 있을 때만 true. */
+    virtual bool CanInteract(AActor* Interactor) const override;
+    
     /** 설치된 벨트와 상호작용 시 연결 팝업을 다시 연다(플레이어 빌드 컴포넌트 경유). */
     virtual void OnInteract(AActor* Interactor) override;
 
@@ -97,10 +113,46 @@ public:
     // IKOItemSink (head 기준 — 외부 push 대비, M1 pull 모델에선 보조)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
     virtual bool PushItem(const FKOConveyorItem& Item) override;
+    
+    // 세이브 로드
+    void GetConveyorStateForSave(
+        TArray<FName>& OutSlotItemIds,
+        float& OutMoveAccumulator,
+        bool& bOutCornerFlip,
+        bool& bOutStraightReverse
+    ) const;
+
+    void LoadConveyorStateFromSave(
+        const TArray<FName>& InSlotItemIds,
+        float InMoveAccumulator,
+        bool bInCornerFlip,
+        bool bInStraightReverse
+    );
+    
+    bool GetOutputPortBindingForSave(
+        FIntPoint& OutMachineGridAnchor,
+        int32& OutPortIndex,
+        FName& OutItemId,
+        bool& bOutHasSelectedOutputPort
+    ) const;
+
+    void LoadOutputPortBindingFromSave(
+        AKOBaseBuilding* InMachine,
+        int32 InPortIndex,
+        FName InItemId,
+        bool bInHasSelectedOutputPort
+    );
+    
+    /** 벨트 위 아이템 비주얼을 표시하거나 숨긴다. */
+    void SetItemVisualEnabled(bool bEnabled);
+
+    /** 현재 아이템 비주얼 활성화 여부. */
+    bool IsItemVisualEnabled() const { return bItemVisualEnabled; }
 
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+    virtual void Tick(float DeltaSeconds) override;
 
     /** 벨트 기하 형태(직선/코너). BP/DT 에서 지정. */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor")
@@ -133,6 +185,13 @@ protected:
     /** 벨트 표면에서 아이템을 띄울 높이(uu). */
     UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Visual")
     float ItemZOffset = 10.f;
+    
+    /** 벨트 슬롯 할당 여부 시각적 요소 */
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Warning")
+    TObjectPtr<UWidgetComponent> OutputSelectionWarningWidget;
+
+    UPROPERTY(EditAnywhere, Category = "KO|Conveyor|Warning")
+    bool bShowOutputSelectionWarning = true;
 
 private:
     void StepOnce();
@@ -170,15 +229,17 @@ private:
      */
     bool TryResolveStraightFlowFromNeighbors(bool& OutReverse) const;
 
-    /** 이웃 셀 1칸을 분류: +1=나에게 공급(업스트림), -1=내가 공급(다운스트림), 0=모호/없음. 코너·직선 공용. */
-    int32 ClassifyNeighbor(const FIntPoint& MyCellAbs, const FIntPoint& NeighborCell) const;
-
     /** 그리드 절대 셀의 점유 액터 조회. */
     AActor* GetActorAtCell(const FIntPoint& Cell) const;
 
     /** 액터 본체 또는 컴포넌트에서 포트 인터페이스 해결. */
     IKOItemSource* ResolveSource(AActor* Actor) const;
     IKOItemSink*   ResolveSink(AActor* Actor) const;
+    
+    /** 벨트 위 노란색 느낌표 */
+    void RefreshOutputSelectionWarning(); // 표시, 숨김
+    void UpdateOutputSelectionWarningFacingCamera(); // 카메라 바라보게
+    bool ShouldShowOutputSelectionWarning() const; // 표시 조건
 
     /** 슬롯 큐. index0=head(입구), Last=tail(출구). */
     TArray<FKOConveyorItem> Slots;
@@ -204,9 +265,10 @@ private:
     // 약참조라 GC/직렬화 마크업 불필요. 머신 파괴 시 자동 무효 → 점유도 자동 해제.
     // (저장·로드(Phase3)에서 영속화가 필요하면 UPROPERTY 로 승격)
     // 일반 포트 모델: 바인딩 키는 (BoundMachine, BoundKind, BoundPortIndex). 아이템 타입 무관.
-    TWeakObjectPtr<AKOBaseBuilding> BoundMachine;
-    int32       BoundPortIndex = INDEX_NONE;
-    EKOPortKind BoundKind       = EKOPortKind::Input;
+    TWeakObjectPtr<AKOBaseBuilding> BoundOutputMachine;
+    int32 BoundOutputPortIndex = INDEX_NONE;
+    FName BoundOutputItemId = NAME_None;
+    bool bHasSelectedOutputPort = false; // 슬롯 선택 여부
 
     /** 메시별 아이템 ISM. 같은 메시를 쓰는 아이템들은 ISM 하나를 공유(슬롯 인덱스로 인스턴스 식별). */
     UPROPERTY(Transient)
@@ -225,4 +287,7 @@ private:
     /** 벨트 표면 메시의 DMI 캐시. 흐름 방향 파라미터 설정용. */
     UPROPERTY(Transient)
     TArray<TObjectPtr<UMaterialInstanceDynamic>> BeltDMIs;
+    
+    /** 플레이어 거리 등에 따라 아이템 ISM을 표시할지 여부. */
+    bool bItemVisualEnabled = true;
 };

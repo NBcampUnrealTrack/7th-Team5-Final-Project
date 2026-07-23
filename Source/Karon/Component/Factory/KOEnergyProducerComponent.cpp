@@ -14,6 +14,7 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 UKOEnergyProducerComponent::UKOEnergyProducerComponent()
@@ -59,6 +60,39 @@ void UKOEnergyProducerComponent::InitializeFromRecipe()
     }
 }
 
+void UKOEnergyProducerComponent::LoadFuelFromSave(
+    FName InFuelItemId, int32 InFuelCount, float InFuelDebt, bool bInHasActiveFuel)
+{
+    FuelItemId = InFuelItemId;
+    FuelInBuffer = FMath::Max(0, InFuelCount);
+    bHasActiveFuel = bInHasActiveFuel && !FuelItemId.IsNone();
+
+    if (bHasActiveFuel)
+    {
+        FuelDebt = FMath::Clamp(InFuelDebt, 0.f, 0.999f);
+    }
+    else
+    {
+        FuelDebt = 0.f;
+    }
+
+    if (FuelItemId.IsNone())
+    {
+        FuelInBuffer = 0;
+        FuelDebt = 0.f;
+        bHasActiveFuel = false;
+    }
+
+    if (!bHasActiveFuel && FuelInBuffer <= 0)
+    {
+        FuelInBuffer = 0;
+        FuelDebt = 0.f;
+        FuelItemId = NAME_None;
+    }
+
+    BroadcastFuelChanged();
+}
+
 void UKOEnergyProducerComponent::BeginPlay()
 {
     Super::BeginPlay();
@@ -91,13 +125,21 @@ int32 UKOEnergyProducerComponent::TryInsertFuel(FName ItemId, int32 Count)
         return Count;
     }
 
-    const int32 Space = FMath::Max(0, MaxFuelBuffer - FuelInBuffer);
+    const int32 CurrentTotalFuel = FuelInBuffer + (bHasActiveFuel ? 1 : 0);
+    const int32 Space = FMath::Max(0, MaxFuelBuffer - CurrentTotalFuel);
     const int32 ToAdd = FMath::Min(Space, Count);
     if (ToAdd > 0)
     {
         FuelInBuffer += ToAdd;
         FuelItemId    = ItemId;
+        StartNextFuelIfNeeded();
         BroadcastFuelChanged();
+        
+        // 퀘스트
+        if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+        {
+            QuestGuide->NotifyFuelInserted(ItemId, ToAdd);
+        }
     }
     return Count - ToAdd;
 }
@@ -110,7 +152,7 @@ int32 UKOEnergyProducerComponent::TryExtractFuel(int32 Count)
     }
     const int32 Taken = FMath::Min(FuelInBuffer, Count);
     FuelInBuffer -= Taken;
-    if (FuelInBuffer <= 0)
+    if (FuelInBuffer <= 0 && !bHasActiveFuel)
     {
         FuelInBuffer = 0;
         FuelDebt     = 0.f;
@@ -141,14 +183,19 @@ float UKOEnergyProducerComponent::GetPowerOutput(float DeltaSeconds) const
         return 0.f;
     }
     
-    const float AvailableFuelUnits = static_cast<float>(FuelInBuffer) - FuelDebt;
-    if (AvailableFuelUnits <= 0.f)
+    if (!bHasActiveFuel)
+    {
+        return 0.f;
+    }
+    
+    const float RemainingFuelRatio = 1.f - FuelDebt;
+    if (RemainingFuelRatio <= 0.f)
     {
         return 0.f;
     }
 
     const float DesiredBurn = BurnRatePerSecond * DeltaSeconds;
-    const float ActualBurn  = FMath::Min(DesiredBurn, AvailableFuelUnits);
+    const float ActualBurn  = FMath::Min(DesiredBurn, RemainingFuelRatio);
     return ActualBurn * PowerPerFuelUnit;
 }
 
@@ -159,7 +206,19 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     const float Dt = World ? World->GetDeltaSeconds() : 0.f;
     LastOutputRate = (Dt > KINDA_SMALL_NUMBER) ? (FMath::Max(0.f, Amount) / Dt) : 0.f;
 
-    if (Amount <= 0.f || PowerPerFuelUnit <= 0.f)
+    AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(GetOwner());
+
+    const bool bActuallyProducing = 
+        Amount > KINDA_SMALL_NUMBER &&
+        PowerPerFuelUnit > KINDA_SMALL_NUMBER &&
+        bHasActiveFuel;
+
+    if (Building)
+    {
+        Building->SetOperatingSoundActive(bActuallyProducing);
+    }
+
+    if (!bActuallyProducing)
     {
         return;
     }
@@ -167,23 +226,23 @@ void UKOEnergyProducerComponent::OnPowerAccepted(float Amount)
     const float FuelConsumed = Amount / PowerPerFuelUnit;
     FuelDebt += FuelConsumed;
     
-    const int32 WholeUnits = FMath::FloorToInt(FuelDebt);
-    if (WholeUnits > 0)
+    if (FuelDebt >= 1.f - KINDA_SMALL_NUMBER)
     {
-        const int32 ToRemove = FMath::Min(WholeUnits, FuelInBuffer);
-        FuelInBuffer -= ToRemove;
-        FuelDebt     -= static_cast<float>(ToRemove);
-    }
+        FuelDebt = 0.f;
+        bHasActiveFuel = false;
 
-    if (FuelInBuffer <= 0)
-    {
-        const bool bWasFueled = !FuelItemId.IsNone();
-        FuelInBuffer = 0;
-        FuelDebt     = 0.f;
-        FuelItemId   = NAME_None;
-        if (bWasFueled)
+        StartNextFuelIfNeeded();
+
+        if (!bHasActiveFuel && FuelInBuffer <= 0)
         {
-            BroadcastFuelChanged();
+            FuelItemId = NAME_None;
+        }
+
+        BroadcastFuelChanged();
+        
+        if (Building && !bHasActiveFuel)
+        {
+            Building->SetOperatingSoundActive(false);
         }
     }
 }
@@ -247,7 +306,8 @@ bool UKOEnergyProducerComponent::CanAcceptItem(const FKOConveyorItem& Item) cons
     {
         return false;
     }
-    return FuelInBuffer < MaxFuelBuffer;
+    const int32 CurrentTotalFuel = FuelInBuffer + (bHasActiveFuel ? 1 : 0);
+    return CurrentTotalFuel < MaxFuelBuffer;
 }
 
 bool UKOEnergyProducerComponent::PushItem(const FKOConveyorItem& Item)
@@ -275,4 +335,23 @@ void UKOEnergyProducerComponent::BroadcastFuelChanged() const
     GMS->BroadcastMessage(
         KOGameplayTags::Data_Message_Producer_FuelChanged,
         FInstancedStruct::Make(Msg));
+}
+
+void UKOEnergyProducerComponent::StartNextFuelIfNeeded()
+{
+    if (bHasActiveFuel)
+    {
+        return;
+    }
+
+    if (FuelInBuffer <= 0 || FuelItemId.IsNone())
+    {
+        bHasActiveFuel = false;
+        FuelDebt = 0.f;
+        return;
+    }
+
+    FuelInBuffer -= 1;
+    FuelDebt = 0.f;
+    bHasActiveFuel = true;
 }

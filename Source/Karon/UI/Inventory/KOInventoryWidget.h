@@ -34,8 +34,15 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "KO|UI|Inventory")
     FKOOnInventorySlotClicked OnSlotClicked;
 
+    /** SlotWidget이 우클릭됐을 때 부모(패널 등)로 버블업되는 이벤트. (장착 등 처리용) */
+    UPROPERTY(BlueprintAssignable, Category = "KO|UI|Inventory")
+    FKOOnInventorySlotClicked OnSlotRightClicked;
+
     /** 자식 SlotWidget이 호출. (C++ 내부에서 자동 라우팅됨) */
     void NotifySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    /** 자식 SlotWidget이 우클릭 시 호출. (C++ 내부에서 자동 라우팅됨) */
+    void NotifySlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
 
 protected:
     virtual void NativeConstruct() override;

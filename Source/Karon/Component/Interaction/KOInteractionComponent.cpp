@@ -1,9 +1,11 @@
 #include "Component/Interaction/KOInteractionComponent.h"
 
+#include "AbilitySystem/Tag/Event/KOGameplayTags_Event.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Utility/Interface/KOInteractableInterface.h"
+#include "Utility/Messaging/KOMessageTypes.h"
 
 
 UKOInteractionComponent::UKOInteractionComponent()
@@ -23,7 +25,10 @@ void UKOInteractionComponent::TickComponent(
 void UKOInteractionComponent::UpdateCurrentInteractable()
 {
 	AActor* NewTarget = nullptr;
-
+	
+	FKOInteractionMessage InteractionMessage;
+	InteractionMessage.bIsActive=false;
+	
 	FHitResult Hit;
 	if (TraceFromScreenCenter(Hit))
 	{
@@ -35,14 +40,22 @@ void UKOInteractionComponent::UpdateCurrentInteractable()
 			{
 				Interactor = PC->GetPawn();
 			}
-
+			
 			if (Interactable->CanInteract(Interactor))
 			{
 				NewTarget = HitActor;
+				
+				InteractionMessage.InteractionId = Interactable->GetInteractionPrompt();
+				InteractionMessage.bIsActive=true;
 			}
+			
 		}
 	}
-
+	
+	UGMRouterSubsystem::BroadcastMessage(GetWorld(),
+					KOGameplayTags::Event_Interaction,
+					FInstancedStruct::Make(InteractionMessage));
+	
 	CurrentInteractable = TWeakInterfacePtr<IKOInteractableInterface>(NewTarget);
 }
 

@@ -14,7 +14,24 @@ void UKOGameplayAbilityBase::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	KO_LOGS(GAS, Ability, Log, TEXT("[%s] : Activated."), *GetClass()->GetName());
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	
+	KO_LOGS(GAS, Ability, Log, TEXT("(+) %s | %s ← Activated"), *Character->GetName(), *GetClass()->GetName());
+}
+
+void UKOGameplayAbilityBase::CancelAbility(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return;
+	
+	KO_LOGS(GAS, Ability, Log, TEXT("(!) %s | %s ← Canceled"), *Character->GetName(), *GetClass()->GetName());
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UKOGameplayAbilityBase::EndAbility(
@@ -24,7 +41,20 @@ void UKOGameplayAbilityBase::EndAbility(
 	bool bReplicateEndAbility,
 	bool bWasCancelled)
 {
-	KO_LOGS(GAS, Ability, Log, TEXT("[%s] : End."), *GetClass()->GetName());
+	if (CostEffectHandle.IsValid())
+	{
+		BP_RemoveGameplayEffectFromOwnerWithHandle(CostEffectHandle);
+		CostEffectHandle = FActiveGameplayEffectHandle();
+	}
+	
+	if (ActorInfo && ActorInfo->AvatarActor.IsValid())
+	{
+		KO_LOGS(GAS, Ability, Log, TEXT("(-) %s | %s ← Ended%s"),
+			*ActorInfo->AvatarActor->GetName(), 
+			*GetClass()->GetName(),
+			bWasCancelled ? TEXT(" (Cancelled)") : TEXT("")
+		);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -92,8 +122,7 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToSelf(
 FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToSelf(
 	TSubclassOf<UGameplayEffect> EffectClass,
 	FGameplayTag DataTag,
-	float Amount,
-	float Level)
+	float Amount, float Level)
 {
 	if (!EffectClass) return FActiveGameplayEffectHandle();
 	
@@ -119,18 +148,22 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectToTarget(
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC) return FActiveGameplayEffectHandle();
 	
-	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(EffectClass, Level);
-	if (!Spec.IsValid()) return FActiveGameplayEffectHandle();
+	FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+	Context.AddSourceObject(GetAvatarCharacter());
 	
-	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
+	FGameplayEffectSpecHandle SpecHandle = 
+		SourceASC->MakeOutgoingSpec(EffectClass, Level, Context);
+	
+	if (!SpecHandle.IsValid()) return FActiveGameplayEffectHandle();
+	
+	return SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, TargetASC);
 }
 
 FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarget(
 	AActor* TargetActor,
 	TSubclassOf<UGameplayEffect> EffectClass, 
 	FGameplayTag DataTag,
-	float Amount,
-	float Level)
+	float Amount, float Level)
 {
 	UAbilitySystemComponent* SourceASC = GetASC();
 	if (!SourceASC || !EffectClass || !TargetActor) return FActiveGameplayEffectHandle();
@@ -145,6 +178,24 @@ FActiveGameplayEffectHandle UKOGameplayAbilityBase::ApplyEffectSetByCallerToTarg
 	Spec.Data->SetSetByCallerMagnitude(DataTag, Amount);
 
 	return SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data, TargetASC);
+}
+
+void UKOGameplayAbilityBase::ApplyGameplayCue(FGameplayTag CueTag, FGameplayCueParameters& Parameters)
+{
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!ASC || !CueTag.IsValid()) return;
+	
+	ASC->ExecuteGameplayCue(CueTag, Parameters);
+}
+
+void UKOGameplayAbilityBase::ApplyGameplayCues(FGameplayTagContainer CueTag, FGameplayCueParameters& Parameters)
+{
+	for (auto& CueTag : CueTags)
+	{
+		if (!CueTag.IsValid()) continue;
+		
+		ApplyGameplayCue(CueTag, Parameters);
+	}
 }
 
 UGameplayEffect* UKOGameplayAbilityBase::GetCooldownGameplayEffect() const
@@ -182,4 +233,25 @@ void UKOGameplayAbilityBase::ApplyCooldown(
 	SpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
 
 	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+}
+
+UGameplayEffect* UKOGameplayAbilityBase::GetCostGameplayEffect() const
+{
+	if (CostGEClass)
+		return CostGEClass->GetDefaultObject<UGameplayEffect>();
+	
+	return nullptr;
+}
+
+void UKOGameplayAbilityBase::ApplyCost(
+	const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!CostGEClass) return;
+	
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(CostGEClass, GetAbilityLevel());
+	if (!Spec.IsValid()) return;
+	
+	CostEffectHandle = ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
 }

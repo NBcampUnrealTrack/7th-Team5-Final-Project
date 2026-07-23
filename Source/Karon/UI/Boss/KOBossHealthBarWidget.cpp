@@ -1,6 +1,7 @@
 #include "UI/Boss/KOBossHealthBarWidget.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Attribute/KOGroggySet.h"
 #include "AbilitySystem/Attribute/KOHealthSet.h"
 #include "Animation/WidgetAnimation.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
@@ -29,7 +30,7 @@ void UKOBossHealthBarWidget::NativeConstruct()
 
 		Boss->OnBossDetectedPlayer.AddUObject(this, &UKOBossHealthBarWidget::OnBossDetected);
 
-		Boss->OnBossDied.AddUObject(this, &UKOBossHealthBarWidget::OnBossDiedCallback);
+		Boss->OnBossDied.AddDynamic(this, &UKOBossHealthBarWidget::OnBossDiedCallback);
 	}
 }
 
@@ -46,6 +47,12 @@ void UKOBossHealthBarWidget::NativeDestruct()
 				HealthSet->OnHealthChanged.RemoveDynamic(this, &UKOBossHealthBarWidget::OnHealthChanged);
 			}
 		}
+		
+		UKOGroggySet* GroggySet = const_cast<UKOGroggySet*>(ASC->GetSet<UKOGroggySet>());
+		if (GroggySet)
+		{
+			GroggySet->OnGroggyHealthChanged.RemoveDynamic(this, &UKOBossHealthBarWidget::OnGroggyChanged);
+		}
 	}
 	
 	Super::NativeDestruct();
@@ -54,6 +61,32 @@ void UKOBossHealthBarWidget::NativeDestruct()
 void UKOBossHealthBarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	if (BossRef && GetVisibility() == ESlateVisibility::Visible)
+	{
+		APlayerController* PC = GetOwningPlayer();
+		APawn* PlayerPawn = PC ? PC->GetPawn() : nullptr;
+
+		if (PlayerPawn)
+		{
+			const float Distance = FVector::Dist(
+				PlayerPawn->GetActorLocation(),
+				BossRef->GetActorLocation()
+			);
+
+			const bool bShouldBeVisible = Distance <= MaxVisibleDistance;
+			const float CurrentOpacity = GetRenderOpacity();
+
+			if (bShouldBeVisible && CurrentOpacity < 0.5f && !IsAnimationPlaying(FadeIn))
+			{
+				if (FadeIn) PlayAnimation(FadeIn);
+			}
+			else if (!bShouldBeVisible && CurrentOpacity > 0.5f && !IsAnimationPlaying(FadeOut))
+			{
+				if (FadeOut) PlayAnimation(FadeOut);
+			}
+		}
+	}
 
 	if (!BossHealthYellow || MaxHP <= 0.f)
 	{
@@ -165,6 +198,21 @@ void UKOBossHealthBarWidget::SetBoss(AKOBossBase* InBoss)
 	{
 		BossHealthYellow->SetPercent(FMath::Clamp(CurrentHP / MaxHP, 0.f, 1.f));
 	}
+	
+	UKOGroggySet* GroggySet = const_cast<UKOGroggySet*>(ASC->GetSet<UKOGroggySet>());
+	if (GroggySet)
+	{
+		MaxGroggy = GroggySet->GetMaxGroggyHealth();
+		CurrentGroggy = GroggySet->GetGroggyHealth();
+
+		GroggySet->OnGroggyHealthChanged.AddUniqueDynamic(
+			this, &UKOBossHealthBarWidget::OnGroggyChanged);
+
+		if (BossGroggy && MaxGroggy > 0.f)
+		{
+			BossGroggy->SetPercent(FMath::Clamp(CurrentGroggy / MaxGroggy, 0.f, 1.f));
+		}
+	}
 }
 
 void UKOBossHealthBarWidget::OnHealthChanged(float OldVal, float NewVal)
@@ -184,9 +232,23 @@ void UKOBossHealthBarWidget::OnHealthChanged(float OldVal, float NewVal)
 	bYellowDecreasing = false;
 }
 
+void UKOBossHealthBarWidget::OnGroggyChanged(float OldVal, float NewVal)
+{
+	if (!BossGroggy || MaxGroggy <= 0.f)
+	{
+		return;
+	}
+
+	CurrentGroggy = NewVal;
+	BossGroggy->SetPercent(FMath::Clamp(CurrentGroggy / MaxGroggy, 0.f, 1.f));
+}
+
 void UKOBossHealthBarWidget::UpdateHealthBar(float Current, float Max)
 {
-	if (Max <= 0.f) { return; }
+	if (Max <= 0.f)
+	{
+		return;
+	}
 	
 	if (BossHealth)
 	{

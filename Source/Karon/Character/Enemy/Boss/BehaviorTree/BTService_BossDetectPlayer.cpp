@@ -3,7 +3,7 @@
 #include "AIController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Character/Enemy/Boss/KOBossBase.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,7 +47,7 @@ void UBTService_BossDetectPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 	
 	if (Distance <= TraceRange)
 	{
-		if (!BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey))
+		if (!BB->GetValueAsObject(AKOAIC_BossController::TargetActorKey))
 		{
 			// 처음 감지되는 순간
 			if (AKOBossBase* Boss = Cast<AKOBossBase>(BossPawn))
@@ -55,13 +55,13 @@ void UBTService_BossDetectPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, ui
 				Boss->NotifyPlayerDetected();
 			}
 		}
-		BB->SetValueAsObject(AKOAIC_BossChapter01::TargetActorKey, PlayerCharacter);
+		BB->SetValueAsObject(AKOAIC_BossController::TargetActorKey, PlayerCharacter);
 	}
 	else
 	{
-		BB->SetValueAsObject(AKOAIC_BossChapter01::TargetActorKey, nullptr);
+		BB->SetValueAsObject(AKOAIC_BossController::TargetActorKey, nullptr);
 	}
 	
 	// 추적거리 체크
-	BB->SetValueAsBool(AKOAIC_BossChapter01::bIsInTraceRangeKey,Distance <= TraceRange);
+	BB->SetValueAsBool(AKOAIC_BossController::bIsInTraceRangeKey,Distance <= TraceRange);
 }

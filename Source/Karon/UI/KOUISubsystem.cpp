@@ -2,6 +2,7 @@
 #include "UI/KOUISubsystem.h"
 
 #include "UI/KOUISettings.h"
+#include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 #include "CommonActivatableWidget.h"
 
@@ -179,6 +180,25 @@ UCommonActivatableWidget* UKOUISubsystem::FindActiveWidget(FGameplayTag WidgetTa
         return WeakPtr->Get();
     }
     return nullptr;
+}
+
+bool UKOUISubsystem::AreAllMenusClosed() const
+{
+    // HUD가 상주하는 Game 레이어는 제외하고, 메뉴/모달 레이어에 위젯이 있는지 확인.
+    for (const TPair<FGameplayTag, TObjectPtr<UCommonActivatableWidgetContainerBase>>& LayerPair : Layers)
+    {
+        if (LayerPair.Key == KOGameplayTags::UI_Layer_Game)
+        {
+            continue;
+        }
+
+        if (IsValid(LayerPair.Value) && LayerPair.Value->GetNumWidgets() > 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 UCommonActivatableWidget* UKOUISubsystem::OpenWidget(FGameplayTag WidgetTag)

@@ -33,8 +33,7 @@ public:
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
-		bool bReplicateEndAbility,
-		bool bWasCancelled
+		bool bReplicateEndAbility, bool bWasCancelled
 	) override;
 	
 	//TODO:
@@ -49,10 +48,9 @@ public:
 protected:
 	void ExecuteKnockBack(const FGameplayEventData& EventData);
 
+	void RotateTowardsAttacker(const FGameplayEventData& EventData);
+	
 private:
-	UFUNCTION()
-	void OnHitStopFinished();
-
 	UFUNCTION()
 	void OnMontageCompleted();
 
@@ -72,7 +70,7 @@ protected:
 	EHitDirection HitDirection;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KnockBack")
-	float KnockBackAmount; 
+	float KnockBackAmount = 1000.f; 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", meta = (ToolTip = "히트스톱 사용 여부"))
 	bool bShouldHitStop;
@@ -86,6 +84,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HitStop", Meta = (DisplayName = "공격자도 함께 정지"))
 	bool bAffectInstigator = true; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cancel")
+	FGameplayTagContainer CancelTags;
 	
 private:
 	FGameplayEventData CachedTriggerEventData;

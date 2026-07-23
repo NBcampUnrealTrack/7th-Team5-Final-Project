@@ -56,6 +56,7 @@ public:
     ) const;
     
     const TArray<FKOItemSlot>& GetSlots() const { return Slots; }
+    void LoadSlotsFromSave(const TArray<FKOItemSlot>& InSlots);
 
     /** 슬롯 인덱스로 안전 조회. 유효하지 않으면 nullptr 반환. */
     const FKOItemSlot* GetSlotByIndex(int32 Index) const;

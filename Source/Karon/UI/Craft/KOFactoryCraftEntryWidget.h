@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Styling/SlateTypes.h"
 #include "KOFactoryCraftEntryWidget.generated.h"
 
 class UButton;
@@ -9,7 +10,14 @@ class UImage;
 class UTextBlock;
 class UTexture2D;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOFactoryCraftEntryClicked, FName, FactoryId);
+UENUM(BlueprintType)
+enum class EKOCraftTargetType : uint8
+{
+	Factory   UMETA(DisplayName = "Factory"),
+	Equipment UMETA(DisplayName = "Equipment")
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FKOFactoryCraftEntryClicked, EKOCraftTargetType, TargetType, FName, TargetId);
 
 UCLASS()
 class KARON_API UKOFactoryCraftEntryWidget : public UUserWidget
@@ -19,7 +27,18 @@ class KARON_API UKOFactoryCraftEntryWidget : public UUserWidget
 public:
 	FKOFactoryCraftEntryClicked OnClicked;
 	
-	void SetupEntry(FName InFactoryId, const FText& InDisplayName, UTexture2D* InIcon,  bool bInCanCraft);
+	void SetupEntry(
+		EKOCraftTargetType InTargetType,
+		FName InTargetId,
+		const FText& InDisplayName,
+		UTexture2D* InIcon,
+		bool bInCanCraft,
+		int32 InOwnedCount
+	);
+	
+	void SetSelected(bool bInSelected);
+
+	bool MatchesTarget(EKOCraftTargetType InTargetType, FName InTargetId) const;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -34,16 +53,34 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> FactoryNameText;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor CraftableColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.3f);
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> SelectionArrowText;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Style")
-	FLinearColor NotCraftableColor = FLinearColor(0.3f, 0.01f, 0.01f, 0.3f);
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> TextAmount;
+	
+	UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UImage> NotCraftableImage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "KO|FactoryCraft|Selection")
+	TObjectPtr<UTexture2D> SelectedNormalImage;
 
 private:
 	UPROPERTY()
-	FName FactoryId = NAME_None;
+	EKOCraftTargetType TargetType = EKOCraftTargetType::Factory;
+
+	UPROPERTY()
+	FName TargetId = NAME_None;
 
 	UFUNCTION()
 	void HandleClicked();
+	
+	void CacheDefaultButtonStyle();
+	void RefreshVisualState();
+
+	bool bCanCraft = false;
+	bool bSelected = false;
+	bool bDefaultStyleCached = false;
+
+	FButtonStyle DefaultButtonStyle;
 };

@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerState.h"
 #include "KOPlayerState.generated.h"
 
+class UKOGuardSet;
 class UKOMovementSet;
 class UKOCombatSet;
 class UKOStaminaSet;
@@ -22,11 +23,16 @@ public:
 	// ── Interface ──
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
+	// 세이브 로드
+	float GetHealthForSave() const;
+	void LoadHealthFromSave(float SavedHealth);
+	
 	// ── Getter ──
 	UKOHealthSet*    GetHealthSet()    const { return HealthSet; }
 	UKOStaminaSet*   GetStaminaSet()   const { return StaminaSet; }
 	UKOCombatSet*    GetCombatSet()    const { return CombatSet; }
 	UKOMovementSet*  GetMovementSet()  const { return MovementSet; }
+	UKOGuardSet*    GetGuardSet()     const { return GuardSet; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -47,4 +53,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability System | Movement")
 	TObjectPtr<UKOMovementSet> MovementSet;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability System | Guard")
+	TObjectPtr<UKOGuardSet> GuardSet;
 };

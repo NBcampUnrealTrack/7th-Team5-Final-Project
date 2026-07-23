@@ -14,6 +14,25 @@ class UMeshComponent;
 class AKOBaseBuilding;
 class AKOConveyorBelt;
 class UKOInventoryComponent;
+class AKOGridVisual;
+class USoundBase;
+class USoundAttenuation;
+class USoundConcurrency;
+
+USTRUCT(BlueprintType)
+struct FKOBuildSoundSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundBase> Sound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float Volume = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float StartTime = 0.0f;
+};
 
 UENUM(BlueprintType)
 enum class EKOGridBuildMode : uint8
@@ -108,6 +127,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Build|Placement")
 	void RotatePlacementPreview(int32 Direction);
+	
+	UFUNCTION(BlueprintCallable, Category = "Build|Conveyor")
+	bool CanOpenBeltConnectFor(AKOConveyorBelt* Belt) const;
 
 protected:
 	bool TraceFromScreenCenter(
@@ -141,16 +163,28 @@ private:
 	void SetCurrentMode(EKOGridBuildMode NewMode);
 	FRotator GetPlacementRotation() const;
 	FIntPoint GetRotatedBuildingSize() const;
+	
+	FIntPoint GetPreviewForwardStep() const;
+	FIntPoint GetPreviewSideStep() const;
+	float GetPreviewConveyorArrowYaw() const;
 
 	/** 현재 배치 중인 건물 클래스가 코너 형태 컨베이어 벨트인지 CDO로 판정. */
 	bool IsCurrentBuildingCornerBelt() const;
 
 	// ─── 벨트-공장 연결 팝업 트리거 ──────────────────────────────────────────
 	/** 방금 설치한 벨트의 인접 4셀에서 포트 슬롯 보유 공장을 수집해 연결 팝업 큐를 시작. */
-	void TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size);
+	void TryQueueBeltConnect(AKOConveyorBelt* Belt);
+	
+	bool FindConnectableOutputFactoriesForBelt(
+		AKOConveyorBelt* Belt,
+		TArray<AKOBaseBuilding*>& OutFactories
+	) const;
 
 	/** 큐의 다음 공장에 대해 BeltConnect 팝업을 오픈. 팝업 닫힘(OnDeactivated)마다 재귀 호출. */
 	void OpenNextBeltConnectPopup();
+	
+	void UpdateGridVisualVisibility(); // 그리드 켜고 끄기
+	AKOGridVisual* FindGridVisualActor();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build|Ghost")
@@ -181,10 +215,28 @@ protected:
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Build", meta = (AllowPrivateAccess = "true"))
 	EKOGridBuildMode CurrentMode = EKOGridBuildMode::None;
+	
+	// 일반 설비
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Factory")
+	FKOBuildSoundSettings FactoryInstallSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Factory")
+	FKOBuildSoundSettings FactoryDestroySound;
+
+	// 컨베이어
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Conveyor")
+	FKOBuildSoundSettings ConveyorInstallSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Build|Sound|Conveyor")
+	FKOBuildSoundSettings ConveyorDestroySound;
+
 
 private:
 	UPROPERTY()
 	TObjectPtr<AKOGhostPreview> CurrentPreviewActor;
+	
+	UPROPERTY()
+	TObjectPtr<AKOGridVisual> CachedGridVisualActor;
 
 	FName CurrentFactoryId = NAME_None;
 	const FKOFactoryRow* CurrentFactoryRow = nullptr;
@@ -220,4 +272,7 @@ private:
 	bool bHasLastPreviewBuildableState = false;
 	// 마지막 설치 가능 상태
 	bool bLastPreviewBuildableState = false;
+	
+	// 사운드
+	void PlayBuildSound(const FKOBuildSoundSettings& SoundSettings, const FVector& Location) const;
 };

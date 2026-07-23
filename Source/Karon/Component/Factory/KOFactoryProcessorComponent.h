@@ -79,6 +79,19 @@ public:
     // IKOItemSink (벨트가 입력 버퍼로 넣음)
     virtual bool CanAcceptItem(const FKOConveyorItem& Item) const override;
     virtual bool PushItem(const FKOConveyorItem& Item) override;
+    
+    // 세이브 로드
+    void LoadProcessorStateFromSave(
+        FName InSelectedRecipeId,
+        const TMap<FName, int32>& InInputBuffer,
+        const TMap<FName, int32>& InOutputBuffer,
+        FName InActiveRecipeId,
+        float InCurrentCycleSeconds,
+        float InProgress
+    );
+    
+    float GetCurrentCycleSecondsForSave() const { return CurrentCycleSeconds; }
+    float GetProgressSecondsForSave() const { return Progress; }
 
 protected:
     virtual void BeginPlay() override;
@@ -94,6 +107,8 @@ private:
     bool  HasInputsFor (const FKORecipeRow& Recipe) const;
     bool  CanFitOutputs(const FKORecipeRow& Recipe) const;
     float GetActiveRecipePowerPerSecond() const;
+    
+    bool CanAcceptInputItemForSelectedRecipe(FName ItemId) const;
 
     void  EvaluateAutoStart();
     void  SetState(EKOFactoryState NewState);
@@ -116,4 +131,7 @@ private:
 
     UPROPERTY()
     TMap<FName, int32> OutputBuffer;
+    
+    /** 직전 압력 부족 상태. 경고음 반복 재생 방지용 */
+    bool bWasPressureShortage = false;
 };

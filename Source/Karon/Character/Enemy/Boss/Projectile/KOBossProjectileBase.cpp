@@ -1,10 +1,12 @@
 #include "Character/Enemy/Boss/Projectile/KOBossProjectileBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "AbilitySystem/Attribute/KOCombatSet.h"
 #include "Components/SphereComponent.h"
+#include "Data/KO_HitData.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AKOBossProjectileBase::AKOBossProjectileBase()
@@ -25,20 +27,19 @@ AKOBossProjectileBase::AKOBossProjectileBase()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 }
- 
-void AKOBossProjectileBase::SetProjectile(
-	AActor* InOwner,
-	TSubclassOf<UGameplayEffect> InDamageEffectClass,
-	float InAttackPower)
+
+void AKOBossProjectileBase::SetProjectile(AActor* InOwner, float InAttackPower)
 {
 	SetOwner(InOwner);
-	DamageEffectClass = InDamageEffectClass;
 	AttackPower = InAttackPower;
 }
 
 void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
 {
-	if (!DamageEffectClass || !TargetActor) { return; }
+	if (!TargetActor)
+	{
+		return;
+	}
  
 	IAbilitySystemInterface* TargetASI = Cast<IAbilitySystemInterface>(TargetActor);
 	if (!TargetASI)
@@ -65,22 +66,44 @@ void AKOBossProjectileBase::ApplyDamageToTarget(AActor* TargetActor)
 	}
  
 	const UKOCombatSet* CombatSet = OwnerASC->GetSet<UKOCombatSet>();
-	if (!CombatSet)
-	{
-		return;
-	}
- 
-	const float FinalAttackPower = AttackPower > 0.f ? AttackPower : CombatSet->GetAttackPower();
+	const float FinalAttackPower = (AttackPower > 0.f) ? AttackPower :
+		(CombatSet ? CombatSet->GetAttackPower() : 1.f);
  
 	FGameplayEffectContextHandle Context = OwnerASC->MakeEffectContext();
 	Context.AddSourceObject(GetOwner());
- 
-	FGameplayEffectSpecHandle Spec = OwnerASC->MakeOutgoingSpec(DamageEffectClass, 1.f, Context);
- 
-	if (Spec.IsValid())
+	
+	for (const FKOBossDamageEffectData& Effect : DamageEffects)
 	{
-		Spec.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Damage,FinalAttackPower);
- 
+		if (!Effect.EffectClass)
+		{
+			continue;
+		}
+
+		FGameplayEffectSpecHandle Spec =
+			OwnerASC->MakeOutgoingSpec(Effect.EffectClass, Effect.Level, Context);
+		if (!Spec.IsValid())
+		{
+			continue;
+		}
+
+		Spec.Data->SetSetByCallerMagnitude(
+			KOGameplayTags::Data_AttackCoefficient,
+			FinalAttackPower * Effect.AttackCoefficient);
+
 		OwnerASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
 	}
+
+	FGameplayEventData HitReactData;
+	HitReactData.Instigator = GetOwner();
+	HitReactData.Target = TargetActor;
+	if (HitData)
+	{
+		HitReactData.OptionalObject = HitData.Get();
+	}
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		TargetActor,
+		KOGameplayTags::Event_HitReact,
+		HitReactData
+		);
 }

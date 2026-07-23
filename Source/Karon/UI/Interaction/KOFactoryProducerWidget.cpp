@@ -69,6 +69,17 @@ void UKOFactoryProducerWidget::NativeOnActivated()
                 InventoryWidget->SetInventoryComponent(PlayerInv);
             }
         }
+        
+        if (!InventoryWidget->OnSlotRightClicked.IsAlreadyBound(
+            this,
+            &UKOFactoryProducerWidget::HandleInventorySlotClicked
+        ))
+                {
+                    InventoryWidget->OnSlotRightClicked.AddDynamic(
+                        this,
+                        &UKOFactoryProducerWidget::HandleInventorySlotClicked
+                    );
+                }
     }
 
     // GMS 구독: 연료 변경 시 FuelNameText 갱신
@@ -97,6 +108,14 @@ void UKOFactoryProducerWidget::NativeOnDeactivated()
         World->GetTimerManager().ClearTimer(RefreshTimerHandle);
     }
     RefreshTimerHandle.Invalidate();
+    
+    if (InventoryWidget)
+    {
+        InventoryWidget->OnSlotRightClicked.RemoveDynamic(
+            this,
+            &UKOFactoryProducerWidget::HandleInventorySlotClicked
+        );
+    }
 
     Unsubscribe(FuelChangedHandle);
     FuelChangedHandle = FGameplayMessageHandle();
@@ -167,6 +186,22 @@ void UKOFactoryProducerWidget::HandleFuelChangedMessage(FGameplayTag Channel, co
     const FKOProducerFuelChangedMessage* Msg = Payload.GetPtr<FKOProducerFuelChangedMessage>();
     if (!Msg) return;
     if (Msg->Producer.Get() != Producer.Get()) return;
+}
+
+void UKOFactoryProducerWidget::HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
+{
+    if (!FuelSlot || !InventoryWidget)
+    {
+        return;
+    }
+
+    UKOInventoryComponent* Inventory = InventoryWidget->GetInventoryComponent();
+    if (!Inventory)
+    {
+        return;
+    }
+
+    FuelSlot->TryMoveInventorySlotToThis(Inventory, SlotIndex, InSlot);
 }
 
 #undef LOCTEXT_NAMESPACE

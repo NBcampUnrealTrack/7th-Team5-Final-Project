@@ -22,13 +22,15 @@ public class Karon : ModuleRules
 			"GMRouter",
 			// UDeveloperSettings (Project Settings 통합)
 			"DeveloperSettings",
+			"Niagara",
+			"NiagaraAnimNotifies",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"Slate", "SlateCore",
 			"UMG",
-			"NavigationSystem",
+			"NavigationSystem", "SQLiteCore", "LevelSequence", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", });

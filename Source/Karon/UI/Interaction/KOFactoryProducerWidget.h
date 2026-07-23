@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
+#include "Items/KOItemSlot.h"
 #include "GMRouterSubsystem.h"
 #include "KOFactoryProducerWidget.generated.h"
 
@@ -68,6 +69,9 @@ protected:
 private:
     UFUNCTION()
     void HandleFuelChangedMessage(FGameplayTag Channel, const FInstancedStruct& Payload);
+    
+    UFUNCTION()
+    void HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
 
     TWeakObjectPtr<AKOBaseBuilding> TargetBuilding;
     TWeakObjectPtr<UKOEnergyProducerComponent> Producer;

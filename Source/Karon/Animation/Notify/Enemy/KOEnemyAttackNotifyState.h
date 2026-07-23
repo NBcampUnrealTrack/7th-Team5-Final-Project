@@ -4,7 +4,8 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "KOEnemyAttackNotifyState.generated.h"
 
-class UKOEnemyAttackGameplayAbility;
+class UKOEnemyGameplayAbility;
+class UKO_HitData;
 
 UCLASS()
 class KARON_API UKOEnemyAttackNotifyState : public UAnimNotifyState
@@ -20,13 +21,16 @@ public:
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
 	float TraceRadius=50.0f;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Enemy|Attack")
-	bool bShowDebug=true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	class UNiagaraSystem* ImpactEffect;
+
+	UPROPERTY(EditAnywhere, Instanced, Category = "HitData")
+	TObjectPtr<UKO_HitData> HitData;
+	
 private:
 	//소켓이름
 	FName SocketName=FName("Socket");
 	UPROPERTY()
-	TMap<USkeletalMeshComponent*,UKOEnemyAttackGameplayAbility*> CachedAbilities;
+	TMap<USkeletalMeshComponent*,UKOEnemyGameplayAbility*> CachedAbilities;
 };

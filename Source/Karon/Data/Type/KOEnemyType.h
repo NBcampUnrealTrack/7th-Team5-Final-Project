@@ -6,10 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "KOEnemyType.generated.h"
 
-/**
- * 
- */
-// 스탯 구조체
+
 USTRUCT(BlueprintType)
 struct FEnemyStat
 {
@@ -48,6 +45,8 @@ struct FEnemySkillInfo
 		return EnemyNameTag == Other.EnemyNameTag && SkillTag == Other.SkillTag;
 	}
 };
+
+
 //구조체가 키여서 GetTypeHash 오버로딩
 FORCEINLINE uint32 GetTypeHash(const FEnemySkillInfo& Key)
 {
@@ -62,13 +61,14 @@ struct FEnemyNameLevelInfo
 	FGameplayTag EnemyNameTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Level;
+	int32 Level;
 	
 	bool operator==(const FEnemyNameLevelInfo& Other) const
 	{
 		return EnemyNameTag == Other.EnemyNameTag && Level == Other.Level;
 	}
 };
+
 //구조체가 키여서 GetTypeHash를 오버로딩
 FORCEINLINE uint32 GetTypeHash(const  FEnemyNameLevelInfo& Key)
 {
@@ -80,6 +80,9 @@ struct FEnemyInfo
 {
 	GENERATED_BODY()
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float Health;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float AttackPower;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -87,4 +90,27 @@ struct FEnemyInfo
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackSpeed;
+};
+
+USTRUCT(BlueprintType)
+struct FEnemyDropItemInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName DropItemName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Count=0;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DropPercent=0.f;
+};
+
+//UPROPERTY 매크로가 포함된 TMap의 Value로 TArray를 사용하기 위해 Struct를 사용
+USTRUCT(BlueprintType)
+struct FEnemyDropItemArrayWrapper
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FEnemyDropItemInfo> DropItems;
 };

@@ -17,14 +17,19 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Factory_PressurePipe,			"Factory.PressurePipe");
 	UE_DEFINE_GAMEPLAY_TAG(Factory_RollingMill,				"Factory.RollingMill");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Factory_HerbFarm,				"Factory.HerbFarm");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_JuicePress,				"Factory.JuicePress");
+	UE_DEFINE_GAMEPLAY_TAG(Factory_PotionBrewer,			"Factory.PotionBrewer");
 
 	// ─── Item Category ────────────────────────────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Module,   "Item.Category.Module");
-	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Coal,     "Item.Category.Coal");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Resource, "Item.Category.Resource");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Material, "Item.Category.Material");
-	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Weapon,   "Item.Category.Weapon");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Equipment,   "Item.Category.Equipment");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Consumable,   "Item.Category.Consumable");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Category_EnergyResource, "Item.Category.EnergyResource");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Category_Core, "Item.Category.Core");
 
 	// ─── Item Identity (FKOItemRow::ItemTag) ──────────────────────────────────
 	UE_DEFINE_GAMEPLAY_TAG(Item_BasicModule, "Item.BasicModule");
@@ -37,8 +42,23 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_MiningPipe,  "Item.MiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_DamagedMiningPipe,  "Item.DamagedMiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
-	UE_DEFINE_GAMEPLAY_TAG(Item_BronzeSword, "Item.BronzeSword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword, "Item.Sword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hameer, "Item.Hammer");
+	UE_DEFINE_GAMEPLAY_TAG(Item_GreatSword, "Item.GreatSword");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head, "Item.Head");
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody, "Item.UpperBody");
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody, "Item.LowerBody");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes, "Item.Shoes");
 	UE_DEFINE_GAMEPLAY_TAG(Item_BasicGunpowder, "Item.BasicGunpowder");
 	UE_DEFINE_GAMEPLAY_TAG(Item_CopperPlate, "Item.CopperPlate");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Sulfur,      "Item.Sulfur");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HerbSeed,       "Item.HerbSeed");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Herb,			"Item.Herb");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HerbJuice,      "Item.HerbJuice");
+	UE_DEFINE_GAMEPLAY_TAG(Item_HealingPotion,  "Item.HealingPotion");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Item_Earth,  "Item.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Water,  "Item.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Fire,  "Item.Fire");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Lightning,  "Item.Lightning");
 }

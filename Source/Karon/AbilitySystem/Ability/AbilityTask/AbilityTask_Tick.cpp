@@ -21,3 +21,11 @@ void UAbilityTask_Tick::TickTask(float DeltaTime)
 		OnTick.Broadcast(DeltaTime);
 	}
 }
+
+void UAbilityTask_Tick::StopTask()
+{
+	if (IsActive())
+	{
+		EndTask();
+	}
+}

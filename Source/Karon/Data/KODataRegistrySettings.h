@@ -35,4 +35,7 @@ public:
     UPROPERTY(Config, EditAnywhere, Category = "KO|Data Registry")
     TArray<TSoftObjectPtr<UDataTable>> SkillTables;
 
+    UPROPERTY(Config, EditAnywhere, Category = "KO|Data Registry")
+    TArray<TSoftObjectPtr<UDataTable>> SkillExecutionTables;
+
 };

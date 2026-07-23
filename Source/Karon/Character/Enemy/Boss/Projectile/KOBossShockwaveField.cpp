@@ -3,11 +3,14 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Components/DecalComponent.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Karon/AbilitySystem/Tag/KOGameplayTags.h"
- 
+#include "Kismet/GameplayStatics.h"
+
 AKOBossShockwaveField::AKOBossShockwaveField()
 {
 }
@@ -79,5 +82,37 @@ void AKOBossShockwaveField::BeginPlay()
 		ApplyDamageToTarget(HitActor);
 	}
 
+	if (ShockwaveVFX)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			ShockwaveVFX,
+			GetActorLocation(),
+			FRotator::ZeroRotator
+		);
+	}
+	
+	if (CrackDecalMaterial)
+	{
+		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(
+			GetWorld(),
+			CrackDecalMaterial,
+			CrackDecalSize,
+			GetActorLocation(),
+			FRotator(-90.f, FMath::RandRange(0.f, 360.f), 0.f),
+			0.f
+		);
+
+		if (Decal)
+		{
+			Decal->SetFadeIn(0.f, 0.f);
+			Decal->SetFadeOut(
+				CrackDecalLifeSpan * 0.6f,
+				CrackDecalLifeSpan * 0.4f,
+				true
+			);
+		}
+	}
+	
 	Destroy();
 }

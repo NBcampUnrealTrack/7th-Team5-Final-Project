@@ -1,6 +1,6 @@
 #include "Animation/Notify/Enemy/Boss/KOAN_BossCH01SpawnPlatform.h"
 
-#include "Character/Enemy/Boss/Gimmick/KOBossCH01Platform.h"
+#include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01Platform.h"
 
 void UKOAN_BossCH01SpawnPlatform::Notify(
 	USkeletalMeshComponent* MeshComp,

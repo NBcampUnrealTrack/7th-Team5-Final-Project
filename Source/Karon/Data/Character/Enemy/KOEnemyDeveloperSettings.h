@@ -20,4 +20,7 @@ public:
 	
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Data")
 	TSoftObjectPtr<UDataTable> EnemyDataTable;
+	
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TSoftObjectPtr<UDataTable> EnemyDropItemDataTable;
 };

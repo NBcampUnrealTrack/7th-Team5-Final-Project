@@ -4,11 +4,15 @@
 #include "CoreMinimal.h"
 #include "UI/KOActivatableWidget.h"
 #include "Items/KOItemSlot.h"
+#include "UI/Build/KOBuildQuickSlotBarWidget.h"
 #include "KOInventoryPanelWidget.generated.h"
 
 class UKOWeaponSlotWidget;
 class UKOInventoryWidget;
 class UKOInventoryComponent;
+class UKOEquipmentSlotWidget;
+class UTextBlock;
+class UWidgetAnimation;
 
 /**
  * 인벤토리 화면 컨테이너. CommonActivatableWidget 스택에 push/pop되는 단위.
@@ -30,6 +34,7 @@ public:
     UKOInventoryWidget* GetInventoryWidget() const { return InventoryWidget; }
 
 protected:
+    virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
 
@@ -37,9 +42,14 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UKOInventoryWidget> InventoryWidget;
     
-    /** WBP에 KOWeaponSlotWidget 인스턴스를 'WeaponSlotWidget'이라는 이름으로 배치. */
     UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UKOWeaponSlotWidget> WeaponSlotWidget;
+    TObjectPtr<UKOBuildQuickSlotBarWidget> BuildQuickSlotBar;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> WarningText;
+    
+    UPROPERTY(meta = (BindWidgetAnimOptional), Transient)
+    TObjectPtr<UWidgetAnimation> WarningFadeAnim;
 
     /** 슬롯 클릭 시 호출. 자식 클래스/BP에서 오버라이드해 사용/장착/툴팁 등 분기. */
     UFUNCTION(BlueprintNativeEvent, Category = "KO|UI|Inventory")
@@ -49,4 +59,22 @@ protected:
 private:
     UFUNCTION()
     void HandleSlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    UFUNCTION()
+    void HandleSlotRightClicked(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    UFUNCTION()
+    void HandleEquipmentChangeBlocked();
+    
+    UFUNCTION()
+    void OnFadeOutFinished();
+    
+    /** WidgetTree 내의 모든 EquipmentSlot을 캐싱. */
+    void CacheEquipmentSlotWidgets();
+
+    /** 우클릭된 인벤토리 아이템을 받아줄 수 있는 EquipmentSlot을 찾아 장착 시도. */
+    bool TryEquipItemToMatchingSlot(int32 SlotIndex, const FKOItemSlot& InSlot);
+
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UKOEquipmentSlotWidget>> EquipmentSlotWidgets;
 };

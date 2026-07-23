@@ -8,11 +8,15 @@
 void UKOFactoryCraftEntryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	CacheDefaultButtonStyle();
 
 	if (EntryButton)
 	{
 		EntryButton->OnClicked.AddDynamic(this, &UKOFactoryCraftEntryWidget::HandleClicked);
 	}
+	
+	RefreshVisualState();
 }
 
 void UKOFactoryCraftEntryWidget::NativeDestruct()
@@ -26,12 +30,16 @@ void UKOFactoryCraftEntryWidget::NativeDestruct()
 }
 
 void UKOFactoryCraftEntryWidget::SetupEntry(
-	FName InFactoryId,
+	EKOCraftTargetType InTargetType,
+	FName InTargetId,
 	const FText& InDisplayName,
 	UTexture2D* InIcon,
-	bool bInCanCraft)
+	bool bInCanCraft,
+	int32 InOwnedCount)
 {
-	FactoryId = InFactoryId;
+	TargetType = InTargetType;
+	TargetId = InTargetId;
+	bCanCraft = bInCanCraft;
 
 	if (FactoryNameText)
 	{
@@ -44,19 +52,78 @@ void UKOFactoryCraftEntryWidget::SetupEntry(
 		FactoryIconImage->SetVisibility(InIcon ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
 	}
 	
-	if (EntryButton)
+	if (TextAmount)
 	{
-		const FLinearColor TargetColor =
-			bInCanCraft ? CraftableColor : NotCraftableColor;
-
-		EntryButton->SetBackgroundColor(TargetColor);
+		TextAmount->SetText(FText::AsNumber(InOwnedCount));
 	}
+	
+	if (NotCraftableImage)
+	{
+		NotCraftableImage->SetVisibility(bCanCraft
+			? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+	}
+	
+	CacheDefaultButtonStyle();
+	RefreshVisualState();
+}
+
+void UKOFactoryCraftEntryWidget::SetSelected(bool bInSelected)
+{
+	if (bSelected == bInSelected)
+	{
+		return;
+	}
+
+	bSelected = bInSelected;
+	RefreshVisualState();
+}
+
+bool UKOFactoryCraftEntryWidget::MatchesTarget(EKOCraftTargetType InTargetType, FName InTargetId) const
+{
+	return TargetType == InTargetType && TargetId == InTargetId;
 }
 
 void UKOFactoryCraftEntryWidget::HandleClicked()
 {
-	if (!FactoryId.IsNone())
+	if (!TargetId.IsNone())
 	{
-		OnClicked.Broadcast(FactoryId);
+		OnClicked.Broadcast(TargetType, TargetId);
+	}
+}
+
+void UKOFactoryCraftEntryWidget::CacheDefaultButtonStyle()
+{
+	if (bDefaultStyleCached || !EntryButton)
+	{
+		return;
+	}
+
+	DefaultButtonStyle = EntryButton->GetStyle();
+	bDefaultStyleCached = true;
+}
+
+void UKOFactoryCraftEntryWidget::RefreshVisualState()
+{
+	CacheDefaultButtonStyle();
+
+	if (EntryButton && bDefaultStyleCached)
+	{
+		// BP에 설정한 원래 스타일에서 시작
+		FButtonStyle NewStyle = DefaultButtonStyle;
+
+		// 선택된 경우 이미지 교체
+		if (bSelected && SelectedNormalImage)
+		{
+			NewStyle.Normal.SetResourceObject(SelectedNormalImage);
+			NewStyle.Hovered.SetResourceObject(SelectedNormalImage);
+			NewStyle.Pressed.SetResourceObject(SelectedNormalImage);
+		}
+
+		EntryButton->SetStyle(NewStyle);
+	}
+
+	if (SelectionArrowText)
+	{
+		SelectionArrowText->SetVisibility(bSelected ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
 	}
 }

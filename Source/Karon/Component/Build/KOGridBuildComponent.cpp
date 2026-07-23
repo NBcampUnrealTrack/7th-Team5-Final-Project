@@ -5,6 +5,9 @@
 #include "Building/KOBaseBuilding.h"
 #include "Building/KOGhostPreview.h"
 #include "Building/Conveyor/KOConveyorBelt.h"
+#include "Building/KOGridVisual.h"
+#include "Building/Conveyor/KOConveyorFlowResolver.h"
+#include "EngineUtils.h"
 #include "DrawDebugHelpers.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "HAL/IConsoleManager.h"
@@ -16,7 +19,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
 
-
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Utility/Messaging/KOMessageTypes.h"
@@ -26,24 +28,12 @@
 #include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Component/Factory/KOEnergyProducerComponent.h"
 #include "CommonActivatableWidget.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-
-static TAutoConsoleVariable<int32> CVarKODrawBuildTrace(
-	TEXT("ko.DrawBuildTrace"),
-	0,
-	TEXT("화면 중앙 라인트레이스 디버그 표시 여부. 0: Off, 1: On"),
-	ECVF_Cheat
-);
-
-static TAutoConsoleVariable<int32> CVarKODrawBuildOccupiedCells(
-	TEXT("ko.DrawBuildCells"),
-	0,
-	TEXT("건물이 점유할 그리드 셀 디버그 박스 표시 여부. 0: Off, 1: On"),
-	ECVF_Cheat
-);
-
-#endif
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundConcurrency.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuild, Log, All);
 
@@ -326,6 +316,21 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 		PreviewLocation,
 		GetPlacementRotation()
 	);
+	
+	const bool bIsConveyorPreview =
+		CurrentBuildingClass.IsValid() &&
+		CurrentBuildingClass->IsChildOf(AKOConveyorBelt::StaticClass());
+	
+	// 컨베이어 벨트면 고스트 프리뷰에 진행 방향 화살표를 표시한다.
+	if (bIsConveyorPreview)
+	{
+		const float ArrowYaw = GetPreviewConveyorArrowYaw();
+		CurrentPreviewActor->ShowDirectionArrow(ArrowYaw);
+	}
+	else
+	{
+		CurrentPreviewActor->HideDirectionArrow();
+	}
 
 	// 설치할 수 있는지 검사
 	const bool bCanBuild = GridSub->CanBuildArea(
@@ -337,6 +342,8 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	bCurrentPlacementValid = bCanBuild;
 
 	SetPreviewActorBuildableState(bCanBuild);
+	
+	
 
 	// 에너지 발전기면 공급 커버리지 면적을 초록 오버레이로 표시(프리뷰 중에만).
 	if (CurrentFactoryRow->EnergyCoverageRadius > 0)
@@ -364,50 +371,6 @@ void UKOGridBuildComponent::UpdateGhostPreview()
 	{
 		CurrentPreviewActor->HideCoverageOverlay();
 	}
-
-	// 건물이 차지할 그리드 셀 디버그 표시
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (
-		IsInGameThread() &&
-		CVarKODrawBuildOccupiedCells.GetValueOnGameThread() != 0
-	)
-	{
-		const float CellSize = GridSub->GetCellSize();
-
-		const FVector CellExtent(
-			CellSize * 0.48f,
-			CellSize * 0.48f,
-			5.0f
-		);
-
-		const FColor OccupiedColor = bCanBuild ? FColor::Cyan : FColor::Red;
-
-		for (int32 Y = 0; Y < CurrentBuildingSize.Y; ++Y)
-		{
-			for (int32 X = 0; X < CurrentBuildingSize.X; ++X)
-			{
-				const FIntPoint TargetGrid(
-					CurrentAnchor.X + X,
-					CurrentAnchor.Y + Y
-				);
-
-				FVector CellCenter = GridSub->GridToWorldPosition(TargetGrid);
-				CellCenter.Z += 10.0f;
-
-				DrawDebugBox(
-					World,
-					CellCenter,
-					CellExtent,
-					OccupiedColor,
-					false,
-					0.03f,
-					0,
-					3.0f
-				);
-			}
-		}
-	}
-#endif
 }
 
 void UKOGridBuildComponent::RequestBuild()
@@ -506,11 +469,13 @@ void UKOGridBuildComponent::RequestBuild()
 	NewBuilding->InitializeBuildingData(CurrentFactoryId);
 
 	// 그리드 점유처리
-	GridSub->OccupyArea(
-		CurrentAnchor,
-		CurrentBuildingSize,
-		NewBuilding
-	);
+	GridSub->OccupyArea(CurrentAnchor, CurrentBuildingSize, NewBuilding);
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBuildingPlaced(CurrentFactoryId);
+	}
 	
 	const FName BuiltFactoryId = CurrentFactoryId;
 
@@ -524,6 +489,11 @@ void UKOGridBuildComponent::RequestBuild()
 		NewBuilding->Destroy();
 		return;
 	}
+	
+	if (AKOGridVisual* GridVisual = FindGridVisualActor())
+	{
+		GridVisual->RefreshInstalledPowerCoverage();
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Build] 건물 설치 완료: %s / Grid(%d, %d) / Size(%d, %d)"),
 		*NewBuilding->GetName(),
@@ -532,12 +502,31 @@ void UKOGridBuildComponent::RequestBuild()
 		CurrentBuildingSize.X,
 		CurrentBuildingSize.Y
 	);
+	
+	// 사운드
+	const bool bIsConveyor = Cast<AKOConveyorBelt>(NewBuilding) != nullptr;
+	const FKOBuildSoundSettings& InstallSoundSettings = bIsConveyor ? ConveyorInstallSound : FactoryInstallSound;
+	// StartTime으로 건너뛴 부분을 제외한 실제 남은 재생 시간
+	float InstallSoundDuration = 0.0f;
+
+	if (InstallSoundSettings.Sound)
+	{
+		InstallSoundDuration = FMath::Max(
+			0.0f,
+			InstallSoundSettings.Sound->GetDuration()
+				- InstallSoundSettings.StartTime
+		);
+	}
+
+	// 설치음보다 가동음이 먼저 또는 동시에 나오지 않도록 차단
+	NewBuilding->BlockOperatingSound(InstallSoundDuration);
+	PlayBuildSound(InstallSoundSettings, NewBuilding->GetActorLocation());
 
 	// 설치된 게 벨트면, 인접한 포트 보유 공장들과의 연결 팝업을 띄운다(없으면 무동작).
 	// (CurrentAnchor/Size 가 아래 분기에서 리셋되기 전에 스냅샷 사용)
 	if (AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(NewBuilding))
 	{
-		TryQueueBeltConnect(Belt, CurrentAnchor, CurrentBuildingSize);
+		TryQueueBeltConnect(Belt);
 	}
 
 	const bool bFactoryDepleted = InventoryComponent->GetCountOf(BuiltFactoryId) <= 0;
@@ -559,94 +548,14 @@ void UKOGridBuildComponent::OpenBeltConnectFor(AKOConveyorBelt* Belt)
 		return;
 	}
 
-	UWorld* World = GetWorld();
-	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
-	if (!GridSub)
-	{
-		return;
-	}
-
-	// 이미 설치된 벨트라 그리드에서 점유 영역을 역조회해 배치 때와 동일 경로로 재사용.
-	FIntPoint Anchor = FIntPoint::ZeroValue;
-	FIntPoint Size   = FIntPoint(1, 1);
-	if (!GridSub->TryGetOccupiedAreaForActor(Belt, Anchor, Size))
-	{
-		return;
-	}
-
-	TryQueueBeltConnect(Belt, Anchor, Size);
+	TryQueueBeltConnect(Belt);
 }
 
-void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt, FIntPoint Anchor, FIntPoint Size)
+void UKOGridBuildComponent::TryQueueBeltConnect(AKOConveyorBelt* Belt)
 {
-	if (!Belt)
-	{
-		return;
-	}
-
-	UWorld* World = GetWorld();
-	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
-	if (!GridSub)
-	{
-		return;
-	}
-
-	// 결정적 스캔 순서(+X, -X, +Y, -Y). 다수 인접 공장은 이 순서대로 팝업 큐에 쌓인다.
-	static const FIntPoint Dirs[4] = { FIntPoint(1, 0), FIntPoint(-1, 0), FIntPoint(0, 1), FIntPoint(0, -1) };
-
 	TArray<AKOBaseBuilding*> Factories;
-	TSet<AActor*> Seen;
 
-	for (int32 X = 0; X < Size.X; ++X)
-	{
-		for (int32 Y = 0; Y < Size.Y; ++Y)
-		{
-			const FIntPoint Cell = Anchor + FIntPoint(X, Y);
-			for (const FIntPoint& Dir : Dirs)
-			{
-				const FIntPoint Neighbor = Cell + Dir;
-
-				// 벨트 자신의 점유 영역 안쪽이면 스킵.
-				const bool bInsideSelf =
-					Neighbor.X >= Anchor.X && Neighbor.X < Anchor.X + Size.X &&
-					Neighbor.Y >= Anchor.Y && Neighbor.Y < Anchor.Y + Size.Y;
-				if (bInsideSelf)
-				{
-					continue;
-				}
-
-				AActor* Actor = GridSub->GetOccupyingActorAt(Neighbor);
-				if (!Actor || Seen.Contains(Actor))
-				{
-					continue;
-				}
-				Seen.Add(Actor);
-
-				// 공장이어야 하고, 벨트는 제외.
-				AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Actor);
-				if (!Building || Cast<AKOConveyorBelt>(Building))
-				{
-					continue;
-				}
-
-				// Processor 머신만 벨트 연결 팝업 대상. 레시피 미선택이어도 팝업은 띄움(빈 포트 표시).
-				// Energy Producer 는 제외: 에너지 출력이라 포트 바인딩이 무의미하고, 연료 입력은
-				// 기하 인접 시 tail-push 로 자동 공급되므로 명시적 바인딩 UI 가 불필요.
-				const bool bIsProcessor =
-					Building->FindComponentByClass<UKOFactoryProcessorComponent>() != nullptr;
-
-				// 벨트 흐름축이 이 머신에 닿는 경우(설치 방향이 머신 입/출력과 맞는 경우)만 후보.
-				// 수직 배치(흐름이 머신을 안 향함)는 연결 의미가 없어 제외.
-				EKOPortKind ConnectKind;
-				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
-				{
-					Factories.Add(Building);
-				}
-			}
-		}
-	}
-
-	if (Factories.Num() == 0)
+	if (!FindConnectableOutputFactoriesForBelt(Belt, Factories))
 	{
 		return;
 	}
@@ -711,6 +620,216 @@ void UKOGridBuildComponent::OpenNextBeltConnectPopup()
 	});
 }
 
+void UKOGridBuildComponent::UpdateGridVisualVisibility()
+{
+	AKOGridVisual* GridVisualActor = FindGridVisualActor();
+	if (!GridVisualActor)
+	{
+		return;
+	}
+
+	const bool bShouldShowGrid =
+		CurrentMode == EKOGridBuildMode::BuildMenu ||
+		CurrentMode == EKOGridBuildMode::Placing ||
+		CurrentMode == EKOGridBuildMode::Destroying;
+
+	GridVisualActor->SetGridVisible(bShouldShowGrid);
+	
+	if (bShouldShowGrid)
+	{
+		GridVisualActor->RefreshInstalledPowerCoverage();
+	}
+	else
+	{
+		GridVisualActor->ClearPowerCoverageCells();
+	}
+}
+
+AKOGridVisual* UKOGridBuildComponent::FindGridVisualActor()
+{
+	if (CachedGridVisualActor)
+	{
+		return CachedGridVisualActor;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	for (TActorIterator<AKOGridVisual> It(World); It; ++It)
+	{
+		CachedGridVisualActor = *It;
+		return CachedGridVisualActor;
+	}
+
+	return nullptr;
+}
+
+void UKOGridBuildComponent::PlayBuildSound(const FKOBuildSoundSettings& SoundSettings, const FVector& Location) const
+{
+	if (!SoundSettings.Sound)
+	{
+		return;
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(
+		this,
+		SoundSettings.Sound,
+		Location,
+		FRotator::ZeroRotator,
+		SoundSettings.Volume,
+		1.0f,			// Pitch
+		SoundSettings.StartTime
+	);
+}
+
+bool UKOGridBuildComponent::FindConnectableOutputFactoriesForBelt(AKOConveyorBelt* Belt,
+                                                                  TArray<AKOBaseBuilding*>& OutFactories) const
+{
+	OutFactories.Reset();
+
+	if (!Belt)
+	{
+		return false;
+	}
+
+	UWorld* World = GetWorld();
+	UKOGridSubsystem* GridSub = World ? World->GetSubsystem<UKOGridSubsystem>() : nullptr;
+	if (!GridSub)
+	{
+		return false;
+	}
+
+	FIntPoint Anchor = FIntPoint::ZeroValue;
+	FIntPoint Size = FIntPoint(1, 1);
+
+	if (!GridSub->TryGetOccupiedAreaForActor(Belt, Anchor, Size))
+	{
+		return false;
+	}
+
+	static const FIntPoint Dirs[4] =
+	{
+		FIntPoint(1, 0),
+		FIntPoint(-1, 0),
+		FIntPoint(0, 1),
+		FIntPoint(0, -1)
+	};
+
+	TSet<AActor*> Seen;
+
+	for (int32 X = 0; X < Size.X; ++X)
+	{
+		for (int32 Y = 0; Y < Size.Y; ++Y)
+		{
+			const FIntPoint Cell = Anchor + FIntPoint(X, Y);
+
+			for (const FIntPoint& Dir : Dirs)
+			{
+				const FIntPoint Neighbor = Cell + Dir;
+
+				const bool bInsideSelf =
+					Neighbor.X >= Anchor.X && Neighbor.X < Anchor.X + Size.X &&
+					Neighbor.Y >= Anchor.Y && Neighbor.Y < Anchor.Y + Size.Y;
+
+				if (bInsideSelf)
+				{
+					continue;
+				}
+
+				AActor* Actor = GridSub->GetOccupyingActorAt(Neighbor);
+				if (!Actor || Seen.Contains(Actor))
+				{
+					continue;
+				}
+
+				Seen.Add(Actor);
+
+				AKOBaseBuilding* Building = Cast<AKOBaseBuilding>(Actor);
+				if (!Building || Cast<AKOConveyorBelt>(Building))
+				{
+					continue;
+				}
+
+				const bool bIsProcessor =
+					Building->FindComponentByClass<UKOFactoryProcessorComponent>() != nullptr;
+
+				EKOPortKind ConnectKind;
+				if (bIsProcessor && Belt->GetConnectablePortKind(Building, ConnectKind))
+				{
+					if (ConnectKind == EKOPortKind::Output)
+					{
+						OutFactories.Add(Building);
+					}
+				}
+			}
+		}
+	}
+
+	return OutFactories.Num() > 0;
+}
+
+float UKOGridBuildComponent::GetPreviewConveyorArrowYaw() const
+{
+	UClass* BuildingClass = CurrentBuildingClass.Get();
+
+	if (!BuildingClass || !BuildingClass->IsChildOf(AKOConveyorBelt::StaticClass()))
+	{
+		return 0.0f;
+	}
+
+	const AKOConveyorBelt* BeltCDO = Cast<AKOConveyorBelt>(BuildingClass->GetDefaultObject());
+
+	if (!BeltCDO)
+	{
+		return 0.0f;
+	}
+
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return 0.0f;
+	}
+
+	const FIntPoint MyCell = CurrentAnchor;
+	const FIntPoint Forward = GetPreviewForwardStep();
+	const FIntPoint Side = GetPreviewSideStep();
+
+	if (BeltCDO->GetShape() == EKOBeltShape::Corner)
+	{
+		bool bResolvedFlip = false;
+
+		const bool bResolved =
+			FKOConveyorFlowResolver::TryResolveCornerFlip(
+				World,
+				MyCell,
+				Forward,
+				Side,
+				bResolvedFlip
+			);
+
+		const bool bFinalFlip = bResolved ? bResolvedFlip : bCornerFlipPlacement;
+		
+		return bFinalFlip ? 90.0f : 0.0f;
+	}
+
+	bool bResolvedReverse = false;
+
+	const bool bResolved =
+		FKOConveyorFlowResolver::TryResolveStraightReverse(
+			World,
+			MyCell,
+			Forward,
+			bResolvedReverse
+		);
+	
+	const bool bFinalReverse = bResolved ? bResolvedReverse : false;
+
+	return bFinalReverse ? 180.0f : 0.0f;
+}
+
 void UKOGridBuildComponent::CancelCurrentMode()
 {
 	switch (CurrentMode)
@@ -767,6 +886,14 @@ void UKOGridBuildComponent::StartDestroyMode()
 	SetComponentTickEnabled(true);
 
 	UpdateDestroyTargetPreview();
+	
+	for (TActorIterator<AKOBaseBuilding> It(GetWorld()); It; ++It)
+	{
+		if (AKOBaseBuilding* Building = *It)
+		{
+			Building->SetPressureWarningSuppressed(true);
+		}
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 시작"));
 }
@@ -782,6 +909,14 @@ void UKOGridBuildComponent::CancelDestroyMode()
 
 	SetCurrentMode(EKOGridBuildMode::BuildMenu);
 	SetComponentTickEnabled(false);
+	
+	for (TActorIterator<AKOBaseBuilding> It(GetWorld()); It; ++It)
+	{
+		if (AKOBaseBuilding* Building = *It)
+		{
+			Building->SetPressureWarningSuppressed(false);
+		}
+	}
 
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 모드 종료 - 건설 메뉴로 복귀"));
 }
@@ -823,6 +958,12 @@ void UKOGridBuildComponent::RotatePlacementPreview(int32 Direction)
 	}
 
 	UpdateGhostPreview();
+}
+
+bool UKOGridBuildComponent::CanOpenBeltConnectFor(AKOConveyorBelt* Belt) const
+{
+	TArray<AKOBaseBuilding*> Factories;
+	return FindConnectableOutputFactoriesForBelt(Belt, Factories);
 }
 
 void UKOGridBuildComponent::RequestDestroy()
@@ -910,10 +1051,25 @@ void UKOGridBuildComponent::RequestDestroy()
 	UE_LOG(LogKOBuild, Log, TEXT("[Destroy] 건물 파괴 완료: %s"),
 		*TargetBuilding->GetName()
 	);
+	
+	
+	if (AKOGridVisual* GridVisual = FindGridVisualActor())
+	{
+		GridVisual->RefreshInstalledPowerCoverage();
+	}
 
+	// 사운드
+	const FVector DestroySoundLocation = TargetBuilding->GetActorLocation();
+	const bool bIsConveyor = Cast<AKOConveyorBelt>(TargetBuilding) != nullptr;
+	const FKOBuildSoundSettings& DestroySoundSettings = bIsConveyor ? ConveyorDestroySound : FactoryDestroySound;
+	TargetBuilding->StopOperatingSoundImmediately(); // 해제음이 나오기 전에 가동음을 Fade 없이 즉시 정지
+	
 	ClearDestroyTargetActor();
 
-	TargetBuilding->Destroy();
+	if (TargetBuilding->Destroy())
+	{
+		PlayBuildSound(DestroySoundSettings, DestroySoundLocation);
+	}
 }
 
 void UKOGridBuildComponent::RefundStoredItems(AKOBaseBuilding* TargetBuilding, UKOInventoryComponent& InventoryComponent) const
@@ -1197,6 +1353,8 @@ void UKOGridBuildComponent::SetCurrentMode(EKOGridBuildMode NewMode)
 		KOGameplayTags::Data_Message_Build_ModeChanged,
 		FInstancedStruct::Make(Message)
 	);
+	
+	UpdateGridVisualVisibility();
 
 	UE_LOG(
 		LogKOBuild,
@@ -1222,6 +1380,36 @@ FIntPoint UKOGridBuildComponent::GetRotatedBuildingSize() const
 
 	// 90도, 270도는 X/Y 교환
 	return FIntPoint(BaseBuildingSize.Y, BaseBuildingSize.X);
+}
+
+FIntPoint UKOGridBuildComponent::GetPreviewForwardStep() const
+{
+	switch ((CurrentRotationStep % 4 + 4) % 4)
+	{
+	case 0:
+		return FIntPoint(1, 0);
+
+	case 1:
+		return FIntPoint(0, 1);
+
+	case 2:
+		return FIntPoint(-1, 0);
+
+	case 3:
+		return FIntPoint(0, -1);
+
+	default:
+		return FIntPoint(1, 0);
+	}
+}
+
+FIntPoint UKOGridBuildComponent::GetPreviewSideStep() const
+{
+	const FIntPoint Forward = GetPreviewForwardStep();
+
+	// 로컬 +Y 방향.
+	// Forward=(1,0)이면 Side=(0,1)
+	return FIntPoint(-Forward.Y, Forward.X);
 }
 
 bool UKOGridBuildComponent::IsCurrentBuildingCornerBelt() const
@@ -1277,59 +1465,6 @@ bool UKOGridBuildComponent::TraceFromScreenCenter(FHitResult& OutHit, ECollision
 		TraceChannel,
 		QueryParams
 	);
-	
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	if (
-		IsInGameThread() &&
-		CVarKODrawBuildTrace.GetValueOnGameThread() != 0
-	)
-	{
-		const float DebugLifeTime = 0.03f;
-		const float DebugThickness = 2.0f;
-
-		if (bHit)
-		{
-			// 카메라에서 맞은 지점까지 초록색 라인
-			DrawDebugLine(
-				World,
-				TraceStart,
-				OutHit.ImpactPoint,
-				FColor::Green,
-				false,
-				DebugLifeTime,
-				0,
-				DebugThickness
-			);
-
-			// 맞은 지점 표시
-			DrawDebugSphere(
-				World,
-				OutHit.ImpactPoint,
-				12.0f,
-				12,
-				FColor::Green,
-				false,
-				DebugLifeTime,
-				0,
-				1.5f
-			);
-		}
-		else
-		{
-			// 아무것도 맞지 않으면 전체 라인 빨간색
-			DrawDebugLine(
-				World,
-				TraceStart,
-				TraceEnd,
-				FColor::Red,
-				false,
-				DebugLifeTime,
-				0,
-				DebugThickness
-			);
-		}
-	}
-#endif
 
 	return bHit;	
 }

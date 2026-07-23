@@ -349,6 +349,15 @@ bool UKOInventoryComponent::RemoveItemFromSlots(TArray<FKOItemSlot>& TargetSlots
     return Remaining <= 0;
 }
 
+void UKOInventoryComponent::LoadSlotsFromSave(const TArray<FKOItemSlot>& InSlots)
+{
+    Slots = InSlots;
+
+    EnsureSlotsCapacity();
+
+    NotifyInventoryChanged(NAME_None, 0, 0);
+}
+
 const FKOItemSlot* UKOInventoryComponent::GetSlotByIndex(int32 Index) const
 {
     if (!Slots.IsValidIndex(Index))

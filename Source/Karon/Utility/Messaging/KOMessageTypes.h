@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "StructUtils/InstancedStruct.h"
 #include "Component/Build/KOGridBuildComponent.h"
+#include "Data/Type/KOSkillTypes.h"
 #include "KOMessageTypes.generated.h"
 
 /**
@@ -142,4 +143,114 @@ struct FKOProcessorChangedMessage
 
     UPROPERTY()
     TWeakObjectPtr<class UKOFactoryProcessorComponent> Processor;
+};
+/**
+ * 아이템 획득
+ * 채널: KOGameplayTags::Event_DropItem
+ */
+USTRUCT()
+struct FKODropItemMessage
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FName    EnemyTag;
+    
+    UPROPERTY()
+    int32    EnemyLevel = 0;
+    
+    UPROPERTY()
+    FName ItemId;
+    
+    UPROPERTY()
+    int32 Count=0;
+};
+
+/**
+ * 상호작용
+ * 채널: KOGameplayTags::Event_Interaction
+ */
+USTRUCT()
+struct FKOInteractionMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FText InteractionId;
+    
+    UPROPERTY()
+    bool bIsActive = true;
+};
+
+/**
+ * 스킬 퀵슬롯 배정 변경 메시지
+ * 채널: KOGameplayTags::Data_Message_Skill_QuickSlotChanged ("Data.Message.Skill.QuickSlotChanged")
+ */
+USTRUCT()
+struct FKOSkillQuickSlotChangedMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    ESkillQuickSlotKey SlotKey = ESkillQuickSlotKey::Q;
+
+    /** 새로 배정된 스킬 이름. NAME_None이면 슬롯이 비워진 것. */
+    UPROPERTY()
+    FName SkillName = NAME_None;
+
+    UPROPERTY()
+    FGameplayTag SkillTag;
+};
+
+/**
+ * 오버클럭 프로그레스바
+ * 채널: KOGameplayTags::Event_SyncOverclockProgressBar
+ */
+USTRUCT()
+struct FKOOverclockProgressBarMessage
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    float Ratio = 0.f;
+};
+
+/**
+ * Telemetry 전투 수집용 메세지
+ * 채널: KOGameplayTags::Event_Telemetry_Combat
+ */
+USTRUCT()
+struct FKOTelemetryCombatMessage
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FName    EnemyTag;
+    
+    UPROPERTY()
+    int32    EnemyLevel = 0;
+    
+    UPROPERTY()
+    FString  AbilityName;
+    
+    UPROPERTY()
+    float	 Value = 0.f;
+    
+    UPROPERTY()
+    float	 HealthPercentAfter=0.f;
+    
+    UPROPERTY()
+    FVector  Position = FVector::ZeroVector;
+};
+
+/**
+ * 범용 텍스트 메세지 구조체
+ */
+USTRUCT()
+struct FKOTextMessage
+{
+    GENERATED_BODY()
+    
+    UPROPERTY()
+    FText InText;
 };

@@ -68,5 +68,5 @@ void UKOAN_BossSpawnProjectile::Notify(
 		return;
 	}
 	
-	Projectile->SetProjectile(Owner, nullptr, 0.f);
+	Projectile->SetProjectile(Owner, 0.f);
 }

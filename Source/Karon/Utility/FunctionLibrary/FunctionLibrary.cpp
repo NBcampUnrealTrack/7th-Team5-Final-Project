@@ -1,0 +1,102 @@
+﻿#include "FunctionLibrary.h"
+
+#include "AbilitySystemComponent.h"
+#include "Character/KOCharacterBase.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Utility/Messaging/KOMessageTypes.h"
+
+void UFunctionLibrary::FindActorsWithGameplayTagInRange(
+	const UWorld* World, 
+	const FVector& ScanOrigin, 
+	float Radius,
+	const FGameplayTag& TargetTag, 
+	const TArray<AActor*>& ActorsToIgnore, 
+	TArray<TWeakObjectPtr<AActor>>& OutDetectedActors
+	)
+{
+	if (!World)
+	{
+		return;
+	}
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+	TArray<FHitResult> OutHits;
+
+	bool bHasHit = UKismetSystemLibrary::SphereTraceMultiForObjects(
+		World, ScanOrigin, ScanOrigin, Radius, ObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, OutHits, true
+	);
+
+	if (bHasHit)
+	{
+		for (const FHitResult& Hit : OutHits)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (!HitActor) continue;
+			if (AKOCharacterBase* Character=Cast<AKOCharacterBase>(HitActor))
+			{
+				if (UAbilitySystemComponent* ASC=Character->GetAbilitySystemComponent())
+				{
+					if (ASC->HasMatchingGameplayTag(TargetTag))
+					{
+						OutDetectedActors.Add(HitActor);
+					}
+				}
+			}
+		}
+	}
+}
+
+void UFunctionLibrary::SetUITextBlock(UObject* WorldContextObject,FGameplayTag Tag, FText Text)
+{
+	UWorld* World = WorldContextObject->GetWorld();
+	FKOTextMessage Message;
+	Message.InText=Text;
+	
+	UGMRouterSubsystem::BroadcastMessage(World,Tag,FInstancedStruct::Make(Message));
+}
+
+void UFunctionLibrary::DropItem(UObject* WorldContextObject, FName ItemName)
+{
+	if (WorldContextObject&&WorldContextObject->GetWorld())
+	{
+			
+		FKODropItemMessage ItemMessage;
+		ItemMessage.ItemId = ItemName;
+		ItemMessage.Count = 1;
+
+	
+	
+		UGMRouterSubsystem::BroadcastMessage(
+			WorldContextObject->GetWorld(),
+			KOGameplayTags::Event_DropItem,
+			FInstancedStruct::Make(ItemMessage)
+		);
+	}
+
+}
+
+bool UFunctionLibrary::HasMatchingTags(ACharacter* Character, TArray<FGameplayTag> Tags)
+{
+	if (Character)
+	{
+		if (UAbilitySystemComponent* ASC=Character->GetComponentByClass<UAbilitySystemComponent>())
+		{
+			for (auto& Tag:Tags)
+			{
+				if (ASC->HasMatchingGameplayTag(Tag))
+				{
+					continue;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+	
+};
+

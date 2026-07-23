@@ -1,7 +1,7 @@
 #include "Character/Enemy/Boss/BehaviorTree/BTTask_RotateToTarget.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 
 UBTTask_RotateToTarget::UBTTask_RotateToTarget()
 {
@@ -25,7 +25,7 @@ EBTNodeResult::Type UBTTask_RotateToTarget::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
  
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossController::TargetActorKey));
 	if (!Target)
 	{
 		return EBTNodeResult::Failed;
@@ -72,7 +72,7 @@ void UBTTask_RotateToTarget::TickTask(
 		return;
 	}
  
-	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossChapter01::TargetActorKey));
+	AActor* Target = Cast<AActor>(BB->GetValueAsObject(AKOAIC_BossController::TargetActorKey));
 	if (!Target)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);

@@ -1,17 +1,22 @@
 ﻿#include "KOGA_Movement_Sprint.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "AbilitySystem/Attribute/KOStaminaSet.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Utility/Log/KOLogManager.h"
 
 UKOGA_Movement_Sprint::UKOGA_Movement_Sprint()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	SetAssetTags(FGameplayTagContainer(KOGameplayTags::Input_Ability_Movement_Sprint));
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Movement_Dodging);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_HitReacting);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 }
 
 bool UKOGA_Movement_Sprint::CanActivateAbility(
@@ -21,10 +26,12 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	const FGameplayTagContainer* TargetTags,
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags)) return false;
+	if (IsActive() || !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+		return false;
 	
 	ACharacter* Character = GetAvatarCharacter();
-	if (!Character) return false;
+	UAbilitySystemComponent* ASC = GetASC();
+	if (!Character || !ASC) return false;
 	
 	UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement(); 
 	if (!CharacterMovement) return false;
@@ -33,7 +40,7 @@ bool UKOGA_Movement_Sprint::CanActivateAbility(
 	if (CharacterMovement->IsFalling()) return false; 
 	
 	// 스테미나가 없는 경우 
-	const float Stamina = GetASC()->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
+	const float Stamina = ASC->GetNumericAttribute(UKOStaminaSet::GetStaminaAttribute());
 	if (Stamina <= 0.f) return false;
 	
 	// 움직이지 않는 경우 
@@ -57,8 +64,7 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
-	// 1. Info 확인 
+
 	CachedCharacter = Cast<AKOHeroCharacter>(GetAvatarCharacter()); 
 	if (!CachedCharacter)
 	{
@@ -73,21 +79,37 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 		return;
 	}
 	
-	// 2. Effect 적용 
-	if (SprintEffect)
+	if (ActorInfo->IsLocallyControlled())
 	{
-		SprintEffectHandle = ApplyEffectToSelf(SprintEffect);
+		const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
+		
+		if (!Spec || !Spec->InputPressed)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
 	}
 	
-	if (SprintCostEffect)
+	// InputReleaseTask = UAbilityTask_WaitInputRelease::WaitInputRelease(this, true);
+	// if (InputReleaseTask)
+	// {
+	// 	InputReleaseTask->OnRelease.AddDynamic(this, &ThisClass::OnInputReleased);
+	// 	InputReleaseTask->ReadyForActivation();
+	// }
+	
+	if (SprintEffect)
 	{
-		SprintCostEffectHandle = ApplyEffectToSelf(SprintCostEffect);
+		SprintEffectHandle = ApplyEffectSetByCallerToSelf(
+			SprintEffect,
+			KOGameplayTags::Data_Attribute_Movement_WalkSpeed,
+			SprintSpeed
+			);
 	}
 	
 	CachedCharacter->UpdateGait(EGait::Sprint);
 	
 	// 3. Stamina 감소시 마다 달리기 조건 체크 Task 
-	UAbilityTask_WaitAttributeChange* CheckStaminaTask =
+	StaminaTask =
 		UAbilityTask_WaitAttributeChange::WaitForAttributeChange(
 			this,
 			UKOStaminaSet::GetStaminaAttribute(),
@@ -96,10 +118,10 @@ void UKOGA_Movement_Sprint::ActivateAbility(
 			false
 		);
 	
-	if (CheckStaminaTask)
+	if (StaminaTask)
 	{
-		CheckStaminaTask->OnChange.AddDynamic(this, &ThisClass::OnStaminaChanged);
-		CheckStaminaTask->ReadyForActivation(); 
+		StaminaTask->OnChange.AddDynamic(this, &ThisClass::OnStaminaChanged);
+		StaminaTask->ReadyForActivation(); 
 	}
 }
 
@@ -109,15 +131,23 @@ void UKOGA_Movement_Sprint::EndAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	GetWorld()->GetTimerManager().ClearTimer(GraceTimer);
+	ClearGraceTimer();
+	
+	if (StaminaTask)
+	{
+		StaminaTask->EndTask();
+		StaminaTask = nullptr;
+	}
+	
+	if (InputReleaseTask)
+	{
+		InputReleaseTask->EndTask();
+		InputReleaseTask = nullptr;
+	}
 	
 	if (SprintEffectHandle.IsValid())
 	{
 		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintEffectHandle);
-	}
-	if (SprintCostEffectHandle.IsValid())
-	{
-		BP_RemoveGameplayEffectFromOwnerWithHandle(SprintCostEffectHandle);
 	}
 	
 	if (CachedCharacter)
@@ -163,12 +193,13 @@ void UKOGA_Movement_Sprint::OnStaminaChanged()
 		return; 
 	}
 	
-	GetWorld()->GetTimerManager().ClearTimer(GraceTimer);
+	ClearGraceTimer();
 }
 
 void UKOGA_Movement_Sprint::TryStartGraceTimer()
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(GraceTimer)) return;
+	UWorld* World = GetWorld();
+	if (!World || World->GetTimerManager().IsTimerActive(GraceTimer)) return;
 	
 	TWeakObjectPtr<UKOGA_Movement_Sprint> WeakThis(this);
 	GetWorld()->GetTimerManager().SetTimer(
@@ -189,3 +220,18 @@ void UKOGA_Movement_Sprint::TryStartGraceTimer()
 	);
 }
 
+void UKOGA_Movement_Sprint::ClearGraceTimer()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(GraceTimer);
+	}
+}
+
+void UKOGA_Movement_Sprint::OnInputReleased(float TimeHeld)
+{
+	if (IsActive())
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+}

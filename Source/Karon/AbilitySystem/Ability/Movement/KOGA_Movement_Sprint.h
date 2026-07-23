@@ -51,18 +51,21 @@ public:
 	
 	void TryStartGraceTimer();
 	
+	void ClearGraceTimer();
+	
+	UFUNCTION()
+	void OnInputReleased(float TimeHeld);
+	
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UGameplayEffect> SprintEffect;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	float SprintSpeed = 370.f;
+	
 	FActiveGameplayEffectHandle SprintEffectHandle; 
-	
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Cost | Effect")
-	TSubclassOf<UGameplayEffect> SprintCostEffect;
-	
-	FActiveGameplayEffectHandle SprintCostEffectHandle; 
-	
+
 protected:
 	
 	FTimerHandle GraceTimer; 
@@ -76,4 +79,10 @@ protected:
 	
 	UPROPERTY()
 	TObjectPtr<UCharacterMovementComponent> CachedMovement;
+	
+	UPROPERTY()
+	TObjectPtr<class UAbilityTask_WaitAttributeChange> StaminaTask;
+	
+	UPROPERTY()
+	TObjectPtr<class UAbilityTask_WaitInputRelease> InputReleaseTask;
 };

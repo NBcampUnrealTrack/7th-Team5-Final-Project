@@ -2,10 +2,10 @@
 
 #include "Building/Conveyor/KOConveyorBelt.h"
 
+#include "Building/Conveyor/KOConveyorFlowResolver.h"
 #include "Subsystem/KOConveyorSubsystem.h"
 #include "Subsystem/KOGridSubsystem.h"
 #include "Subsystem/KOLoadSubsystem.h"
-#include "Component/Build/KOGridBuildComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
 #include "Utility/Log/KOLogManager.h"
@@ -13,11 +13,17 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Component/Build/KOGridBuildComponent.h"
+#include "Component/Factory/KOFactoryProcessorComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
-#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 #include "HAL/IConsoleManager.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
@@ -28,41 +34,15 @@ static TAutoConsoleVariable<int32> CVarKOConveyorDrawSlots(
 );
 #endif
 
-namespace
-{
-    // 월드 방향을 축 정렬 그리드 스텝(±1,0)/(0,±1)으로 변환.
-    FIntPoint WorldDirToGridStep(const FVector& Dir)
-    {
-        if (FMath::Abs(Dir.X) >= FMath::Abs(Dir.Y))
-        {
-            return FIntPoint(Dir.X >= 0.f ? 1 : -1, 0);
-        }
-        return FIntPoint(0, Dir.Y >= 0.f ? 1 : -1);
-    }
-
-    // 그리드 스텝을 월드 단위 방향으로(그리드 X/Y = 월드 X/Y 직접 매핑).
-    FVector GridStepToWorldDir(const FIntPoint& Step)
-    {
-        return FVector(static_cast<float>(Step.X), static_cast<float>(Step.Y), 0.f).GetSafeNormal();
-    }
-
-    // FIntPoint 는 단항 - 연산자가 없어 수동 음수화.
-    FIntPoint NegateStep(const FIntPoint& Step)
-    {
-        return FIntPoint(-Step.X, -Step.Y);
-    }
-}
-
 AKOConveyorBelt::AKOConveyorBelt()
 {
-    PrimaryActorTick.bCanEverTick = false; // 서브시스템이 구동.
+    PrimaryActorTick.bCanEverTick = true;
 
-    // AKOBaseBuilding 은 루트를 만들지 않는다. 전용 씬 루트를 둬서 런타임에 생성하는
-    // 아이템 ISM 들의 부착 부모를 보장한다(루트가 없으면 첫 씬 컴포넌트가 루트로 승격됨).
     USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
     SetRootComponent(SceneRoot);
-
-    // 아이템 비주얼은 메시별 ISM 으로 BeginPlay 시 지연 생성(GetOrCreateISMForMesh).
+    
+    OutputSelectionWarningWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OutputSelectionWarningWidget"));
+    OutputSelectionWarningWidget->SetupAttachment(SceneRoot);
 }
 
 void AKOConveyorBelt::BeginPlay()
@@ -92,26 +72,117 @@ void AKOConveyorBelt::EndPlay(const EEndPlayReason::Type Reason)
     Super::EndPlay(Reason);
 }
 
+void AKOConveyorBelt::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    
+    if (!IsWarningWidgetRangeActive())
+    {
+        if (OutputSelectionWarningWidget)
+        {
+            OutputSelectionWarningWidget->SetHiddenInGame(true);
+        }
+
+        return;
+    }
+    
+    RefreshOutputSelectionWarning();
+    UpdateOutputSelectionWarningFacingCamera();
+}
+
+void AKOConveyorBelt::RefreshOutputSelectionWarning()
+{
+    if (!OutputSelectionWarningWidget)
+    {
+        return;
+    }
+
+    OutputSelectionWarningWidget->SetHiddenInGame(!ShouldShowOutputSelectionWarning());
+}
+
+void AKOConveyorBelt::UpdateOutputSelectionWarningFacingCamera()
+{
+    if (!OutputSelectionWarningWidget)
+    {
+        return;
+    }
+
+    if (OutputSelectionWarningWidget->bHiddenInGame)
+    {
+        return;
+    }
+
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        return;
+    }
+
+    APlayerController* PC = World->GetFirstPlayerController();
+    if (!PC || !PC->PlayerCameraManager)
+    {
+        return;
+    }
+
+    const FVector WidgetLocation = OutputSelectionWarningWidget->GetComponentLocation();
+    const FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
+
+    const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+
+    OutputSelectionWarningWidget->SetWorldRotation(LookAtRotation);
+}
+
+bool AKOConveyorBelt::ShouldShowOutputSelectionWarning() const
+{
+    return bShowOutputSelectionWarning
+        && BoundOutputMachine.IsValid()
+        && (!bHasSelectedOutputPort || BoundOutputItemId.IsNone());
+}
+
 void AKOConveyorBelt::BindToMachinePort(AKOBaseBuilding* Machine, const FKOFactoryPortSlot& Slot)
 {
-    BoundMachine   = Machine;
-    BoundKind      = Slot.Kind;
-    BoundPortIndex = Slot.PortIndex;
+    if (!Machine)
+    {
+        return;
+    }
+
+    // Input은 바인딩하지 않는다.
+    // Output 슬롯만 "이 벨트가 꺼낼 아이템 필터"로 저장한다.
+    if (Slot.Kind != EKOPortKind::Output)
+    {
+        return;
+    }
+
+    BoundOutputMachine = Machine;
+    BoundOutputPortIndex = Slot.PortIndex;
+    BoundOutputItemId = Slot.ItemId;
+    bHasSelectedOutputPort = true;
 
     KO_LOGS(Factory, Conveyor, Log,
-        TEXT("BindToMachinePort: 벨트='%s' → 머신='%s' 포트=(%s, #%d, 힌트=%s)"),
-        *GetName(), *GetNameSafe(Machine),
-        (Slot.Kind == EKOPortKind::Input) ? TEXT("Input") : TEXT("Output"),
-        Slot.PortIndex,
-        Slot.ItemId.IsNone() ? TEXT("-") : *Slot.ItemId.ToString());
+        TEXT("BindToMachinePort: 벨트='%s' → 머신='%s' Output #%d, 아이템=%s"),
+        *GetName(),
+        *GetNameSafe(Machine),
+        BoundOutputPortIndex,
+        BoundOutputItemId.IsNone() ? TEXT("-") : *BoundOutputItemId.ToString());
 }
 
 bool AKOConveyorBelt::IsBoundToSlot(const AKOBaseBuilding* Machine, EKOPortKind Kind, int32 PortIndex) const
 {
-    return BoundMachine.Get() == Machine
-        && BoundKind == Kind
-        && BoundPortIndex == PortIndex
-        && BoundPortIndex != INDEX_NONE;
+    if (Kind != EKOPortKind::Output)
+    {
+        return false;
+    }
+
+    return BoundOutputMachine.Get() == Machine
+        && BoundOutputPortIndex == PortIndex
+        && BoundOutputPortIndex != INDEX_NONE;
+}
+
+void AKOConveyorBelt::CancelOutputPortSelection()
+{
+    BoundOutputPortIndex = INDEX_NONE;
+    BoundOutputItemId = NAME_None;
+    bHasSelectedOutputPort = false;
 }
 
 bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind& OutKind) const
@@ -138,6 +209,40 @@ bool AKOConveyorBelt::GetConnectablePortKind(const AActor* Machine, EKOPortKind&
     return false; // 흐름축이 머신에 안 닿음(수직 배치 등).
 }
 
+void AKOConveyorBelt::BeginOutputPortSelection(AKOBaseBuilding* Machine)
+{
+    if (!Machine)
+    {
+        return;
+    }
+    
+    if (bHasSelectedOutputPort && BoundOutputMachine.IsValid())
+    {
+        return;
+    }
+
+    BoundOutputMachine = Machine;
+    BoundOutputPortIndex = INDEX_NONE;
+    BoundOutputItemId = NAME_None;
+    bHasSelectedOutputPort = false;
+}
+
+bool AKOConveyorBelt::CanInteract(AActor* Interactor) const
+{
+    if (!Super::CanInteract(Interactor))
+    {
+        return false;
+    }
+
+    APawn* Pawn = Cast<APawn>(Interactor);
+    AController* Controller = Pawn ? Pawn->GetController() : Cast<AController>(Interactor);
+
+    UKOGridBuildComponent* BuildComp =
+        Controller ? Controller->FindComponentByClass<UKOGridBuildComponent>() : nullptr;
+
+    return BuildComp && BuildComp->CanOpenBeltConnectFor(const_cast<AKOConveyorBelt*>(this));
+}
+
 void AKOConveyorBelt::OnInteract(AActor* Interactor)
 {
     // 머신과 달리 벨트는 연결 팝업을 재오픈한다(Processor/Producer 위젯 경로 대신).
@@ -158,8 +263,8 @@ void AKOConveyorBelt::RecomputePortDirections()
     if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
     if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
 
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // 로컬 +X 다리
-    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // 로컬 +Y 다리
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);   // 로컬 +X 다리
+    const FIntPoint Side    = FKOConveyorFlowResolver::WorldDirToGridStep(RightWorld); // 로컬 +Y 다리
 
     if (Shape == EKOBeltShape::Corner)
     {
@@ -167,26 +272,26 @@ void AKOConveyorBelt::RecomputePortDirections()
         // 흐름은 이 두 다리를 잇고, bCornerFlip 은 입/출구만 교환한다 → 같은 L 메시로 좌/우 코너 모두 표현(거울 메시 불필요).
         if (!bCornerFlip)
         {
-            InDir  = NegateStep(Side); // 입구 이웃 = MyCell - InDir = MyCell + Side
+            InDir  = FKOConveyorFlowResolver::NegateStep(Side);; // 입구 이웃 = MyCell - InDir = MyCell + Side
             OutDir = Forward;          // 출구 이웃 = MyCell + Forward
         }
         else
         {
-            InDir  = NegateStep(Forward); // 입구 이웃 = MyCell + Forward
+            InDir  = FKOConveyorFlowResolver::NegateStep(Forward); // 입구 이웃 = MyCell + Forward
             OutDir = Side;                // 출구 이웃 = MyCell + Side
         }
     }
     else
     {
         // 직선: 흐름 축은 Forward. bStraightReverse 면 정/역 반전(입구=+Forward, 출구=-Forward).
-        const FIntPoint Flow = bStraightReverse ? NegateStep(Forward) : Forward;
+        const FIntPoint Flow = bStraightReverse ? FKOConveyorFlowResolver::NegateStep(Forward) : Forward;
         InDir  = Flow;
         OutDir = Flow;
     }
 
     // 디버그/비주얼용: 중심에서 입구/출구 이웃을 향하는 월드 방향.
-    EntryDirWorld = GridStepToWorldDir(NegateStep(InDir));
-    ExitDirWorld  = GridStepToWorldDir(OutDir);
+    EntryDirWorld = FKOConveyorFlowResolver::GridStepToWorldDir(FKOConveyorFlowResolver::NegateStep(InDir));
+    ExitDirWorld  = FKOConveyorFlowResolver::GridStepToWorldDir(OutDir);
 
     if (const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr)
     {
@@ -283,27 +388,6 @@ void AKOConveyorBelt::ApplyPlacementFlow(bool bManualFlipFallback)
         (MyCell - InDir).X, (MyCell - InDir).Y, (MyCell + OutDir).X, (MyCell + OutDir).Y);
 }
 
-int32 AKOConveyorBelt::ClassifyNeighbor(const FIntPoint& MyCellAbs, const FIntPoint& NeighborCell) const
-{
-    AActor* Actor = GetActorAtCell(NeighborCell);
-    if (!Actor)
-    {
-        return 0;
-    }
-    if (const AKOConveyorBelt* Belt = Cast<AKOConveyorBelt>(Actor))
-    {
-        if (Belt->OutputsToCell(MyCellAbs))  { return +1; } // 이웃 벨트가 나를 향해 출력 → 업스트림
-        if (Belt->InputsFromCell(MyCellAbs)) { return -1; } // 이웃 벨트가 나에게서 입력 → 다운스트림
-        return 0;
-    }
-    // 머신: 단방향 포트만 있으면 방향 확정, 양쪽(Processor) 또는 없음이면 모호.
-    const bool bHasSource = ResolveSource(Actor) != nullptr;
-    const bool bHasSink   = ResolveSink(Actor)   != nullptr;
-    if (bHasSource && !bHasSink) { return +1; } // 출력만 → 나에게 공급
-    if (bHasSink && !bHasSource) { return -1; } // 입력만 → 내가 공급
-    return 0;
-}
-
 bool AKOConveyorBelt::TryResolveCornerFlipFromNeighbors(bool& OutFlip) const
 {
     const UKOGridSubsystem* Grid = GetWorld() ? GetWorld()->GetSubsystem<UKOGridSubsystem>() : nullptr;
@@ -318,30 +402,16 @@ bool AKOConveyorBelt::TryResolveCornerFlipFromNeighbors(bool& OutFlip) const
     if (FwdWorld.IsNearlyZero())   { FwdWorld   = FVector::ForwardVector; }
     if (RightWorld.IsNearlyZero()) { RightWorld = FVector::RightVector; }
 
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);   // LegA = +Forward
-    const FIntPoint Side    = WorldDirToGridStep(RightWorld); // LegB = +Side
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);   // LegA = +Forward
+    const FIntPoint Side    = FKOConveyorFlowResolver::WorldDirToGridStep(RightWorld); // LegB = +Side
 
-    const FIntPoint CellA = Cell + Forward; // LegA(+Forward)
-    const FIntPoint CellB = Cell + Side;    // LegB(+Side)
-    const int32 RoleA = ClassifyNeighbor(Cell, CellA);
-    const int32 RoleB = ClassifyNeighbor(Cell, CellB);
-
-    // 역할 문자열(+1=업스트림/공급, -1=다운스트림/수취, 0=모호).
-    auto RoleStr = [](int32 R) { return R > 0 ? TEXT("업스트림(+1)") : (R < 0 ? TEXT("다운스트림(-1)") : TEXT("모호(0)")); };
-    KO_LOGS(Factory, Conveyor, Log,
-        TEXT("[FlowInfer] 벨트='%s' cell=(%d,%d) | LegA(+Fwd) cell=(%d,%d) actor='%s' → %s | LegB(+Side) cell=(%d,%d) actor='%s' → %s"),
-        *GetName(), Cell.X, Cell.Y,
-        CellA.X, CellA.Y, *GetNameSafe(GetActorAtCell(CellA)), RoleStr(RoleA),
-        CellB.X, CellB.Y, *GetNameSafe(GetActorAtCell(CellB)), RoleStr(RoleB));
-
-    // flip=false: 입구=+Side(LegB), 출구=+Forward(LegA).
-    // flip=true : 입구=+Forward(LegA), 출구=+Side(LegB).
-    const bool bWantFalse = (RoleB > 0) || (RoleA < 0); // Side 가 업스트림 또는 Forward 가 다운스트림
-    const bool bWantTrue  = (RoleA > 0) || (RoleB < 0); // Forward 가 업스트림 또는 Side 가 다운스트림
-
-    if (bWantFalse && !bWantTrue) { OutFlip = false; return true; }
-    if (bWantTrue && !bWantFalse) { OutFlip = true;  return true; }
-    return false; // 양쪽 충돌 또는 단서 없음 → 수동 폴백.
+    return FKOConveyorFlowResolver::TryResolveCornerFlip(
+         GetWorld(),
+         Cell,
+         Forward,
+         Side,
+         OutFlip
+     );
 }
 
 bool AKOConveyorBelt::TryResolveStraightFlowFromNeighbors(bool& OutReverse) const
@@ -355,46 +425,47 @@ bool AKOConveyorBelt::TryResolveStraightFlowFromNeighbors(bool& OutReverse) cons
 
     FVector FwdWorld = GetActorForwardVector().GetSafeNormal2D();
     if (FwdWorld.IsNearlyZero()) { FwdWorld = FVector::ForwardVector; }
-    const FIntPoint Forward = WorldDirToGridStep(FwdWorld);
+    const FIntPoint Forward = FKOConveyorFlowResolver::WorldDirToGridStep(FwdWorld);
 
-    // 기본(정방향): 입구=뒤(-Forward), 출구=앞(+Forward).
-    const FIntPoint FrontCell = Cell + Forward; // 앞(기본 출구쪽)
-    const FIntPoint BackCell  = Cell - Forward; // 뒤(기본 입구쪽)
-    const int32 RoleFront = ClassifyNeighbor(Cell, FrontCell);
-    const int32 RoleBack  = ClassifyNeighbor(Cell, BackCell);
-
-    auto RoleStr = [](int32 R) { return R > 0 ? TEXT("업스트림(+1)") : (R < 0 ? TEXT("다운스트림(-1)") : TEXT("모호(0)")); };
-    KO_LOGS(Factory, Conveyor, Log,
-        TEXT("[FlowInfer-S] 벨트='%s' cell=(%d,%d) | 앞(+Fwd) cell=(%d,%d) actor='%s' → %s | 뒤(-Fwd) cell=(%d,%d) actor='%s' → %s"),
-        *GetName(), Cell.X, Cell.Y,
-        FrontCell.X, FrontCell.Y, *GetNameSafe(GetActorAtCell(FrontCell)), RoleStr(RoleFront),
-        BackCell.X, BackCell.Y, *GetNameSafe(GetActorAtCell(BackCell)), RoleStr(RoleBack));
-
-    // 정방향 유지: 뒤가 업스트림 또는 앞이 다운스트림.
-    // 역방향 반전: 앞이 업스트림 또는 뒤가 다운스트림.
-    const bool bWantForward = (RoleBack > 0)  || (RoleFront < 0);
-    const bool bWantReverse = (RoleFront > 0) || (RoleBack  < 0);
-
-    if (bWantForward && !bWantReverse) { OutReverse = false; return true; }
-    if (bWantReverse && !bWantForward) { OutReverse = true;  return true; }
-    return false; // 양쪽 충돌 또는 단서 없음 → 배치 방향 유지.
+    return FKOConveyorFlowResolver::TryResolveStraightReverse(
+        GetWorld(),
+        Cell,
+        Forward,
+        OutReverse
+    );
 }
 
 void AKOConveyorBelt::AdvanceBelt(float DeltaTime)
 {
-    if (SlotsPerSecond > 0.f)
+    if (DeltaTime <= 0.f || SlotsPerSecond <= 0.f)
     {
-        MoveAccumulator += SlotsPerSecond * DeltaTime;
-
-        // 한 프레임에 여러 칸 전진할 수 있으나 슬롯 수를 넘지 않게 가드.
-        int32 GuardSteps = SlotCount + 1;
-        while (MoveAccumulator >= 1.f && GuardSteps-- > 0)
-        {
-            StepOnce();
-            MoveAccumulator -= 1.f;
-        }
+        return;
     }
 
+    MoveAccumulator += SlotsPerSecond * DeltaTime;
+
+    // 한 프레임에 여러 칸 전진할 수 있으나 슬롯 수를 넘지 않게 가드.
+    int32 GuardSteps = SlotCount + 1;
+    while (MoveAccumulator >= 1.f && GuardSteps-- > 0)
+    {
+        StepOnce();
+        MoveAccumulator -= 1.f;
+    }
+    
+    // 매우 큰 DeltaTime이 들어왔을 때 누적값이 1 이상 남는 것을 방지
+    if (MoveAccumulator >= 1.f)
+    {
+        MoveAccumulator = FMath::Fmod(MoveAccumulator, 1.f);
+    }
+}
+
+void AKOConveyorBelt::RefreshBeltVisual()
+{
+    if (!bItemVisualEnabled)
+    {
+        return;
+    }
+    
     // 기본 비주얼: ISM 인스턴스 갱신.
     UpdateItemVisual();
 
@@ -418,22 +489,16 @@ void AKOConveyorBelt::StepOnce()
     const int32 TailIdx = SlotCount - 1;
 
     // 1) tail → 다운스트림 sink push.
-    //    Input 바인딩이면 방향=바인딩 우선: 기하 이웃 대신 바인딩된 머신 입력 포트로 push.
-    //    아니면 기존 기하: 다운스트림이 머신이면 push(벨트면 그쪽이 pull 하도록 skip).
+    //    Input은 별도 할당하지 않는다.
+    //    출구 쪽에 설비가 있고, 설비가 해당 아이템을 받을 수 있으면 자동 투입한다.
     if (Slots[TailIdx].IsValid())
     {
         IKOItemSink* Sink = nullptr;
-        if (BoundKind == EKOPortKind::Input && BoundMachine.IsValid())
+
+        AActor* DownActor = GetActorAtCell(MyCell + OutDir);
+        if (DownActor && !DownActor->IsA(AKOConveyorBelt::StaticClass()))
         {
-            Sink = ResolveSink(BoundMachine.Get());
-        }
-        else
-        {
-            AActor* DownActor = GetActorAtCell(MyCell + OutDir);
-            if (DownActor && !DownActor->IsA(AKOConveyorBelt::StaticClass()))
-            {
-                Sink = ResolveSink(DownActor);
-            }
+            Sink = ResolveSink(DownActor);
         }
 
         if (Sink && Sink->CanAcceptItem(Slots[TailIdx]) && Sink->PushItem(Slots[TailIdx]))
@@ -452,27 +517,63 @@ void AKOConveyorBelt::StepOnce()
         }
     }
 
-    // 3) head 가 비었으면 업스트림 source 에서 pull.
-    //    Output 바인딩이면 방향=바인딩 우선: 기하 이웃 대신 바인딩된 머신 출력 포트에서 pull.
+    // 3) head가 비었으면 업스트림 source에서 pull.
+    //    Output 설비와 연결된 벨트는 선택한 Output 아이템만 꺼낸다.
+    //    선택 전이거나 ESC로 닫힌 상태면 아무것도 꺼내지 않는다.
     if (!Slots[0].IsValid())
-    {
-        IKOItemSource* Src = nullptr;
-        if (BoundKind == EKOPortKind::Output && BoundMachine.IsValid())
+    {        
+        AActor* UpstreamActor = GetActorAtCell(MyCell - InDir);
+
+        if (!UpstreamActor)
         {
-            Src = ResolveSource(BoundMachine.Get());
-        }
-        else
-        {
-            Src = ResolveSource(GetActorAtCell(MyCell - InDir));
+            return;
         }
 
-        if (Src)
+        // 일반 벨트끼리 연결은 기존 방식 유지
+        if (AKOConveyorBelt* UpstreamBelt = Cast<AKOConveyorBelt>(UpstreamActor))
         {
             FKOConveyorItem Pulled;
-            if (Src->PopOutputItem(Pulled))
+
+            if (UpstreamBelt->PopOutputItem(Pulled))
             {
                 Slots[0] = Pulled;
             }
+
+            return;
+        }
+        
+        // 벨트가 아닌 액터는 설비로 처리
+        AKOBaseBuilding* UpstreamMachine = Cast<AKOBaseBuilding>(UpstreamActor);
+        if (!UpstreamMachine)
+        {
+            return;
+        }
+
+        /*
+         * 기존 설비가 제거되고 같은 자리에 새 설비가 설치된 경우,
+         * 새 설비는 이전 설비와 다른 Actor이므로 Output 선택을 초기화한다.
+         */
+        if (BoundOutputMachine.Get() != UpstreamMachine)
+        {
+            BeginOutputPortSelection(UpstreamMachine);
+            return;
+        }
+        
+        if (!bHasSelectedOutputPort || BoundOutputItemId.IsNone())
+        {
+            return;
+        }
+
+        UKOFactoryProcessorComponent* Proc = BoundOutputMachine->FindComponentByClass<UKOFactoryProcessorComponent>();
+        if (!Proc)
+        {
+            return;
+        }
+        
+        // 선택한 Output 아이템만 추출
+        if (Proc->TryExtractItem(BoundOutputItemId, 1) == 1)
+        {
+            Slots[0] = FKOConveyorItem(BoundOutputItemId);
         }
     }
 }
@@ -563,6 +664,136 @@ bool AKOConveyorBelt::PushItem(const FKOConveyorItem& Item)
         return true;
     }
     return false;
+}
+
+void AKOConveyorBelt::GetConveyorStateForSave(TArray<FName>& OutSlotItemIds, float& OutMoveAccumulator,
+    bool& bOutCornerFlip, bool& bOutStraightReverse) const
+{
+    OutSlotItemIds.Reset();
+    OutSlotItemIds.Reserve(Slots.Num());
+
+    for (const FKOConveyorItem& Slot : Slots)
+    {
+        OutSlotItemIds.Add(Slot.IsValid() ? Slot.ItemId : NAME_None);
+    }
+
+    OutMoveAccumulator = MoveAccumulator;
+    bOutCornerFlip = bCornerFlip;
+    bOutStraightReverse = bStraightReverse;
+}
+
+void AKOConveyorBelt::LoadConveyorStateFromSave(const TArray<FName>& InSlotItemIds, float InMoveAccumulator,
+    bool bInCornerFlip, bool bInStraightReverse)
+{
+    bCornerFlip = bInCornerFlip;
+    bStraightReverse = bInStraightReverse;
+
+    RecomputePortDirections();
+    ApplyFlowToMaterial();
+
+    SlotCount = FMath::Max(1, SlotCount);
+    Slots.SetNum(SlotCount);
+
+    for (FKOConveyorItem& Slot : Slots)
+    {
+        Slot.Reset();
+    }
+
+    const int32 CopyCount = FMath::Min(Slots.Num(), InSlotItemIds.Num());
+    for (int32 i = 0; i < CopyCount; ++i)
+    {
+        const FName ItemId = InSlotItemIds[i];
+        if (!ItemId.IsNone())
+        {
+            Slots[i] = FKOConveyorItem(ItemId);
+        }
+    }
+
+    MoveAccumulator = FMath::Clamp(InMoveAccumulator, 0.f, 0.999f);
+
+    SetupItemVisual();
+    UpdateItemVisual();
+}
+
+bool AKOConveyorBelt::GetOutputPortBindingForSave(FIntPoint& OutMachineGridAnchor, int32& OutPortIndex,
+    FName& OutItemId, bool& bOutHasSelectedOutputPort) const
+{
+    OutMachineGridAnchor = FIntPoint::ZeroValue;
+    OutPortIndex = INDEX_NONE;
+    OutItemId = NAME_None;
+    bOutHasSelectedOutputPort = false;
+
+    AKOBaseBuilding* Machine = BoundOutputMachine.Get();
+    if (!Machine)
+    {
+        return false;
+    }
+
+    const UKOGridSubsystem* GridSub = GetWorld()
+        ? GetWorld()->GetSubsystem<UKOGridSubsystem>()
+        : nullptr;
+
+    if (!GridSub)
+    {
+        return false;
+    }
+
+    FIntPoint MachineAnchor;
+    FIntPoint MachineSize;
+
+    if (!GridSub->TryGetOccupiedAreaForActor(Machine, MachineAnchor, MachineSize))
+    {
+        return false;
+    }
+
+    OutMachineGridAnchor = MachineAnchor;
+    OutPortIndex = BoundOutputPortIndex;
+    OutItemId = BoundOutputItemId;
+    bOutHasSelectedOutputPort = bHasSelectedOutputPort;
+
+    return true;
+}
+
+void AKOConveyorBelt::LoadOutputPortBindingFromSave(AKOBaseBuilding* InMachine, int32 InPortIndex, FName InItemId,
+    bool bInHasSelectedOutputPort)
+{
+    if (!InMachine)
+    {
+        BoundOutputMachine.Reset();
+        BoundOutputPortIndex = INDEX_NONE;
+        BoundOutputItemId = NAME_None;
+        bHasSelectedOutputPort = false;
+        return;
+    }
+
+    BoundOutputMachine = InMachine;
+    BoundOutputPortIndex = InPortIndex;
+    BoundOutputItemId = InItemId;
+    bHasSelectedOutputPort = bInHasSelectedOutputPort && InPortIndex != INDEX_NONE && !InItemId.IsNone();
+}
+
+void AKOConveyorBelt::SetItemVisualEnabled(bool bEnabled)
+{
+    if (bItemVisualEnabled == bEnabled)
+    {
+        return;
+    }
+
+    bItemVisualEnabled = bEnabled;
+
+    for (const TPair<TObjectPtr<UStaticMesh>, TObjectPtr<UInstancedStaticMeshComponent>>& Pair : MeshToISM)
+    {
+        if (UInstancedStaticMeshComponent* ISM = Pair.Value)
+        {
+            ISM->SetVisibility(bItemVisualEnabled, true);
+        }
+    }
+    
+    // 활성화
+    if (bItemVisualEnabled)
+    {
+        RefreshBeltVisual();
+    }
 }
 
 FVector AKOConveyorBelt::ComputeSlotWorldPos(float T) const
@@ -657,6 +888,7 @@ UInstancedStaticMeshComponent* AKOConveyorBelt::GetOrCreateISMForMesh(UStaticMes
         ISM->AttachToComponent(Root, FAttachmentTransformRules::KeepWorldTransform);
     }
     ISM->SetStaticMesh(Mesh);
+    ISM->SetVisibility(bItemVisualEnabled, true);
 
     // 메시 바운드로 균일 스케일 산출(슬롯 간격 비례).
     const float MeshExtent  = FMath::Max(Mesh->GetBounds().BoxExtent.GetMax(), 1.f);

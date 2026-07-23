@@ -6,7 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemy/Boss/KOAIC_BossChapter01.h"
+#include "Character/Enemy/Boss/KOAIC_BossController.h"
 #include "Engine/OverlapResult.h"
 
 UKOGA_BossAOEAttackBase::UKOGA_BossAOEAttackBase()
@@ -21,26 +21,22 @@ void UKOGA_BossAOEAttackBase::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	if (!IsActive())
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		return;
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return; 
 	}
- 
-	WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	
+	UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
 		KOGameplayTags::Event_Boss01_Shockwave,
 		nullptr,
 		true,
 		true
 	);
- 
-	if (WaitEventTask)
-	{
-		WaitEventTask->EventReceived.AddDynamic(
-			this, &UKOGA_BossAOEAttackBase::OnShockwaveNotify
-		);
-		WaitEventTask->ReadyForActivation();
-	}
+	
+	WaitEventTask->EventReceived.AddDynamic(this, &UKOGA_BossAOEAttackBase::OnShockwaveNotify);
+	WaitEventTask->ReadyForActivation();
 }
  
 void UKOGA_BossAOEAttackBase::EndAbility(
@@ -56,14 +52,7 @@ void UKOGA_BossAOEAttackBase::EndAbility(
 		GetWorld()->GetTimerManager().ClearTimer(ShockwaveTimerHandle);
 	}
  
-	if (WaitEventTask)
-	{
-		WaitEventTask->EndTask();
-		WaitEventTask = nullptr;
-	}
- 
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-		bReplicateEndAbility, bWasCancelled);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UKOGA_BossAOEAttackBase::OnMontageCompleted()
@@ -93,18 +82,15 @@ void UKOGA_BossAOEAttackBase::OnShockwaveNotify(FGameplayEventData EventData)
  
 void UKOGA_BossAOEAttackBase::TriggerShockwave()
 {
-	AActor* Avatar = GetAvatarActorFromActorInfo();
-	if (!Avatar)
-	{
-		return;
-	}
+	ACharacter* Character = GetAvatarCharacter();
+	if (!Character) return; 
  
 	// 디버그 원형 표시
-	if (bShowDebug)
+	if (TraceData.bShowDebug)
 	{
 		DrawDebugCircle(
 			GetWorld(),
-			Avatar->GetActorLocation(),
+			Character->GetActorLocation(),
 			ShockwaveRadius,
 			32,
 			FColor::Red,
@@ -121,11 +107,11 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 	TArray<FOverlapResult> Overlaps;
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(ShockwaveRadius);
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(Avatar);
+	QueryParams.AddIgnoredActor(Character);
  
 	GetWorld()->OverlapMultiByChannel(
 		Overlaps,
-		Avatar->GetActorLocation(),
+		Character->GetActorLocation(),
 		FQuat::Identity,
 		ECC_Pawn,
 		Sphere,
@@ -134,26 +120,15 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
  
 	for (const FOverlapResult& Overlap : Overlaps)
 	{
-		AActor* HitActor = Overlap.GetActor();
-		if (!HitActor)
-		{
-			continue;
-		}
- 
-		ACharacter* HitCharacter = Cast<ACharacter>(HitActor);
-		if (!HitCharacter)
-		{
-			continue;
-		}
- 
+		ACharacter* Target = Cast<ACharacter>(Overlap.GetActor());
+		if (!Target) continue;
+		
 		// 공중이면 피격 무시 (점프 회피)
-		if (!HitCharacter->GetCharacterMovement()->IsMovingOnGround())
-		{
-			continue;
-		}
- 
+		if (!Target->GetCharacterMovement()->IsMovingOnGround()) continue;
+		
 		// 직접 데미지 적용
-		ApplyDamageToTarget(HitActor);
+		SendAttackEventsToTarget(Target); 
+		ApplyHitEffects(Target);
 	}
 	
 	CurrentShockwaveCount++;
@@ -162,16 +137,12 @@ void UKOGA_BossAOEAttackBase::TriggerShockwave()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShockwaveTimerHandle);
 		
-		APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-		if (Pawn)
+		AAIController* AIC = Cast<AAIController>(Character->GetController());
+		if (AIC)
 		{
-			AAIController* AIC = Cast<AAIController>(Pawn->GetController());
-			if (AIC)
+			if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
 			{
-				if (UBlackboardComponent* BB = AIC->GetBlackboardComponent())
-				{
-					BB->SetValueAsBool(AKOAIC_BossChapter01::bIsGroggyKey, true);
-				}
+				BB->SetValueAsBool(AKOAIC_BossController::bIsGroggyKey, true);
 			}
 		}
 		

@@ -10,48 +10,54 @@ class UMaterialInterface;
 class UMaterialInstanceDynamic;
 class UTexture2D;
 class UKOMapUIComponent;
-
+ 
 UCLASS(Abstract, BlueprintType, Blueprintable)
 class KARON_API UKOMiniMapWidget : public UKOActivatableWidget
 {
 	GENERATED_BODY()
-
+ 
 public:
 	UKOMiniMapWidget();
-
+ 
 	void SetMapUIComponent(UKOMapUIComponent* InMapUIComponent);
-
+ 
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
+ 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> ImageMiniMapTexture;
-
+ 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UImage> ImagePlayerArrow;
-
+ 
 	UPROPERTY(meta=(BindWidgetOptional))
 	TObjectPtr<USizeBox> SizeBoxMiniMap;
-
+ 
 	UPROPERTY(EditDefaultsOnly, Category="KO|Map")
 	TObjectPtr<UMaterialInterface> MiniMapMaterial;
-
+ 
 private:
 	void CacheMapData();
 	void ApplyMaterialParams();
+	void ApplyFogParams();
 	void UpdateMiniMap();
-
+	
+	UKOMapUIComponent* ResolveMapUIComponent();
+ 
 	UPROPERTY()
 	TObjectPtr<UKOMapUIComponent> MapUIComponent;
-
+ 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> MiniMapMID;
-
+ 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> MapTexture;
-
-	float LevelDimension = 20000.f;
+	
+	float LevelDimensionX = 150310.f;
+	float LevelDimensionY = 144460.f;
 	float MiniMapZoom = 0.2f;
+ 
+	bool bFogParamsBound = false;
 };

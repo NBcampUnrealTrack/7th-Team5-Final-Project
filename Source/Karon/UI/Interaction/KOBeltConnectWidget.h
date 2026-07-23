@@ -35,18 +35,13 @@ protected:
     void BuildSlotEntries();
 
     /**
-     * 한 그룹(Input/Output) 패널을 일반 포트로 채운다.
-     * 포트 수 = max(FixedSlotCount, ItemHints 수). 각 포트는 PortIndex 로 바인딩 가능(빈 포트 포함).
-     * ItemHints[i] 는 포트 i 의 표시용 아이템(선택 레시피 기준), 없으면 빈 포트.
+     * 한 그룹(Input/Output) 패널을 현재 레시피의 아이템 수만큼 채운다.
+     * ItemHints[i]는 포트 i의 표시용 아이템이며, 빈 슬롯은 생성하지 않는다.
      */
     void BuildGroupEntries(EKOPortKind Kind, const TArray<FName>& ItemHints, UPanelWidget* Panel, AKOBaseBuilding* Building);
 
     UFUNCTION()
     void HandleSlotClicked(FKOFactoryPortSlot ClickedSlot);
-
-    /** 입력 슬롯 엔트리를 담을 패널(VerticalBox 등). */
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UPanelWidget> InputSlotsPanel;
 
     /** 출력 슬롯 엔트리를 담을 패널. */
     UPROPERTY(meta = (BindWidgetOptional))
@@ -55,14 +50,13 @@ protected:
     /** 제목/안내 텍스트(선택). */
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> TitleText;
+    
+    UPROPERTY(meta = (BindWidgetOptional))
+    TObjectPtr<UTextBlock> EmptyText;
 
     /** 슬롯 엔트리 위젯 클래스(BP 에서 지정). */
     UPROPERTY(EditDefaultsOnly, Category = "KO|UI|BeltConnect")
     TSubclassOf<UKOBeltConnectEntryWidget> EntryClass;
-
-    /** 각 그룹(Input/Output)에 항상 표시할 최소 슬롯 칸 수. 실제 슬롯이 적으면 빈 칸으로 채움. */
-    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|BeltConnect", meta = (ClampMin = "0"))
-    int32 FixedSlotCount = 4;
 
 private:
     TWeakObjectPtr<AKOConveyorBelt> TargetBelt;

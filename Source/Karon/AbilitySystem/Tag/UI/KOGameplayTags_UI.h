@@ -25,13 +25,13 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Processor);
 	/** Producer 설비 상호작용 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Factory_Producer);
-	/** 인벤토리 패널 위젯 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Inventory);
 	/** 퀵슬롯 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_QuickSlotBar);
 	
 	//** 보스 체력바 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Boss_HealthBar);
+	//** 아이템 드랍 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_DropItem);
 	/** 스킬 트리 팝업 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_SkillTree);
 	/** 타이틀 메뉴 위젯 */
@@ -39,11 +39,41 @@ namespace KOGameplayTags
 	/** 벨트-공장 포트 연결 팝업 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BeltConnect);
 	
+	/** 키조작을 알려주는 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_KeyNotice);
+	
+	/** 레벨시퀀스 텍스트 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_LevelSequenceText);
+	
+	/** 크레딧 텍스트 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_CreditText);
+	
+	/** 상호작용을 알려주는 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InteractionNotice);
+	
+	/** 오버클럭 프로그레스바*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_OverclockProgressBar);
+	
 	/** 맵 위젯 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Map_MainMap);
 	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_FactoryCraft);
-	
 	/** 메인 HUD */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_InGameHUD);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_PlayerMenu);
+	
+	/** 건설 모드 인벤토리 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_BuildInventory);
+
+	/** 옵션 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Option);
+	
+	/** 재확인 팝업 위젯 */
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_ConfirmationPopup);
+	
+	/** 사망 시 분기 선택 위젯*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_GameOverMenu);
+	
+	/** 비디오 재생 위젯*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Video);
 }

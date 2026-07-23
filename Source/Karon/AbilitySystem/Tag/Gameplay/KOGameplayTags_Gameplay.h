@@ -24,6 +24,32 @@ namespace KOGameplayTags
 	// ───────────────────────── Cue ─────────────────────────────
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_HitImpact);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Death);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_SuperArmor);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_OverClock_Activate);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_OverClock_Aura);
 	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CameraShake_Attacker);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CameraShake_Hit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CameraShake_BossAttack);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_AirPound);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_CounterAttack);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Guard_Hit);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_WeaponTrail_Sword);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_WeaponTrail_Hammer);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Hammer_Hit);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Hammer_Overlay);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Sword_Hit); 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Heal); 
+	
+	// ───────────────────────── Core ─────────────────────────────
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Unlock_Core_Lightning);
 	
 }

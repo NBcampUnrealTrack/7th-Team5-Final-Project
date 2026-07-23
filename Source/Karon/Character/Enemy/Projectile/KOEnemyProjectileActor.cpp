@@ -5,11 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
+#include "NiagaraComponent.h"
+#include "AbilitySystem/Effect/KOGameplayEffectContext.h"
+#include "Data/KO_HitData.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Character/Enemy/KOBaseEnemy.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "Components/SphereComponent.h"
-#include "Game/KOProjectilePoolSubsystem.h"
+#include "Subsystem/KOProjectilePoolSubsystem.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 
@@ -38,6 +41,10 @@ AKOEnemyProjectileActor::AKOEnemyProjectileActor()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	
+	//나이아가라 컴포넌트 생성
+	TrailEffectComponent=CreateDefaultSubobject<UNiagaraComponent>("TrailEffectComponent");
+	TrailEffectComponent->SetupAttachment(SphereComponent);
+	TrailEffectComponent->bAutoActivate = false;
 	
 	//풀링 대기로 멈춰있는다.
 	ProjectileMovementComponent->bAutoActivate= false;	
@@ -87,16 +94,23 @@ void AKOEnemyProjectileActor::OnProjectileHit(UPrimitiveComponent* HitComponent,
 	}
 
 	FGameplayEffectContextHandle Context = CharacterASC->MakeEffectContext();
+	Context.AddInstigator(AttackedCharacter,this);
 	Context.AddSourceObject(AttackedCharacter); // 소스 오브젝트는 현재 캐릭터(Avatar)
 	
+	if (FKOGameplayEffectContext* KOContext = static_cast<FKOGameplayEffectContext*>(Context.Get()))
+	{
+		if (CachedHitData)
+		{
+			KOContext->SetHitData(CachedHitData);
+		}
+	}
 	
 	FGameplayEffectSpecHandle SpecHandle = CharacterASC->MakeOutgoingSpec(Enemy->ProjectileDamageEffectClass, 1.0f, Context);
 	if (SpecHandle.IsValid() )
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_Attribute_Health_Damage, ProjectileDamage);
+		SpecHandle.Data->SetSetByCallerMagnitude(KOGameplayTags::Data_AttackCoefficient, ProjectileDamage);
 		CharacterASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	}
-	UE_LOG(LogTemp,Warning,TEXT("%s"),*OtherActor->GetActorLabel());
 	ReturnToPool();
 }
 
@@ -106,8 +120,11 @@ void AKOEnemyProjectileActor::SetProjectile(AKOBaseEnemy* InEnemy,float AttackPo
 	Enemy=InEnemy;
 	SetActorScale3D(InEnemy->ProjectileScale);
 	ProjectileStaticMesh->SetStaticMesh(InEnemy->ProjectileMesh);
+	TrailEffectComponent->SetAsset(InEnemy->ProjectileImpactEffect);
+	TrailEffectComponent->Activate(true);
 	SphereComponent->IgnoreActorWhenMoving(InEnemy,true);
-	ProjectileDamage=AttackPoint*DamageMultiplier;
+	ProjectileDamage=DamageMultiplier;
+	ProjectileTag=InEnemy->ProjectileTag;
 }
 
 void AKOEnemyProjectileActor::SetActiveAndCollision(bool InActive)
@@ -155,7 +172,10 @@ void AKOEnemyProjectileActor::ReturnToPool()
 		//Owner를 비워준다.
 		SetOwner(nullptr);
 		ProjectileStaticMesh->SetStaticMesh(nullptr);
+		TrailEffectComponent->SetAsset(nullptr);
+		TrailEffectComponent->Activate(false);
 		SphereComponent->IgnoreActorWhenMoving(Enemy,false);
+		CachedHitData = nullptr;
 		GetWorld()->GetSubsystem<UKOProjectilePoolSubsystem>()->ReturnToPool(this);
 	}
 }

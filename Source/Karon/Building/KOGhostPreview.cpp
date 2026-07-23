@@ -2,6 +2,9 @@
 
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/MeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Engine/SCS_Node.h"
 #include "Engine/SimpleConstructionScript.h"
@@ -36,13 +39,20 @@ AKOGhostPreview::AKOGhostPreview()
 	CoverageMeshComponent->SetUsingAbsoluteScale(true);
 	CoverageMeshComponent->SetVisibility(false);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMeshFinder(
-		TEXT("/Engine/BasicShapes/Plane.Plane"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMeshFinder(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	if (PlaneMeshFinder.Succeeded())
 	{
 		CoveragePlaneMesh = PlaneMeshFinder.Object;
 		CoverageMeshComponent->SetStaticMesh(CoveragePlaneMesh);
 	}
+	
+	// 컨베이어 방향 표시 화살표.
+	DirectionArrowComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DirectionArrow"));
+	DirectionArrowComponent->SetupAttachment(SceneRoot);
+	DirectionArrowComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DirectionArrowComponent->SetGenerateOverlapEvents(false);
+	DirectionArrowComponent->SetCastShadow(false);
+	DirectionArrowComponent->SetVisibility(false);
 }
 
 void AKOGhostPreview::ShowCoverageOverlay(const FVector& WorldCenter, const FVector2D& WorldSize)
@@ -57,7 +67,7 @@ void AKOGhostPreview::ShowCoverageOverlay(const FVector& WorldCenter, const FVec
 		WorldSize.X / GEnginePlaneSize,
 		WorldSize.Y / GEnginePlaneSize,
 		1.0f));
-
+	
 	if (CoverageMaterial)
 	{
 		CoverageMeshComponent->SetMaterial(0, CoverageMaterial);
@@ -71,6 +81,42 @@ void AKOGhostPreview::HideCoverageOverlay()
 	if (CoverageMeshComponent)
 	{
 		CoverageMeshComponent->SetVisibility(false);
+	}
+}
+
+void AKOGhostPreview::ShowDirectionArrow(float AdditionalYaw)
+{
+	if (!DirectionArrowComponent)
+	{
+		return;
+	}
+
+	if (DirectionArrowMesh)
+	{
+		DirectionArrowComponent->SetStaticMesh(DirectionArrowMesh);
+	}
+	
+	if (DirectionArrowMaterial)
+	{
+		DirectionArrowComponent->SetMaterial(0, DirectionArrowMaterial);
+	}
+
+	DirectionArrowComponent->SetRelativeLocation(DirectionArrowRelativeLocation);
+
+	FRotator FinalRotation = DirectionArrowRelativeRotation;
+	FinalRotation.Yaw += AdditionalYaw;
+
+	DirectionArrowComponent->SetRelativeRotation(FinalRotation);
+	DirectionArrowComponent->SetRelativeScale3D(DirectionArrowRelativeScale);
+
+	DirectionArrowComponent->SetVisibility(true);
+}
+
+void AKOGhostPreview::HideDirectionArrow()
+{
+	if (DirectionArrowComponent)
+	{
+		DirectionArrowComponent->SetVisibility(false);
 	}
 }
 
@@ -108,13 +154,17 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 					continue;
 				}
 
-				UActorComponent* ComponentTemplate =
-					Node->GetActualComponentTemplate(BlueprintClass);
+				UActorComponent* ComponentTemplate = Node->GetActualComponentTemplate(BlueprintClass);
 
-				UStaticMeshComponent* SourceMeshComponent =
-					Cast<UStaticMeshComponent>(ComponentTemplate);
+				UMeshComponent* SourceMeshComponent = Cast<UMeshComponent>(ComponentTemplate);
 
 				if (!SourceMeshComponent)
+				{
+					continue;
+				}
+				
+				if (!SourceMeshComponent->IsA<UStaticMeshComponent>() &&
+					!SourceMeshComponent->IsA<USkeletalMeshComponent>())
 				{
 					continue;
 				}
@@ -127,52 +177,77 @@ void AKOGhostPreview::SetupFromBuildingClass(TSubclassOf<AActor> InBuildingClass
 	}
 }
 
-void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
-	const UStaticMeshComponent* SourceMeshComponent
-)
+void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(const UMeshComponent* SourceMeshComponent)
 {
 	if (!SourceMeshComponent)
 	{
 		return;
 	}
 
-	UStaticMesh* SourceMesh = SourceMeshComponent->GetStaticMesh();
+	UMeshComponent* NewPreviewMeshComponent = nullptr;
 
-	if (!SourceMesh)
+	if (const UStaticMeshComponent* SourceStaticMeshComponent =
+		Cast<UStaticMeshComponent>(SourceMeshComponent))
 	{
-		return;
+		UStaticMesh* SourceMesh = SourceStaticMeshComponent->GetStaticMesh();
+		
+		if (!SourceMesh)
+		{
+			return;
+		}
+
+		UStaticMeshComponent* NewStaticMeshComponent = NewObject<UStaticMeshComponent>(this);
+
+		if (!NewStaticMeshComponent)
+		{
+			return;
+		}
+
+		NewStaticMeshComponent->SetStaticMesh(SourceMesh);
+	
+		NewPreviewMeshComponent = NewStaticMeshComponent;
 	}
+	
+	else if (const USkeletalMeshComponent* SourceSkeletalMeshComponent =
+		Cast<USkeletalMeshComponent>(SourceMeshComponent))
+	{
+		USkeletalMesh* SourceMesh = SourceSkeletalMeshComponent->GetSkeletalMeshAsset();
 
-	UStaticMeshComponent* NewPreviewMeshComponent =
-		NewObject<UStaticMeshComponent>(this);
+		if (!SourceMesh)
+		{
+			return;
+		}
 
+		USkeletalMeshComponent* NewSkeletalMeshComponent = NewObject<USkeletalMeshComponent>(this);
+
+		if (!NewSkeletalMeshComponent)
+		{
+			return;
+		}
+
+		NewSkeletalMeshComponent->SetSkeletalMesh(SourceMesh);
+
+		NewPreviewMeshComponent = NewSkeletalMeshComponent;
+	}
+	
 	if (!NewPreviewMeshComponent)
 	{
 		return;
 	}
-
-	NewPreviewMeshComponent->SetStaticMesh(SourceMesh);
-
-	NewPreviewMeshComponent->SetRelativeTransform(
-		SourceMeshComponent->GetRelativeTransform()
-	);
+	
+	NewPreviewMeshComponent->SetRelativeTransform(SourceMeshComponent->GetRelativeTransform());
 
 	NewPreviewMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	NewPreviewMeshComponent->SetGenerateOverlapEvents(false);
+	NewPreviewMeshComponent->SetCastShadow(false);
 
 	const int32 MaterialCount = SourceMeshComponent->GetNumMaterials();
 	for (int32 Index = 0; Index < MaterialCount; ++Index)
 	{
-		NewPreviewMeshComponent->SetMaterial(
-			Index,
-			SourceMeshComponent->GetMaterial(Index)
-		);
+		NewPreviewMeshComponent->SetMaterial(Index, SourceMeshComponent->GetMaterial(Index));
 	}
 
-	NewPreviewMeshComponent->AttachToComponent(
-		RootComponent,
-		FAttachmentTransformRules::KeepRelativeTransform
-	);
+	NewPreviewMeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 	NewPreviewMeshComponent->RegisterComponent();
 
@@ -181,7 +256,7 @@ void AKOGhostPreview::AddPreviewMeshComponentFromTemplate(
 
 void AKOGhostPreview::ClearPreviewMeshComponents()
 {
-    for (UStaticMeshComponent* MeshComponent : PreviewMeshComponents)
+    for (UMeshComponent* MeshComponent : PreviewMeshComponents)
     {
         if (MeshComponent)
         {

@@ -2,6 +2,7 @@
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Image.h"
+#include "Components/WidgetSwitcher.h"
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
 #include "Items/KOItemLibrary.h"
@@ -125,27 +126,33 @@ void UKOBuildQuickSlotWidget::SetupSlot(int32 InSlotIndex)
 
 void UKOBuildQuickSlotWidget::RefreshSlot()
 {
-	if (!SlotIconImage)
+	constexpr int32 AssignedPageIndex = 0;
+	constexpr int32 EmptyPageIndex = 1;
+	
+	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+	
+	const FName AssignedFactoryId = BuildUIComponent ? BuildUIComponent->GetBuildQuickSlot(SlotIndex) : NAME_None;
+	const bool bHasFactory = !AssignedFactoryId.IsNone();
+	
+	// 설비 할당 여부에 따라 스위처 전환
+	if (SlotStateSwitcher)
 	{
-		return;
+		SlotStateSwitcher->SetActiveWidgetIndex(
+			bHasFactory
+				? AssignedPageIndex
+				: EmptyPageIndex
+		);
 	}
 	
-	auto ApplyEmptyVisual = [this]()
+	// 빈 슬롯
+	if (!bHasFactory)
 	{
-		if (EmptySlotIcon)
+		if (SlotIconImage)
 		{
-			SlotIconImage->SetBrushFromTexture(EmptySlotIcon);
-			SlotIconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
-			SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-		else
-		{
-			// EmptySlotIcon이 없으면 이전 텍스처를 숨겨야 잔상이 남지 않음.
 			SlotIconImage->SetBrushFromTexture(nullptr);
 			SlotIconImage->SetVisibility(ESlateVisibility::Hidden);
+			SlotIconImage->SetRenderOpacity(NormalOpacity);
 		}
-
-		SlotIconImage->SetRenderOpacity(NormalOpacity);
 
 		if (CountText)
 		{
@@ -153,95 +160,136 @@ void UKOBuildQuickSlotWidget::RefreshSlot()
 			CountText->SetVisibility(ESlateVisibility::Collapsed);
 			CountText->SetRenderOpacity(NormalOpacity);
 		}
-	};
 
-	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
-	if (!BuildUIComponent)
-	{
-		ApplyEmptyVisual();
+		SetToolTip(nullptr);
 		return;
 	}
 
-	const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
+	// 할당된 설비 아이콘
+	UTexture2D* Icon = nullptr;
 
-	if (AssignedFactoryId.IsNone())
+	if (UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this))
 	{
-		ApplyEmptyVisual();
-		return;
-	}
-	
-	UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
-	if (!LoadSub)
-	{
-		ApplyEmptyVisual();
-		return;
+		Icon = LoadSubsystem->ResolveFactoryIcon(AssignedFactoryId);
 	}
 
-	UTexture2D* Icon = LoadSub->ResolveFactoryIcon(AssignedFactoryId);
-	if (!Icon)
+	if (SlotIconImage)
 	{
-		ApplyEmptyVisual();
-		return;
+		if (Icon)
+		{
+			SlotIconImage->SetBrushFromTexture(Icon);
+			SlotIconImage->SetDesiredSizeOverride(
+				FVector2D(SlotIconSize, SlotIconSize)
+			);
+			SlotIconImage->SetVisibility(
+				ESlateVisibility::HitTestInvisible
+			);
+		}
+		else
+		{
+			SlotIconImage->SetBrushFromTexture(nullptr);
+			SlotIconImage->SetVisibility(
+				ESlateVisibility::Hidden
+			);
+		}
 	}
 
-	SlotIconImage->SetBrushFromTexture(Icon);
-	SlotIconImage->SetDesiredSizeOverride(FVector2D(SlotIconSize, SlotIconSize));
-	SlotIconImage->SetVisibility(ESlateVisibility::HitTestInvisible);
+	// 보유 수량
+	UKOInventoryComponent* InventoryComponent =
+		GetInventoryComponent();
 
-	UKOInventoryComponent* InventoryComponent = GetInventoryComponent();
+	const bool bHasInventory =
+		InventoryComponent != nullptr;
 
-	const bool bHasInventory = InventoryComponent != nullptr;
 	const int32 CurrentCount = bHasInventory
 		? InventoryComponent->GetCountOf(AssignedFactoryId)
 		: 0;
 
-	const bool bDepleted = bHasInventory && CurrentCount <= 0;
-	const float TargetOpacity = bDepleted ? DepletedOpacity : NormalOpacity;
+	const bool bDepleted =
+		bHasInventory && CurrentCount <= 0;
 
-	SlotIconImage->SetRenderOpacity(TargetOpacity);
+	const float TargetOpacity =
+		bDepleted ? DepletedOpacity : NormalOpacity;
+
+	if (SlotIconImage)
+	{
+		SlotIconImage->SetRenderOpacity(TargetOpacity);
+	}
 
 	if (CountText)
 	{
 		CountText->SetText(FText::AsNumber(CurrentCount));
-		CountText->SetVisibility(ESlateVisibility::HitTestInvisible);
-		CountText->SetRenderOpacity(TargetOpacity); // 다 사용하면 CountText도 투명하게 하는게 좋을까나..?
+		CountText->SetVisibility(
+			ESlateVisibility::HitTestInvisible
+		);
+		CountText->SetRenderOpacity(TargetOpacity);
 	}
-	
-	const bool bHasFactory = !AssignedFactoryId.IsNone();
-	
-	if (!bHasFactory || !TooltipClass)
+
+	// Tooltip
+	if (!TooltipClass)
 	{
 		SetToolTip(nullptr);
 		return;
 	}
 
 	UKOItemTooltipWidget* Tooltip =
-		CreateWidget<UKOItemTooltipWidget>(GetOwningPlayer(), TooltipClass);
+		CreateWidget<UKOItemTooltipWidget>(
+			GetOwningPlayer(),
+			TooltipClass
+		);
 
-	if (Tooltip)
+	if (!Tooltip)
 	{
-		Tooltip->SetSlot(EKOSlotKind::Factory, AssignedFactoryId);
-		SetToolTip(Tooltip);
+		SetToolTip(nullptr);
+		return;
 	}
+
+	Tooltip->SetSlot(
+		EKOSlotKind::Factory,
+		AssignedFactoryId
+	);
+
+	SetToolTip(Tooltip);
+	
+	
+}
+
+void UKOBuildQuickSlotWidget::SetDisplayMode(EKOQuickSlotBarDisplayMode InDisplayMode)
+{
+	if (DisplayMode == InDisplayMode)
+	{
+		return;
+	}
+
+	DisplayMode = InDisplayMode;
+
+	RefreshSelectedVisual();
 }
 
 FReply UKOBuildQuickSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
+	if (!BuildUIComponent)
+	{
+		return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	}
+	
+	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		BuildUIComponent->ClearBuildQuickSlot(SlotIndex);
+		return FReply::Handled();
+	}
+	
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
 	{
-		UKOBuildUIComponent* BuildUIComponent = GetBuildUIComponent();
-		if (BuildUIComponent)
+		const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
+
+		if (!AssignedFactoryId.IsNone())
 		{
-			const FName AssignedFactoryId = BuildUIComponent->GetBuildQuickSlot(SlotIndex);
-			if (!AssignedFactoryId.IsNone())
-			{
-				FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
-					InMouseEvent,
-					this,
-					EKeys::LeftMouseButton
-				);
-				return Reply.NativeReply;
-			}
+			FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(
+					InMouseEvent, this, EKeys::LeftMouseButton);
+
+			return Reply.NativeReply;
 		}
 	}
 
@@ -399,7 +447,13 @@ void UKOBuildQuickSlotWidget::HandleInventoryChangedMessage(FGameplayTag Channel
 void UKOBuildQuickSlotWidget::HandleQuickSlotSelectionChangedMessage(FGameplayTag Channel,
 	const FInstancedStruct& Payload)
 {
-	const FKOBuildQuickSlotSelectionChangedMessage* Message =
+	if (!IsBuildModeVisualEnabled())
+	{
+		RefreshSelectedVisual();
+		return;
+	}
+	
+	const FKOBuildQuickSlotSelectionChangedMessage* Message = 
 		Payload.GetPtr<FKOBuildQuickSlotSelectionChangedMessage>();
 
 	if (!Message)
@@ -420,6 +474,12 @@ void UKOBuildQuickSlotWidget::RefreshSelectedVisual()
 {
 	if (!SelectedFrameBorder)
 	{
+		return;
+	}
+	
+	if (!IsBuildModeVisualEnabled())
+	{
+		SelectedFrameBorder->SetVisibility(ESlateVisibility::Collapsed);
 		return;
 	}
 

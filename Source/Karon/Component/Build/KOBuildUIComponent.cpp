@@ -2,12 +2,14 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Component/Build/KOGridBuildComponent.h"
+#include "Component/Inventory/KOInventoryComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "UI/KOUISubsystem.h"
 
 #include "AbilitySystem/Tag/KOGameplayTags.h"
-#include "Component/Inventory/KOInventoryComponent.h"
 #include "StructUtils/InstancedStruct.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
+#include "UI/HUD/KOInGameHUD.h"
 #include "Utility/Messaging/KOMessageTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogKOBuildUI, Log, All);
@@ -23,6 +25,34 @@ void UKOBuildUIComponent::BeginPlay()
 
 	QuickSlotCount = FMath::Max(1, QuickSlotCount);
 	BuildQuickSlots.SetNum(QuickSlotCount);
+}
+
+bool UKOBuildUIComponent::ClearBuildQuickSlot(int32 SlotIndex)
+{
+	if (!BuildQuickSlots.IsValidIndex(SlotIndex))
+	{
+		return false;
+	}
+
+	if (BuildQuickSlots[SlotIndex].IsNone())
+	{
+		return false;
+	}
+
+	BuildQuickSlots[SlotIndex] = NAME_None;
+
+	FKOBuildQuickSlotChangedMessage Message;
+	Message.SlotIndex = SlotIndex;
+	Message.FactoryId = NAME_None;
+
+	Broadcast(KOGameplayTags::Data_Message_Build_QuickSlotChanged, FInstancedStruct::Make(Message));
+
+	if (SelectedQuickSlotIndex == SlotIndex)
+	{
+		SetSelectedBuildQuickSlot(INDEX_NONE);
+	}
+
+	return true;
 }
 
 APlayerController* UKOBuildUIComponent::GetOwningPlayerController() const
@@ -105,6 +135,8 @@ void UKOBuildUIComponent::OpenBuildMenu()
 
 	GridBuildComponent->EnterBuildMenuMode();
 	
+	SetHUDKeyGuideMode(true);
+	
 	OpenQuickSlotBar();
 }
 
@@ -117,6 +149,8 @@ void UKOBuildUIComponent::CloseBuildMenu()
 	{
 		GridBuildComponent->ExitBuildMenuMode();
 	}
+	
+	SetHUDKeyGuideMode(false);
 	
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 건설 모드 종료"));
 }
@@ -210,6 +244,12 @@ bool UKOBuildUIComponent::SetBuildQuickSlot(int32 SlotIndex, FName FactoryId)
 	{
 		SetSelectedBuildQuickSlot(SlotIndex);
 	}
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBuildQuickSlotAssigned(FactoryId);
+	}
 
 	UE_LOG(LogKOBuildUI, Log, TEXT("[BuildUI] 퀵슬롯 %d 등록: %s"),
 		SlotIndex + 1,
@@ -301,6 +341,53 @@ FName UKOBuildUIComponent::GetBuildQuickSlot(int32 SlotIndex) const
 	return BuildQuickSlots[SlotIndex];
 }
 
+void UKOBuildUIComponent::LoadBuildQuickSlotsFromSave(const TArray<FName>& InBuildQuickSlots)
+{
+	QuickSlotCount = FMath::Max(1, QuickSlotCount);
+    BuildQuickSlots.SetNum(QuickSlotCount);
+    
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    
+    	for (int32 Index = 0; Index < BuildQuickSlots.Num(); ++Index)
+    	{
+    		FName LoadedFactoryId = NAME_None;
+    
+    		if (InBuildQuickSlots.IsValidIndex(Index))
+    		{
+    			LoadedFactoryId = InBuildQuickSlots[Index];
+    		}
+    
+    		if (!LoadedFactoryId.IsNone())
+    		{
+    			if (!LoadSub || !LoadSub->FindFactoryRow(LoadedFactoryId))
+    			{
+    				UE_LOG(
+    					LogKOBuildUI,
+    					Warning,
+    					TEXT("[BuildUI] 저장된 퀵슬롯 FactoryId가 유효하지 않습니다. Slot=%d, FactoryId=%s"),
+    					Index + 1,
+    					*LoadedFactoryId.ToString()
+    				);
+    
+    				LoadedFactoryId = NAME_None;
+    			}
+    		}
+    
+    		BuildQuickSlots[Index] = LoadedFactoryId;
+    
+    		FKOBuildQuickSlotChangedMessage Message;
+    		Message.SlotIndex = Index;
+    		Message.FactoryId = BuildQuickSlots[Index];
+    
+    		Broadcast(
+    			KOGameplayTags::Data_Message_Build_QuickSlotChanged,
+    			FInstancedStruct::Make(Message)
+    		);
+    	}
+    
+    	ClearSelectedBuildQuickSlot();
+}
+
 int32 UKOBuildUIComponent::GetQuickSlotCount() const
 {
 	return BuildQuickSlots.Num();
@@ -313,6 +400,12 @@ int32 UKOBuildUIComponent::GetSelectedBuildQuickSlotIndex() const
 
 void UKOBuildUIComponent::OpenQuickSlotBar()
 {
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
+	if (!UISubsystem)
+	{
+		return;
+	}
+	
 	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_QuickSlotBar);
 }
 
@@ -415,6 +508,31 @@ void UKOBuildUIComponent::CancelBuildAction()
 	}
 }
 
+bool UKOBuildUIComponent::CancelDestroyModeForInteract()
+{
+	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
+	if (!GridBuildComponent)
+	{
+		return false;
+	}
+
+	if (GridBuildComponent->IsDestroyMode())
+	{
+		GridBuildComponent->CancelDestroyMode();
+		ClearSelectedBuildQuickSlot();
+		return true;
+	}
+
+	if (GridBuildComponent->IsBuildMode())
+	{
+		GridBuildComponent->CancelBuildMode();
+		ClearSelectedBuildQuickSlot();
+		return true;
+	}
+
+	return false;
+}
+
 void UKOBuildUIComponent::RotateBuildPreview(int32 Direction)
 {
 	UKOGridBuildComponent* GridBuildComponent = GetGridBuildComponent();
@@ -429,4 +547,31 @@ void UKOBuildUIComponent::RotateBuildPreview(int32 Direction)
 	}
 
 	GridBuildComponent->RotatePlacementPreview(Direction);
+}
+
+void UKOBuildUIComponent::SetHUDKeyGuideMode(bool bBuildMode)
+{
+	UKOInGameHUD* HUD = GetHUDWidget();
+
+	if (!HUD)
+	{
+		UE_LOG(LogKOBuildUI, Warning, TEXT("[BuildUI] InGameHUD를 찾지 못했습니다."));
+		return;
+	}
+
+	HUD->SetBuildKeyGuideMode(bBuildMode);
+}
+
+UKOInGameHUD* UKOBuildUIComponent::GetHUDWidget() const
+{
+	UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this);
+	if (!UISubsystem)
+	{
+		return nullptr;
+	}
+
+	UCommonActivatableWidget* ActiveWidget =
+		UISubsystem->FindActiveWidget(KOGameplayTags::UI_Widget_InGameHUD);
+
+	return Cast<UKOInGameHUD>(ActiveWidget);
 }

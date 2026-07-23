@@ -40,6 +40,7 @@ public:
     static UKOUISubsystem* Get(const UObject* WorldContextObject);
 
     /** World 컨텍스트로 서브시스템을 해석해 곧바로 Open/Close 하는 정적 헬퍼. */
+    UFUNCTION(BlueprintCallable)
     static UCommonActivatableWidget* OpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
     static void CloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
 
@@ -55,6 +56,12 @@ public:
     UCommonActivatableWidget* OpenWidget(FGameplayTag WidgetTag);
     void CloseWidget(FGameplayTag WidgetTag);
     UCommonActivatableWidget* FindActiveWidget(FGameplayTag WidgetTag) const;
+
+    /**
+     * GameMenu/Menu/Modal 레이어에 활성 위젯이 하나도 없으면 true.
+     * HUD 등 상시 표시 UI가 있는 Game 레이어는 제외한다.
+     */
+    bool AreAllMenusClosed() const;
 
 private:
     UCommonActivatableWidget* PushToLayer(FGameplayTag LayerTag, TSubclassOf<UCommonActivatableWidget> WidgetClass);
