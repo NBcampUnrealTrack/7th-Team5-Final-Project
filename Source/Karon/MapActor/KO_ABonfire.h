@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Bonfire")
 	void Interact();
 	
+	const FName& GetBonfireID() const;
+	const FText& GetDisplayName() const;
+	
 protected:
 	void SaveBonfireState();
 	
@@ -43,6 +46,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	FName BonfireID;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
+	FText DisplayName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	bool bIsActivated;

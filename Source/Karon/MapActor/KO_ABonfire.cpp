@@ -48,6 +48,16 @@ void AKO_ABonfire::Interact()
 	}
 }
 
+const FName& AKO_ABonfire::GetBonfireID() const
+{
+	return BonfireID;
+}
+
+const FText& AKO_ABonfire::GetDisplayName() const
+{
+	return DisplayName;
+}
+
 void AKO_ABonfire::SaveBonfireState()
 {
 }
