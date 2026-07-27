@@ -30,8 +30,8 @@ void AKOBaseEnemyAIController::ResetPlayerDetection()
 
 	if (BBComp)
 	{
-		BBComp->ClearValue(TEXT("TargetActor"));
-		BBComp->ClearValue(TEXT("DetectLocation"));
+		BBComp->ClearValue(TargetActorKey);
+		BBComp->ClearValue(DetectLocationKey);
 	}
 }
 
@@ -63,11 +63,11 @@ void AKOBaseEnemyAIController::OnPossess(APawn* InPawn)
 	
 	//임시 설정. 풀 관리시 사용
 	SetAI(EnemyBehaviorTree,
-		Enemy->EnemyAttackRadius,
-		Enemy->bIsEnemyLongRange,
-		Enemy->EnemySpeed,
-		Enemy->EnemyStrafeSpeed,
-		Enemy->EnemyAttackDelayTime);
+		Enemy->GetAttackRadius(),
+		Enemy->GetIsLongRange(),
+		Enemy->GetSpeed(),
+		Enemy->GetStrafeSpeed(),
+		Enemy->GetAttackDelayTime());
 	
 }
 
@@ -108,7 +108,7 @@ void AKOBaseEnemyAIController::CanAttackEvent(bool bIsTriggered)
 	if (BBComp != nullptr)
 	{
 		BBComp->SetValueAsBool(bCanAttackKey,bIsTriggered);
-		Enemy->bCanAttack=bIsTriggered;
+		Enemy->SetCanAttack(bIsTriggered);
 	}
 }
 
@@ -178,7 +178,7 @@ void AKOBaseEnemyAIController::SetAI(
 		
 		if (Enemy)
 		{
-			BBComp->SetValueAsBool(bCanAttackKey,Enemy->bCanAttack);
+			BBComp->SetValueAsBool(bCanAttackKey,Enemy->GetCanAttack());
 			BBComp->SetValueAsBool(bCanPatrolKey,Enemy->bCanPatrol);
 		}
 		
@@ -232,7 +232,7 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			GetBlackboardComponent()->SetValueAsVector(TEXT("DetectLocation"), Stimulus.StimulusLocation);
+			GetBlackboardComponent()->SetValueAsVector(DetectLocationKey, Stimulus.StimulusLocation);
 		}
 		return;
 	}
@@ -241,7 +241,7 @@ void AKOBaseEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimu
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			GetBlackboardComponent()->SetValueAsVector(TEXT("DetectLocation"), Stimulus.StimulusLocation);
+			GetBlackboardComponent()->SetValueAsVector(DetectLocationKey, Stimulus.StimulusLocation);
 		}
 		
 		return;
@@ -289,14 +289,14 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 		return;
 	}
 
-	AActor* PreviousTarget = Cast<AActor>(BBComp->GetValueAsObject(TEXT("TargetActor")));
+	AActor* PreviousTarget = Cast<AActor>(BBComp->GetValueAsObject(TargetActorKey));
 
 	const bool bWasTargetingPlayer = Cast<AKOHeroCharacter>(PreviousTarget) != nullptr;
 	const bool bIsTargetingPlayer = Cast<AKOHeroCharacter>(TargetActor) != nullptr;
 	
 	if (TargetActor!=nullptr)
 	{
-		BBComp->SetValueAsObject(TEXT("TargetActor"), TargetActor);
+		BBComp->SetValueAsObject(TargetActorKey, TargetActor);
 		if (IsValid(Enemy))
 		{
 			Enemy->TargetActor=TargetActor;
@@ -305,7 +305,7 @@ void AKOBaseEnemyAIController::SetTargetActor(AActor* TargetActor)
 	}
 	else
 	{
-		BBComp->ClearValue(TEXT("TargetActor"));
+		BBComp->ClearValue(TargetActorKey);
 		if (IsValid(Enemy))
 		{
 			Enemy->TargetActor=nullptr;

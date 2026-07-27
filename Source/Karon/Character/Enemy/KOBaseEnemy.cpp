@@ -79,9 +79,7 @@ void AKOBaseEnemy::SetupEnemy(UKOEnemyDataSubsystem* DataSubsystem,int32 Level)
 		
 		//그로기는 현재는 생성자에서 설정
 		GroggySet->InitMaxGroggyHealth(MaxGroggyHealth);
-		GroggySet->SetGroggyHealth(MaxGroggyHealth);
-		UE_LOG(LogTemp,Warning,TEXT("%f"),EnemyInfo->AttackPower);
-		
+		GroggySet->SetGroggyHealth(MaxGroggyHealth);		
 		AbilitySystemComponent->ForceReplication();
 	}
 }
@@ -247,14 +245,12 @@ void AKOBaseEnemy::DropItem()
 			return;
 		}
 		
-		float RandValue=FMath::RandRange(0.f,100.f);
-		float Value=0.f;
+
 		TMap<FName,int32> ItemMessageMap;
 		
 		for (FEnemyDropItemInfo& DropItem : *DropItemArray)
 		{
-			Value=DropItem.DropPercent;
-			if (RandValue<=Value)
+			if (FMath::RandRange(0.f, 100.f) <= DropItem.DropPercent)
 			{
 				ItemMessageMap.FindOrAdd(DropItem.DropItemName)+=DropItem.Count;
 			}

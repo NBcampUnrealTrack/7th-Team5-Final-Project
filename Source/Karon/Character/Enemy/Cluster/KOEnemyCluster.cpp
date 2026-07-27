@@ -220,7 +220,7 @@ void AKOEnemyCluster::SelectWinnersForType(bool bIsLongRange, int32 TokenNum, AP
 	{
 		AKOBaseEnemy* Enemy = WeakEnemy.Get();
 		
-		if (!Enemy || Enemy->bIsEnemyLongRange != bIsLongRange)
+		if (!Enemy || Enemy->GetIsLongRange() != bIsLongRange)
 		{
 			continue;
 		} 
