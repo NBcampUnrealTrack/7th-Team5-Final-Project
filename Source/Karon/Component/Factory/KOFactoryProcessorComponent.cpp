@@ -191,7 +191,7 @@ void UKOFactoryProcessorComponent::RestoreInputBuffer(FName ItemId, int32 Count)
 
 bool UKOFactoryProcessorComponent::ManualStart()
 {
-    if (State != EKOFactoryState::Idle)
+    if (!ActiveRecipeId.IsNone())
     {
         return false;
     }
@@ -200,7 +200,7 @@ bool UKOFactoryProcessorComponent::ManualStart()
 
 float UKOFactoryProcessorComponent::GetProgress() const
 {
-    if (State != EKOFactoryState::Running || CurrentCycleSeconds <= 0.f)
+    if (ActiveRecipeId.IsNone() || CurrentCycleSeconds <= 0.f)
     {
         return 0.f;
     }
@@ -235,7 +235,7 @@ bool UKOFactoryProcessorComponent::HasAnyOutputItems() const
 
 bool UKOFactoryProcessorComponent::CanChangeRecipe() const
 {
-    if (State == EKOFactoryState::Running)
+    if (!ActiveRecipeId.IsNone())
     {
         return false;
     }
@@ -262,31 +262,50 @@ bool UKOFactoryProcessorComponent::CanChangeRecipe() const
 
 float UKOFactoryProcessorComponent::GetPowerDemand(float DeltaSeconds) const
 {
-    if (State != EKOFactoryState::Running || DeltaSeconds <= 0.f)
+    if ((State != EKOFactoryState::Running && State != EKOFactoryState::PressureBlocked) || DeltaSeconds <= 0.f)
     {
         return 0.f;
     }
-    const float PerSecond = GetActiveRecipePowerPerSecond();
+    const float PerSecond = GetDemandRecipePowerPerSecond();
     return PerSecond * DeltaSeconds;
 }
 
 void UKOFactoryProcessorComponent::OnPowerSupplied(float SuppliedAmount, float RequestedAmount)
 {
     LastSupplyRatio = (RequestedAmount > KINDA_SMALL_NUMBER)
-        ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f)
-        : 1.f;
+        ? FMath::Clamp(SuppliedAmount / RequestedAmount, 0.f, 1.f) : 1.f;
     
     AKOBaseBuilding* Building = GetOwnerBuilding();
     if (!Building)
     {
         return;
     }
+    
+    const bool bNetworkHasPressure = HasNetworkPressure();
+    const bool bActuallySupplied = SuppliedAmount > KINDA_SMALL_NUMBER;
+    const bool bActiveCycleRequiresPressure  = !ActiveRecipeId.IsNone() && RequestedAmount > KINDA_SMALL_NUMBER;
+    const bool bPressureShortage = bActiveCycleRequiresPressure  && !bActuallySupplied;
 
-    const bool bIsRunning = State == EKOFactoryState::Running;
-    const bool bRequiresPressure = bIsRunning && RequestedAmount > KINDA_SMALL_NUMBER;
-    const bool bHasPressure = SuppliedAmount > KINDA_SMALL_NUMBER;
-    const bool bPressureShortage = bRequiresPressure && !bHasPressure;
-    const bool bActuallyOperating = bRequiresPressure && bHasPressure;
+    if (!bNetworkHasPressure)
+    {
+        LastSupplyRatio = 0.f;
+        SetState(EKOFactoryState::PressureBlocked);
+    }
+    else if (State == EKOFactoryState::PressureBlocked)
+    {
+        if (!ActiveRecipeId.IsNone())
+        {
+            // 가공 도중 압력이 끊겼던 경우
+            SetState(EKOFactoryState::Running);
+        }
+        else
+        {
+            // 가공 시작 전에 압력이 없었던 경우
+            EvaluateAutoStart();
+        }
+    }
+
+    const bool bActuallyOperating = State == EKOFactoryState::Running && bActuallySupplied;
 
     Building->SetOperatingSoundActive(bActuallyOperating);
 
@@ -473,10 +492,7 @@ FName UKOFactoryProcessorComponent::FindRunnableRecipe() const
     {
         return NAME_None;
     }
-    if (!HasInputsFor(*Selected) || !CanFitOutputs(*Selected))
-    {
-        return NAME_None;
-    }
+    
     return SelectedRecipeId;
 }
 
@@ -485,21 +501,47 @@ bool UKOFactoryProcessorComponent::TryStartCycle()
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     if (!LoadSub)
     {
+        SetState(EKOFactoryState::Idle);
         return false;
     }
 
     const FName RecipeId = FindRunnableRecipe();
     if (RecipeId.IsNone())
     {
+        SetState(EKOFactoryState::Idle);
         return false;
     }
 
     const FKORecipeRow* Recipe = LoadSub->FindRecipeRow(RecipeId);
     if (!Recipe)
     {
+        SetState(EKOFactoryState::Idle);
         return false;
     }
     
+    // 압력 검사
+    if (!HasNetworkPressure())
+    {
+        LastSupplyRatio = 0.f;
+        SetState(EKOFactoryState::PressureBlocked);
+        return false;
+    }
+
+    // 재료(input) 검사
+    if (!HasInputsFor(*Recipe))
+    {
+        SetState(EKOFactoryState::Idle);
+        return false;
+    }
+
+    // 출력 공간(output) 검사
+    if (!CanFitOutputs(*Recipe))
+    {
+        SetState(EKOFactoryState::OutputBlocked);
+        return false;
+    }
+    
+    // 재료 차감
     for (const TPair<FGameplayTag, int32>& In : Recipe->Inputs)
     {
         const FName ItemId = LoadSub->FindItemIdByTag(In.Key);
@@ -621,6 +663,18 @@ bool UKOFactoryProcessorComponent::CanFitOutputs(const FKORecipeRow& Recipe) con
     return true;
 }
 
+bool UKOFactoryProcessorComponent::HasNetworkPressure() const
+{
+    const UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this);
+
+    if (!Energy)
+    {
+        return false;
+    }
+
+    return Energy->GetConsumerNetworkProductionRate(this) > KINDA_SMALL_NUMBER;
+}
+
 float UKOFactoryProcessorComponent::GetActiveRecipePowerPerSecond() const
 {
     if (ActiveRecipeId.IsNone())
@@ -629,6 +683,32 @@ float UKOFactoryProcessorComponent::GetActiveRecipePowerPerSecond() const
     }
     const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
     const FKORecipeRow* Recipe = LoadSub ? LoadSub->FindRecipeRow(ActiveRecipeId) : nullptr;
+    return Recipe ? FMath::Max(0.f, Recipe->PowerPerSecond) : 0.f;
+}
+
+float UKOFactoryProcessorComponent::GetDemandRecipePowerPerSecond() const
+{
+    FName RecipeId = NAME_None;
+
+    // 가공 시작 상태
+    if (!ActiveRecipeId.IsNone())
+    {
+        RecipeId = ActiveRecipeId;
+    }
+    // 시작 전 압력 부족
+    else if (State == EKOFactoryState::PressureBlocked)
+    {
+        RecipeId = SelectedRecipeId;
+    }
+
+    if (RecipeId.IsNone())
+    {
+        return 0.f;
+    }
+
+    const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this);
+    const FKORecipeRow* Recipe = LoadSub ? LoadSub->FindRecipeRow(RecipeId) : nullptr;
+
     return Recipe ? FMath::Max(0.f, Recipe->PowerPerSecond) : 0.f;
 }
 
@@ -672,28 +752,20 @@ bool UKOFactoryProcessorComponent::CanAcceptInputItemForSelectedRecipe(FName Ite
 
 void UKOFactoryProcessorComponent::EvaluateAutoStart()
 {
-    if (!bAutoStart || State == EKOFactoryState::Running)
+    if (!bAutoStart || !ActiveRecipeId.IsNone())
     {
         return;
     }
-
-    if (TryStartCycle())
+    
+    // 압력 검사
+    if (!HasNetworkPressure())
     {
+        LastSupplyRatio = 0.f;
+        SetState(EKOFactoryState::PressureBlocked);
         return;
     }
 
-    bool bOutputBlocked = false;
-    if (!SelectedRecipeId.IsNone())
-    {
-        if (const UKOLoadSubsystem* LoadSub = UKOLoadSubsystem::Get(this))
-        {
-            if (const FKORecipeRow* Selected = LoadSub->FindRecipeRow(SelectedRecipeId))
-            {
-                bOutputBlocked = HasInputsFor(*Selected) && !CanFitOutputs(*Selected);
-            }
-        }
-    }
-    SetState(bOutputBlocked ? EKOFactoryState::OutputBlocked : EKOFactoryState::Idle);
+    TryStartCycle();
 }
 
 void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
@@ -708,8 +780,6 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
             {
                 Building->SetOperatingSoundActive(false);
             }
-
-            bWasPressureShortage = false;
         }
         return;
     }
@@ -727,8 +797,6 @@ void UKOFactoryProcessorComponent::SetState(EKOFactoryState NewState)
         {
             Building->SetOperatingSoundActive(false);
         }
-
-        bWasPressureShortage = false;
     }
     BroadcastStateChanged();
     BroadcastProcessorChanged();

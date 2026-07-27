@@ -43,10 +43,11 @@ namespace
     {
         switch (State)
         {
-        case EKOFactoryState::Running:       return LOCTEXT("State_Running",       "가공 중");
-        case EKOFactoryState::OutputBlocked: return LOCTEXT("State_OutputBlocked", "출력 가득");
+        case EKOFactoryState::Running:         return LOCTEXT("State_Running",         "가공 중");
+        case EKOFactoryState::PressureBlocked: return LOCTEXT("State_PressureBlocked", "압력 부족");
+        case EKOFactoryState::OutputBlocked:   return LOCTEXT("State_OutputBlocked",   "출력 가득");
         case EKOFactoryState::Idle:
-        default:                             return LOCTEXT("State_Idle",          "대기");
+        default:                               return LOCTEXT("State_Idle",            "대기");
         }
     }
 
@@ -462,74 +463,25 @@ void UKOFactoryProcessorWidget::RefreshRecipeButtonState()
         return;
     }
     
-    const bool bPressureAvailable = IsPressureAvailable();
-
-    if (RecipeButton)
-    {
-        RecipeButton->SetIsEnabled(bPressureAvailable);
-
-        RecipeButton->SetBackgroundColor(
-            bPressureAvailable
-                ? RecipeButtonNormalColor
-                : RecipeButtonPressureBlockedColor
-        );
-    }
-    
-    if (NotCraftableImage)
-    {
-        NotCraftableImage->SetVisibility(bPressureAvailable 
-            ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
-    }
-    
     if (RecipeText)
     {
-        if (!IsPressureAvailable())
+        FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
+        
+        const FName ActiveId   = Proc->GetActiveRecipeId();
+        const FName SelectedId = Proc->GetSelectedRecipe();
+        const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
+        if (!ShownId.IsNone())
         {
-            RecipeText->SetText(LOCTEXT("RecipePressureBlocked", "압력 부족"));
-        }
-        else
-        {
-            FText RecipeName = LOCTEXT("DefaultRecipeText", "Recipe");
-            
-            const FName ActiveId   = Proc->GetActiveRecipeId();
-            const FName SelectedId = Proc->GetSelectedRecipe();
-            const FName ShownId    = !ActiveId.IsNone() ? ActiveId : SelectedId;
-            if (!ShownId.IsNone())
+            if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
             {
-                if (const UKOLoadSubsystem* Load = UKOLoadSubsystem::Get(this))
+                if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
                 {
-                    if (const FKORecipeRow* Row = Load->FindRecipeRow(ShownId))
-                    {
-                        RecipeName = Row->DisplayName;
-                    }
+                    RecipeName = Row->DisplayName;
                 }
             }
-            RecipeText->SetText(RecipeName);
         }
+        RecipeText->SetText(RecipeName);
     }
-
-    if (!bPressureAvailable)
-    {
-        bShowingRecipePanel = false;
-        ApplyPanelSwitch();
-    }
-}
-
-bool UKOFactoryProcessorWidget::IsPressureAvailable() const
-{
-    UKOFactoryProcessorComponent* Proc = Processor.Get();
-    if (!Proc)
-    {
-        return false;
-    }
-
-    UKOEnergySubsystem* Energy = UKOEnergySubsystem::Get(this);
-    if (!Energy)
-    {
-        return false;
-    }
-
-    return Energy->GetConsumerNetworkProductionRate(Proc) > KINDA_SMALL_NUMBER;
 }
 
 void UKOFactoryProcessorWidget::HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot)
