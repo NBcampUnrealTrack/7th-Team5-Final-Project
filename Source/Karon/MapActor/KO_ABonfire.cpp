@@ -1,5 +1,5 @@
 ﻿#include "KO_ABonfire.h"
-
+#include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 
 
@@ -19,6 +19,9 @@ AKO_ABonfire::AKO_ABonfire()
 	InteractionBox->SetupAttachment(RootComponent);
 	InteractionBox->SetBoxExtent(FVector(150.f, 150.f, 100.f));
 	
+	TeleportTargetComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TeleportTargetComponent"));
+	TeleportTargetComponent->SetupAttachment(RootComponent);
+	
 	bIsActivated = false;
 	BonfireID = NAME_None;
 }
@@ -35,8 +38,15 @@ void AKO_ABonfire::BeginPlay()
 	LoadBonfireState();
 }
 
-void AKO_ABonfire::Interact()
+bool AKO_ABonfire::CanInteract(AActor* Interactor) const
 {
+	return bHasItem;
+}
+
+void AKO_ABonfire::OnInteract(AActor* Interactor)
+{
+	if (!Interactor) return;
+	
 	if (!bIsActivated)
 	{
 		bIsActivated = true;
@@ -45,6 +55,18 @@ void AKO_ABonfire::Interact()
 	else
 	{
 		// TODO: 화톳불 UI 띄우기
+	}
+}
+
+FText AKO_ABonfire::GetInteractionPrompt() const
+{
+	if (bIsActivated)
+	{
+		return FText::FromString(TEXT("상호작용"));	
+	}
+	else
+	{
+		return FText::FromString(TEXT("활성화"));
 	}
 }
 
@@ -58,12 +80,27 @@ const FText& AKO_ABonfire::GetDisplayName() const
 	return DisplayName;
 }
 
+void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter)
+{
+	if (!PlayerCharacter)
+	{
+		return;
+	}
+	
+	// TODO: 캐싱한 화톳불의 좌표값 넣기
+	// FVector TargetLocation = Bonfire->TeleportTargetComponent->GetComponentLocation();
+	// FRotator TargetRotation = Bonfire->TeleportTargetComponent->GetComponentRotation();
+	// PlayerCharacter->TeleportTo(TargetLocation, TargetRotation);
+}
+
 void AKO_ABonfire::SaveBonfireState()
 {
+	// TODO: 세이브 로직
 }
 
 void AKO_ABonfire::LoadBonfireState()
 {
+	// TODO: 로드 로직
 }
 
 

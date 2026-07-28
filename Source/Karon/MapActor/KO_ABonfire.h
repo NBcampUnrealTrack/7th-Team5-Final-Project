@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Utility/Interface/KOInteractableInterface.h"
 #include "KO_ABonfire.generated.h"
 
 class UBoxComponent;
@@ -9,7 +10,7 @@ class UBoxComponent;
 class UStaticMeshComponent;
 
 UCLASS()
-class KARON_API AKO_ABonfire : public AActor
+class KARON_API AKO_ABonfire : public AActor ,public IKOInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -20,11 +21,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Bonfire")
-	void Interact();
+	virtual bool CanInteract(AActor* Interactor) const override;
+	
+	virtual void OnInteract(AActor* Interactor) override;
+
+	virtual FText GetInteractionPrompt() const override;
 	
 	const FName& GetBonfireID() const;
 	const FText& GetDisplayName() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Bonfire|Teleport")
+	void TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter);
 	
 protected:
 	void SaveBonfireState();
@@ -43,6 +50,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> TeleportTargetComponent;
+	
+	bool bHasItem = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	FName BonfireID;
