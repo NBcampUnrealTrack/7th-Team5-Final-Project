@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MediaSource.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "KOTutorialSubsystem.generated.h"
 
@@ -17,13 +18,13 @@ struct FKOVideoData
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	TSoftObjectPtr<UMaterial> VideoMaterial;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UMediaSource> VideoSource;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName VideoName;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName VideoDesciption;
 };
 

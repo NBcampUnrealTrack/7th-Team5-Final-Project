@@ -29,16 +29,16 @@ void UKOTutorialSubsystem::Preload(UObject* WorldContext, FName TutorialName)
 {
 	if (VideoMap.Contains(TutorialName))
 	{
-		if (VideoMap[TutorialName].VideoMaterial.IsValid())
+		if (VideoMap[TutorialName].VideoSource.IsValid())
 		{
 			SetTutorial(WorldContext,TutorialName);
 			return;	
 		}
-		if (!VideoMap[TutorialName].VideoMaterial.IsNull())
+		if (!VideoMap[TutorialName].VideoSource.IsNull())
 		{
 			FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 			TSharedPtr<FStreamableHandle> StreamingHandle = Streamable.RequestAsyncLoad(
-			VideoMap[TutorialName].VideoMaterial.ToSoftObjectPath(),
+			VideoMap[TutorialName].VideoSource.ToSoftObjectPath(),
 			FStreamableDelegate::CreateUObject(this, &ThisClass::SetTutorial,WorldContext, TutorialName)
 			);
 			StreamableHandles.Add(TutorialName,StreamingHandle);
@@ -54,7 +54,7 @@ void UKOTutorialSubsystem::PreloadAll(UObject* WorldContext)
 		{
 			FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 			TSharedPtr<FStreamableHandle> StreamingHandle = Streamable.RequestAsyncLoad(
-			VideoData.Value.VideoMaterial.ToSoftObjectPath()
+			VideoData.Value.VideoSource.ToSoftObjectPath()
 			);
 			StreamableHandles.Add(VideoData.Key,StreamingHandle);
 		}
