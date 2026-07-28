@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "Subsystem/KOTutorialSubsystem.h"
 #include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
@@ -322,4 +323,15 @@ struct FKOLevelSequenceRow : public FTableRowBase
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<ULevelSequence> LevelSequence;
+};
+
+//튜토리얼 비디오 데이터베이스
+USTRUCT(BlueprintType)
+struct FKOTutorialRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FKOVideoData VideoData;
 };

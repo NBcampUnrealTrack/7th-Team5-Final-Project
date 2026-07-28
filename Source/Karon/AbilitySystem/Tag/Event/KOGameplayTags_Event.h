@@ -95,5 +95,6 @@ namespace KOGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_WorldNotice);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LevelSequenceText);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_TutorialVideo);
 
 }

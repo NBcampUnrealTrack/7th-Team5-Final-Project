@@ -42,6 +42,8 @@ public:
     /** World 컨텍스트로 서브시스템을 해석해 곧바로 Open/Close 하는 정적 헬퍼. */
     UFUNCTION(BlueprintCallable)
     static UCommonActivatableWidget* OpenWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
+    
+    UFUNCTION(BlueprintCallable)
     static void CloseWidget(const UObject* WorldContextObject, FGameplayTag WidgetTag);
 
     // ─── Root Layout ──────────────────────────────────────────────────────────

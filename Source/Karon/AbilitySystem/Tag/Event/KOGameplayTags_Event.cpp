@@ -89,4 +89,5 @@ namespace KOGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_WorldNotice, "Event.WorldNotice");
 	UE_DEFINE_GAMEPLAY_TAG(Event_LevelSequenceText, "Event.LevelSequenceText");
+	UE_DEFINE_GAMEPLAY_TAG(Event_TutorialVideo, "Event.TutorialVideo");
 }
