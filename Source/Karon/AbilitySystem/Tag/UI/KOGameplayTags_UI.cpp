@@ -33,4 +33,5 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_ConfirmationPopup, "UI.Widget.ConfirmationPopup");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_GameOverMenu,		"UI.Widget.GameOverMenu");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_Video,		"UI.Widget.Video");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Widget_TeleportPopup,		"UI.Widget.TeleportPopup");
 }

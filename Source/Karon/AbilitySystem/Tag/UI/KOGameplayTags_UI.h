@@ -76,4 +76,7 @@ namespace KOGameplayTags
 	
 	/** 비디오 재생 위젯*/
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Video);
+	
+	/** 텔레포트 팝업 위젯*/
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TeleportPopup)
 }

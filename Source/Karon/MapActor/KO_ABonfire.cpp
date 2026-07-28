@@ -1,4 +1,8 @@
 ﻿#include "KO_ABonfire.h"
+#include "Subsystem/KOTeleportSubsystem.h"
+#include "UI/KOUISubsystem.h"
+#include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
+
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 #include "Subsystem/KOSaveSubsystem.h"
@@ -35,6 +39,11 @@ void AKO_ABonfire::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Bonfire ID 설정 안됨."));
 	}
+	
+	if (UKOTeleportSubsystem* TeleportSubsystem = ULocalPlayer::GetSubsystem<UKOTeleportSubsystem>();)
+	{
+		TeleportSubsystem->RegisterBonfire(this);
+	}
 }
 
 bool AKO_ABonfire::CanInteract(AActor* Interactor) const
@@ -58,7 +67,10 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 	}
 	else
 	{
-		// TODO: 화톳불 UI 띄우기
+		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
+		{
+			UISubsystem->OpenWidget(GetWorld(), KOGameplayTags::UI_Widget_TeleportPopup);
+		}
 	}
 }
 
@@ -72,16 +84,6 @@ FText AKO_ABonfire::GetInteractionPrompt() const
 	{
 		return FText::FromString(TEXT("활성화"));
 	}
-}
-
-const FName& AKO_ABonfire::GetBonfireID() const
-{
-	return BonfireID;
-}
-
-const FText& AKO_ABonfire::GetDisplayName() const
-{
-	return DisplayName;
 }
 
 bool AKO_ABonfire::IsActivated() const
@@ -106,5 +108,3 @@ void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCha
 	// FRotator TargetRotation = Bonfire->TeleportTargetComponent->GetComponentRotation();
 	// PlayerCharacter->TeleportTo(TargetLocation, TargetRotation);
 }
-
-

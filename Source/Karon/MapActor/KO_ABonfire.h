@@ -27,13 +27,13 @@ public:
 
 	virtual FText GetInteractionPrompt() const override;
 	
-	const FName& GetBonfireID() const;
-	const FText& GetDisplayName() const;
+	const FName& GetBonfireID() const	{ return BonfireID; }
+	const FText& GetDisplayName() const { return DisplayName; }
+	int32 GetDisplayOrder() const		{ return DisplayOrder; }
 	bool IsActivated() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Bonfire|Teleport")
 	void TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter);
-	
 	void RestoreFromSave(bool bActivated);
 
 protected:
@@ -56,6 +56,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	FText DisplayName;
+	
+	/** UI에 보여질 순서*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
+	int32 DisplayOrder;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	bool bIsActivated;
