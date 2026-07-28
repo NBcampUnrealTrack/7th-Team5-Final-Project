@@ -33,13 +33,13 @@ struct FBonfireUIData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	FName BonfireID;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	FText DisplayName;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	int32 DisplayOrder;
 };
 

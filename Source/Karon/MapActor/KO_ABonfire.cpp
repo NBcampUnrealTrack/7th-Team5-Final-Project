@@ -40,7 +40,15 @@ void AKO_ABonfire::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Bonfire ID 설정 안됨."));
 	}
 	
-	if (UKOTeleportSubsystem* TeleportSubsystem = ULocalPlayer::GetSubsystem<UKOTeleportSubsystem>();)
+	UWorld* World = GetWorld();
+	
+	if (World == nullptr)
+	{
+		return;
+	}
+	
+	ULocalPlayer* LocalPlayer = World->GetFirstLocalPlayerFromController();
+	if (UKOTeleportSubsystem* TeleportSubsystem = LocalPlayer->GetSubsystem<UKOTeleportSubsystem>())
 	{
 		TeleportSubsystem->RegisterBonfire(this);
 	}
