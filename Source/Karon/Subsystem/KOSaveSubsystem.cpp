@@ -11,6 +11,7 @@
 #include "Component/Build/KOBuildUIComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Subsystem/KOSkillSubsystem.h"
+#include "Subsystem/KOTeleportSubsystem.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "EngineUtils.h"
 #include "KOEnemyDataSubsystem.h"
@@ -25,7 +26,6 @@
 #include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "MapActor/KOItemDropActor.h"
-#include "MapActor/KO_ABonfire.h"
 #include "UI/Map/FOW/KOFogManagerSubsystem.h"
 #include "HAL/PlatformTime.h"
 
@@ -119,6 +119,22 @@ UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController
 UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
 {
 	return UKOQuestGuideSubsystem::Get(this);
+}
+
+UKOTeleportSubsystem* UKOSaveSubsystem::GetPlayerTeleportSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return nullptr;
+	}
+
+	return LocalPlayer->GetSubsystem<UKOTeleportSubsystem>();
 }
 
 bool UKOSaveSubsystem::SaveCurrentGame()
@@ -397,37 +413,14 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 
 		if (!bFogSaved)
 		{
-			UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다.")
-			);
+			UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다."));
 		}
 	}
 	
-	// 화톳불 상태 저장
-	SaveData->Bonfires.Empty();
-
-	for (TActorIterator<AKO_ABonfire> It(World); It; ++It)
+	// 활성화된 화톳불 저장
+	if (UKOTeleportSubsystem* TeleportSubsystem = GetPlayerTeleportSubsystem(PC))
 	{
-		AKO_ABonfire* Bonfire = *It;
-		if (!Bonfire)
-		{
-			continue;
-		}
-
-		const FName BonfireId = Bonfire->GetBonfireID();
-
-		if (BonfireId.IsNone())
-		{
-			continue;
-		}
-
-		FKOSavedBonfire SavedBonfire;
-		SavedBonfire.BonfireId = BonfireId;
-		SavedBonfire.bIsActivated = Bonfire->IsActivated();
-
-		SaveData->Bonfires.Add(SavedBonfire);
+		SaveData->ActivatedBonfireIds = TeleportSubsystem->GetActivatedBonfireSet().Array();
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
@@ -987,44 +980,20 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 		);
 	}
 	
-	// 화톳불 상태 로드
-	TMap<FName, bool> SavedBonfireStateMap;
-
-	for (const FKOSavedBonfire& SavedBonfire : SaveData->Bonfires)
+	// 활성화된 화톳불 로드
+	if (UKOTeleportSubsystem* TeleportSubsystem = GetPlayerTeleportSubsystem(PC))
 	{
-		if (SavedBonfire.BonfireId.IsNone())
+		TSet<FName> ActivatedBonfires;
+
+		for (const FName& BonfireId : SaveData->ActivatedBonfireIds)
 		{
-			continue;
+			if (!BonfireId.IsNone())
+			{
+				ActivatedBonfires.Add(BonfireId);
+			}
 		}
 
-		SavedBonfireStateMap.Add(SavedBonfire.BonfireId, SavedBonfire.bIsActivated);
-	}
-
-	for (TActorIterator<AKO_ABonfire> It(World); It; ++It)
-	{
-		AKO_ABonfire* Bonfire = *It;
-		if (!Bonfire)
-		{
-			continue;
-		}
-
-		const FName BonfireId = Bonfire->GetBonfireID();
-
-		if (BonfireId.IsNone())
-		{
-			continue;
-		}
-
-		const bool* SavedActivated = SavedBonfireStateMap.Find(BonfireId);
-
-		if (SavedActivated)
-		{
-			Bonfire->RestoreFromSave(*SavedActivated);
-		}
-		else
-		{
-			Bonfire->RestoreFromSave(false);
-		}
+		TeleportSubsystem->SetActivatedBonfireSet(ActivatedBonfires);
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 성공"));

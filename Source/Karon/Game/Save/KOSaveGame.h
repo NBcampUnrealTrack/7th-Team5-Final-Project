@@ -221,18 +221,6 @@ struct FKOSavedFogState // 맵 안개
 	TArray<FColor> ExploredPixels;
 };
 
-USTRUCT(BlueprintType)
-struct FKOSavedBonfire // 화톳불
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	FName BonfireId = NAME_None;
-
-	UPROPERTY()
-	bool bIsActivated = false;
-};
-
 UCLASS()
 class KARON_API UKOSaveGame : public USaveGame
 {
@@ -316,7 +304,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FGameplayTagContainer OwnedUnlockTags;
 	
-	// 화톳불 상태
+	// 화톳불 활성화
 	UPROPERTY()
-	TArray<FKOSavedBonfire> Bonfires;
+	TArray<FName> ActivatedBonfireIds;
 };
