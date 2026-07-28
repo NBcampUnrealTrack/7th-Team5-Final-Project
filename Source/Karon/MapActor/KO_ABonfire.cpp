@@ -1,6 +1,7 @@
 ﻿#include "KO_ABonfire.h"
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
+#include "Subsystem/KOSaveSubsystem.h"
 
 
 AKO_ABonfire::AKO_ABonfire()
@@ -34,8 +35,6 @@ void AKO_ABonfire::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Bonfire ID 설정 안됨."));
 	}
-	
-	LoadBonfireState();
 }
 
 bool AKO_ABonfire::CanInteract(AActor* Interactor) const
@@ -50,7 +49,12 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 	if (!bIsActivated)
 	{
 		bIsActivated = true;
-		SaveBonfireState();
+
+		UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+		if (!SaveSubsystem || !SaveSubsystem->SaveCurrentGame())
+		{
+			bIsActivated = false;
+		}
 	}
 	else
 	{
@@ -80,6 +84,16 @@ const FText& AKO_ABonfire::GetDisplayName() const
 	return DisplayName;
 }
 
+bool AKO_ABonfire::IsActivated() const
+{
+	return bIsActivated;
+}
+
+void AKO_ABonfire::RestoreFromSave(bool bActivated)
+{
+	bIsActivated = bActivated;
+}
+
 void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter)
 {
 	if (!PlayerCharacter)
@@ -91,16 +105,6 @@ void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCha
 	// FVector TargetLocation = Bonfire->TeleportTargetComponent->GetComponentLocation();
 	// FRotator TargetRotation = Bonfire->TeleportTargetComponent->GetComponentRotation();
 	// PlayerCharacter->TeleportTo(TargetLocation, TargetRotation);
-}
-
-void AKO_ABonfire::SaveBonfireState()
-{
-	// TODO: 세이브 로직
-}
-
-void AKO_ABonfire::LoadBonfireState()
-{
-	// TODO: 로드 로직
 }
 
 

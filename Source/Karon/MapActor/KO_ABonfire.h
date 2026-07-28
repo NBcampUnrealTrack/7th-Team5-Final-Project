@@ -29,15 +29,13 @@ public:
 	
 	const FName& GetBonfireID() const;
 	const FText& GetDisplayName() const;
+	bool IsActivated() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Bonfire|Teleport")
 	void TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter);
 	
-protected:
-	void SaveBonfireState();
-	
-	void LoadBonfireState();
-	
+	void RestoreFromSave(bool bActivated);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> RootComp;

@@ -25,6 +25,7 @@
 #include "Character/Enemy/Boss/Chapter01/Gimmick/KOBossCH01GimmickPillar.h"
 #include "Character/Hero/KOHeroCharacter.h"
 #include "MapActor/KOItemDropActor.h"
+#include "MapActor/KO_ABonfire.h"
 #include "UI/Map/FOW/KOFogManagerSubsystem.h"
 #include "HAL/PlatformTime.h"
 
@@ -402,6 +403,31 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 				TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다.")
 			);
 		}
+	}
+	
+	// 화톳불 상태 저장
+	SaveData->Bonfires.Empty();
+
+	for (TActorIterator<AKO_ABonfire> It(World); It; ++It)
+	{
+		AKO_ABonfire* Bonfire = *It;
+		if (!Bonfire)
+		{
+			continue;
+		}
+
+		const FName BonfireId = Bonfire->GetBonfireID();
+
+		if (BonfireId.IsNone())
+		{
+			continue;
+		}
+
+		FKOSavedBonfire SavedBonfire;
+		SavedBonfire.BonfireId = BonfireId;
+		SavedBonfire.bIsActivated = Bonfire->IsActivated();
+
+		SaveData->Bonfires.Add(SavedBonfire);
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
@@ -959,6 +985,46 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			SaveData->FogState.SizeX,
 			SaveData->FogState.SizeY
 		);
+	}
+	
+	// 화톳불 상태 로드
+	TMap<FName, bool> SavedBonfireStateMap;
+
+	for (const FKOSavedBonfire& SavedBonfire : SaveData->Bonfires)
+	{
+		if (SavedBonfire.BonfireId.IsNone())
+		{
+			continue;
+		}
+
+		SavedBonfireStateMap.Add(SavedBonfire.BonfireId, SavedBonfire.bIsActivated);
+	}
+
+	for (TActorIterator<AKO_ABonfire> It(World); It; ++It)
+	{
+		AKO_ABonfire* Bonfire = *It;
+		if (!Bonfire)
+		{
+			continue;
+		}
+
+		const FName BonfireId = Bonfire->GetBonfireID();
+
+		if (BonfireId.IsNone())
+		{
+			continue;
+		}
+
+		const bool* SavedActivated = SavedBonfireStateMap.Find(BonfireId);
+
+		if (SavedActivated)
+		{
+			Bonfire->RestoreFromSave(*SavedActivated);
+		}
+		else
+		{
+			Bonfire->RestoreFromSave(false);
+		}
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 성공"));
