@@ -22,10 +22,10 @@ struct FKOVideoData
 	TSoftObjectPtr<UMediaSource> VideoSource;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName VideoName;
+	FText VideoName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName VideoDesciption;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText VideoDesciption;
 };
 
 UCLASS()
