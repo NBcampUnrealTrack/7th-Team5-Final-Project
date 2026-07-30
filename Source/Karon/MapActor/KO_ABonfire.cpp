@@ -23,7 +23,7 @@ AKO_ABonfire::AKO_ABonfire()
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	InteractionBox->SetupAttachment(RootComponent);
-	InteractionBox->SetBoxExtent(FVector(150.f, 150.f, 100.f));
+	InteractionBox->SetBoxExtent(FVector(100.f, 100.f, 100.f));
 	
 	TeleportTargetComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TeleportTargetComponent"));
 	TeleportTargetComponent->SetupAttachment(RootComponent);
