@@ -69,7 +69,7 @@ protected:
     virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
 
 protected: // properties
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     EKOUIInputMode InputMode = EKOUIInputMode();
 
     UPROPERTY(EditDefaultsOnly, meta = (EditConditionHides = "InputMode == EKOUIInputMode::Menu"))

@@ -79,4 +79,6 @@ namespace KOGameplayTags
 	
 	/** 텔레포트 팝업 위젯*/
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_TeleportPopup)
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Widget_Guide);
 }
