@@ -22,6 +22,7 @@ public:
 	void SetCurrentQuest(FName NewQuestId);
 
 	FName GetCurrentQuestId() const { return CurrentQuestId; }
+	int32 GetCurrentProgress() const { return CurrentProgress; }
 
 	const FKOQuestGuideRow* GetCurrentQuestRow() const;
 	
