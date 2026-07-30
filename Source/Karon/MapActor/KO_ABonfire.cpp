@@ -52,6 +52,8 @@ void AKO_ABonfire::BeginPlay()
 	{
 		TeleportSubsystem->RegisterBonfire(this);
 	}
+	
+	UpdateBonfireVisuals();
 }
 
 bool AKO_ABonfire::CanInteract(AActor* Interactor) const
@@ -71,7 +73,10 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 		if (!SaveSubsystem || !SaveSubsystem->SaveCurrentGame())
 		{
 			bIsActivated = false;
+			return;
 		}
+		
+		UpdateBonfireVisuals();
 	}
 	else
 	{
@@ -102,6 +107,27 @@ bool AKO_ABonfire::IsActivated() const
 void AKO_ABonfire::RestoreFromSave(bool bActivated)
 {
 	bIsActivated = bActivated;
+	UpdateBonfireVisuals();
+}
+
+void AKO_ABonfire::UpdateBonfireVisuals()
+{
+	if (!BonfireMesh) return;
+	
+	if (bIsActivated)
+	{
+		if (ActiveOverlayMaterial)
+		{
+			BonfireMesh->SetOverlayMaterial(ActiveOverlayMaterial);
+		}
+	}
+	else
+	{
+		if (InactiveOverlayMaterial)
+		{
+			BonfireMesh->SetOverlayMaterial(InactiveOverlayMaterial);
+		}
+	}
 }
 
 void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter)

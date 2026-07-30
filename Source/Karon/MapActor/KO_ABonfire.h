@@ -8,6 +8,7 @@
 class UBoxComponent;
 class UBoxComponent;
 class UStaticMeshComponent;
+class UMaterialInterface;
 
 UCLASS()
 class KARON_API AKO_ABonfire : public AActor ,public IKOInteractableInterface
@@ -36,6 +37,8 @@ public:
 	void TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter);
 	void RestoreFromSave(bool bActivated);
 
+	void UpdateBonfireVisuals();
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> RootComp;
@@ -60,6 +63,12 @@ protected:
 	/** UI에 보여질 순서*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	int32 DisplayOrder;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting|VFX")
+	TObjectPtr<UMaterialInterface> InactiveOverlayMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting|VFX")
+	TObjectPtr<UMaterialInterface> ActiveOverlayMaterial;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
 	bool bIsActivated;
