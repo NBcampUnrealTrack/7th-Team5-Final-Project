@@ -5,6 +5,7 @@
 
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
+#include "Subsystem/KOQuestGuideSubsystem.h"
 #include "Subsystem/KOSaveSubsystem.h"
 
 
@@ -77,6 +78,12 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 		}
 		
 		UpdateBonfireVisuals();
+		
+		// 퀘스트
+		if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+		{
+			QuestGuide->NotifyBonfireActivated(BonfireID);
+		}
 	}
 	else
 	{
@@ -141,4 +148,10 @@ void AKO_ABonfire::TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCha
 	// FVector TargetLocation = Bonfire->TeleportTargetComponent->GetComponentLocation();
 	// FRotator TargetRotation = Bonfire->TeleportTargetComponent->GetComponentRotation();
 	// PlayerCharacter->TeleportTo(TargetLocation, TargetRotation);
+	
+	// 이동 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBonfireTeleported(TargetID);
+	}
 }

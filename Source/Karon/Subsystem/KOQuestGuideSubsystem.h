@@ -47,6 +47,8 @@ public:
 	void NotifySkillUnlocked(FName SkillId); // 스킬 해금
 	void NotifySkillAssigned(FName SkillId); // 스킬 슬롯 할당
 	void NotifyBossDefeated(FName BossId); // 보스 처치
+	void NotifyBonfireActivated(FName BonfireId); // 화톳불 활성화
+	void NotifyBonfireTeleported(FName TargetBonfireId); // 화톳불 이동
 	
 	bool CanUnlockSkillByQuest() const; // 스킬 해금 가능 여부
 

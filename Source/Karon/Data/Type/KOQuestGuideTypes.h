@@ -34,7 +34,11 @@ enum class EKOQuestCompleteType : uint8
 	// 스킬 슬롯 할당
 	AssignSkillSlot,
 	// 보스 처치
-	DefeatBoss
+	DefeatBoss,
+	// 화톳불 활성화
+	ActivateBonfire,
+	// 화톳불을 통한 이동
+	TeleportBonfire
 };
 
 USTRUCT(BlueprintType)

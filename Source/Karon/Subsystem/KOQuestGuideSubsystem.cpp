@@ -154,6 +154,11 @@ void UKOQuestGuideSubsystem::NotifyWeaponEquipped(FName WeaponItemId)
 
 void UKOQuestGuideSubsystem::NotifyMonsterKilled(FName MonsterId)
 {
+	if (MonsterId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::KillMonster, MonsterId, 1);
 }
 
@@ -169,12 +174,17 @@ void UKOQuestGuideSubsystem::NotifyBuildQuickSlotAssigned(FName FactoryId)
 
 void UKOQuestGuideSubsystem::NotifyBuildingPlaced(FName FactoryId)
 {
+	if (FactoryId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::PlaceBuilding, FactoryId);
 }
 
 void UKOQuestGuideSubsystem::NotifyFuelInserted(FName FuelItemId, int32 Count)
 {
-	if (Count <= 0)
+	if (FuelItemId.IsNone() || Count <= 0)
 	{
 		return;
 	}
@@ -214,22 +224,62 @@ void UKOQuestGuideSubsystem::NotifyProcessorInputInserted(FName ItemId, int32 Co
 
 void UKOQuestGuideSubsystem::NotifyConveyorOutputBound(FName OutputItemId)
 {
+	if (OutputItemId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::BindConveyorOutput, OutputItemId);
 }
 
 void UKOQuestGuideSubsystem::NotifySkillUnlocked(FName SkillId)
 {
+	if (SkillId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::UnlockSkill, SkillId);
 }
 
 void UKOQuestGuideSubsystem::NotifySkillAssigned(FName SkillId)
 {
+	if (SkillId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::AssignSkillSlot, SkillId);
 }
 
 void UKOQuestGuideSubsystem::NotifyBossDefeated(FName BossId)
 {
+	if (BossId.IsNone())
+	{
+		return;
+	}
+	
 	TryCompleteQuest(EKOQuestCompleteType::DefeatBoss, BossId);
+}
+
+void UKOQuestGuideSubsystem::NotifyBonfireActivated(FName BonfireId)
+{
+	if (BonfireId.IsNone())
+	{
+		return;
+	}
+
+	TryCompleteQuest(EKOQuestCompleteType::ActivateBonfire, BonfireId);
+}
+
+void UKOQuestGuideSubsystem::NotifyBonfireTeleported(FName TargetBonfireId)
+{
+	if (TargetBonfireId.IsNone())
+	{
+		return;
+	}
+
+	TryCompleteQuest(EKOQuestCompleteType::TeleportBonfire, TargetBonfireId);
 }
 
 bool UKOQuestGuideSubsystem::CanUnlockSkillByQuest() const

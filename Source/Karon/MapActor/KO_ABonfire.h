@@ -54,7 +54,7 @@ protected:
 	
 	bool bHasItem = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Bonfire Setting")
 	FName BonfireID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
