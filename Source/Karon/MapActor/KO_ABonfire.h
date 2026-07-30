@@ -35,7 +35,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Bonfire|Teleport")
 	void TeleportToTargetBonfire(FName TargetID, ACharacter* PlayerCharacter);
-	void RestoreFromSave(bool bActivated);
 
 	void UpdateBonfireVisuals();
 	
@@ -69,7 +68,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting|VFX")
 	TObjectPtr<UMaterialInterface> ActiveOverlayMaterial;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bonfire Setting")
-	bool bIsActivated;
 };

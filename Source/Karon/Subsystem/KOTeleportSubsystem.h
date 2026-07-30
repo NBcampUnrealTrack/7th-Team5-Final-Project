@@ -49,6 +49,7 @@ class KARON_API UKOTeleportSubsystem : public ULocalPlayerSubsystem
 	GENERATED_BODY()
 	
 public:
+	static UKOTeleportSubsystem* Get(const UObject* WorldContext);
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	

@@ -28,7 +28,6 @@ AKO_ABonfire::AKO_ABonfire()
 	TeleportTargetComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TeleportTargetComponent"));
 	TeleportTargetComponent->SetupAttachment(RootComponent);
 	
-	bIsActivated = false;
 	BonfireID = NAME_None;
 }
 
@@ -41,15 +40,7 @@ void AKO_ABonfire::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Bonfire ID 설정 안됨."));
 	}
 	
-	UWorld* World = GetWorld();
-	
-	if (World == nullptr)
-	{
-		return;
-	}
-	
-	ULocalPlayer* LocalPlayer = World->GetFirstLocalPlayerFromController();
-	if (UKOTeleportSubsystem* TeleportSubsystem = LocalPlayer->GetSubsystem<UKOTeleportSubsystem>())
+	if (UKOTeleportSubsystem* TeleportSubsystem = UKOTeleportSubsystem::Get(this))
 	{
 		TeleportSubsystem->RegisterBonfire(this);
 	}
@@ -66,16 +57,16 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 {
 	if (!Interactor) return;
 	
-	if (!bIsActivated)
-	{
-		bIsActivated = true;
+	UKOTeleportSubsystem* TeleportSubsystem = UKOTeleportSubsystem::Get(this);
 
-		UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
-		if (!SaveSubsystem || !SaveSubsystem->SaveCurrentGame())
-		{
-			bIsActivated = false;
-			return;
-		}
+	if (!TeleportSubsystem)
+	{
+		return;
+	}
+
+	if (!TeleportSubsystem->IsActivated(BonfireID))
+	{
+		TeleportSubsystem->ActivateBonfire(BonfireID);
 		
 		UpdateBonfireVisuals();
 		
@@ -84,7 +75,13 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 		{
 			QuestGuide->NotifyBonfireActivated(BonfireID);
 		}
+		
+		if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+		{
+			SaveSubsystem->SaveCurrentGame();
+		}
 	}
+	
 	else
 	{
 		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
@@ -96,7 +93,7 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 
 FText AKO_ABonfire::GetInteractionPrompt() const
 {
-	if (bIsActivated)
+	if (IsActivated())
 	{
 		return FText::FromString(TEXT("상호작용"));	
 	}
@@ -108,20 +105,19 @@ FText AKO_ABonfire::GetInteractionPrompt() const
 
 bool AKO_ABonfire::IsActivated() const
 {
-	return bIsActivated;
-}
+	if (const UKOTeleportSubsystem* TeleportSubsystem = UKOTeleportSubsystem::Get(this))
+	{
+		return TeleportSubsystem->IsActivated(BonfireID);
+	}
 
-void AKO_ABonfire::RestoreFromSave(bool bActivated)
-{
-	bIsActivated = bActivated;
-	UpdateBonfireVisuals();
+	return false;
 }
 
 void AKO_ABonfire::UpdateBonfireVisuals()
 {
 	if (!BonfireMesh) return;
 	
-	if (bIsActivated)
+	if (IsActivated())
 	{
 		if (ActiveOverlayMaterial)
 		{

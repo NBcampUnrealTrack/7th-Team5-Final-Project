@@ -3,6 +3,28 @@
 #include "KOTeleportSubsystem.h"
 #include "MapActor/KO_ABonfire.h"
 
+UKOTeleportSubsystem* UKOTeleportSubsystem::Get(const UObject* WorldContext)
+{
+	if (!WorldContext)
+	{
+		return nullptr;
+	}
+
+	UWorld* World = WorldContext->GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	ULocalPlayer* LocalPlayer = World->GetFirstLocalPlayerFromController();
+	if (!LocalPlayer)
+	{
+		return nullptr;
+	}
+
+	return LocalPlayer->GetSubsystem<UKOTeleportSubsystem>();
+}
+
 void UKOTeleportSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -93,4 +115,13 @@ const TSet<FName>& UKOTeleportSubsystem::GetActivatedBonfireSet() const
 void UKOTeleportSubsystem::SetActivatedBonfireSet(const TSet<FName>& NewSet)
 {
 	ActivatedBonfires = NewSet;
+	
+	// 외형 갱신
+	for (const TPair<FName, FBonfireData>& Pair : BonfireMap)
+	{
+		if (AKO_ABonfire* Bonfire = Pair.Value.Actor.Get())
+		{
+			Bonfire->UpdateBonfireVisuals();
+		}
+	}
 }
