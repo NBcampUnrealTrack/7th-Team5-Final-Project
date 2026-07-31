@@ -1,5 +1,6 @@
 ﻿#include "KOQuestGuideSubsystem.h"
 
+#include "KOTutorialSubsystem.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "Engine/DataTable.h"
 
@@ -430,6 +431,11 @@ void UKOQuestGuideSubsystem::AdvanceQuest()
 	}
 
 	SetCurrentQuest(Row->NextQuestId);
+	//현석 : 튜토리얼 UI 활성화
+	if (UKOTutorialSubsystem* TutorialSubsystem=UKOTutorialSubsystem::Get(this))
+	{
+		TutorialSubsystem->Preload(this,Row->NextQuestId);
+	}
 }
 
 void UKOQuestGuideSubsystem::MarkPreviousQuestsCompleted(FName StartQuestId)

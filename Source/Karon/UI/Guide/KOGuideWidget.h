@@ -5,6 +5,8 @@
 #include "UI/KOActivatableWidget.h"
 #include "KOGuideWidget.generated.h"
 
+class UMediaPlayer;
+class UImage;
 class UButton;
 class UTextBlock;
 
@@ -21,9 +23,9 @@ public:
 	virtual void NativeOnDeactivated() override;
 	
 public:
-	// 가이드 내용 가져오기
+	// 가이드 내용 콜백
 	UFUNCTION(BlueprintCallable)
-	void GetGuideContent();
+	void GetGuideContent(FGameplayTag Channel, const FInstancedStruct& Payload);
 	
 private:
 	UFUNCTION()
@@ -38,4 +40,10 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> ScriptTextBlock;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> TutorialVideo;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMediaPlayer> TutorialMediaPlayer;
 };

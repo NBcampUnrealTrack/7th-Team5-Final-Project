@@ -79,7 +79,7 @@ void UKOTutorialSubsystem::SetTutorial(UObject* WorldContext, FName TutorialName
 		return;
 	}
 	
-	//TODO: UI 오픈
+	UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_Guide);
 	UGMRouterSubsystem::BroadcastMessage(GetWorld(),
 				KOGameplayTags::Event_TutorialVideo,
 				FInstancedStruct::Make(VideoMap[TutorialName]));
