@@ -60,6 +60,12 @@ void UKOGA_AttackBase::ActivateAbility(
 
 	TraceData.bIsFirstTick = true;
 	TraceData.HitActors.Empty();
+	
+	ActivationTime = GetWorld()->GetTimeSeconds();
+	bWatchdogLogged = false;
+	WatchdogTask = UAbilityTask_Tick::CreateTickTask(this);
+	WatchdogTask->OnTick.AddDynamic(this, &ThisClass::CheckAbilityLifetime);
+	WatchdogTask->ReadyForActivation();
 }
 
 void UKOGA_AttackBase::EndAbility(
@@ -72,6 +78,12 @@ void UKOGA_AttackBase::EndAbility(
 	{
 		TickTask->StopTask(); 
 		TickTask = nullptr;
+	}
+	
+	if (WatchdogTask)
+	{
+		WatchdogTask->StopTask();
+		WatchdogTask = nullptr;
 	}
 	
 	if (UAbilitySystemComponent* SourceASC = GetASC())
@@ -468,5 +480,17 @@ void UKOGA_AttackBase::UpdateMotionWarpTarget()
 	FRotator FinalWarpRotation = Direction.Rotation();
 	
 	MotionWarpComp->AddOrUpdateWarpTargetFromLocationAndRotation(MotionWarpData.TargetName, FinalWarpLocation, FinalWarpRotation);
+}
+
+void UKOGA_AttackBase::CheckAbilityLifetime(float DeltaTime)
+{
+	if (bWatchdogLogged) return;
+
+	if (GetWorld()->GetTimeSeconds() - ActivationTime > MaxExpectedDuration)
+	{
+		bWatchdogLogged = true;
+		KO_LOG(Combat, Warning, TEXT("%s | %s 가 %.1f초 넘게 종료되지 않음"),
+			*GetAvatarCharacter()->GetName(), *GetClass()->GetName(), MaxExpectedDuration);
+	}
 }
 
