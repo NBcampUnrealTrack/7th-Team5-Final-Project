@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class KARON_API UKOBonfireEntryObject : public UObject
 {
 	GENERATED_BODY()
@@ -18,8 +18,10 @@ public:
 	
 	void Initialize(const FBonfireUIData& InData);
 	
+	UFUNCTION(BlueprintPure, Category = "Bonfire")
 	const FName& GetBonfireID() const;
 	
+	UFUNCTION(BlueprintPure, Category = "Bonfire")
 	const FText& GetDisplayName() const;
 	
 private:

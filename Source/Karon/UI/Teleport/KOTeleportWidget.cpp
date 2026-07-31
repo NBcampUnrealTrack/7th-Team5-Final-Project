@@ -48,6 +48,8 @@ void UKOTeleportWidget::RefreshList()
 			Entry->Initialize(Data);
 		
 			BonfireListView->AddItem(Entry);
+			
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Data.DisplayName.ToString());
 		}
 		
 		if (BonfireListView->GetNumItems() > 0)
