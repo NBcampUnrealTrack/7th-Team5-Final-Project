@@ -46,9 +46,6 @@ private:
 	TObjectPtr<UCommonListView> BonfireListView;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UCommonTextBlock> LocationName;
-	
-	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> MoveButton;
 	
 	UPROPERTY(meta = (BindWidget))
