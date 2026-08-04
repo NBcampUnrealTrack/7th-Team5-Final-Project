@@ -4,6 +4,7 @@
 #include "KOBonfireEntryObject.h"
 #include "Subsystem/KOTeleportSubsystem.h"
 #include "UI/KOUISubsystem.h"
+#include "UI/Loading/KOLoadingUiSubsystem.h"
 #include "AbilitySystem/Tag/UI/KOGameplayTags_UI.h"
 
 #include "CommonButtonBase.h"
@@ -13,13 +14,16 @@ void UKOTeleportWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	CachedTeleportSubsystem = GetOwningLocalPlayer()->GetSubsystem<UKOTeleportSubsystem>();
-	CachedUISubsystem		= GetOwningLocalPlayer()->GetSubsystem<UKOUISubsystem>();
+	CachedTeleportSubsystem  = GetOwningLocalPlayer()->GetSubsystem<UKOTeleportSubsystem>();
+	CachedUISubsystem		 = GetOwningLocalPlayer()->GetSubsystem<UKOUISubsystem>();
+	CachedLoadingUISubsystem = GetOwningLocalPlayer()->GetGameInstance()->GetSubsystem<UKOLoadingUiSubsystem>();
 }
 
 void UKOTeleportWidget::NativeDestruct()
 {
-	CachedTeleportSubsystem = nullptr;
+	CachedTeleportSubsystem  = nullptr;
+	CachedUISubsystem		 = nullptr;
+	CachedLoadingUISubsystem = nullptr;
 	
 	Super::NativeDestruct();
 }
@@ -31,6 +35,13 @@ void UKOTeleportWidget::NativeOnActivated()
 	BindEvents();
 	
 	RefreshList();
+}
+
+void UKOTeleportWidget::NativeOnDeactivated()
+{
+	RemoveEvents();
+	
+	Super::NativeOnDeactivated();
 }
 
 void UKOTeleportWidget::RefreshList()
@@ -115,7 +126,7 @@ void UKOTeleportWidget::HandleMoveClicked()
 		return;
 	}
 	
-	//TODO 이동 실행
+	CachedTeleportSubsystem->Teleport(CurrentSelectedEntry->GetBonfireID());
 	
 	if (CachedUISubsystem)
 	{

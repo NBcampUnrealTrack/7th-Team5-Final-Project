@@ -8,6 +8,9 @@
 class UKOTeleportSubsystem;
 class UKOBonfireEntryObject;
 class UKOUISubsystem;
+class UKOLoadingUiSubsystem;
+class UCommonActivatableWidget;
+
 class UCommonButtonBase;
 class UCommonTextBlock;
 class UCommonListView;
@@ -24,6 +27,7 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 	
 	void RefreshList();
 	
@@ -39,7 +43,7 @@ protected:
 	
 	UFUNCTION()
 	void HandleCancelClicked();
-		
+
 private:
 	
 	UPROPERTY(meta = (BindWidget))
@@ -50,9 +54,15 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCommonButtonBase> CancelButton;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Loading Widget")
+	TSubclassOf<UCommonActivatableWidget> LoadingWidget;
 
 	UPROPERTY()
 	TObjectPtr<UKOTeleportSubsystem> CachedTeleportSubsystem;
+	
+	UPROPERTY()
+	TObjectPtr<UKOLoadingUiSubsystem> CachedLoadingUISubsystem;
 	
 	UPROPERTY()
 	TObjectPtr<UKOUISubsystem> CachedUISubsystem;

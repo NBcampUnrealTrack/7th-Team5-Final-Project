@@ -2,6 +2,7 @@
 
 #include "KOTeleportSubsystem.h"
 #include "MapActor/KO_ABonfire.h"
+#include "Character/KOCharacterBase.h"
 
 UKOTeleportSubsystem* UKOTeleportSubsystem::Get(const UObject* WorldContext)
 {
@@ -47,14 +48,14 @@ void UKOTeleportSubsystem::RegisterBonfire(AKO_ABonfire* InBonfire)
 	{
 		return;
 	}
-	
+
 	FBonfireData Data;
-	
-	Data.BonfireID		= InBonfire->GetBonfireID();
-	Data.DisplayName	= InBonfire->GetDisplayName();
-	Data.DisplayOrder	= InBonfire->GetDisplayOrder();
-	Data.Actor			= InBonfire;
-	
+
+	Data.BonfireID = InBonfire->GetBonfireID();
+	Data.DisplayName = InBonfire->GetDisplayName();
+	Data.DisplayOrder = InBonfire->GetDisplayOrder();
+	Data.Actor = InBonfire;
+
 	BonfireMap.Add(Data.BonfireID, MoveTemp(Data));
 }
 
@@ -64,7 +65,7 @@ bool UKOTeleportSubsystem::ActivateBonfire(const FName& BonfireID)
 	{
 		return false;
 	}
-	
+
 	ActivatedBonfires.Add(BonfireID);
 	return true;
 }
@@ -77,33 +78,33 @@ bool UKOTeleportSubsystem::IsActivated(const FName& BonfireID) const
 TArray<FBonfireUIData> UKOTeleportSubsystem::GetActivatedBonfires() const
 {
 	TArray<FBonfireUIData> Result;
-	
+
 	Result.Reserve(ActivatedBonfires.Num());
-	
-	for (const FName& ID: ActivatedBonfires)
+
+	for (const FName& ID : ActivatedBonfires)
 	{
 		const FBonfireData* Data = BonfireMap.Find(ID);
-		
+
 		if (Data == nullptr)
 		{
 			continue;
 		}
-		
+
 		FBonfireUIData UIData;
-		
-		UIData.BonfireID	= Data->BonfireID;
-		UIData.DisplayName	= Data->DisplayName;
-		UIData.DisplayOrder	= Data->DisplayOrder;
-		
+
+		UIData.BonfireID = Data->BonfireID;
+		UIData.DisplayName = Data->DisplayName;
+		UIData.DisplayOrder = Data->DisplayOrder;
+
 		Result.Add(MoveTemp(UIData));
 	}
-	
+
 	Result.Sort(
 		[](const FBonfireUIData& A, const FBonfireUIData& B)
 		{
 			return A.DisplayOrder < B.DisplayOrder;
 		});
-	
+
 	return Result;
 }
 
@@ -115,7 +116,7 @@ const TSet<FName>& UKOTeleportSubsystem::GetActivatedBonfireSet() const
 void UKOTeleportSubsystem::SetActivatedBonfireSet(const TSet<FName>& NewSet)
 {
 	ActivatedBonfires = NewSet;
-	
+
 	// 외형 갱신
 	for (const TPair<FName, FBonfireData>& Pair : BonfireMap)
 	{
@@ -124,4 +125,35 @@ void UKOTeleportSubsystem::SetActivatedBonfireSet(const TSet<FName>& NewSet)
 			Bonfire->UpdateBonfireVisuals();
 		}
 	}
+}
+
+void UKOTeleportSubsystem::Teleport(const FName& TargetBonfireID)
+{
+	const FBonfireData* TargetDestination = BonfireMap.Find(TargetBonfireID);
+
+	if (TargetDestination == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Can't find Destination Point"));
+		return;
+	}
+
+	const APlayerController* PC = GetLocalPlayer()->GetPlayerController(GetWorld());
+	if (PC == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Can't find LocalPlayer"));
+		return;
+	}
+	ACharacter* Player = Cast<ACharacter>(PC->GetPawn());
+
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Can't find Character"));
+		return;
+	}
+
+	const FVector TargetLocation =
+		TargetDestination->Actor->GetActorLocation()
+		- TargetDestination->Actor->GetActorForwardVector() * FarDistanceFromActor;
+
+	Player->SetActorLocation(TargetLocation);
 }
