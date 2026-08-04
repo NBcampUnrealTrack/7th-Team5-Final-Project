@@ -489,8 +489,10 @@ void UKOGA_AttackBase::CheckAbilityLifetime(float DeltaTime)
 	if (GetWorld()->GetTimeSeconds() - ActivationTime > MaxExpectedDuration)
 	{
 		bWatchdogLogged = true;
-		KO_LOG(Combat, Warning, TEXT("%s | %s 가 %.1f초 넘게 종료되지 않음"),
+		KO_LOG(Combat, Error, TEXT("%s | %s 가 %.1f초 넘게 종료되지 않음 — 강제 종료"),
 			*GetAvatarCharacter()->GetName(), *GetClass()->GetName(), MaxExpectedDuration);
+
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
 }
 

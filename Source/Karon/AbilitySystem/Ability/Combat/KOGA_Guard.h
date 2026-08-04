@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Ability/KOGameplayAbilityBase.h"
+#include "AbilitySystem/Ability/AbilityTask/AbilityTask_Tick.h"
 #include "KOGA_Guard.generated.h"
 
 
@@ -82,4 +83,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float LaunchAmount = 500.f;
+
+private:
+	UFUNCTION()
+	void CheckGuardLifetime(float DeltaTime);
+
+	TObjectPtr<UAbilityTask_Tick> WatchdogTask;
+	float ActivationTime = 0.f;
+	bool bWatchdogLogged = false;
+	static constexpr float MaxExpectedDuration = 10.f;
 };

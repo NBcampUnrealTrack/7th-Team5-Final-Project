@@ -113,14 +113,21 @@ void UKOGA_Guard::ActivateAbility(
 	PerfectGuardEndEvent->EventReceived.AddDynamic(this, &ThisClass::OnPerfectWindowEnd);
 	PerfectGuardEndEvent->ReadyForActivation();
 	
-	// 5. Montage Task 
-	 UAbilityTask_PlayMontageAndWait* MontageTask = 
+	// 5. Montage Task
+	 UAbilityTask_PlayMontageAndWait* MontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, GuardMontage);
-	
+
 	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCancelled);
 	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCancelled);
-	MontageTask->ReadyForActivation(); 
+	MontageTask->ReadyForActivation();
+
+	// 6. Watchdog
+	ActivationTime = GetWorld()->GetTimeSeconds();
+	bWatchdogLogged = false;
+	WatchdogTask = UAbilityTask_Tick::CreateTickTask(this);
+	WatchdogTask->OnTick.AddDynamic(this, &ThisClass::CheckGuardLifetime);
+	WatchdogTask->ReadyForActivation();
 }
 
 void UKOGA_Guard::InputReleased(
@@ -148,19 +155,25 @@ void UKOGA_Guard::InputReleased(
 void UKOGA_Guard::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, 
+	const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if (WatchdogTask)
+	{
+		WatchdogTask->StopTask();
+		WatchdogTask = nullptr;
+	}
+
 	if (UAbilitySystemComponent* ASC = GetASC())
 	{
-		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Guard_PerfectGuard, 0); 
-		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Guard_Blocking, 0); 
+		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Guard_PerfectGuard, 0);
+		ASC->SetLooseGameplayTagCount(KOGameplayTags::State_Character_Guard_Blocking, 0);
 	}
-	
-	if (GE_Guard_Reset) ApplyEffectToSelf(GE_Guard_Reset); 
-	
+
+	if (GE_Guard_Reset) ApplyEffectToSelf(GE_Guard_Reset);
+
 	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
-	
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -251,6 +264,20 @@ void UKOGA_Guard::OnPerfectWindowEnd(FGameplayEventData Data)
 {
 	UAbilitySystemComponent* ASC = GetASC();
 	if (!ASC) return;
-	
+
 	ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_Guard_PerfectGuard);
+}
+
+void UKOGA_Guard::CheckGuardLifetime(float DeltaTime)
+{
+	if (bWatchdogLogged) return;
+
+	if (GetWorld()->GetTimeSeconds() - ActivationTime > MaxExpectedDuration)
+	{
+		bWatchdogLogged = true;
+		KO_LOG(Combat, Error, TEXT("%s | KOGA_Guard 가 %.1f초 넘게 종료되지 않음 — 강제 종료"),
+			*GetAvatarCharacter()->GetName(), MaxExpectedDuration);
+
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
 }
