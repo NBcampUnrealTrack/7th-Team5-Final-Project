@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Containers/Ticker.h"
+#include "Kismet/GameplayStatics.h"
 
 void UKOLoadingUiSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -60,6 +61,8 @@ void UKOLoadingUiSubsystem::ShowLoadingScreen(TSubclassOf<UCommonActivatableWidg
 		TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(
 			FTickerDelegate::CreateUObject(this, &UKOLoadingUiSubsystem::TickLoading)
 			);
+		
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.001f);
 	}
 }
 
@@ -106,6 +109,8 @@ bool UKOLoadingUiSubsystem::TickLoading(float DeltaTime)
 				CurrentLoadingWidget = nullptr;
 				bIsLoadingActive = false;
                 
+				UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+				
 				return false; 
 			}
 		}

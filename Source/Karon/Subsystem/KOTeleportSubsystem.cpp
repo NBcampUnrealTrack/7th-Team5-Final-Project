@@ -5,6 +5,7 @@
 #include "KOQuestGuideSubsystem.h"
 #include "MapActor/KO_ABonfire.h"
 #include "Character/KOCharacterBase.h"
+#include "Components/CapsuleComponent.h"
 
 UKOTeleportSubsystem* UKOTeleportSubsystem::Get(const UObject* WorldContext)
 {
@@ -145,21 +146,23 @@ void UKOTeleportSubsystem::Teleport(const FName& TargetBonfireID)
 		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Can't find LocalPlayer"));
 		return;
 	}
-	ACharacter* Player = Cast<ACharacter>(PC->GetPawn());
+	ACharacter* Character = Cast<ACharacter>(PC->GetPawn());
 
-	if (Player == nullptr)
+	if (Character == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Can't find Character"));
 		return;
 	}
 
-	const FVector TargetLocation =
+	FVector TargetLocation =
 		TargetDestination->Actor->GetActorLocation()
 		- TargetDestination->Actor->GetActorForwardVector() * FarDistanceFromActor;
+	
+	TargetLocation = AdjustTeleportLocation(TargetLocation, PC->GetPawn());
+	
+	const bool bMoved = Character->SetActorLocation(TargetLocation);
 
-	const bool bMoved = Player->SetActorLocation(TargetLocation);
-
-	if (!bMoved)
+	if (bMoved == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Failed to move player"));
 		return;
@@ -170,4 +173,31 @@ void UKOTeleportSubsystem::Teleport(const FName& TargetBonfireID)
 	{
 		QuestGuide->NotifyBonfireTeleported(TargetBonfireID);
 	}
+}
+
+FVector UKOTeleportSubsystem::AdjustTeleportLocation(const FVector& TargetLocation,const APawn* Pawn) const
+{
+	FVector Start	= TargetLocation + FVector(0, 0, 300);
+	FVector End		= TargetLocation - FVector(0, 0, 500);
+	
+	FHitResult Hit;
+	
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Pawn);
+	
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		FVector Result = TargetLocation;
+		
+		UCapsuleComponent* Capsule = Pawn->FindComponentByClass<UCapsuleComponent>();
+		
+		if (Capsule)
+		{
+			Result.Z = Hit.Location.Z+Capsule->GetScaledCapsuleHalfHeight();
+		}
+		
+		return Result;
+	}
+	
+	return TargetLocation;
 }

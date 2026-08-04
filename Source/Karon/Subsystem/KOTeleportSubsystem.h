@@ -66,8 +66,13 @@ public:
 	void SetActivatedBonfireSet(const TSet<FName>& NewSet);
 
 	void Teleport(const FName& TargetBonfireID);
+	
+	void SetRequestActorName(const FName& InName) { RequestActorName = InName; }
 
+	const FName& GetRequestActorName() const { return RequestActorName; }
 private:
+	FVector AdjustTeleportLocation(const FVector& TargetLocation,const APawn* Pawn) const;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Teleport Distance")
 	float FarDistanceFromActor = 150.f;
 	
@@ -81,4 +86,7 @@ private:
 	TWeakObjectPtr<APlayerController> LocalPC;
 
 	FTimerHandle LoadingTimerHandle;
+	
+	UPROPERTY()
+	FName RequestActorName;
 };

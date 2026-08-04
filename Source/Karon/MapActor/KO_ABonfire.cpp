@@ -81,12 +81,12 @@ void AKO_ABonfire::OnInteract(AActor* Interactor)
 			SaveSubsystem->SaveCurrentGame();
 		}
 	}
-	
 	else
 	{
 		if (UKOUISubsystem* UISubsystem = UKOUISubsystem::Get(this))
 		{
 			UISubsystem->OpenWidget(GetWorld(), KOGameplayTags::UI_Widget_TeleportPopup);
+			TeleportSubsystem->SetRequestActorName(BonfireID);
 		}
 	}
 }

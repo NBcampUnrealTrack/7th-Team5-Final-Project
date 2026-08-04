@@ -126,11 +126,20 @@ void UKOTeleportWidget::HandleMoveClicked()
 		return;
 	}
 	
-	CachedTeleportSubsystem->Teleport(CurrentSelectedEntry->GetBonfireID());
-	
 	if (CachedUISubsystem)
 	{
 		CachedUISubsystem->CloseWidget(GetWorld(), KOGameplayTags::UI_Widget_TeleportPopup);
+	}
+	
+	if (CurrentSelectedEntry->GetBonfireID() == CachedTeleportSubsystem->GetRequestActorName())
+	{
+		CachedTeleportSubsystem->Teleport(CurrentSelectedEntry->GetBonfireID());
+	}
+	else
+	{
+		CachedLoadingUISubsystem->ShowLoadingScreen(LoadingWidget);
+		CachedTeleportSubsystem->Teleport(CurrentSelectedEntry->GetBonfireID());
+		CachedLoadingUISubsystem->HideLoadingScreen();
 	}
 }
 
