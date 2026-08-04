@@ -7,6 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 
 void UKOCharacterStatWidget::NativeConstruct()
 {
@@ -40,8 +41,22 @@ void UKOCharacterStatWidget::SetTargetPawn(APawn* InPawn)
 void UKOCharacterStatWidget::InitializeFromPawn(APawn* Pawn)
 {
 	UnbindFromAbilitySystem();
+	
+	if (!Pawn)
+	{
+		return;
+	}
 
-	UAbilitySystemComponent* ASC = Pawn ? UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Pawn) : nullptr;
+	CachedEquipmentComponent = Pawn->FindComponentByClass<UKOEquipmentComponent>();
+
+	if (CachedEquipmentComponent)
+	{
+		CachedEquipmentComponent->OnWeaponAttackBonusChanged.AddUniqueDynamic(
+			this, &UKOCharacterStatWidget::OnWeaponAttackBonusChanged
+		);
+	}
+
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Pawn);
 	if (!ASC)
 	{
 		return;
@@ -77,6 +92,16 @@ void UKOCharacterStatWidget::UnbindFromAbilitySystem()
 		CachedCombatSet->OnDefenseChanged.RemoveDynamic(this, &UKOCharacterStatWidget::OnDefenseChanged);
 		CachedCombatSet = nullptr;
 	}
+	
+	if (CachedEquipmentComponent)
+	{
+		CachedEquipmentComponent->OnWeaponAttackBonusChanged.RemoveDynamic(
+			this,
+			&UKOCharacterStatWidget::OnWeaponAttackBonusChanged
+		);
+
+		CachedEquipmentComponent = nullptr;
+	}
 
 	CachedASC = nullptr;
 }
@@ -90,7 +115,14 @@ void UKOCharacterStatWidget::RefreshCombat()
 
 	if (AttackPowerText)
 	{
-		AttackPowerText->SetText(FText::AsNumber(CachedCombatSet->GetAttackPower()));
+		float FinalAttackPower = CachedCombatSet->GetAttackPower();
+
+		if (CachedEquipmentComponent)
+		{
+			FinalAttackPower += CachedEquipmentComponent->GetCurrentWeaponAttackBonus();
+		}
+
+		AttackPowerText->SetText(FText::AsNumber(FMath::RoundToInt(FinalAttackPower)));
 	}
 
 	if (DefenseText)
@@ -110,6 +142,11 @@ void UKOCharacterStatWidget::OnAttackPowerChanged(float OldValue, float NewValue
 }
 
 void UKOCharacterStatWidget::OnDefenseChanged(float OldValue, float NewValue)
+{
+	RefreshCombat();
+}
+
+void UKOCharacterStatWidget::OnWeaponAttackBonusChanged()
 {
 	RefreshCombat();
 }

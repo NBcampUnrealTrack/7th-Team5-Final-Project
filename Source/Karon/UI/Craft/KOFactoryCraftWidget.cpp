@@ -252,6 +252,12 @@ void UKOFactoryCraftWidget::RebuildFactoryList()
         {
             continue;
         }
+        
+        // 장비 해금 태그 확인
+        if (!Row->RequiredUnlockTags.IsEmpty() && !Query.OwnedUnlocks.HasAll(Row->RequiredUnlockTags))
+        {
+            continue;
+        }
 
         AddEntry(
             FKOCraftTarget(EKOCraftTargetType::Equipment, EquipmentId),

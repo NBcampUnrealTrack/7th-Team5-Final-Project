@@ -1,6 +1,8 @@
 ﻿// Copyright Karon Team 5. All Rights Reserved.
 
 #include "KOTeleportSubsystem.h"
+
+#include "KOQuestGuideSubsystem.h"
 #include "MapActor/KO_ABonfire.h"
 #include "Character/KOCharacterBase.h"
 
@@ -155,5 +157,17 @@ void UKOTeleportSubsystem::Teleport(const FName& TargetBonfireID)
 		TargetDestination->Actor->GetActorLocation()
 		- TargetDestination->Actor->GetActorForwardVector() * FarDistanceFromActor;
 
-	Player->SetActorLocation(TargetLocation);
+	const bool bMoved = Player->SetActorLocation(TargetLocation);
+
+	if (!bMoved)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TeleportSubsystem: Failed to move player"));
+		return;
+	}
+	
+	// 퀘스트
+	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
+	{
+		QuestGuide->NotifyBonfireTeleported(TargetBonfireID);
+	}
 }

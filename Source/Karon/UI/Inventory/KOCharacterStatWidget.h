@@ -7,6 +7,7 @@
 
 class UTextBlock;
 class UAbilitySystemComponent;
+class UKOEquipmentComponent;
 class UKOCombatSet;
 
 /**
@@ -50,10 +51,16 @@ private:
 
     UFUNCTION()
     void OnDefenseChanged(float OldValue, float NewValue);
+    
+    UFUNCTION()
+    void OnWeaponAttackBonusChanged();
 
     UPROPERTY(Transient)
     TObjectPtr<UAbilitySystemComponent> CachedASC;
 
     UPROPERTY(Transient)
     TObjectPtr<UKOCombatSet> CachedCombatSet;
+    
+    UPROPERTY(Transient)
+    TObjectPtr<UKOEquipmentComponent> CachedEquipmentComponent;
 };
