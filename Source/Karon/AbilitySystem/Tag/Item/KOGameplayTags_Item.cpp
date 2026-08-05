@@ -43,7 +43,7 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_DamagedMiningPipe,  "Item.DamagedMiningPipe");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Gear,        "Item.Gear");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Sword, "Item.Sword");
-	UE_DEFINE_GAMEPLAY_TAG(Item_Hameer, "Item.Hammer");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hammer, "Item.Hammer");
 	UE_DEFINE_GAMEPLAY_TAG(Item_GreatSword, "Item.GreatSword");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Head, "Item.Head");
 	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody, "Item.UpperBody");
@@ -56,6 +56,42 @@ namespace KOGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Herb,			"Item.Herb");
 	UE_DEFINE_GAMEPLAY_TAG(Item_HerbJuice,      "Item.HerbJuice");
 	UE_DEFINE_GAMEPLAY_TAG(Item_HealingPotion,  "Item.HealingPotion");
+	
+	// --- Sword ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword_Basic, "Item.Sword.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword_Earth, "Item.Sword.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword_Water, "Item.Sword.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Sword_Lightning, "Item.Sword.Lightning");
+
+	// --- Hammer ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hammer_Basic, "Item.Hammer.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hammer_Earth, "Item.Hammer.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hammer_Water, "Item.Hammer.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Hammer_Lightning, "Item.Hammer.Lightning");
+
+	// --- Head ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head_Basic, "Item.Head.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head_Earth, "Item.Head.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head_Water, "Item.Head.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Head_Lightning, "Item.Head.Lightning");
+
+	// --- UpperBody ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody_Basic, "Item.UpperBody.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody_Earth, "Item.UpperBody.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody_Water, "Item.UpperBody.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_UpperBody_Lightning, "Item.UpperBody.Lightning");
+
+	// --- LowerBody ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody_Basic, "Item.LowerBody.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody_Earth, "Item.LowerBody.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody_Water, "Item.LowerBody.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_LowerBody_Lightning, "Item.LowerBody.Lightning");
+
+	// --- Shoes ---
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes_Basic, "Item.Shoes.Basic");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes_Earth, "Item.Shoes.Earth");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes_Water, "Item.Shoes.Water");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Shoes_Lightning, "Item.Shoes.Lightning");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Item_Earth,  "Item.Earth");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Water,  "Item.Water");
