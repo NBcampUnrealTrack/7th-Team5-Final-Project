@@ -62,7 +62,7 @@ void UKOLoadingUiSubsystem::ShowLoadingScreen(TSubclassOf<UCommonActivatableWidg
 			FTickerDelegate::CreateUObject(this, &UKOLoadingUiSubsystem::TickLoading)
 			);
 		
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.001f);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
 	}
 }
 

@@ -53,5 +53,5 @@ private:
 	
 	ELoadingState CurrentState;
 	float FinalizeTimer = 0.f;
-	const float TargetFinalizeTime = 1.f;
+	const float TargetFinalizeTime = 1.5f;
 };
