@@ -10,11 +10,15 @@
 #include "Components/ComboBoxString.h"
 #include "Components/Slider.h"
 #include "Components/WidgetSwitcher.h"
+#include "Data/KODataTableTypes.h"
+#include "Data/Character/Enemy/KOEnemyDeveloperSettings.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundClass.h"
+#include "KOTutorialViewWidget.h"
+#include "Components/VerticalBox.h"
 
 UKOOptionWidget::UKOOptionWidget()
 {
@@ -93,6 +97,12 @@ void UKOOptionWidget::NativeOnInitialized()
 		Button_Other->OnClicked.AddDynamic(this,&ThisClass::HandleOtherTabClicked);
 	}
 	
+	if (Button_Tutorial)
+	{
+		Button_Tutorial->IsFocusable = false;
+		Button_Tutorial->OnClicked.AddDynamic(this,&ThisClass::HandleTutorialTabClicked);
+	}
+	
 	if (Button_Return)
 	{
 		Button_Return->IsFocusable = false;
@@ -144,6 +154,8 @@ void UKOOptionWidget::NativeOnInitialized()
 	BindSoundSliderChanged(Slider_SE);
 	BindSoundSliderChanged(Slider_UI);
 	BindSoundSliderChanged(Slider_Environment);
+	
+	SetTutorialButtons();
 }
 
 void UKOOptionWidget::NativeOnActivated()
@@ -185,6 +197,11 @@ void UKOOptionWidget::SetActiveTab(EKOOptionTab Tab)
 	case EKOOptionTab::Other:
 		Index = 2;
 		break;
+		
+	case EKOOptionTab::Tutorial:
+		Index = 3;
+		break;
+
 
 	default:
 		Index = 0;
@@ -603,6 +620,11 @@ void UKOOptionWidget::HandleOtherTabClicked()
 	SetActiveTab(EKOOptionTab::Other);
 }
 
+void UKOOptionWidget::HandleTutorialTabClicked()
+{
+	SetActiveTab(EKOOptionTab::Tutorial);
+}
+
 void UKOOptionWidget::ReturnEscape()
 {
 	AGameModeBase* GM=UGameplayStatics::GetGameMode(this);
@@ -698,6 +720,29 @@ void UKOOptionWidget::HandleSoundSliderChanged(float Value)
 
 	// 저장하지 않고 실제 출력에만 즉시 반영(미리듣기). 저장은 Apply를 눌러야만 일어난다.
 	ApplySoundOptions(GatherSoundFromUI());
+}
+
+void UKOOptionWidget::SetTutorialButtons()
+{
+	const UKOEnemyDeveloperSettings* DeveloperSettings = GetDefault<UKOEnemyDeveloperSettings>();
+	if(!IsValid(DeveloperSettings))
+	{
+		return;
+	}
+	
+	UDataTable* DT = DeveloperSettings->TutorialDataTable.LoadSynchronous();
+	
+	if (IsValid(DT))
+	{
+		DT->ForeachRow<FKOTutorialRow>(TEXT("KOTutorial Init"), 
+			[this](const FName& Key, const FKOTutorialRow& Value)
+			{
+				UKOTutorialViewWidget* ViewWidget=CreateWidget<UKOTutorialViewWidget>(this,TutorialViewWidget);
+				ViewWidget->SetTutorialName(Value.VideoData.VideoName);
+				ViewWidget->SetTutorial(Key);
+				VerticalBox_Tutorial->AddChildToVerticalBox(ViewWidget);
+			});
+	}
 }
 
 // ---- 헬퍼: 해상도 인덱스 변환 ----
