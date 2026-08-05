@@ -22,6 +22,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool SaveCurrentGame();
+    
+    UFUNCTION(BlueprintCallable, Category = "KO|Save")
+    bool SaveCheckpoint();
 
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool LoadCurrentGame();
@@ -75,6 +78,8 @@ public:
 private:
     static const FString DefaultSlotName;
     static constexpr int32 DefaultUserIndex = 0;
+    
+    bool SaveCurrentGameInternal(bool bIgnoreCombatRestriction);
 
     AKOPlayerController* GetKOPlayerController() const;
     UKOInventoryComponent* GetPlayerInventory(AKOPlayerController* PC) const;

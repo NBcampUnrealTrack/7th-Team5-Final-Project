@@ -52,94 +52,9 @@ UKOSaveSubsystem* UKOSaveSubsystem::Get(const UObject* WorldContext)
 	return GI ? GI->GetSubsystem<UKOSaveSubsystem>() : nullptr;
 }
 
-AKOPlayerController* UKOSaveSubsystem::GetKOPlayerController() const
+bool UKOSaveSubsystem::SaveCurrentGameInternal(bool bIgnoreCombatRestriction)
 {
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return nullptr;
-	}
-
-	return Cast<AKOPlayerController>(UGameplayStatics::GetPlayerController(World, 0));
-}
-
-UKOInventoryComponent* UKOSaveSubsystem::GetPlayerInventory(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	// 네 구조에서는 InventoryComponent가 PlayerController에 붙어 있음
-	return PC->FindComponentByClass<UKOInventoryComponent>();
-}
-
-UKOEquipmentComponent* UKOSaveSubsystem::GetPlayerEquipment(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	APawn* Pawn = PC->GetPawn();
-	if (!Pawn)
-	{
-		return nullptr;
-	}
-
-	// EquipmentComponent는 캐릭터/Pawn에 붙어 있음
-	return Pawn->FindComponentByClass<UKOEquipmentComponent>();
-}
-
-UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	return PC->FindComponentByClass<UKOBuildUIComponent>();
-}
-
-UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
-	{
-		return LocalPlayer->GetSubsystem<UKOSkillSubsystem>();
-	}
-
-	return UKOSkillSubsystem::Get(PC);
-}
-
-UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
-{
-	return UKOQuestGuideSubsystem::Get(this);
-}
-
-UKOTeleportSubsystem* UKOSaveSubsystem::GetPlayerTeleportSubsystem(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-	if (!LocalPlayer)
-	{
-		return nullptr;
-	}
-
-	return LocalPlayer->GetSubsystem<UKOTeleportSubsystem>();
-}
-
-bool UKOSaveSubsystem::SaveCurrentGame()
-{
-	if (!CanSaveOrLoad())
+	if (!bIgnoreCombatRestriction && !CanSaveOrLoad())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 실패: 전투 중에는 저장할 수 없습니다."));
 
@@ -425,6 +340,101 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 	
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
+}
+
+AKOPlayerController* UKOSaveSubsystem::GetKOPlayerController() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	return Cast<AKOPlayerController>(UGameplayStatics::GetPlayerController(World, 0));
+}
+
+UKOInventoryComponent* UKOSaveSubsystem::GetPlayerInventory(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	// 네 구조에서는 InventoryComponent가 PlayerController에 붙어 있음
+	return PC->FindComponentByClass<UKOInventoryComponent>();
+}
+
+UKOEquipmentComponent* UKOSaveSubsystem::GetPlayerEquipment(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	APawn* Pawn = PC->GetPawn();
+	if (!Pawn)
+	{
+		return nullptr;
+	}
+
+	// EquipmentComponent는 캐릭터/Pawn에 붙어 있음
+	return Pawn->FindComponentByClass<UKOEquipmentComponent>();
+}
+
+UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	return PC->FindComponentByClass<UKOBuildUIComponent>();
+}
+
+UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
+	{
+		return LocalPlayer->GetSubsystem<UKOSkillSubsystem>();
+	}
+
+	return UKOSkillSubsystem::Get(PC);
+}
+
+UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
+{
+	return UKOQuestGuideSubsystem::Get(this);
+}
+
+UKOTeleportSubsystem* UKOSaveSubsystem::GetPlayerTeleportSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return nullptr;
+	}
+
+	return LocalPlayer->GetSubsystem<UKOTeleportSubsystem>();
+}
+
+bool UKOSaveSubsystem::SaveCurrentGame()
+{
+	return SaveCurrentGameInternal(false);
+}
+
+bool UKOSaveSubsystem::SaveCheckpoint()
+{
+	return SaveCurrentGameInternal(true);
 }
 
 bool UKOSaveSubsystem::LoadCurrentGame()

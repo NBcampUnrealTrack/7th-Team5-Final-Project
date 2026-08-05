@@ -2,6 +2,7 @@
 
 #include "KOTutorialSubsystem.h"
 #include "Component/Inventory/KOInventoryComponent.h"
+#include "Subsystem/KOSaveSubsystem.h"
 #include "Engine/DataTable.h"
 
 UKOQuestGuideSubsystem* UKOQuestGuideSubsystem::Get(const UObject* WorldContext)
@@ -365,6 +366,19 @@ bool UKOQuestGuideSubsystem::TryCompleteQuest(EKOQuestCompleteType CompleteType,
 
 	GrantRewards(*Row);
 	AdvanceQuest();
+	
+	// 퀘스트 자동 저장
+	if (CompleteType != EKOQuestCompleteType::DefeatBoss)
+	{
+		if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+		{
+			if (!SaveSubsystem->SaveCheckpoint())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[QuestGuide] 퀘스트 완료 자동 저장 실패"));
+			}
+		}
+	}
+	
 	return true;
 }
 

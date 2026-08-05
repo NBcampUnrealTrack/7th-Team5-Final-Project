@@ -101,6 +101,15 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	{
 		QuestGuide->NotifyBossDefeated(BossId);
 	}
+	
+	// 보스 처치 시 자동 저장
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (!SaveSubsystem->SaveCheckpoint())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Boss] 보스 처치 자동 저장 실패: %s"), *BossId.ToString());
+		}
+	}
 }
 
 
