@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Game\n"
-"POT-Creation-Date: 2026-07-21 15:50\n"
-"PO-Revision-Date: 2026-07-21 15:50\n"
+"POT-Creation-Date: 2026-08-06 11:52\n"
+"PO-Revision-Date: 2026-08-06 11:52\n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -117,6 +117,272 @@ msgstr "A skill that strikes down hard with a sword"
 msgctxt ",3C4BC171472F550C9BA9168E08507399"
 msgid "내려찍기"
 msgstr "Slam"
+
+#. Key:	98E54D1E487FA9581B8910B7B75D837B
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ActivateBonfire.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ActivateBonfire.VideoData.VideoDesciption
+msgctxt ",98E54D1E487FA9581B8910B7B75D837B"
+msgid "비프로스트를 상호작용하여 활성화할 수 있습니다.\r\n활성화 후 다시 상호작용하면 지금까지 활성화한 비프로스트 간 순간이동이 가능합니다."
+msgstr "Interact with a Bifrost to activate it.\r\nInteract again to teleport between any Bifrosts you have activated."
+
+#. Key:	A1A848954911F0763407418900999D46
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ActivateBonfire.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ActivateBonfire.VideoData.VideoName
+msgctxt ",A1A848954911F0763407418900999D46"
+msgid "비프로스트 활성화&이동"
+msgstr "Bifrost: Activate & Travel"
+
+#. Key:	3FC5335B4CF2768DBFFF66A81FAE3650
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignBoilerQuickSlot.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignBoilerQuickSlot.VideoData.VideoDesciption
+msgctxt ",3FC5335B4CF2768DBFFF66A81FAE3650"
+msgid "설비를 퀵슬롯에 배치하면 빌드 모드(B)에서 해당 숫자키로 자유롭게 설치할수 있습니다."
+msgstr "Place a facility in a quick slot to build it freely with that number key in Build Mode (B)."
+
+#. Key:	A1B4229D49CB9FC010200F95CAC24098
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignBoilerQuickSlot.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignBoilerQuickSlot.VideoData.VideoName
+msgctxt ",A1B4229D49CB9FC010200F95CAC24098"
+msgid "퀵슬롯 배치"
+msgstr "Quick Slot Setup"
+
+#. Key:	A12077434A3EA7408E8413B95593EC01
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignFirstSkill.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignFirstSkill.VideoData.VideoDesciption
+msgctxt ",A12077434A3EA7408E8413B95593EC01"
+msgid "스킬을 퀵슬롯에 배치하면 해당 키로 스킬을 사용할 수 있습니다."
+msgstr "Place a skill in a quick slot to use it with that key."
+
+#. Key:	AC90FC3643B724FFF5D6C6B1CE0E8D32
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignFirstSkill.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.AssignFirstSkill.VideoData.VideoName
+msgctxt ",AC90FC3643B724FFF5D6C6B1CE0E8D32"
+msgid "스킬 퀵슬롯"
+msgstr "Skill Quick Slot"
+
+#. Key:	18D1DEAF42A68F0B7FB1F28EF790DA2F
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CollectWeapon.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CollectWeapon.VideoData.VideoDesciption
+msgctxt ",18D1DEAF42A68F0B7FB1F28EF790DA2F"
+msgid "테두리가 붉게 빛나는 아이템을 조준하고, F키를 누르면 아이템을 획득할 수 있습니다."
+msgstr "Aim at an item glowing with a red outline and press F to pick it up."
+
+#. Key:	1D672D6C4921F7948AE97AAD8B770AC4
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CollectWeapon.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CollectWeapon.VideoData.VideoName
+msgctxt ",1D672D6C4921F7948AE97AAD8B770AC4"
+msgid "아이템 획득"
+msgstr "Item Pickup"
+
+#. Key:	A2D8FE084CA879367B2AD380310BBB58
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ConnectDisassemblerToBoiler.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ConnectDisassemblerToBoiler.VideoData.VideoDesciption
+msgctxt ",A2D8FE084CA879367B2AD380310BBB58"
+msgid "설비 사이를 벨트로 연결하면 설비의 출력과 다른 설비의 입력을 자동화할 수 있습니다. \r\n벨트는 L자형과 I자형이 존재하며 마우스 휠로 회전할 수 있습니다.\r\n설비에서 벨트를 연결 이후 출력을 지정해야하고, 입력을 받는 설비는 레시피가 선택되어져야 합니다."
+msgstr "Connect facilities with belts to feed one machine's output into another's input. \r\nBelts come in L and I shapes and rotate with the mouse wheel.\r\nAfter connecting, set the source facility's output, and the receiving facility must have a recipe selected."
+
+#. Key:	127E155C42E50F5FE18485B3EFD35EF4
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ConnectDisassemblerToBoiler.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ConnectDisassemblerToBoiler.VideoData.VideoName
+msgctxt ",127E155C42E50F5FE18485B3EFD35EF4"
+msgid "벨트 연결"
+msgstr "Belt Connection"
+
+#. Key:	6A04FFF94D19416484FF679ED31056FB
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftBronze.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftBronze.VideoData.VideoDesciption
+msgctxt ",6A04FFF94D19416484FF679ED31056FB"
+msgid "합금기를 이용해 청동을 제작하세요."
+msgstr "Use the Alloy Furnace to craft Bronze."
+
+#. Key:	144397244CA2CF94CAB7A5BFF8D11D04
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftBronze.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftBronze.VideoData.VideoName
+msgctxt ",144397244CA2CF94CAB7A5BFF8D11D04"
+msgid "청동 제작"
+msgstr "Crafting Bronze"
+
+#. Key:	2991E7214B15453CF10D26A8D15B4B19
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftDisassembler.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftDisassembler.VideoData.VideoDesciption
+msgctxt ",2991E7214B15453CF10D26A8D15B4B19"
+msgid "Craft에서 재료를 소모해서 설비를 제작할 수 있습니다.\r\n코어를 얻으면 제작 가능한 설비들이 추가됩니다."
+msgstr "Spend materials in Craft to build facilities.\r\nObtaining cores adds more facilities you can craft."
+
+#. Key:	49E51E2C446C16E9A9F21598A27459F5
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftDisassembler.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftDisassembler.VideoData.VideoName
+msgctxt ",49E51E2C446C16E9A9F21598A27459F5"
+msgid "설비 제작"
+msgstr "Crafting Facilities"
+
+#. Key:	2FACAA954995AD02D5B71AA0A393C2A2
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftGear.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftGear.VideoData.VideoDesciption
+msgctxt ",2FACAA954995AD02D5B71AA0A393C2A2"
+msgid "압연기, 기어프레스를 이용해 기어를 제작하세요."
+msgstr "Use the Rolling Mill and Gear Press to craft Gears."
+
+#. Key:	E2B549C1446FB760085B8C9A94C66245
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftGear.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.CraftGear.VideoData.VideoName
+msgctxt ",E2B549C1446FB760085B8C9A94C66245"
+msgid "기어 제작"
+msgstr "Crafting Gears"
+
+#. Key:	FE5929DF4BA6D79A977A5C98920CC9AA
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.EquipWeapon.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.EquipWeapon.VideoData.VideoDesciption
+msgctxt ",FE5929DF4BA6D79A977A5C98920CC9AA"
+msgid "장비에서 우클릭을 하거나 맞는 캐릭터 슬롯으로 드래그하면 장비를 장착할 수 있습니다.\r\nX키를 누르면 무기를 손에 쥐어 전투를 할 수 있습니다."
+msgstr "Right-click an item or drag it onto the matching character slot to equip it.\r\nPress X to draw your weapon and enter combat."
+
+#. Key:	441621ED4F2B3B5FF51D9280E7CA27FD
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.EquipWeapon.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.EquipWeapon.VideoData.VideoName
+msgctxt ",441621ED4F2B3B5FF51D9280E7CA27FD"
+msgid "장비 장착"
+msgstr "Equipment"
+
+#. Key:	24DDEB94433C2DC7970D1EA6580546D4
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.GoDefeatBoss.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.GoDefeatBoss.VideoData.VideoDesciption
+msgctxt ",24DDEB94433C2DC7970D1EA6580546D4"
+msgid "왼쪽 위 게이지가 최대치에 도달하면, 오버클럭 모드에 진입합니다.\r\n오버클럭 모드에서는 공격속도, 이동속도가 빨라집니다.\r\n게이지는 오버클럭 모드에서 점점 감소하며, 최소치가 되었을때 해제됩니다.\r\n게이지는 오버클럭 모드가 아닐때, 적을 공격하면 획득할 수 있습니다."
+msgstr "When the gauge at the top left fills up, you enter Overclock mode.\r\nOverclock raises your attack speed and movement speed.\r\nThe gauge drains during Overclock and the mode ends once it empties.\r\nAttack enemies outside Overclock to build the gauge back up."
+
+#. Key:	14667B7C45E30A8FEF3E179A1D296095
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.GoDefeatBoss.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.GoDefeatBoss.VideoData.VideoName
+msgctxt ",14667B7C45E30A8FEF3E179A1D296095"
+msgid "오버클럭"
+msgstr "Overclock"
+
+#. Key:	6FE1CA314BA31AA09A1607A20B913A28
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertCoal.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertCoal.VideoData.VideoDesciption
+msgctxt ",6FE1CA314BA31AA09A1607A20B913A28"
+msgid "보일러에 석탄을 넣어야만 주변 범위 설비가 동력을 얻어 작동합니다.\r\n모듈 분해기를 제외한 설비는 보일러가 필수적으로 필요하며, 석탄은 주변 적을 처치하면 얻을 수 있습니다."
+msgstr "Facilities in range only run once Coal is loaded into the Boiler.\r\nEvery facility except the Module Disassembler needs a Boiler, and Coal drops from enemies nearby."
+
+#. Key:	E04282AE4E7188E44E8B89B8F22B7ECF
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertCoal.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertCoal.VideoData.VideoName
+msgctxt ",E04282AE4E7188E44E8B89B8F22B7ECF"
+msgid "보일러 작동"
+msgstr "Running the Boiler"
+
+#. Key:	E38E0F794EFA9439A92B2AA02FCCF67A
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertDisassemblerInput.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertDisassemblerInput.VideoData.VideoDesciption
+msgctxt ",E38E0F794EFA9439A92B2AA02FCCF67A"
+msgid "비 전투중일때 현재 상황을 저장하기 버튼으로 저장할 수 있습니다.\r\n플레이어가 사망하거나, 게임 종료 시 저장되지 않은 데이터는 유실되니 주의해주세요."
+msgstr "Outside of combat, use the Save button to save your progress.\r\nUnsaved data is lost if you die or quit the game, so save often."
+
+#. Key:	FFD1378645C96441B882C8A2D73F3E25
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertDisassemblerInput.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.InsertDisassemblerInput.VideoData.VideoName
+msgctxt ",FFD1378645C96441B882C8A2D73F3E25"
+msgid "저장하기"
+msgstr "Saving"
+
+#. Key:	BD5A8BED458C248B28B472950059A330
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.KillFourMonsters.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.KillFourMonsters.VideoData.VideoDesciption
+msgctxt ",BD5A8BED458C248B28B472950059A330"
+msgid "무기를 손에 쥔 후에 좌클릭으로 공격, 우클릭으로 가드를 할 수 있습니다.\r\n공격시 적의 공격을 끊을 수 있지만, 적에게 특수한 오라가 적용되면 슈퍼아머가 적용되어 공격을 중단하지 않습니다.\r\n체력이 없다면 T키를 눌러 포션을 소모해 체력을 회복할 수 있습니다."
+msgstr "With your weapon drawn, left-click to attack and right-click to guard.\r\nAttacks can interrupt enemies, but an enemy wrapped in a special aura has super armor and will not be staggered.\r\nPress T to drink a potion and restore health when you are low."
+
+#. Key:	EFFF386C44B1C56D705B3999634B84C2
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.KillFourMonsters.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.KillFourMonsters.VideoData.VideoName
+msgctxt ",EFFF386C44B1C56D705B3999634B84C2"
+msgid "전투"
+msgstr "Combat"
+
+#. Key:	0212469D43E5FC029276EE9D14564E21
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ParryAttack.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ParryAttack.VideoData.VideoDesciption
+msgctxt ",0212469D43E5FC029276EE9D14564E21"
+msgid "일반 몬스터의 경우 우클릭을 적의 공격에 맞춰 정확한 타이밍에 누르면 적의 자세가 무너지고, 좌클릭을 한번 더 누르면 강력한 일격을 가할 수 있습니다."
+msgstr "Against normal monsters, right-click at the exact moment of their attack to break their stance, then left-click once more for a powerful blow."
+
+#. Key:	3704B75D44A2CDA43844B08BF40C3019
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.ParryAttack.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.ParryAttack.VideoData.VideoName
+msgctxt ",3704B75D44A2CDA43844B08BF40C3019"
+msgid "패링"
+msgstr "Parry"
+
+#. Key:	98340DC5456038A2182B97B0D6FDF6C2
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceBoiler.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceBoiler.VideoData.VideoDesciption
+msgctxt ",98340DC5456038A2182B97B0D6FDF6C2"
+msgid "보일러를 설치가능한 위치에 배치하면 설치할 수 있습니다."
+msgstr "Place the Boiler on a buildable spot to install it."
+
+#. Key:	88474A9F429C4137A7B6A89B5DD90DF3
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceBoiler.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceBoiler.VideoData.VideoName
+msgctxt ",88474A9F429C4137A7B6A89B5DD90DF3"
+msgid "보일러 설치"
+msgstr "Placing the Boiler"
+
+#. Key:	0C8839934C5796A71414FEB463A83DEC
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceDisassembler.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceDisassembler.VideoData.VideoDesciption
+msgctxt ",0C8839934C5796A71414FEB463A83DEC"
+msgid "설비를 보일러 범위에 설치해야 동력을 얻어 동작할 수 있습니다.\r\nC키를 눌러 해당 설비가 붉은색으로 표시된 이후 한번 더 누르면 해체할 수 있습니다."
+msgstr "A facility must sit inside the Boiler's range to receive power and run.\r\nPress C to mark a facility red, then press again to dismantle it."
+
+#. Key:	5C2C7B524A6C428BE79B7AB220184B11
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceDisassembler.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.PlaceDisassembler.VideoData.VideoName
+msgctxt ",5C2C7B524A6C428BE79B7AB220184B11"
+msgid "설비 설치"
+msgstr "Placing Facilities"
+
+#. Key:	2A44314845108D4CAE11A1BE798C794A
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.SelectDisassemblerRecipe.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.SelectDisassemblerRecipe.VideoData.VideoDesciption
+msgctxt ",2A44314845108D4CAE11A1BE798C794A"
+msgid "설비의 레시피를 선택해야 입/출력에 따라 동작을 수행합니다.\r\n일부 설비는 여러 레시피가 존재합니다."
+msgstr "A facility only processes input and output once a recipe is selected.\r\nSome facilities have several recipes."
+
+#. Key:	C81635164DF7EB08FDB5C7B6B995233F
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.SelectDisassemblerRecipe.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.SelectDisassemblerRecipe.VideoData.VideoName
+msgctxt ",C81635164DF7EB08FDB5C7B6B995233F"
+msgid "레시피 선택"
+msgstr "Selecting Recipes"
+
+#. Key:	83A83DC849649FB78565C6BD3F2602A7
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.Unlock.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.Unlock.VideoData.VideoDesciption
+msgctxt ",83A83DC849649FB78565C6BD3F2602A7"
+msgid "코어를 획득하면 Craft에서 아이템이 자동 해금됩니다.\r\n해금된 아이템은 어떤 코어로 인해 해금되었는지 아이콘 우측 상단에서 확인 가능합니다.\r\n장비 아이템은 기존 재료만 소모하므로, 최우선적으로 장비 아이템 업그레이드를 추천합니다."
+msgstr "Obtaining a core automatically unlocks items in Craft.\r\nThe top right of each icon shows which core unlocked it.\r\nEquipment uses only your existing materials, so upgrading equipment first is recommended."
+
+#. Key:	1B05C99540185F962AEFBE9B132086E4
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.Unlock.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.Unlock.VideoData.VideoName
+msgctxt ",1B05C99540185F962AEFBE9B132086E4"
+msgid "코어 획득이후 자동 해금"
+msgstr "Auto-unlock After Cores"
+
+#. Key:	1A279B574AB1228DF32F47AF2B724BE4
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.UnlockFirstSkill.VideoData.VideoDesciption
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.UnlockFirstSkill.VideoData.VideoDesciption
+msgctxt ",1A279B574AB1228DF32F47AF2B724BE4"
+msgid "자원을 소모해 스킬을 해금할 수 있습니다.\r\n일부 스킬을 코어를 획득 후 해금 가능합니다."
+msgstr "Spend resources to unlock skills.\r\nSome skills unlock only after you obtain a core."
+
+#. Key:	3FA914AF41F699C7C172CE9877F552AE
+#. SourceLocation:	/Game/Karon/Data/DT_Tutorial.DT_Tutorial.UnlockFirstSkill.VideoData.VideoName
+#: /Game/Karon/Data/DT_Tutorial.DT_Tutorial.UnlockFirstSkill.VideoData.VideoName
+msgctxt ",3FA914AF41F699C7C172CE9877F552AE"
+msgid "스킬 해금"
+msgstr "Unlocking Skills"
 
 #. Key:	E36DAF76446DD168BC6FF4B055BD5233
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Factory.DT_Factory.AlloyMaker.Description
@@ -293,6 +559,48 @@ msgctxt ",426E3475416D52C4F5DFF2870765AD10"
 msgid "기초 화약"
 msgstr "Basic Gunpowder"
 
+#. Key:	76BC40064A54A85E01688BBACD1E5CEF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHammer.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHammer.Description
+msgctxt ",76BC40064A54A85E01688BBACD1E5CEF"
+msgid "한 번 휘두르면 땅이 꺼질 것 같은 무게. 느리지만 막을 수 없다."
+msgstr "A weight that seems to crack the ground with a single swing. Slow, but unstoppable."
+
+#. Key:	9050BC6A437B56E161E065B3EE330B69
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHammer.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHammer.DisplayName
+msgctxt ",9050BC6A437B56E161E065B3EE330B69"
+msgid "해머"
+msgstr "Hammer"
+
+#. Key:	699083D843261F62A18F79BCE18D1E0D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHead.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHead.Description
+msgctxt ",699083D843261F62A18F79BCE18D1E0D"
+msgid "두꺼운 금속판을 이어 붙여 만든 투구. 시야는 다소 좁지만 머리를 단단히 보호한다."
+msgstr "A helmet made from thick metal plates joined together. Vision is a little narrow, but the head is well protected."
+
+#. Key:	A783AC3B4A1532A1245399A480445DAF
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHead.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicHead.DisplayName
+msgctxt ",A783AC3B4A1532A1245399A480445DAF"
+msgid "투구"
+msgstr "Helmet"
+
+#. Key:	AA41FE8047EB8367798B22B0B6682225
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicLowerBody.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicLowerBody.Description
+msgctxt ",AA41FE8047EB8367798B22B0B6682225"
+msgid "관절 부분을 금속으로 보강한 하의. 움직임을 유지하면서 하체를 안전하게 감싼다."
+msgstr "Leg armor reinforced with metal at the joints. Guards the legs without restricting movement."
+
+#. Key:	21C66AC54BFA3E93F057128997C59C4B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicLowerBody.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicLowerBody.DisplayName
+msgctxt ",21C66AC54BFA3E93F057128997C59C4B"
+msgid "하의"
+msgstr "Leg Armor"
+
 #. Key:	8B5021CC45A4E586BB7FCB948072BD5B
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.Description
 #: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicModule.Description
@@ -306,6 +614,48 @@ msgstr "An unidentified machine module. Disassembling it yields useful resources
 msgctxt "DT_Item,BasicModule_DisplayName"
 msgid "기초 모듈"
 msgstr "Basic Module"
+
+#. Key:	DE0636E24DEBFDCB5A2D96891F0E59DB
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicShoes.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicShoes.Description
+msgctxt ",DE0636E24DEBFDCB5A2D96891F0E59DB"
+msgid "철심과 두꺼운 밑창으로 보강한 장화. 거친 지형에서도 발을 단단히 지켜준다."
+msgstr "Boots reinforced with steel cores and thick soles. Keeps the feet safe even on rough terrain."
+
+#. Key:	D0782B2B4BF2F82E7A76F5A5989F3B7B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicShoes.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicShoes.DisplayName
+msgctxt ",D0782B2B4BF2F82E7A76F5A5989F3B7B"
+msgid "신발"
+msgstr "Boots"
+
+#. Key:	6C43E5AB4633A6111FB28F8514B643BA
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicSword.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicSword.Description
+msgctxt ",6C43E5AB4633A6111FB28F8514B643BA"
+msgid "청동을 갈고 다듬어 만들어진 검. 투박하지만 충분히 믿음직하다."
+msgstr "A sword forged by grinding and shaping bronze. Crude, but reliable enough."
+
+#. Key:	66BB9A8C4A8F536CBAD14291EB3C0CCE
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicSword.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicSword.DisplayName
+msgctxt "DT_Item,66BB9A8C4A8F536CBAD14291EB3C0CCE"
+msgid "청동검"
+msgstr "Bronze Sword"
+
+#. Key:	4217B10A4A85C1BD91E0958E655587C7
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicUpperBody.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicUpperBody.Description
+msgctxt ",4217B10A4A85C1BD91E0958E655587C7"
+msgid "두꺼운 가죽 위에 금속판을 덧댄 상의. 무겁지만 상체를 든든하게 보호한다."
+msgstr "Chest armor of metal plates over thick leather. Heavy, but it guards the torso well."
+
+#. Key:	40E4646F4EF6225BA4C8868AB99F9CAD
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.BasicUpperBody.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.BasicUpperBody.DisplayName
+msgctxt ",40E4646F4EF6225BA4C8868AB99F9CAD"
+msgid "상의"
+msgstr "Chest Armor"
 
 #. Key:	83C14CDA48632E99F84B20BFFD4C05D8
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Bronze.Description
@@ -461,33 +811,89 @@ msgctxt ",365DBD2B48E9334B48B662B0BBAFB85B"
 msgid "대검"
 msgstr "Greatsword"
 
-#. Key:	76BC40064A54A85E01688BBACD1E5CEF
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.Description
-msgctxt ",76BC40064A54A85E01688BBACD1E5CEF"
-msgid "한 번 휘두르면 땅이 꺼질 것 같은 무게. 느리지만 막을 수 없다."
-msgstr "A weight that seems to crack the ground with a single swing. Slow, but unstoppable."
+#. Key:	A2CB735A7CCB9C6F81D1C2C9DCDE4047
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerEarth.Description
+msgctxt ",A2CB735A7CCB9C6F81D1C2C9DCDE4047"
+msgid "해머 머리에 대지의 정수를 채워 넣은 무기. 내려칠 때마다 땅이 크게 울린다."
+msgstr "A hammer with its head packed full of the essence of earth. Every swing sets the ground roaring."
 
-#. Key:	9050BC6A437B56E161E065B3EE330B69
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Hammer.DisplayName
-msgctxt ",9050BC6A437B56E161E065B3EE330B69"
-msgid "해머"
-msgstr "Hammer"
+#. Key:	HammerEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerEarth.DisplayName
+msgctxt "DT_Item,HammerEarth_DisplayName"
+msgid "대지의 해머"
+msgstr "Earth Hammer"
 
-#. Key:	699083D843261F62A18F79BCE18D1E0D
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Head.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Head.Description
-msgctxt ",699083D843261F62A18F79BCE18D1E0D"
-msgid "방어력 : 05"
-msgstr "Defense: 05"
+#. Key:	3BB75C63AB0D3C13134AB368A84378C9
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerLightning.Description
+msgctxt ",3BB75C63AB0D3C13134AB368A84378C9"
+msgid "뇌전을 응축시켜 담은 해머. 타격과 동시에 강한 전류가 퍼져나간다."
+msgstr "A hammer holding condensed lightning. Each blow sends a strong current spreading out."
 
-#. Key:	A783AC3B4A1532A1245399A480445DAF
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Head.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Head.DisplayName
-msgctxt ",A783AC3B4A1532A1245399A480445DAF"
-msgid "투구"
-msgstr "Helmet"
+#. Key:	HammerLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerLightning.DisplayName
+msgctxt "DT_Item,HammerLightning_DisplayName"
+msgid "뇌전의 해머"
+msgstr "Lightning Hammer"
+
+#. Key:	80DF3C7972D587989D7F741C468BBB5C
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerWater.Description
+msgctxt ",80DF3C7972D587989D7F741C468BBB5C"
+msgid "해류의 기운을 머금은 해머. 무겁지만 파도처럼 유려하게 휘둘러진다."
+msgstr "A hammer imbued with the power of flowing water. Heavy, yet it swings as smoothly as a wave."
+
+#. Key:	HammerWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HammerWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HammerWater.DisplayName
+msgctxt "DT_Item,HammerWater_DisplayName"
+msgid "해류의 해머"
+msgstr "Water Hammer"
+
+#. Key:	4CB17274D3023C1DCF6B17347864BB1D
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadEarth.Description
+msgctxt ",4CB17274D3023C1DCF6B17347864BB1D"
+msgid "투구 표면에 대지의 정수를 덧입힌 강화판. 묵직하지만 어떤 충격도 굳건히 막아낸다."
+msgstr "A helmet plated with the essence of earth. Weighty, but it holds firm against any impact."
+
+#. Key:	HeadEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadEarth.DisplayName
+msgctxt "DT_Item,HeadEarth_DisplayName"
+msgid "대지의 투구"
+msgstr "Earth Helmet"
+
+#. Key:	65FE34F22073C0E899EFC00FAD384F20
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadLightning.Description
+msgctxt ",65FE34F22073C0E899EFC00FAD384F20"
+msgid "뇌전을 두른 투구. 위험을 감지하면 표면에서 옅은 불꽃이 튄다."
+msgstr "A helmet wreathed in lightning. Faint sparks flicker across it when danger is near."
+
+#. Key:	HeadLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadLightning.DisplayName
+msgctxt "DT_Item,HeadLightning_DisplayName"
+msgid "뇌전의 투구"
+msgstr "Lightning Helmet"
+
+#. Key:	B0186CA826801AF4DF1EFA4A9EA206C9
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadWater.Description
+msgctxt ",B0186CA826801AF4DF1EFA4A9EA206C9"
+msgid "해류의 기운이 깃든 투구. 표면을 타고 흐르는 물결이 충격을 부드럽게 흘려보낸다."
+msgstr "A helmet holding the power of flowing water. Currents running over it let blows slide away."
+
+#. Key:	HeadWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HeadWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.HeadWater.DisplayName
+msgctxt "DT_Item,HeadWater_DisplayName"
+msgid "해류의 투구"
+msgstr "Water Helmet"
 
 #. Key:	0EEB25DD4D3501F4927925A18344A6CD
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.HealingPotion.Description
@@ -559,19 +965,47 @@ msgctxt ",D7E10FA24662D2ED90BC54A303519470"
 msgid "전기의 코어"
 msgstr "The core of lightning"
 
-#. Key:	AA41FE8047EB8367798B22B0B6682225
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.Description
-msgctxt ",AA41FE8047EB8367798B22B0B6682225"
-msgid "방어력 : 08"
-msgstr "Defense: 08"
+#. Key:	3265A2C71CF4F763DA49F6940F408634
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyEarth.Description
+msgctxt ",3265A2C71CF4F763DA49F6940F408634"
+msgid "관절 보강재에 대지의 정수를 스며들게 한 하의. 단단하지만 움직임은 여전히 자유롭다."
+msgstr "Leg armor with the essence of earth steeped into its joint reinforcements. Solid, yet still free to move."
 
-#. Key:	21C66AC54BFA3E93F057128997C59C4B
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBody.DisplayName
-msgctxt ",21C66AC54BFA3E93F057128997C59C4B"
-msgid "하의"
-msgstr "Leg Armor"
+#. Key:	LowerBodyEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyEarth.DisplayName
+msgctxt "DT_Item,LowerBodyEarth_DisplayName"
+msgid "대지의 하의"
+msgstr "Earth Leg Armor"
+
+#. Key:	231033620033FE989AF1036CEE843AF3
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyLightning.Description
+msgctxt ",231033620033FE989AF1036CEE843AF3"
+msgid "뇌전을 머금은 하의. 빠른 움직임마다 미세한 전기가 스친다."
+msgstr "Leg armor charged with lightning. A faint current grazes it with every quick move."
+
+#. Key:	LowerBodyLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyLightning.DisplayName
+msgctxt "DT_Item,LowerBodyLightning_DisplayName"
+msgid "뇌전의 하의"
+msgstr "Lightning Leg Armor"
+
+#. Key:	5880FCEDAE79C54410BE4A6A23B4E34B
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyWater.Description
+msgctxt ",5880FCEDAE79C54410BE4A6A23B4E34B"
+msgid "해류의 기운이 깃든 하의. 부드러운 움직임으로 충격을 흘려보낸다."
+msgstr "Leg armor holding the power of flowing water. Fluid movement lets blows slide away."
+
+#. Key:	LowerBodyWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.LowerBodyWater.DisplayName
+msgctxt "DT_Item,LowerBodyWater_DisplayName"
+msgid "해류의 하의"
+msgstr "Water Leg Armor"
 
 #. Key:	D349783F4C41AA2D79FB229963C3AFAD
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.MiningPipe.Description
@@ -587,19 +1021,47 @@ msgctxt "DT_Item,MiningPipe_DisplayName"
 msgid "채광 파이프"
 msgstr "Mining Pipe"
 
-#. Key:	DE0636E24DEBFDCB5A2D96891F0E59DB
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.Description
-msgctxt ",DE0636E24DEBFDCB5A2D96891F0E59DB"
-msgid "방어력 : 05"
-msgstr "Defense: 05"
+#. Key:	593DB4039F82EF97B85CD19DB6D34D59
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesEarth.Description
+msgctxt ",593DB4039F82EF97B85CD19DB6D34D59"
+msgid "밑창에 대지의 정수를 덧댄 신발. 땅을 굳게 딛고 서는 힘이 실린다."
+msgstr "Boots soled with the essence of earth. They plant you firmly on the ground."
 
-#. Key:	D0782B2B4BF2F82E7A76F5A5989F3B7B
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Shoes.DisplayName
-msgctxt ",D0782B2B4BF2F82E7A76F5A5989F3B7B"
-msgid "신발"
-msgstr "Boots"
+#. Key:	ShoesEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesEarth.DisplayName
+msgctxt "DT_Item,ShoesEarth_DisplayName"
+msgid "대지의 신발"
+msgstr "Earth Boots"
+
+#. Key:	DDA0E4C7615A1D4EDDAFDCB5943B1B78
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesLightning.Description
+msgctxt ",DDA0E4C7615A1D4EDDAFDCB5943B1B78"
+msgid "뇌전을 두른 신발. 내딛는 걸음마다 짧은 스파크가 튄다."
+msgstr "Boots wreathed in lightning. Short sparks snap with every step."
+
+#. Key:	ShoesLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesLightning.DisplayName
+msgctxt "DT_Item,ShoesLightning_DisplayName"
+msgid "뇌전의 신발"
+msgstr "Lightning Boots"
+
+#. Key:	9F3947247566B94C1982E82DF2B93A2E
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesWater.Description
+msgctxt ",9F3947247566B94C1982E82DF2B93A2E"
+msgid "해류의 기운을 머금은 신발. 물 위를 걷듯 가볍고 유연한 움직임을 돕는다."
+msgstr "Boots that carry the flow of water. Light and supple, as if walking on its surface."
+
+#. Key:	ShoesWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.ShoesWater.DisplayName
+msgctxt "DT_Item,ShoesWater_DisplayName"
+msgid "해류의 신발"
+msgstr "Water Boots"
 
 #. Key:	B79D846E443DE190CE6F9FB4EFFD222D
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sulfur.DisplayName
@@ -608,19 +1070,47 @@ msgctxt ",B79D846E443DE190CE6F9FB4EFFD222D"
 msgid "유황"
 msgstr "Sulfur"
 
-#. Key:	6C43E5AB4633A6111FB28F8514B643BA
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.Description
-msgctxt ",6C43E5AB4633A6111FB28F8514B643BA"
-msgid "청동을 갈고 다듬어 만들어진 검. 투박하지만 충분히 믿음직하다."
-msgstr "A sword forged by grinding and shaping bronze. Crude, but reliable enough."
+#. Key:	4C948E899ABEE7A38FD7E3FE111C4048
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordEarth.Description
+msgctxt ",4C948E899ABEE7A38FD7E3FE111C4048"
+msgid "청동검 날에 대지의 정수를 주입해 벼려낸 검. 묵직한 반동과 함께 단단한 것들을 짓이긴다."
+msgstr "A bronze blade forged with the essence of earth. It crushes hard things with a heavy recoil."
 
-#. Key:	66BB9A8C4A8F536CBAD14291EB3C0CCE
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.Sword.DisplayName
-msgctxt "DT_Item,66BB9A8C4A8F536CBAD14291EB3C0CCE"
-msgid "청동검"
-msgstr "Bronze Sword"
+#. Key:	SwordEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordEarth.DisplayName
+msgctxt "DT_Item,SwordEarth_DisplayName"
+msgid "대지의 검"
+msgstr "Earth Sword"
+
+#. Key:	AF56023954C9849BF04D7ED132882DA7
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordLightning.Description
+msgctxt ",AF56023954C9849BF04D7ED132882DA7"
+msgid "청동검에 뇌전을 가둬 벼려낸 검. 스치기만 해도 짜릿한 충격이 전해진다."
+msgstr "A bronze sword forged with lightning sealed inside. Even a graze delivers a jolting shock."
+
+#. Key:	SwordLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordLightning.DisplayName
+msgctxt "DT_Item,SwordLightning_DisplayName"
+msgid "뇌전의 검"
+msgstr "Lightning Sword"
+
+#. Key:	18C8AB3218B68E2FCA7E01BB99FE7CE4
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordWater.Description
+msgctxt ",18C8AB3218B68E2FCA7E01BB99FE7CE4"
+msgid "청동검에 해류의 기운을 스며들게 한 검. 매끄러운 궤적으로 적의 빈틈을 파고든다."
+msgstr "A bronze sword steeped in the power of flowing water. Its smooth arc slips into an enemy's opening."
+
+#. Key:	SwordWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.SwordWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.SwordWater.DisplayName
+msgctxt "DT_Item,SwordWater_DisplayName"
+msgid "해류의 검"
+msgstr "Water Sword"
 
 #. Key:	FC138C674EA2AA4562B1E5B259B444D3
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Tin.Description
@@ -636,19 +1126,47 @@ msgctxt "DT_Item,Tin_DisplayName"
 msgid "주석"
 msgstr "Tin"
 
-#. Key:	4217B10A4A85C1BD91E0958E655587C7
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.Description
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.Description
-msgctxt ",4217B10A4A85C1BD91E0958E655587C7"
-msgid "방어력 : 10"
-msgstr "Defense: 10"
+#. Key:	C2A056DABD67EDECACBF62BA4D1B0C6C
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyEarth.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyEarth.Description
+msgctxt ",C2A056DABD67EDECACBF62BA4D1B0C6C"
+msgid "상의 금속판에 대지의 정수를 주입해 더욱 단단해졌다. 무게는 늘었지만 방어력은 확실하다."
+msgstr "Chest plates infused with the essence of earth for extra hardness. Heavier, but the defense is certain."
 
-#. Key:	40E4646F4EF6225BA4C8868AB99F9CAD
-#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.DisplayName
-#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBody.DisplayName
-msgctxt ",40E4646F4EF6225BA4C8868AB99F9CAD"
-msgid "상의"
-msgstr "Chest Armor"
+#. Key:	UpperBodyEarth_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyEarth.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyEarth.DisplayName
+msgctxt "DT_Item,UpperBodyEarth_DisplayName"
+msgid "대지의 상의"
+msgstr "Earth Chest Armor"
+
+#. Key:	2AA89D0F2DFFE37AB1E3F5C49D8CBC74
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyLightning.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyLightning.Description
+msgctxt ",2AA89D0F2DFFE37AB1E3F5C49D8CBC74"
+msgid "뇌전을 두른 상의. 착용자의 움직임에 따라 옅은 스파크가 일렁인다."
+msgstr "Chest armor wreathed in lightning. Faint sparks ripple with the wearer's movement."
+
+#. Key:	UpperBodyLightning_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyLightning.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyLightning.DisplayName
+msgctxt "DT_Item,UpperBodyLightning_DisplayName"
+msgid "뇌전의 상의"
+msgstr "Lightning Chest Armor"
+
+#. Key:	3A63E5B4BE1DB8B6C5C2AF1779E4B0A3
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyWater.Description
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyWater.Description
+msgctxt ",3A63E5B4BE1DB8B6C5C2AF1779E4B0A3"
+msgid "해류의 기운을 머금은 상의. 유연하게 움직이면서도 충격을 효과적으로 분산시킨다."
+msgstr "Chest armor imbued with the power of flowing water. It moves freely while spreading impact effectively."
+
+#. Key:	UpperBodyWater_DisplayName
+#. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyWater.DisplayName
+#: /Game/Karon/Data/Factory/DT_Item.DT_Item.UpperBodyWater.DisplayName
+msgctxt "DT_Item,UpperBodyWater_DisplayName"
+msgid "해류의 상의"
+msgstr "Water Chest Armor"
 
 #. Key:	9F44451A4D7D3613FA6D5C98ADA719B9
 #. SourceLocation:	/Game/Karon/Data/Factory/DT_Item.DT_Item.Water.Description
@@ -776,6 +1294,27 @@ msgctxt "DT_Recipe,WeaponWorkbench_BronzeSword_DisplayName"
 msgid "청동검"
 msgstr "Bronze Sword"
 
+#. Key:	778F3E5B4D329B4523DBC59ED2AD3BDD
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.DescriptionText
+msgctxt ",778F3E5B4D329B4523DBC59ED2AD3BDD"
+msgid "▶ 비프로스트에 F키로 상호작용을 하여 활성화 하세요."
+msgstr "▶ Press F to interact with the Bifrost and activate it."
+
+#. Key:	359E8A2849138A5971C15B821A10C7C0
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.ObjectiveText
+msgctxt ",359E8A2849138A5971C15B821A10C7C0"
+msgid "비프로스트를 활성화 하세요."
+msgstr "Activate the Bifrost."
+
+#. Key:	0583A2F64FE9B997D892B0A90FC384A5
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ActivateBonfire.Title
+msgctxt ",0583A2F64FE9B997D892B0A90FC384A5"
+msgid "비프로스트 가이드"
+msgstr "Bifrost Guide"
+
 #. Key:	57052ED440DDF2D837D5A79A4208B6BD
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.AssignBoilerQuickSlot.DescriptionText
@@ -860,6 +1399,20 @@ msgctxt ",5EAAB42043F025E4D6C1F5A3780D3BDE"
 msgid "모듈 분해기와 보일러를 벨트로 연결하세요."
 msgstr "Connect the Module Disassembler and the Boiler with a belt."
 
+#. Key:	A2980E61408556968804D88B9FD640A0
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftBronze.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftBronze.DescriptionText
+msgctxt ",A2980E61408556968804D88B9FD640A0"
+msgid "▶ 합금기를 제작하여 설치하고 레시피를 선택하여 청동을 제작하세요."
+msgstr "▶ Craft and install the Alloy Furnace, then select a recipe to make Bronze."
+
+#. Key:	4BC2F3B249DF9471B4C5D6A864DDC3EF
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftBronze.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftBronze.ObjectiveText
+msgctxt ",4BC2F3B249DF9471B4C5D6A864DDC3EF"
+msgid "청동을 제작하세요."
+msgstr "Craft Bronze."
+
 #. Key:	6F769AAC4CA6C4A0C354138EFF3DE581
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftDisassembler.DescriptionText
@@ -878,8 +1431,8 @@ msgstr "Craft the Module Disassembler."
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.DescriptionText
 msgctxt ",4A79EEB64B298444DCC6A8BE4C8BB58A"
-msgid "▶ 합금기, 압연기, 기어 프레스를 통하여 기어를 제작하세요."
-msgstr "▶ Craft a Gear using the Alloy Furnace, Rolling Mill, and Gear Press."
+msgid "▶ 압연기, 기어 프레스를 통하여 기어를 제작하세요."
+msgstr "▶ Craft a Gear using the Rolling Mill and the Gear Press."
 
 #. Key:	FC37DDAA4F1ABCBC918AF8851A56E197
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.CraftGear.ObjectiveText
@@ -906,8 +1459,8 @@ msgstr "Equip the weapon from your inventory."
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.DescriptionText
 msgctxt ",5A6371374C942C562DE60F95E8884567"
-msgid "▶ 스킬을 장착했다면 보스 구역으로 이동해 보스를 처치하세요."
-msgstr "▶ Once your skill is equipped, head to the boss area and defeat the boss."
+msgid "▶ 보스 구역으로 이동해 보스를 처치하세요."
+msgstr "▶ Head to the boss area and defeat the boss."
 
 #. Key:	867AA0B9448A46C1687C208D6C0CF766
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.ObjectiveText
@@ -916,12 +1469,12 @@ msgctxt ",867AA0B9448A46C1687C208D6C0CF766"
 msgid "보스를 처치하세요."
 msgstr "Defeat the boss."
 
-#. Key:	792FB5A845B71BC7CB2E51914B01E5B1
+#. Key:	7AED755149FBCFA017255C96CA1886FA
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.Title
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.GoDefeatBoss.Title
-msgctxt ",792FB5A845B71BC7CB2E51914B01E5B1"
-msgid "최종 목표"
-msgstr "Final Objective"
+msgctxt ",7AED755149FBCFA017255C96CA1886FA"
+msgid "전투 가이드"
+msgstr "Combat Guide"
 
 #. Key:	C1141EFE4766D7A4C98A408659AB044E
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.InsertCoal.DescriptionText
@@ -955,8 +1508,8 @@ msgstr "Place the material in the input slot."
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.DescriptionText
 msgctxt ",5CB86CEC4EAA11F785FA88AAE4934BC6"
-msgid "▶ X키로 무기를 손에 들고 주변 몬스터를 모두 처치하세요."
-msgstr "▶ Press X to draw your weapon and defeat all nearby monsters."
+msgid "▶ X키로 무기를 손에 들고 주변 몬스터를 처치하세요."
+msgstr "▶ Press X to draw your weapon and defeat the monsters nearby."
 
 #. Key:	41E885644D2B14EC341776A65C291316
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.KillFourMonsters.ObjectiveText
@@ -969,8 +1522,8 @@ msgstr "Defeat the monsters."
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.DescriptionText
 msgctxt ",E11330B444441EC0B8282FAD9F3E1525"
-msgid "▶ B키로 건설 모드를 열고 보일러를 설치하세요."
-msgstr "▶ Press B to open Build Mode and install the Boiler."
+msgid "▶ B키로 건설 모드를 열고 건설 부지에 보일러를 설치하세요."
+msgstr "▶ Press B to open Build Mode and install the Boiler on the build site."
 
 #. Key:	DA224F3348A80DDC4F83918B3009A011
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.PlaceBoiler.ObjectiveText
@@ -992,6 +1545,27 @@ msgstr "▶ Register the Module Disassembler to an equipment slot and install it
 msgctxt ",70DD9C384CC5F25C613642B9A99F9D80"
 msgid "모듈 분해기를 설치하세요."
 msgstr "Install the Module Disassembler."
+
+#. Key:	8B20CB6344614DAE7AE0CEA0F149606B
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.DescriptionText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.DescriptionText
+msgctxt ",8B20CB6344614DAE7AE0CEA0F149606B"
+msgid "▶ 활성화된 비프로스트에 F키로 상호작용을 하여 공장으로 돌아가세요."
+msgstr "▶ Press F at an activated Bifrost to return to the factory."
+
+#. Key:	26FC57594E5C5A98A3E8BCAECF11B4BA
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.ObjectiveText
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.ObjectiveText
+msgctxt ",26FC57594E5C5A98A3E8BCAECF11B4BA"
+msgid "비프로스트를 통해 공장으로 돌아가세요."
+msgstr "Return to the factory through the Bifrost."
+
+#. Key:	6793BD7C4AD5B5D33F1DD5B1494C6613
+#. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.Title
+#: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.ReturnToFactory.Title
+msgctxt ",6793BD7C4AD5B5D33F1DD5B1494C6613"
+msgid "비프로스트 가이드"
+msgstr "Bifrost Guide"
 
 #. Key:	689779334CC67265BF66938D287ECE3A
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.SelectDisassemblerOutput.DescriptionText
@@ -1025,15 +1599,15 @@ msgstr "Select a recipe."
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.DescriptionText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.DescriptionText
 msgctxt ",08358D1244103477E20AEEAA8F6478FF"
-msgid "▶ 기본 설비 제작, 자동화 라인 구성, 스킬 해금, 보스 처치 흐름을 모두 완료했습니다."
-msgstr "▶ You have completed the full flow: crafting basic facilities, building an automation line, unlocking a skill, and defeating the boss."
+msgid "▶ 튜토리얼 영상은 옵션창에서 다시볼수 있습니다."
+msgstr "▶ Tutorial videos can be replayed from the Options menu."
 
 #. Key:	7C70B23F4EA17D232CB08F9889DF5F88
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.ObjectiveText
 #: /Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.ObjectiveText
 msgctxt ",7C70B23F4EA17D232CB08F9889DF5F88"
-msgid "튜토리얼을 완료했습니다."
-msgstr "You have completed the tutorial."
+msgid "코어를 모으기 위해 여정을 떠나십시오."
+msgstr "Set out on your journey to gather the cores."
 
 #. Key:	2AAEDD834FF563419983DE841516010C
 #. SourceLocation:	/Game/Karon/Data/Quest/DT_QuestGuide.DT_QuestGuide.TutorialGuideDone.Title
@@ -1096,35 +1670,70 @@ msgstr "Spawn"
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",8A352DD04841E0C83FB77BAF4265BF12"
 msgid "기다려라 카스토르. 너희의 거짓말을 무너뜨려줄테니."
-msgstr "Wait, Castor, I'll break your lies."
+msgstr "Wait, Castor. I will tear your lies down."
 
 #. Key:	922399A346C22924283C758AB6907369
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",922399A346C22924283C758AB6907369"
 msgid "재가 되기 전에 와봐라.. 너의 모든 것을 걸고.."
-msgstr "Come before the ashes... risk your everything.."
+msgstr "Come before you turn to ash.. and stake everything you have.."
 
 #. Key:	B3F5D25C4DFC7FC0637412967924C75D
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",B3F5D25C4DFC7FC0637412967924C75D"
 msgid "백설의 도읍"
-msgstr "The CAPITAL of Snow White"
+msgstr "The Snow-White Capital"
 
 #. Key:	C1B4A61742B59C52CFD697974484FD54
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",C1B4A61742B59C52CFD697974484FD54"
 msgid "지하의 쥐새끼가 아직도 불장난을 할 줄 알았나.. "
-msgstr "Did you think the rat in the basement would still play with fire.."
+msgstr "Did you think the rat from below could still play with fire.. "
 
 #. Key:	E37514614BE44B1A917B9688EDD4AA93
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_EarthBossClear.LS_EarthBossClear_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear_DirectorBP [Script Bytecode]
 msgctxt ",E37514614BE44B1A917B9688EDD4AA93"
 msgid "땅의 코어인가.."
-msgstr "With this, Earth core.."
+msgstr "So this is the core of earth.."
+
+#. Key:	390156374D93B6508040DEAB973FB393
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+msgctxt ",390156374D93B6508040DEAB973FB393"
+msgid "기다려라 카스토르. 너희의 거짓말을 무너뜨려줄테니."
+msgstr "Wait, Castor. I will tear your lies down."
+
+#. Key:	43EEAAD24923FDA2A5D6069A200AED06
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+msgctxt ",43EEAAD24923FDA2A5D6069A200AED06"
+msgid "지하의 쥐새끼가 아직도 불장난을 할 줄 알았나.. "
+msgstr "Did you think the rat from below could still play with fire.. "
+
+#. Key:	5C6FD7FC497E46DD3E7F8AB4FA21B9F9
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+msgctxt ",5C6FD7FC497E46DD3E7F8AB4FA21B9F9"
+msgid "재가 되기 전에 와봐라.. 너의 모든 것을 걸고.."
+msgstr "Come before you turn to ash.. and stake everything you have.."
+
+#. Key:	7593BFC140D78800F5F7F1BB644D2B18
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+msgctxt ",7593BFC140D78800F5F7F1BB644D2B18"
+msgid "땅의 코어인가.."
+msgstr "So this is the core of earth.."
+
+#. Key:	928C32C54568CA2F258F93A9B35A141B
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_EarthBossClear1.LS_EarthBossClear1_DirectorBP_C:ExecuteUbergraph_LS_EarthBossClear1_DirectorBP [Script Bytecode]
+msgctxt ",928C32C54568CA2F258F93A9B35A141B"
+msgid "백설의 도읍"
+msgstr "The Snow-White Capital"
 
 #. Key:	42D50ECA409CB2C4A63920BAAF1C4712
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet.LS_FactoryFirstMeet_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet_DirectorBP [Script Bytecode]
@@ -1161,12 +1770,47 @@ msgctxt ",DEC18C4640D9217A3FC22CB429047C07"
 msgid "설계도는 아직 내 머릿속에 있어."
 msgstr "but the blueprint still remains in my mind."
 
+#. Key:	0E8DAF1145889F69EE890987A2F98BB1
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+msgctxt ",0E8DAF1145889F69EE890987A2F98BB1"
+msgid "기억 속의 불꽃은 꺼졌지만"
+msgstr "The flame in my memory has gone out,"
+
+#. Key:	500AD78A438518B80EE9E2832C246027
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+msgctxt ",500AD78A438518B80EE9E2832C246027"
+msgid "설계도는 아직 내 머릿속에 있어."
+msgstr "but the blueprint still remains in my mind."
+
+#. Key:	7ED1C80E43D593D6736D4CA68BA78C17
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+msgctxt ",7ED1C80E43D593D6736D4CA68BA78C17"
+msgid "이곳은.."
+msgstr "This place is.."
+
+#. Key:	85A8F97449499F1498C46DA521122DEE
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+msgctxt ",85A8F97449499F1498C46DA521122DEE"
+msgid "지상의 빛을 만들던 우리의 심장부.."
+msgstr "The heart that once forged the light of the surface world.."
+
+#. Key:	CFA880224A9E24AAB4E9C39498EBA0B9
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_FactoryFirstMeet1.LS_FactoryFirstMeet1_DirectorBP_C:ExecuteUbergraph_LS_FactoryFirstMeet1_DirectorBP [Script Bytecode]
+msgctxt ",CFA880224A9E24AAB4E9C39498EBA0B9"
+msgid "처음부터 다시, 내 손으로 세운다"
+msgstr "From the beginning, once more — built by my own hands"
+
 #. Key:	13AA101B422F9E51CD28F1AC2814D118
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
 #: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
 msgctxt ",13AA101B422F9E51CD28F1AC2814D118"
 msgid "여기까지다.."
-msgstr "Is Over.."
+msgstr "is over.."
 
 #. Key:	3F00D11C4E57787F7E9320B1CF1B4571
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
@@ -1180,7 +1824,7 @@ msgstr "Unleash all my legions.."
 #: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
 msgctxt ",404CD8B04304EA5CBDB640992E059BDE"
 msgid "너에게 허락된 시간은.."
-msgstr "The time you're allowed.."
+msgstr "The time you were granted.."
 
 #. Key:	7BCBFF9F4F49494F393B8AA1762A9032
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
@@ -1194,7 +1838,7 @@ msgstr "I'll make this your grave.."
 #: /Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
 msgctxt ",B7DAFBAB4EDF8406E41622B1548AE4A1"
 msgid "기어이 내 턱밑까지 칼날을 겨누었구나.."
-msgstr "Finally pointed the blade under my chin.."
+msgstr "So you've finally brought your blade to my throat.."
 
 #. Key:	EA725BE7468BEA996E964183AA27C0D7
 #. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet.LS_ThirdCoreGet_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet_DirectorBP [Script Bytecode]
@@ -1202,6 +1846,48 @@ msgstr "Finally pointed the blade under my chin.."
 msgctxt ",EA725BE7468BEA996E964183AA27C0D7"
 msgid "To be Continued.."
 msgstr "To be Continued.."
+
+#. Key:	06DA3AD24B460ADE9978C39498C9BC1E
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",06DA3AD24B460ADE9978C39498C9BC1E"
+msgid "여기를 네놈의 무덤으로 만들어주마.."
+msgstr "I'll make this your grave.."
+
+#. Key:	209696DF4C6183F2BF7D6FB976105D19
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",209696DF4C6183F2BF7D6FB976105D19"
+msgid "내 모든 군단을 풀어라.."
+msgstr "Unleash all my legions.."
+
+#. Key:	41E24ED14753722CEE2523BFB04FB78C
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",41E24ED14753722CEE2523BFB04FB78C"
+msgid "기어이 내 턱밑까지 칼날을 겨누었구나.."
+msgstr "So you've finally brought your blade to my throat.."
+
+#. Key:	58141FB34E14B90B609C7BAB8D043830
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",58141FB34E14B90B609C7BAB8D043830"
+msgid "To be Continued.."
+msgstr "To be Continued.."
+
+#. Key:	A11BBDB940D4659AF5A224942744F043
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",A11BBDB940D4659AF5A224942744F043"
+msgid "여기까지다.."
+msgstr "is over.."
+
+#. Key:	C5C5A3AE4E0861AF6572809977C5178A
+#. SourceLocation:	/Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+#: /Game/Karon/LevelSequence/LS_ThirdCoreGet1.LS_ThirdCoreGet1_DirectorBP_C:ExecuteUbergraph_LS_ThirdCoreGet1_DirectorBP [Script Bytecode]
+msgctxt ",C5C5A3AE4E0861AF6572809977C5178A"
+msgid "너에게 허락된 시간은.."
+msgstr "The time you were granted.."
 
 #. Key:	WorldName_Cave
 #. SourceLocation:	/Game/Karon/Localization/ST_WorldName.ST_WorldName
@@ -1236,7 +1922,49 @@ msgstr "Christopher Train Station"
 #: /Game/Karon/Localization/ST_WorldName.ST_WorldName
 msgctxt "ST_WorldName,WorldName_WhiteCastle"
 msgid "백설의 도읍"
-msgstr "The CAPITAL of Snow White"
+msgstr "The Snow-White Capital"
+
+#. Key:	09DD373A4BCC1E37529DDDB645CD9A47
+#. SourceLocation:	/Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_1.DisplayName
+#: /Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_1.DisplayName
+msgctxt ",09DD373A4BCC1E37529DDDB645CD9A47"
+msgid "공장 부지"
+msgstr "Factory Grounds"
+
+#. Key:	4B6863AC4E8317D6618F24BC7029629C
+#. SourceLocation:	/Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_3.DisplayName
+#: /Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_3.DisplayName
+msgctxt ",4B6863AC4E8317D6618F24BC7029629C"
+msgid "바람 부는 능선"
+msgstr "Windswept Ridge"
+
+#. Key:	DC628B3C4069CB5A9C8B2E83302325D2
+#. SourceLocation:	/Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_5.DisplayName
+#: /Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_5.DisplayName
+msgctxt ",DC628B3C4069CB5A9C8B2E83302325D2"
+msgid "북 기차역 건너편"
+msgstr "Across the North Station"
+
+#. Key:	454555064F4D977087097A997ACEA0E4
+#. SourceLocation:	/Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_7.DisplayName
+#: /Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_7.DisplayName
+msgctxt ",454555064F4D977087097A997ACEA0E4"
+msgid "동쪽 마을 입구"
+msgstr "East Village Entrance"
+
+#. Key:	2DD6BE3F4E7887BC820B26BC5A7BAAE9
+#. SourceLocation:	/Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_9.DisplayName
+#: /Game/Karon/Map/L_MainLevel.L_MainLevel:PersistentLevel.BP_Bonfire_C_9.DisplayName
+msgctxt ",2DD6BE3F4E7887BC820B26BC5A7BAAE9"
+msgid "마지막 성"
+msgstr "The Last Castle"
+
+#. Key:	037A42DE42320FD9E4CADCB8471E6F9B
+#. SourceLocation:	/Game/Karon/MapActor/BP_Bonfire.Default__BP_Bonfire_C.DisplayName
+#: /Game/Karon/MapActor/BP_Bonfire.Default__BP_Bonfire_C.DisplayName
+msgctxt ",037A42DE42320FD9E4CADCB8471E6F9B"
+msgid "Test"
+msgstr "Test"
 
 #. Key:	95A6CAC647FC9DF2212AC6A37DE43948
 #. SourceLocation:	/Game/Karon/UI/BuildWidget/WBP_BuildQuickSlot.WBP_BuildQuickSlot_C:WidgetTree.CountText.Text
@@ -1868,6 +2596,20 @@ msgctxt ",36BAA380401B2BFBB1B7C49B134A9C75"
 msgid "무기를 획득하세요."
 msgstr "Obtain a weapon."
 
+#. Key:	10E60B7B40AAA7B0867259B9519BBE7A
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.ProgressText.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.ProgressText.Text
+msgctxt ",10E60B7B40AAA7B0867259B9519BBE7A"
+msgid "처치 수 : 0 / 0"
+msgstr "Kills : 0 / 0"
+
+#. Key:	2216DC93457BD91C06BC70B0B8DA412C
+#. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.RewardText.Text
+#: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.RewardText.Text
+msgctxt ",2216DC93457BD91C06BC70B0B8DA412C"
+msgid "보상 : "
+msgstr "Reward : "
+
 #. Key:	3B67F2DC4F0A9D1DEAAF49A5156E0E8A
 #. SourceLocation:	/Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.TitleText.Text
 #: /Game/Karon/UI/HUD/WBP_QuestGuide.WBP_QuestGuide_C:WidgetTree.TitleText.Text
@@ -2386,6 +3128,27 @@ msgctxt ",CE3979EF44B53D9073A6019562223F78"
 msgid "OUTFIT CUSTOM"
 msgstr "OUTFIT CUSTOM"
 
+#. Key:	58C82F1245D2C440F7825194FB5594C3
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.CommonTextBlock_117.Text
+#: /Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.CommonTextBlock_117.Text
+msgctxt ",58C82F1245D2C440F7825194FB5594C3"
+msgid "닫기"
+msgstr "Close"
+
+#. Key:	C7F9CC224D7A015660B4CABFB54D3E05
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.ScriptTextBlock.Text
+#: /Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.ScriptTextBlock.Text
+msgctxt ",C7F9CC224D7A015660B4CABFB54D3E05"
+msgid "적이 공격할 때 타이밍에 맞춰 가드를 하면 적이 그로기 상태에 빠진다적이 공격할 때 타이밍에 맞춰 가드를 하면 적이 그로기 상태에 빠진다"
+msgstr "Guard at the right moment as an enemy attacks and the enemy is knocked into a groggy state."
+
+#. Key:	9B5EB0E84FBCB95BED5B94AC24A1CDC0
+#. SourceLocation:	/Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.TitleTextBlock.Text
+#: /Game/Karon/UI/Notice/WBP_GuideWidget.WBP_GuideWidget_C:WidgetTree.TitleTextBlock.Text
+msgctxt ",9B5EB0E84FBCB95BED5B94AC24A1CDC0"
+msgid "패링 : 상대의 공격 카운터"
+msgstr "Parry : Counter the Enemy's Attack"
+
 #. Key:	999FCDC748AF159FE2121D8E1751B9B7
 #. SourceLocation:	/Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
 #: /Game/Karon/UI/Notice/WBP_InteractionNotice.WBP_InteractionNotice_C:WidgetTree.InteractionTextBlock.Text
@@ -2488,8 +3251,8 @@ msgstr "Sound"
 #. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_16.Text
 #: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_16.Text
 msgctxt ",C3D4712A4180A423E5EC868E22438F79"
-msgid "기타"
-msgstr "Etc"
+msgid "  기타  "
+msgstr "  Other  "
 
 #. Key:	BC81FD074053A2D9724570AC5807A898
 #. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_17.Text
@@ -2525,6 +3288,13 @@ msgstr "Reset"
 msgctxt ",1BBB33124E81D128F06BAEA4124B046C"
 msgid "UI"
 msgstr "UI"
+
+#. Key:	C84086C14886AA4FC026C9940B79FF58
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_20.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_20.Text
+msgctxt ",C84086C14886AA4FC026C9940B79FF58"
+msgid "튜토리얼\r\n다시보기"
+msgstr "Replay\r\nTutorial"
 
 #. Key:	AFD8DF7E4FE476968A87D3B2C74F206C
 #. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.CommonTextBlock_263.Text
@@ -2603,12 +3373,33 @@ msgctxt ",6965789D4342B060C8DEB585A86E58B4"
 msgid "기타"
 msgstr "Etc"
 
+#. Key:	173CD34948C37C0E1EC527AE5373C9E2
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_OtherTitle_2.Text
+#: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_OtherTitle_2.Text
+msgctxt ",173CD34948C37C0E1EC527AE5373C9E2"
+msgid "튜토리얼 다시보기"
+msgstr "Replay Tutorial"
+
 #. Key:	365610FF44F7F3FDC114D3B7FDCC6A6E
 #. SourceLocation:	/Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_SoundTitle.Text
 #: /Game/Karon/UI/Option/WBP_OptionPopup.WBP_OptionPopup_C:WidgetTree.Text_SoundTitle.Text
 msgctxt ",365610FF44F7F3FDC114D3B7FDCC6A6E"
 msgid "사운드"
 msgstr "Sound"
+
+#. Key:	0E09FFF6459D99D9100360BE55C125E0
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_TutorialView.WBP_TutorialView_C:WidgetTree.CommonTextBlock_19.Text
+#: /Game/Karon/UI/Option/WBP_TutorialView.WBP_TutorialView_C:WidgetTree.CommonTextBlock_19.Text
+msgctxt ",0E09FFF6459D99D9100360BE55C125E0"
+msgid "플레이"
+msgstr "Play"
+
+#. Key:	BC8F676D458B4FE8972A738E910CFC72
+#. SourceLocation:	/Game/Karon/UI/Option/WBP_TutorialView.WBP_TutorialView_C:WidgetTree.TextBlock.Text
+#: /Game/Karon/UI/Option/WBP_TutorialView.WBP_TutorialView_C:WidgetTree.TextBlock.Text
+msgctxt ",BC8F676D458B4FE8972A738E910CFC72"
+msgid "튜토리얼_제목"
+msgstr "Tutorial_Title"
 
 #. Key:	4DDFAD0A40AA6E70F2F4789E8C009AFA
 #. SourceLocation:	/Game/Karon/UI/SkillPopup/WBP_SkillCostEntry.WBP_SkillCostEntry_C:WidgetTree.CurrentItemAmount.Text
@@ -2820,6 +3611,41 @@ msgctxt ",9DEFF74E4DEABA0485E5D2B190F5FF8A"
 msgid "SKILL SLOT"
 msgstr "SKILL SLOT"
 
+#. Key:	65A7419642D0D2F6B03911AD8CA633C3
+#. SourceLocation:	/Game/Karon/UI/Teleport/WBP_BonfireEntryButton.WBP_BonfireEntryButton_C:WidgetTree.CommonTextBlock_25.Text
+#: /Game/Karon/UI/Teleport/WBP_BonfireEntryButton.WBP_BonfireEntryButton_C:WidgetTree.CommonTextBlock_25.Text
+msgctxt ",65A7419642D0D2F6B03911AD8CA633C3"
+msgid "장소 명"
+msgstr "Location Name"
+
+#. Key:	C043900849012CDE78C4F3BD317FB2F5
+#. SourceLocation:	/Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.LocationName.Text
+#: /Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.LocationName.Text
+msgctxt ",C043900849012CDE78C4F3BD317FB2F5"
+msgid "선택 장소 명"
+msgstr "Selected Location"
+
+#. Key:	ACDD4BEB49D1D0066C19F9A7ADFF20F8
+#. SourceLocation:	/Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.MoveButton.NewText
+#: /Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.MoveButton.NewText
+msgctxt ",ACDD4BEB49D1D0066C19F9A7ADFF20F8"
+msgid "이동"
+msgstr "Travel"
+
+#. Key:	5E9098FC401FFCDD8BBAB69FA9C0FDA4
+#. SourceLocation:	/Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.TitleText.Text
+#: /Game/Karon/UI/Teleport/WBP_TeleportPopup.WBP_TeleportPopup_C:WidgetTree.TitleText.Text
+msgctxt ",5E9098FC401FFCDD8BBAB69FA9C0FDA4"
+msgid "빠른 이동"
+msgstr "Fast Travel"
+
+#. Key:	1A88416C4D5F15CF675B02A524CCF09B
+#. SourceLocation:	/Game/Karon/UI/Teleport/WBP_TeleportPopupButton.Default__WBP_TeleportPopupButton_C.NewText
+#: /Game/Karon/UI/Teleport/WBP_TeleportPopupButton.Default__WBP_TeleportPopupButton_C.NewText
+msgctxt ",1A88416C4D5F15CF675B02A524CCF09B"
+msgid "닫기"
+msgstr "Close"
+
 #. Key:	0DCB119943099D23CA50E5B80BEBF61B
 #. SourceLocation:	/Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
 #: /Game/Karon/UI/TitleMenu/WBP_TitelWidget.WBP_TitelWidget_C:WidgetTree.LoadButton.NewText
@@ -2866,7 +3692,7 @@ msgstr "TEXT"
 #. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.DescriptionText.Text
 #: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.DescriptionText.Text
 msgctxt ",7760C71D485724469C5B2FB7564EC3C0"
-msgid "지하 깊숙히 뻗어 자원을 끌어올리는 파이프. 한번 쓰면 닳는다."
+msgid "지하 깊숙히 뻗어 자원을 끌어올리는 파이프. \r\n한번 쓰면 닳는다."
 msgstr "A pipe that reaches deep underground to draw up resources. It wears out with use."
 
 #. Key:	D60B5D0C46E0A176CE8D81AF78ED6E0E
@@ -2889,6 +3715,13 @@ msgstr "Owned 12"
 msgctxt ",EB0B915D4C3A8BC8DF84C5A56FA68895"
 msgid "소모품"
 msgstr "Consumable"
+
+#. Key:	4CB8065A43BA10E322A03C836EC8FDDF
+#. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtEquipmentStat.Text
+#: /Game/Karon/UI/Tooltip/WBP_ItemTooltip.WBP_ItemTooltip_C:WidgetTree.TxtEquipmentStat.Text
+msgctxt ",4CB8065A43BA10E322A03C836EC8FDDF"
+msgid "방어력"
+msgstr "Defense"
 
 #. Key:	1561550C43BE93E8F212A1A7D10D9A54
 #. SourceLocation:	/Game/Karon/UI/Tooltip/WBP_RecipeTooltip.WBP_RecipeTooltip_C:WidgetTree.NameText.Text
@@ -2995,6 +3828,27 @@ msgctxt ",7A19DC634CFDB184993BE9921A87A9F4"
 msgid "아직 스킬을 해금할 수 없습니다.\r\n튜토리얼을 먼저 진행하세요."
 msgstr "The skill cannot be lifted yet.\r\nPlease proceed with the tutorial first."
 
+#. Key:	Activate
+#. SourceLocation:	Source/Karon/MapActor/KO_ABonfire.cpp(106)
+#: Source/Karon/MapActor/KO_ABonfire.cpp(106)
+msgctxt "KOTeleportGuide,Activate"
+msgid "활성화"
+msgstr "Activate"
+
+#. Key:	Teleport
+#. SourceLocation:	Source/Karon/MapActor/KO_ABonfire.cpp(98)
+#: Source/Karon/MapActor/KO_ABonfire.cpp(98)
+msgctxt "KOTeleportGuide,Teleport"
+msgid "비프로스트"
+msgstr "Bifrost"
+
+#. Key:	Move
+#. SourceLocation:	Source/Karon/MapActor/KOTeleportActor.cpp(38)
+#: Source/Karon/MapActor/KOTeleportActor.cpp(38)
+msgctxt "KOTeleport,Move"
+msgid "이동하기"
+msgstr "Move"
+
 #. Key:	ItemAcquiredLog
 #. SourceLocation:	Source/Karon/UI/Enemy/KOEnemyDropItemLogMessage.cpp(35)
 #: Source/Karon/UI/Enemy/KOEnemyDropItemLogMessage.cpp(35)
@@ -3002,16 +3856,30 @@ msgctxt "KaronItem,ItemAcquiredLog"
 msgid "{0} x {1} 획득하였습니다"
 msgstr "Acquired {0} x {1}"
 
+#. Key:	QuestReward
+#. SourceLocation:	Source/Karon/UI/HUD/KOQuestGuideWidget.cpp(101)
+#: Source/Karon/UI/HUD/KOQuestGuideWidget.cpp(101)
+msgctxt "KOQuestGuide,QuestReward"
+msgid "보상 : "
+msgstr "Rewards: "
+
+#. Key:	QuestProgress
+#. SourceLocation:	Source/Karon/UI/HUD/KOQuestGuideWidget.cpp(73)
+#: Source/Karon/UI/HUD/KOQuestGuideWidget.cpp(73)
+msgctxt "KOQuestGuide,QuestProgress"
+msgid "처치 수 : {0} / {1}"
+msgstr "Kills : {0} / {1}"
+
 #. Key:	PowerUseFormat
-#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(403)
-#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(403)
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(404)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(404)
 msgctxt "KOFactoryProcessorWidget,PowerUseFormat"
 msgid "{0} / {1} /s"
 msgstr "{0} / {1} /s"
 
 #. Key:	NetworkProductionFormat
-#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(416)
-#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(416)
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(417)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(417)
 msgctxt "KOFactoryProcessorWidget,NetworkProductionFormat"
 msgid "{0} /s"
 msgstr "{0} /s"
@@ -3023,33 +3891,33 @@ msgctxt "KOFactoryProcessorWidget,State_Running"
 msgid "가공 중"
 msgstr "In Progress"
 
-#. Key:	State_OutputBlocked
+#. Key:	DefaultRecipeText
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(468)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(468)
+msgctxt "KOFactoryProcessorWidget,DefaultRecipeText"
+msgid "Recipe"
+msgstr "Recipe"
+
+#. Key:	State_PressureBlocked
 #. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(47)
 #: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(47)
+msgctxt "KOFactoryProcessorWidget,State_PressureBlocked"
+msgid "압력 부족"
+msgstr "Low Pressure"
+
+#. Key:	State_OutputBlocked
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(48)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(48)
 msgctxt "KOFactoryProcessorWidget,State_OutputBlocked"
 msgid "출력 가득"
 msgstr "Full output"
 
-#. Key:	RecipePressureBlocked
-#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(488)
-#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(488)
-msgctxt "KOFactoryProcessorWidget,RecipePressureBlocked"
-msgid "압력 부족"
-msgstr "Lack of pressure"
-
 #. Key:	State_Idle
-#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(49)
-#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(49)
+#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(50)
+#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(50)
 msgctxt "KOFactoryProcessorWidget,State_Idle"
 msgid "대기"
 msgstr "Waiting"
-
-#. Key:	DefaultRecipeText
-#. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(492)
-#: Source/Karon/UI/Interaction/KOFactoryProcessorWidget.cpp(492)
-msgctxt "KOFactoryProcessorWidget,DefaultRecipeText"
-msgid "Recipe"
-msgstr "Recipe"
 
 #. Key:	PowerPerFuelFormat
 #. SourceLocation:	Source/Karon/UI/Interaction/KOFactoryProducerWidget.cpp(145)
@@ -3072,145 +3940,173 @@ msgctxt "KOFactoryProducerWidget,CycleFormat"
 msgid "연소 주기 : {0}s"
 msgstr "Combustion cycle: {0}s"
 
-#. Key:	Consumables
+#. Key:	Module
 #. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(104)
 #: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(104)
-msgctxt "Karon,Consumables"
-msgid "소모품"
-msgstr "Consumables"
-
-#. Key:	EnergyResource
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
-msgctxt "Karon,EnergyResource"
-msgid "에너지 자원"
-msgstr "Energy Resources"
-
-#. Key:	Core
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
-msgctxt "Karon,Core"
-msgid "코어"
-msgstr "Core"
-
-#. Key:	Others
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(117)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(117)
-msgctxt "Karon,Others"
-msgid "기타"
-msgstr "Others"
-
-#. Key:	OwnedCountFormat
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(55)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(55)
-msgctxt "KOItemTooltip,OwnedCountFormat"
-msgid "보유 {0}"
-msgstr "Retention {0}"
-
-#. Key:	FacilityLabel
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(66)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(66)
-msgctxt "Karon,FacilityLabel"
-msgid "설비"
-msgstr "Facilities"
-
-#. Key:	Module
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(84)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(84)
 msgctxt "Karon,Module"
 msgid "모듈"
 msgstr "Module"
 
 #. Key:	Resource
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(89)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(89)
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(109)
 msgctxt "Karon,Resource"
 msgid "자원"
 msgstr "Resource"
 
 #. Key:	Ingredients
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(94)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(94)
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(114)
 msgctxt "Karon,Ingredients"
 msgid "가공 재료"
 msgstr "Processing Materials"
 
 #. Key:	Armor
-#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(99)
-#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(99)
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(119)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(119)
 msgctxt "Karon,Armor"
 msgid "장비"
 msgstr "Armor"
 
+#. Key:	Consumables
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(124)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(124)
+msgctxt "Karon,Consumables"
+msgid "소모품"
+msgstr "Consumables"
+
+#. Key:	EnergyResource
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(129)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(129)
+msgctxt "Karon,EnergyResource"
+msgid "에너지 자원"
+msgstr "Energy Resources"
+
+#. Key:	Core
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(134)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(134)
+msgctxt "Karon,Core"
+msgid "코어"
+msgstr "Core"
+
+#. Key:	Others
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(137)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(137)
+msgctxt "Karon,Others"
+msgid "기타"
+msgstr "Others"
+
+#. Key:	WeaponAttackBonusFormat
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(192)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(192)
+msgctxt "KOItemTooltip,WeaponAttackBonusFormat"
+msgid "추가 공격력 +{0}"
+msgstr "Bonus Attack +{0}"
+
+#. Key:	ArmorDefenseFormat
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(204)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(204)
+msgctxt "KOItemTooltip,ArmorDefenseFormat"
+msgid "방어력 +{0}"
+msgstr "Defense +{0}"
+
+#. Key:	OwnedCountFormat
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(63)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(63)
+msgctxt "KOItemTooltip,OwnedCountFormat"
+msgid "보유 {0}"
+msgstr "Retention {0}"
+
+#. Key:	FacilityLabel
+#. SourceLocation:	Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(86)
+#: Source/Karon/UI/ItemTooltip/KOItemTooltipWidget.cpp(86)
+msgctxt "Karon,FacilityLabel"
+msgid "설비"
+msgstr "Facilities"
+
 #. Key:	SaveFailed
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(215)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(215)
-msgctxt "KOPlayerMenu,SaveFailed"
+msgctxt "KOPlayerMenuWidget,SaveFailed"
 msgid "저장 실패"
-msgstr "Failed to save"
+msgstr "Failed Save"
 
 #. Key:	CannotSaveInCombat
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(221)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(221)
-msgctxt "KOPlayerMenu,CannotSaveInCombat"
+msgctxt "KOPlayerMenuWidget,CannotSaveInCombat"
 msgid "전투 중에는 저장할 수 없습니다."
-msgstr "You cannot save it during the battle."
+msgstr "Cannot be saved during battle."
 
 #. Key:	SaveComplete
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(228)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(228)
-msgctxt "KOPlayerMenu,SaveComplete"
+msgctxt "KOPlayerMenuWidget,SaveComplete"
 msgid "저장 완료"
-msgstr "Save complete"
+msgstr "Save Completed"
 
 #. Key:	LoadFailed
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(237)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(237)
-msgctxt "KOPlayerMenu,LoadFailed"
+msgctxt "KOPlayerMenuWidget,LoadFailed"
 msgid "로드 실패"
-msgstr "Load failed"
+msgstr "Failed Load"
 
 #. Key:	CannotLoadInCombat
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(243)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(243)
-msgctxt "KOPlayerMenu,CannotLoadInCombat"
+msgctxt "KOPlayerMenuWidget,CannotLoadInCombat"
 msgid "전투 중에는 로드할 수 없습니다."
-msgstr "Cannot be loaded during combat."
+msgstr "It cannot be loaded during battle."
 
 #. Key:	NoSaveExists
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(250)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(250)
-msgctxt "KOPlayerMenu,NoSaveExists"
+msgctxt "KOPlayerMenuWidget,NoSaveExists"
 msgid "저장된 게임이 없습니다."
-msgstr "No saved games."
+msgstr "No Saved Game."
+
+#. Key:	CannotBackToTitleInCombat
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(296)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(296)
+msgctxt "KOPlayerMenuWidget,CannotBackToTitleInCombat"
+msgid "전투 중에는 타이틀로 돌아갈 수 없습니다."
+msgstr "You cannot return to the title during battle."
 
 #. Key:	Back To Title
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(294)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(294)
-msgctxt "KOPlayerMenu,Back To Title"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(306)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(306)
+msgctxt "KOPlayerMenuWidget,Back To Title"
 msgid "타이틀로 돌아가기"
 msgstr "Return to the title"
 
 #. Key:	Back To Title Description
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(295)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(295)
-msgctxt "KOPlayerMenu,Back To Title Description"
-msgid "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"
-msgstr "Unsaved progress will disappear. Do you want to return to the title?"
-
-#. Key:	Quit Game
 #. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(307)
 #: Source/Karon/UI/KOPlayerMenuWidget.cpp(307)
-msgctxt "KOPlayerMenu,Quit Game"
+msgctxt "KOPlayerMenuWidget,Back To Title Description"
+msgid "저장하지 않은 진행 상황은 사라집니다. 타이틀로 돌아가시겠습니까?"
+msgstr "Unsaved progress will disappear. Would you like to go back to the title?"
+
+#. Key:	CannotQuitGameInCombat
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(322)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(322)
+msgctxt "KOPlayerMenuWidget,CannotQuitGameInCombat"
+msgid "전투 중에는 게임을 종료할 수 없습니다."
+msgstr "You cannot exit the game during battle."
+
+#. Key:	Quit Game
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(332)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(332)
+msgctxt "KOPlayerMenuWidget,Quit Game"
 msgid "게임 종료"
-msgstr "Game over"
+msgstr "Quit Game"
 
 #. Key:	Quit Game Description
-#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(308)
-#: Source/Karon/UI/KOPlayerMenuWidget.cpp(308)
-msgctxt "KOPlayerMenu,Quit Game Description"
+#. SourceLocation:	Source/Karon/UI/KOPlayerMenuWidget.cpp(333)
+#: Source/Karon/UI/KOPlayerMenuWidget.cpp(333)
+msgctxt "KOPlayerMenuWidget,Quit Game Description"
 msgid "저장하지 않은 진행 상황은 사라집니다. \n정말 게임을 종료하시겠습니까?"
-msgstr "Unsaved progress disappears. \r\nAre you sure you want to end the game?"
+msgstr "Unsaved progress will disappear. \r\nAre you sure you want to quit the game?"
 
 #. Key:	InteractionLog
 #. SourceLocation:	Source/Karon/UI/Notice/KOInteractionNoticeUI.cpp(39)

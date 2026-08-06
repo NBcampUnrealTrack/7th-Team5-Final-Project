@@ -95,11 +95,19 @@ FText AKO_ABonfire::GetInteractionPrompt() const
 {
 	if (IsActivated())
 	{
-		return FText::FromString(TEXT("상호작용"));	
+		return NSLOCTEXT(
+			 "KOTeleportGuide",
+			 "Teleport",
+			 "비프로스트"
+		  );
 	}
 	else
 	{
-		return FText::FromString(TEXT("활성화"));
+		return NSLOCTEXT(
+			 "KOTeleportGuide",
+			 "Activate",
+			 "활성화"
+		  );
 	}
 }
 

@@ -12,7 +12,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystem/KOSaveSubsystem.h"
-#define LOCTEXT_NAMESPACE "KOPlayerMenu"
+#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -282,7 +282,6 @@ void UKOPlayerMenuWidget::HandleSaveClicked()
 	}
 }
 
-#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 {
@@ -336,7 +335,6 @@ void UKOPlayerMenuWidget::HandleQuitGameClicked()
 	}
 }
 
-#undef LOCTEXT_NAMESPACE
 
 void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
 {

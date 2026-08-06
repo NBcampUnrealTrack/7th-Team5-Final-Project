@@ -98,7 +98,13 @@ void UKOQuestGuideWidget::RefreshQuestText()
 			return;
 		}
 
-		FString RewardString = TEXT("보상 : ");
+		FText RewardLabel = NSLOCTEXT(
+						"KOQuestGuide",
+						"QuestReward",
+						"보상 : "
+					);
+
+		FString RewardString = RewardLabel.ToString();
 
 		for (const FKOQuestReward& Reward : Row->Rewards)
 		{
