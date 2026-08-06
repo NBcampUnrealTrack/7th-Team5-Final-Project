@@ -48,7 +48,7 @@ public:
     void NotifyActorStoppedTargetingPlayer(AActor* SourceActor);
 
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
-    bool CanSaveOrLoad() const;
+    bool CanSaveOrLoad();
     
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
     void ForceEndCombat();

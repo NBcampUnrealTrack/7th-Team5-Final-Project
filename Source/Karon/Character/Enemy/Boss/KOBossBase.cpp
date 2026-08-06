@@ -37,7 +37,7 @@ AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 
 void AKOBossBase::NotifyPlayerDetected()
 {
-	if (bPlayerDetected)
+	if (bIsDead || bPlayerDetected)
 	{
 		return;
 	}
@@ -73,10 +73,6 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	Super::OnCharacterDead(DeathInstigator);
 	
 	bIsDead = true;
-	NotifyPlayerLost();
-	
-	GrantBossUnlockReward();
-	OnBossDeath();
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -87,6 +83,11 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 			BTComp->StopTree();
 		}
 	}
+	
+	NotifyPlayerLost();
+	
+	GrantBossUnlockReward();
+	OnBossDeath();
 	
 	OnBossDied.Broadcast();
 	

@@ -1088,8 +1088,17 @@ void UKOSaveSubsystem::NotifyActorStoppedTargetingPlayer(AActor* SourceActor)
 	CombatUnlockRealTimeSeconds = FPlatformTime::Seconds() + static_cast<double>(SaveLoadUnlockDelayAfterCombat);
 }
 
-bool UKOSaveSubsystem::CanSaveOrLoad() const
+bool UKOSaveSubsystem::CanSaveOrLoad()
 {
+	// 죽었거나 Destroy된 적의 무효 참조 제거
+	for (auto It = ActorsTargetingPlayer.CreateIterator(); It; ++It)
+	{
+		if (!It->IsValid())
+		{
+			It.RemoveCurrent();
+		}
+	}
+	
 	// 현재 플레이어를 타겟으로 삼는 적이 있으면 불가능
 	if (ActorsTargetingPlayer.Num() > 0)
 	{
