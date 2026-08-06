@@ -19,6 +19,7 @@
 #include "Sound/SoundClass.h"
 #include "KOTutorialViewWidget.h"
 #include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
 
 UKOOptionWidget::UKOOptionWidget()
 {
@@ -740,7 +741,11 @@ void UKOOptionWidget::SetTutorialButtons()
 				UKOTutorialViewWidget* ViewWidget=CreateWidget<UKOTutorialViewWidget>(this,TutorialViewWidget);
 				ViewWidget->SetTutorialName(Value.VideoData.VideoName);
 				ViewWidget->SetTutorial(Key);
-				VerticalBox_Tutorial->AddChildToVerticalBox(ViewWidget);
+				UVerticalBoxSlot* Slot=VerticalBox_Tutorial->AddChildToVerticalBox(ViewWidget);
+				if (Slot)
+				{
+					Slot->SetPadding(5.f);
+				}
 			});
 	}
 }
