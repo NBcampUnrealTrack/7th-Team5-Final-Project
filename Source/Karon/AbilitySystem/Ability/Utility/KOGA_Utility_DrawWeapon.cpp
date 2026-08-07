@@ -18,6 +18,7 @@ UKOGA_Utility_DrawWeapon::UKOGA_Utility_DrawWeapon()
 	
 	ActivationOwnedTags.AddTag(KOGameplayTags::State_Character_Drawing);
 	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_WeaponDrawn);
+	ActivationBlockedTags.AddTag(KOGameplayTags::State_Character_Attacking);
 	
 	FAbilityTriggerData Trigger;
 	Trigger.TriggerTag = KOGameplayTags::Event_Weapon_ShouldDraw;

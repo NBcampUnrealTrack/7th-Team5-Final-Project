@@ -37,16 +37,32 @@ void UKOGA_Utility_SheatheWeapon::ActivateAbility(
 	}
 
 	AKOCharacterBase* Character = Cast<AKOCharacterBase>(GetAvatarCharacter());
-	if (!Character) return;
+	if (!Character)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 
 	UKOEquipmentComponent* EquipComponent = Character->GetEquipmentComponent();
-	if (!EquipComponent || !EquipComponent->IsWeaponDrawn()) return;
+	if (!EquipComponent || !EquipComponent->IsWeaponDrawn())
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 
 	UKOWeaponDefinition* Config = EquipComponent->GetCurrentWeaponConfig();
-	if (!Config) return;
+	if (!Config)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 
 	UAnimMontage* Montage = Config->WeaponAnimationSet.SheatheMontage;
-	if (!Montage) return;
+	if (!Montage)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 
 	UAbilityTask_WaitGameplayEvent* EventTask =
 		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -78,19 +94,20 @@ void UKOGA_Utility_SheatheWeapon::EndAbility(const FGameplayAbilitySpecHandle Ha
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	GetASC()->RemoveLooseGameplayTag(KOGameplayTags::State_Character_WeaponDrawn);
-	
+	// 정상 완료 시에만 WeaponDrawn 제거: 취소(피격 등)의 경우 무기가 여전히 손에 있으므로 태그 유지
+	if (!bWasCancelled)
+	{
+		if (UAbilitySystemComponent* ASC = GetASC())
+		{
+			ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_WeaponDrawn);
+		}
+	}
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UKOGA_Utility_SheatheWeapon::OnMontageCompleted()
 {
-	// 넣기 완료 → WeaponDrawn 상태 태그 제거
-	if (UAbilitySystemComponent* ASC = GetASC())
-	{
-		ASC->RemoveLooseGameplayTag(KOGameplayTags::State_Character_WeaponDrawn);
-	}
-
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
