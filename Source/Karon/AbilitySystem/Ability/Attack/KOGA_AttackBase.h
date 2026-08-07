@@ -243,4 +243,15 @@ protected:
 private:
 	//자신 효과 핸들
 	TArray<FActiveGameplayEffectHandle> SelfEffectsHandles;
+	
+protected:
+	UFUNCTION()
+	void CheckAbilityLifetime(float DeltaTime);
+private:	
+	UAbilityTask_Tick* WatchdogTask = nullptr;
+	float ActivationTime = 0.f;
+	bool bWatchdogLogged = false;
+
+	// 디버그용 안전망, 강제종료 아님. 값 넘으면 로그만
+	static constexpr float MaxExpectedDuration = 5.f;
 };

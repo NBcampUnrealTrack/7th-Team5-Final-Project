@@ -74,9 +74,10 @@ namespace KOGameplayTags
 	/** 기어 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Gear);
 	/** 무기 */
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hameer);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_GreatSword);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hammer);
+
 	/** 투구 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head);
 	/** 상의 */
@@ -85,6 +86,43 @@ namespace KOGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody);
 	/** 신발 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes);
+	
+	// --- Sword ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Sword_Lightning);
+
+	// --- Hammer ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hammer_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hammer_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hammer_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Hammer_Lightning);
+
+	// --- Head ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Head_Lightning);
+
+	// --- UpperBody ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_UpperBody_Lightning);
+
+	// --- LowerBody ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_LowerBody_Lightning);
+
+	// --- Shoes ---
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes_Basic);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes_Earth);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes_Water);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Shoes_Lightning);
+	
 	/** 기초 화약 */
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_BasicGunpowder);
 	/** 구리판 */

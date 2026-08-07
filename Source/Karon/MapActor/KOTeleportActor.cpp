@@ -35,6 +35,10 @@ void AKOTeleportActor::OnInteract(AActor* Interactor)
 
 FText AKOTeleportActor::GetInteractionPrompt() const
 {
-	return FText::FromString(TEXT("이동하기"));
+	return NSLOCTEXT(
+			 "KOTeleport",
+			 "Move",
+			 "이동하기"
+		  );
 }
 

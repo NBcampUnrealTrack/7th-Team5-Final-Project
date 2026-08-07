@@ -13,9 +13,10 @@ struct FKORecipeRow;
 UENUM()
 enum class EKOFactoryState : uint8
 {
-    Idle,           // 가공할 레시피 없음 or 입력 부족
-    Running,        // 사이클 진행 중
-    OutputBlocked   // 출력 버퍼 가득 참
+    Idle,            // 가공할 레시피 없음 or 입력 부족
+    Running,         // 사이클 진행 중
+    PressureBlocked, // 레시피 선택 후 또는 가공 중 압력 없음
+    OutputBlocked    // 출력 버퍼 가득 참
 };
 
 UCLASS(ClassGroup = "KO|Factory", meta = (BlueprintSpawnableComponent))
@@ -60,9 +61,9 @@ public:
     bool CanChangeRecipe() const;
 
     /** 가동 중 요구 전력(초당). 비가동/레시피 없음이면 0. */
-    float GetRequestedPowerPerSecond() const { return GetActiveRecipePowerPerSecond(); }
+    float GetRequestedPowerPerSecond() const { return GetDemandRecipePowerPerSecond(); }
     /** 직전 틱 실제 소비 전력(초당) = 요구 × 공급률. */
-    float GetSuppliedPowerPerSecond()  const { return GetActiveRecipePowerPerSecond() * LastSupplyRatio; }
+    float GetSuppliedPowerPerSecond()  const { return GetDemandRecipePowerPerSecond() * LastSupplyRatio; }
 
     const TMap<FName, int32>& GetInputBuffer()  const { return InputBuffer; }
     const TMap<FName, int32>& GetOutputBuffer() const { return OutputBuffer; }
@@ -106,7 +107,11 @@ private:
 
     bool  HasInputsFor (const FKORecipeRow& Recipe) const;
     bool  CanFitOutputs(const FKORecipeRow& Recipe) const;
+    
+    bool HasNetworkPressure() const;
+    
     float GetActiveRecipePowerPerSecond() const;
+    float GetDemandRecipePowerPerSecond() const;
     
     bool CanAcceptInputItemForSelectedRecipe(FName ItemId) const;
 

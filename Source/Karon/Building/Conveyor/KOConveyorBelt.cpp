@@ -134,8 +134,25 @@ void AKOConveyorBelt::UpdateOutputSelectionWarningFacingCamera()
 
 bool AKOConveyorBelt::ShouldShowOutputSelectionWarning() const
 {
-    return bShowOutputSelectionWarning
-        && BoundOutputMachine.IsValid()
+    const UWorld* World = GetWorld();
+    if (!World)
+    {
+        return false;
+    }
+
+    const APlayerController* PC = World->GetFirstPlayerController();
+    if (!PC)
+    {
+        return false;
+    }
+
+    const UKOGridBuildComponent* BuildComponent = PC->FindComponentByClass<UKOGridBuildComponent>();
+    if (BuildComponent && BuildComponent->IsDestroyMode())
+    {
+        return false;
+    }
+
+    return bShowOutputSelectionWarning && BoundOutputMachine.IsValid()
         && (!bHasSelectedOutputPort || BoundOutputItemId.IsNone());
 }
 

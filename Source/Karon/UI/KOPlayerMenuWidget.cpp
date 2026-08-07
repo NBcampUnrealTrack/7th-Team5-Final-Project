@@ -12,7 +12,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystem/KOSaveSubsystem.h"
-#define LOCTEXT_NAMESPACE "KOPlayerMenu"
+#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 UKOPlayerMenuWidget::UKOPlayerMenuWidget()
 {
@@ -282,10 +282,22 @@ void UKOPlayerMenuWidget::HandleSaveClicked()
 	}
 }
 
-#define LOCTEXT_NAMESPACE "KOPlayerMenuWidget"
 
 void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 {
+	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+	if (!SaveSubsystem)
+	{
+		return;
+	}
+
+	if (!SaveSubsystem->CanSaveOrLoad())
+	{
+		ShowLocalMessage(LOCTEXT("CannotBackToTitleInCombat", "전투 중에는 타이틀로 돌아갈 수 없습니다."));
+
+		return;
+	}
+	
 	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
@@ -299,6 +311,19 @@ void UKOPlayerMenuWidget::HandleBackToTitleClicked()
 
 void UKOPlayerMenuWidget::HandleQuitGameClicked()
 {
+	UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this);
+	if (!SaveSubsystem)
+	{
+		return;
+	}
+
+	if (!SaveSubsystem->CanSaveOrLoad())
+	{
+		ShowLocalMessage(LOCTEXT("CannotQuitGameInCombat", "전투 중에는 게임을 종료할 수 없습니다."));
+
+		return;
+	}
+	
 	UCommonActivatableWidget* Widget = UKOUISubsystem::OpenWidget(this, KOGameplayTags::UI_Widget_ConfirmationPopup);
 	if (UKOConfirmationPopup* Popup = Cast<UKOConfirmationPopup>(Widget))
 	{
@@ -310,7 +335,6 @@ void UKOPlayerMenuWidget::HandleQuitGameClicked()
 	}
 }
 
-#undef LOCTEXT_NAMESPACE
 
 void UKOPlayerMenuWidget::HandleBackToTitleConfirmed()
 {

@@ -31,6 +31,23 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (bWaitingForButtonRelease)
+	{
+		bool bStillPhysicallyHeld = true;
+		if (const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec())
+		{
+			bStillPhysicallyHeld = Spec->InputPressed;
+		}
+
+		if (bStillPhysicallyHeld)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+			return;
+		}
+
+		bWaitingForButtonRelease = false;
+	}
+
 	AKOHeroCharacter* HeroChar = Cast<AKOHeroCharacter>(GetAvatarCharacter());
 	if (!HeroChar)
 	{
@@ -47,7 +64,7 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 		return;
 	}
 
-	// 2. 타겟을 찾은 경우에만 코스트 및 쿨타임 커밋 (12번 해결)
+	// 2. 타겟을 찾은 경우에만 코스트 및 쿨타임 커밋
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
@@ -57,28 +74,25 @@ void UKOGA_Utility_LockOn::ActivateAbility(
 	// 3. 락온 상태 설정 및 활성화
 	LockedTarget = BestTarget;
 	bIsLockedOn = true;
-	
+
 	SetCanBeCanceled(false);
-	
-	// 에너미 락온 UI 활성화
+
 	if (AKOBaseEnemy* Enemy=Cast<AKOBaseEnemy>(LockedTarget))
 	{
 		Enemy->OnLockOnEvent.ExecuteIfBound(true);
 	}
-	// 보스 락온 UI 활성화
 	if (AKOBossBase* Boss=Cast<AKOBossBase>(LockedTarget))
 	{
 		Boss->OnLockOnEvent.Broadcast(true);
 	}
- 
-	if (UWorld* World = GetWorld())
+
+	// 시간 대신 프레임 번호를 기록 (활성화와 같은 프레임의 InputPressed 중복 호출만 걸러내기 위함)
+	LockOnActivationFrame = GFrameCounter;
+	if (bShowDebugMessages && GEngine)
 	{
-		LockOnActivationTime = World->GetTimeSeconds();
-		if (bShowDebugMessages && GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
-		}
+		GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Green, TEXT("[LockOn] Activated"));
 	}
+
 	ActivateLockOn();
 }
 
@@ -90,20 +104,19 @@ void UKOGA_Utility_LockOn::InputPressed(
     const FGameplayAbilityActorInfo* ActorInfo,
     const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	if (UWorld* World = GetWorld())
+	if (GFrameCounter == LockOnActivationFrame)
 	{
-		float CurrentTime = World->GetTimeSeconds();
-		if (CurrentTime - LockOnActivationTime < 0.15f)
-		{
-			return; 
-		}
+		return;
 	}
-	
-	DeactivateLockOn(); //
- 
+
+	// 해제 버튼을 뗄 때까지 재활성화 금지 (Held 재활성화가 즉시 되살리는 문제 방지)
+	bWaitingForButtonRelease = true;
+
+	DeactivateLockOn();
+
 	if (bShowDebugMessages)
 	{
-		GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Red, TEXT("[LockOn] Deactivated (Button)")); //
+		GEngine->AddOnScreenDebugMessage(11, 2.f, FColor::Red, TEXT("[LockOn] Deactivated (Button)"));
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
@@ -148,6 +161,7 @@ void UKOGA_Utility_LockOn::ActivateLockOn()
 	}
 	
 	ApplyLockOnGameplayTag(true);
+	bHasValidAnchorYaw = false;
 	StartCameraUpdate();
 	StartLockOnDistanceCheck();
 }
@@ -192,6 +206,7 @@ void UKOGA_Utility_LockOn::DeactivateLockOn()
 	
 	
 	ApplyLockOnGameplayTag(false);
+	bHasValidAnchorYaw = false;
 }
  
  
@@ -334,7 +349,28 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 		AActor* NewTarget = FindBestTarget();
 		if (NewTarget)
 		{
+			// 이전(죽은) 타겟의 락온 UI 끄기
+			if (AKOBaseEnemy* OldEnemy = Cast<AKOBaseEnemy>(LockedTarget))
+			{
+				OldEnemy->OnLockOnEvent.ExecuteIfBound(false);
+			}
+			if (AKOBossBase* OldBoss = Cast<AKOBossBase>(LockedTarget))
+			{
+				OldBoss->OnLockOnEvent.Broadcast(false);
+			}
+
 			LockedTarget = NewTarget;
+			bHasValidAnchorYaw = false;
+
+			// 새 타겟의 락온 UI 켜기
+			if (AKOBaseEnemy* NewEnemy = Cast<AKOBaseEnemy>(LockedTarget))
+			{
+				NewEnemy->OnLockOnEvent.ExecuteIfBound(true);
+			}
+			if (AKOBossBase* NewBoss = Cast<AKOBossBase>(LockedTarget))
+			{
+				NewBoss->OnLockOnEvent.Broadcast(true);
+			}
 		}
 		else
 		{
@@ -355,7 +391,7 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 
 	AKOPlayerController* PC = Cast<AKOPlayerController>(OwnerChar->GetController());
 	if (!PC) return;
-
+	
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
 	// Yaw 급변 완화 기준점으로 사용
@@ -363,14 +399,46 @@ void UKOGA_Utility_LockOn::UpdateCameraRotation()
 
 	const FVector EyeLoc = OwnerChar->GetActorLocation();
 	const FVector TargetLoc = LockedTarget->GetActorLocation();
-	FRotator AnchorRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, TargetLoc);
+	const float HorizontalDistToTarget = FVector::Dist2D(EyeLoc, TargetLoc);
+	
+	const FRotator RawLookAtRot = UKismetMathLibrary::FindLookAtRotation(EyeLoc, TargetLoc);  
+	
+	FRotator AnchorRot;
+	if (bHasValidAnchorYaw)
+	{
+		const bool bTooClose = HorizontalDistToTarget < MinYawUpdateHorizontalDistance;
+		const float JumpFromLastStable = FMath::Abs(FRotator::NormalizeAxis(RawLookAtRot.Yaw - LastValidAnchorYaw));
+		const bool bAbnormalJump = JumpFromLastStable > MaxAnchorYawJumpPerFrame;
+
+		if (bTooClose || bAbnormalJump)
+		{
+			// 근접 특이점이거나 직전 프레임 대비 비정상적으로 큰 도약: 새로 계산한 값을 믿지 않고
+			// 마지막으로 안정적이었던 Yaw를 유지 (뒤로 180도 도는 현상 방지)
+			AnchorRot = FRotator(0.f, LastValidAnchorYaw, 0.f);
+		}
+		else
+		{
+			AnchorRot = RawLookAtRot;
+		}
+	}
+	else
+	{
+		AnchorRot = RawLookAtRot;
+	}
 
 	// 타겟이 근접(atan2 특이점)하거나 점프 중 실제 위치가 지그재그로 흔들릴 때,
 	// 앵커 Yaw 자체가 프레임마다 크게 튀는 것을 막기 위해 초당 최대 변화폭을 제한한다.
-	constexpr float MaxAnchorYawSpeed = 180.f; // 초당 최대 앵커 Yaw 변화(도)
+	constexpr float MaxAnchorYawSpeed = 180.f;
 	const float MaxYawDeltaThisFrame = MaxAnchorYawSpeed * DeltaTime;
-	const float RawYawDelta = FRotator::NormalizeAxis(AnchorRot.Yaw - CurrentRot.Yaw);
-	AnchorRot.Yaw = CurrentRot.Yaw + FMath::Clamp(RawYawDelta, -MaxYawDeltaThisFrame, MaxYawDeltaThisFrame);
+	if (bHasValidAnchorYaw)
+	{
+		const float RawYawDelta = FRotator::NormalizeAxis(AnchorRot.Yaw - LastValidAnchorYaw);
+		AnchorRot.Yaw = LastValidAnchorYaw + FMath::Clamp(RawYawDelta, -MaxYawDeltaThisFrame, MaxYawDeltaThisFrame);
+	}
+
+
+	LastValidAnchorYaw = AnchorRot.Yaw;
+	bHasValidAnchorYaw = true;
 
 	const bool bTargetIsBoss =
 		LockedTarget.IsValid() && LockedTarget->IsA(AKOBossBase::StaticClass());

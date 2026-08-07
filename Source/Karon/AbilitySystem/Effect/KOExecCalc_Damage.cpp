@@ -8,6 +8,7 @@
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 #include "Data/KO_HitData.h"
 #include "Utility/Log/KOLogManager.h"
+#include "Component/Inventory/KOEquipmentComponent.h"
 
 // 최종 데미지 = (공격력 × 스킬 계수 / (1 + 방어력 × 0.01)) × 크리티컬 배율
 
@@ -25,7 +26,7 @@ struct FDamageStatics
 	FDamageStatics()
 	{
 		// UMyAttributeSet의 Defensive, Target에서, Snapshot 안 함 (실시간 값)
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, AttackPower,      Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, AttackPower,     Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, CritChance,      Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UKOCombatSet, CritMultiplier,  Source, false);
 		
@@ -80,10 +81,43 @@ float UKOExecCalc_Damage::CalculateFinalDamage(
 	const FAggregatorEvaluateParameters& EvalParams, 
 	const FGameplayEffectSpec& Spec) const
 {
-	// 1. BaseDamage = AttackPower * AttackCoefficient 
-	float BaseDamage = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().AttackPowerDef, EvalParams, BaseDamage);
-	BaseDamage *= Spec.GetSetByCallerMagnitude(KOGameplayTags::Data_AttackCoefficient, false, 0.f);
+	// 1. BaseDamage = (AttackPower + WeaponAttackBonus) * AttackCoefficient
+	float AttackPower = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
+		DamageStatics().AttackPowerDef,
+		EvalParams,
+		AttackPower
+	);
+	
+	float WeaponAttackBonus = 0.f;
+	if (UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent())
+	{
+		if (AActor* SourceActor = SourceASC->GetAvatarActor())
+		{
+			if (const UKOEquipmentComponent* Equipment = SourceActor->FindComponentByClass<UKOEquipmentComponent>())
+			{
+				WeaponAttackBonus = Equipment->GetCurrentWeaponAttackBonus();
+			}
+		}
+	}
+
+	const float AttackCoefficient =	Spec.GetSetByCallerMagnitude(
+			KOGameplayTags::Data_AttackCoefficient,
+			false,
+			0.f
+		);
+
+	const float BaseDamage = (AttackPower + WeaponAttackBonus) * AttackCoefficient;
+	
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[Damage] BaseATK=%.1f Bonus=%.1f Coef=%.2f BaseDamage=%.1f"),
+		AttackPower,
+		WeaponAttackBonus,
+		AttackCoefficient,
+		BaseDamage
+	);
 	
 	// 2. Get Attributes from Capture 
 	float Defense = 0.f;

@@ -37,7 +37,7 @@ AKOBossBase::AKOBossBase(const FObjectInitializer& ObjectInitializer)
 
 void AKOBossBase::NotifyPlayerDetected()
 {
-	if (bPlayerDetected)
+	if (bIsDead || bPlayerDetected)
 	{
 		return;
 	}
@@ -73,10 +73,6 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	Super::OnCharacterDead(DeathInstigator);
 	
 	bIsDead = true;
-	NotifyPlayerLost();
-	
-	GrantBossUnlockReward();
-	OnBossDeath();
 	
 	if (AAIController* AIC = Cast<AAIController>(GetController()))
 	{
@@ -87,6 +83,11 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 			BTComp->StopTree();
 		}
 	}
+	
+	NotifyPlayerLost();
+	
+	GrantBossUnlockReward();
+	OnBossDeath();
 	
 	OnBossDied.Broadcast();
 	
@@ -100,6 +101,15 @@ void AKOBossBase::OnCharacterDead(AActor* DeathInstigator)
 	if (UKOQuestGuideSubsystem* QuestGuide = UKOQuestGuideSubsystem::Get(this))
 	{
 		QuestGuide->NotifyBossDefeated(BossId);
+	}
+	
+	// 보스 처치 시 자동 저장
+	if (UKOSaveSubsystem* SaveSubsystem = UKOSaveSubsystem::Get(this))
+	{
+		if (!SaveSubsystem->SaveCheckpoint())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Boss] 보스 처치 자동 저장 실패: %s"), *BossId.ToString());
+		}
 	}
 }
 

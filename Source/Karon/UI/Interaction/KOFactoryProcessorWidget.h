@@ -97,15 +97,6 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UButton> RecipeButton;
-    
-    UPROPERTY(meta = (BindWidgetOptional))
-    TObjectPtr<UImage> NotCraftableImage;
-    
-    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
-    FLinearColor RecipeButtonNormalColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
-
-    UPROPERTY(EditDefaultsOnly, Category = "KO|UI|Interaction")
-    FLinearColor RecipeButtonPressureBlockedColor = FLinearColor(0.8f, 0.05f, 0.05f, 1.f);
 
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UPanelWidget> RecipeSelectPanel;
@@ -164,7 +155,6 @@ private:
     bool bShowingRecipePanel = false;
     
     void RefreshRecipeButtonState();
-    bool IsPressureAvailable() const;
     
     UFUNCTION()
     void HandleInventorySlotClicked(int32 SlotIndex, const FKOItemSlot& InSlot);

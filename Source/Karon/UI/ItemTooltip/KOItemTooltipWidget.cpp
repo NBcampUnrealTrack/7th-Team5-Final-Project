@@ -5,6 +5,8 @@
 #include "AbilitySystem/Tag/Item/KOGameplayTags_Item.h"
 #include "Component/Inventory/KOInventoryComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Data/KODataTableTypes.h"
+#include "Subsystem/KOLoadSubsystem.h"
 
 void UKOItemTooltipWidget::SetSlot(EKOSlotKind Kind, FName Id)
 {
@@ -28,6 +30,12 @@ void UKOItemTooltipWidget::SetSlot(EKOSlotKind Kind, FName Id)
 		if (TxtAmount)
 		{
 			TxtAmount->SetText(FText::GetEmpty());
+		}
+		
+		if (TxtEquipmentStat)
+		{
+			TxtEquipmentStat->SetText(FText::GetEmpty());
+			TxtEquipmentStat->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
 		return;
@@ -55,6 +63,18 @@ void UKOItemTooltipWidget::SetSlot(EKOSlotKind Kind, FName Id)
 		TxtAmount->SetText(FText::Format(NSLOCTEXT("KOItemTooltip", "OwnedCountFormat", "보유 {0}"),
 				FText::AsNumber(OwnedCount)
 			)
+		);
+	}
+	
+	if (TxtEquipmentStat)
+	{
+		const FText EquipmentStatText = Kind == EKOSlotKind::Item ? ResolveEquipmentStatText(Id) : FText::GetEmpty();
+
+		const bool bShouldShow = !EquipmentStatText.IsEmpty();
+
+		TxtEquipmentStat->SetText(EquipmentStatText);
+		TxtEquipmentStat->SetVisibility(
+			bShouldShow ? ESlateVisibility::Visible : ESlateVisibility::Collapsed
 		);
 	}
 }
@@ -134,4 +154,54 @@ int32 UKOItemTooltipWidget::ResolveOwnedCount(FName Id) const
 	UKOInventoryComponent* Inventory = PlayerController->FindComponentByClass<UKOInventoryComponent>();
 
 	return Inventory ? Inventory->GetCountOf(Id) : 0;
+}
+
+FText UKOItemTooltipWidget::ResolveEquipmentStatText(FName Id) const
+{
+	if (Id.IsNone())
+	{
+		return FText::GetEmpty();
+	}
+
+	const FKOItemRow* ItemRow = UKOItemLibrary::GetItemRow(this, Id);
+	if (!ItemRow)
+	{
+		return FText::GetEmpty();
+	}
+
+	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
+	if (!LoadSubsystem)
+	{
+		return FText::GetEmpty();
+	}
+
+	const FKOEquipmentRow* EquipmentRow = LoadSubsystem->FindEquipmentRowByItemTag(ItemRow->ItemTag);
+	if (!EquipmentRow)
+	{
+		return FText::GetEmpty();
+	}
+
+	if (EquipmentRow->SlotType == EKOEquipmentSlotType::Weapon)
+	{
+		if (EquipmentRow->AttackBonus <= 0.f)
+		{
+			return FText::GetEmpty();
+		}
+
+		return FText::Format(
+			NSLOCTEXT("KOItemTooltip", "WeaponAttackBonusFormat", "추가 공격력 +{0}"),
+			FText::AsNumber(FMath::RoundToInt(EquipmentRow->AttackBonus)
+			)
+		);
+	}
+
+	if (EquipmentRow->Defense <= 0)
+	{
+		return FText::GetEmpty();
+	}
+
+	return FText::Format(
+		NSLOCTEXT("KOItemTooltip", "ArmorDefenseFormat", "방어력 +{0}"),
+		FText::AsNumber(EquipmentRow->Defense)
+	);
 }

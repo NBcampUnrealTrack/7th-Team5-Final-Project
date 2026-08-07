@@ -7,6 +7,8 @@
 #include "Game/Save/KOSaveGameOption.h"
 #include "KOOptionWidget.generated.h"
 
+class UKOTutorialViewWidget;
+class UVerticalBox;
 class USlider;
 class UCheckBox;
 class UComboBoxString;
@@ -21,7 +23,8 @@ enum class EKOOptionTab : uint8
 {
 	Graphic,
 	Sound,
-	Other
+	Other,
+	Tutorial,
 };
 
 /**
@@ -75,6 +78,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Other;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Tutorial;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Return;
@@ -167,6 +173,13 @@ protected:
 	// 언어 선택 콤보박스
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UComboBoxString> ComboBox_CultureLanguage;
+	
+	// 튜토리얼용 vertical box
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UVerticalBox> VerticalBox_Tutorial;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UKOTutorialViewWidget> TutorialViewWidget;
 
 private:
 	void PopulateComboBoxes();
@@ -209,6 +222,9 @@ private:
 	void HandleOtherTabClicked();
 	
 	UFUNCTION()
+	void HandleTutorialTabClicked();
+	
+	UFUNCTION()
 	void ReturnEscape();
 	
 	UFUNCTION()
@@ -229,6 +245,8 @@ private:
 	/** 사운드 슬라이더는 그래픽과 달리 Apply 없이도 팝업이 열려있는 동안 바로 미리듣기로 반영된다. */
 	UFUNCTION()
 	void HandleSoundSliderChanged(float Value);
+	
+	void SetTutorialButtons();
 
 	static const TArray<FIntPoint> SupportedResolutions;
 	static const TArray<int32> SupportedFrameLimits;

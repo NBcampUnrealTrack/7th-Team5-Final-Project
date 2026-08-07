@@ -10,7 +10,6 @@
 #include "Subsystem/KOLoadSubsystem.h"
 #include "AbilitySystem/Tag/KOGameplayTags.h"
 
-
 UKOEquipmentComponent::UKOEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -127,6 +126,8 @@ bool UKOEquipmentComponent::UnequipWeapon()
 	CurrentWeaponItemId = NAME_None;
 	CurrentWeaponSlot = EWeaponSlot::Holster;
 
+	OnWeaponAttackBonusChanged.Broadcast();
+	
 	SyncWeaponDrawnTagToASC();
 
 	return true;
@@ -175,6 +176,8 @@ bool UKOEquipmentComponent::EquipWeaponFromItem(FName InWeaponItemId, UKOWeaponD
 	}
 
 	CurrentWeaponItemId = InWeaponItemId;
+	
+	OnWeaponAttackBonusChanged.Broadcast();
 
 	SyncWeaponDrawnTagToASC();
 
@@ -209,6 +212,7 @@ bool UKOEquipmentComponent::RestoreWeaponFromSave(FName InWeaponItemId, UKOWeapo
 	EquipWeapon(Def);
 
 	CurrentWeaponItemId = InWeaponItemId;
+	OnWeaponAttackBonusChanged.Broadcast();
 
 	UE_LOG(
 		LogTemp,
@@ -327,6 +331,34 @@ void UKOEquipmentComponent::RecalculateArmorDefense()
 	}
 
 	ApplyArmorDefenseEffect();
+}
+
+float UKOEquipmentComponent::GetCurrentWeaponAttackBonus() const
+{
+	if (CurrentWeaponItemId.IsNone())
+	{
+		return 0.f;
+	}
+
+	const UKOLoadSubsystem* LoadSubsystem = UKOLoadSubsystem::Get(this);
+	if (!LoadSubsystem)
+	{
+		return 0.f;
+	}
+
+	const FKOItemRow* ItemRow = LoadSubsystem->FindItemRow(CurrentWeaponItemId);
+	if (!ItemRow)
+	{
+		return 0.f;
+	}
+
+	const FKOEquipmentRow* EquipmentRow = LoadSubsystem->FindEquipmentRowByItemTag(ItemRow->ItemTag);
+	if (!EquipmentRow || EquipmentRow->SlotType != EKOEquipmentSlotType::Weapon)
+	{
+		return 0.f;
+	}
+
+	return EquipmentRow->AttackBonus;
 }
 
 void UKOEquipmentComponent::ApplyArmorDefenseEffect()

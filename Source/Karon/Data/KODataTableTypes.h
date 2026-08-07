@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "Data/Type/KOSkillTypes.h"
+#include "Subsystem/KOTutorialSubsystem.h"
 #include "Type/KOEnemyType.h"
 #include "KODataTableTypes.generated.h"
 
@@ -201,8 +202,14 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     TSoftObjectPtr<UKOWeaponDefinition> WeaponDefinition;
     
     /** 방어력 */
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Armor",
+        meta = (EditCondition = "SlotType != EKOEquipmentSlotType::Weapon", EditConditionHides))
     int32 Defense = 0;
+
+    /** 추가 공격력 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment|Weapon",
+        meta = (EditCondition = "SlotType == EKOEquipmentSlotType::Weapon", EditConditionHides))
+    float AttackBonus = 0.f;
 
     /** 제작에 필요한 재료 */
    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
@@ -211,6 +218,10 @@ struct KARON_API FKOEquipmentRow : public FTableRowBase
     /** 제작 목록에 표시할지 여부 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Craft")
     bool bCraftable = true;
+    
+    /** 해금 태그 */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,  Category = "Craft|Unlock", meta = (Categories = "Unlock"))
+    FGameplayTagContainer RequiredUnlockTags;
 };
 
 USTRUCT(BlueprintType)
@@ -322,4 +333,15 @@ struct FKOLevelSequenceRow : public FTableRowBase
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<ULevelSequence> LevelSequence;
+};
+
+//튜토리얼 비디오 데이터베이스
+USTRUCT(BlueprintType)
+struct FKOTutorialRow : public FTableRowBase
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FKOVideoData VideoData;
 };

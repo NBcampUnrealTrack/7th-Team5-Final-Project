@@ -11,6 +11,7 @@ class AKOWeaponBase;
 class UGameplayEffect;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChangeBlocked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAttackBonusChanged);
 
 UENUM(BlueprintType)
 enum class EWeaponSlot : uint8
@@ -86,11 +87,15 @@ public:
 	// 방어력 총합 계산
 	void RecalculateArmorDefense();
 	
+	// 현재 장착 무기의 추가 공격력
+	float GetCurrentWeaponAttackBonus() const;
+	
 	// 세이브 로드
 	bool RestoreWeaponFromSave(FName InWeaponItemId, UKOWeaponDefinition* Def, EWeaponSlot SavedSlot);
 	void LoadArmorFromSave(const TMap<EKOEquipmentSlotType, FName>& SavedArmorItemIds);
 	
 	FOnEquipmentChangeBlocked OnEquipmentChangeBlocked;
+	FOnWeaponAttackBonusChanged OnWeaponAttackBonusChanged;
 	
 protected:
 	void SetWeaponSlot(EWeaponSlot NewSlot);

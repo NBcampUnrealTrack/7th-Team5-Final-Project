@@ -84,6 +84,8 @@ protected:
 	const FName MaxDistanceKey = TEXT("MaxDistance");
 	const FName bIsCounterAttackKey = TEXT("bIsCounterAttack");
 	const FName LevelKey = TEXT("Level");
+	const FName TargetActorKey = TEXT("TargetActor");
+	const FName DetectLocationKey = TEXT("DetectLocation");
 	
 	UPROPERTY()
 	TObjectPtr<AKOBaseEnemy> Enemy;

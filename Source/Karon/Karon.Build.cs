@@ -24,6 +24,7 @@ public class Karon : ModuleRules
 			"DeveloperSettings",
 			"Niagara",
 			"NiagaraAnimNotifies",
+			"MediaAssets",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

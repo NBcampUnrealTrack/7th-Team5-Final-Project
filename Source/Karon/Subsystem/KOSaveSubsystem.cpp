@@ -11,6 +11,7 @@
 #include "Component/Build/KOBuildUIComponent.h"
 #include "Subsystem/KOLoadSubsystem.h"
 #include "Subsystem/KOSkillSubsystem.h"
+#include "Subsystem/KOTeleportSubsystem.h"
 #include "Data/Equipment/KOWeaponDefinition.h"
 #include "EngineUtils.h"
 #include "KOEnemyDataSubsystem.h"
@@ -51,78 +52,9 @@ UKOSaveSubsystem* UKOSaveSubsystem::Get(const UObject* WorldContext)
 	return GI ? GI->GetSubsystem<UKOSaveSubsystem>() : nullptr;
 }
 
-AKOPlayerController* UKOSaveSubsystem::GetKOPlayerController() const
+bool UKOSaveSubsystem::SaveCurrentGameInternal(bool bIgnoreCombatRestriction)
 {
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return nullptr;
-	}
-
-	return Cast<AKOPlayerController>(UGameplayStatics::GetPlayerController(World, 0));
-}
-
-UKOInventoryComponent* UKOSaveSubsystem::GetPlayerInventory(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	// 네 구조에서는 InventoryComponent가 PlayerController에 붙어 있음
-	return PC->FindComponentByClass<UKOInventoryComponent>();
-}
-
-UKOEquipmentComponent* UKOSaveSubsystem::GetPlayerEquipment(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	APawn* Pawn = PC->GetPawn();
-	if (!Pawn)
-	{
-		return nullptr;
-	}
-
-	// EquipmentComponent는 캐릭터/Pawn에 붙어 있음
-	return Pawn->FindComponentByClass<UKOEquipmentComponent>();
-}
-
-UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	return PC->FindComponentByClass<UKOBuildUIComponent>();
-}
-
-UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController* PC) const
-{
-	if (!PC)
-	{
-		return nullptr;
-	}
-
-	if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
-	{
-		return LocalPlayer->GetSubsystem<UKOSkillSubsystem>();
-	}
-
-	return UKOSkillSubsystem::Get(PC);
-}
-
-UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
-{
-	return UKOQuestGuideSubsystem::Get(this);
-}
-
-bool UKOSaveSubsystem::SaveCurrentGame()
-{
-	if (!CanSaveOrLoad())
+	if (!bIgnoreCombatRestriction && !CanSaveOrLoad())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 실패: 전투 중에는 저장할 수 없습니다."));
 
@@ -396,16 +328,113 @@ bool UKOSaveSubsystem::SaveCurrentGame()
 
 		if (!bFogSaved)
 		{
-			UE_LOG(
-				LogTemp,
-				Warning,
-				TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다.")
-			);
+			UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 안개 상태를 저장하지 못했습니다."));
 		}
+	}
+	
+	// 활성화된 화톳불 저장
+	if (UKOTeleportSubsystem* TeleportSubsystem = GetPlayerTeleportSubsystem(PC))
+	{
+		SaveData->ActivatedBonfireIds = TeleportSubsystem->GetActivatedBonfireSet().Array();
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 저장 성공"));
 	return UGameplayStatics::SaveGameToSlot(SaveData, DefaultSlotName, DefaultUserIndex);
+}
+
+AKOPlayerController* UKOSaveSubsystem::GetKOPlayerController() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	return Cast<AKOPlayerController>(UGameplayStatics::GetPlayerController(World, 0));
+}
+
+UKOInventoryComponent* UKOSaveSubsystem::GetPlayerInventory(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	// 네 구조에서는 InventoryComponent가 PlayerController에 붙어 있음
+	return PC->FindComponentByClass<UKOInventoryComponent>();
+}
+
+UKOEquipmentComponent* UKOSaveSubsystem::GetPlayerEquipment(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	APawn* Pawn = PC->GetPawn();
+	if (!Pawn)
+	{
+		return nullptr;
+	}
+
+	// EquipmentComponent는 캐릭터/Pawn에 붙어 있음
+	return Pawn->FindComponentByClass<UKOEquipmentComponent>();
+}
+
+UKOBuildUIComponent* UKOSaveSubsystem::GetPlayerBuildUI(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	return PC->FindComponentByClass<UKOBuildUIComponent>();
+}
+
+UKOSkillSubsystem* UKOSaveSubsystem::GetPlayerSkillSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
+	{
+		return LocalPlayer->GetSubsystem<UKOSkillSubsystem>();
+	}
+
+	return UKOSkillSubsystem::Get(PC);
+}
+
+UKOQuestGuideSubsystem* UKOSaveSubsystem::GetQuestGuideSubsystem() const
+{
+	return UKOQuestGuideSubsystem::Get(this);
+}
+
+UKOTeleportSubsystem* UKOSaveSubsystem::GetPlayerTeleportSubsystem(AKOPlayerController* PC) const
+{
+	if (!PC)
+	{
+		return nullptr;
+	}
+
+	ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
+	if (!LocalPlayer)
+	{
+		return nullptr;
+	}
+
+	return LocalPlayer->GetSubsystem<UKOTeleportSubsystem>();
+}
+
+bool UKOSaveSubsystem::SaveCurrentGame()
+{
+	return SaveCurrentGameInternal(false);
+}
+
+bool UKOSaveSubsystem::SaveCheckpoint()
+{
+	return SaveCurrentGameInternal(true);
 }
 
 bool UKOSaveSubsystem::LoadCurrentGame()
@@ -960,6 +989,22 @@ bool UKOSaveSubsystem::LoadCurrentGame()
 			SaveData->FogState.SizeY
 		);
 	}
+	
+	// 활성화된 화톳불 로드
+	if (UKOTeleportSubsystem* TeleportSubsystem = GetPlayerTeleportSubsystem(PC))
+	{
+		TSet<FName> ActivatedBonfires;
+
+		for (const FName& BonfireId : SaveData->ActivatedBonfireIds)
+		{
+			if (!BonfireId.IsNone())
+			{
+				ActivatedBonfires.Add(BonfireId);
+			}
+		}
+
+		TeleportSubsystem->SetActivatedBonfireSet(ActivatedBonfires);
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[SaveLoad] 로드 성공"));
 	return true;
@@ -1043,8 +1088,17 @@ void UKOSaveSubsystem::NotifyActorStoppedTargetingPlayer(AActor* SourceActor)
 	CombatUnlockRealTimeSeconds = FPlatformTime::Seconds() + static_cast<double>(SaveLoadUnlockDelayAfterCombat);
 }
 
-bool UKOSaveSubsystem::CanSaveOrLoad() const
+bool UKOSaveSubsystem::CanSaveOrLoad()
 {
+	// 죽었거나 Destroy된 적의 무효 참조 제거
+	for (auto It = ActorsTargetingPlayer.CreateIterator(); It; ++It)
+	{
+		if (!It->IsValid())
+		{
+			It.RemoveCurrent();
+		}
+	}
+	
 	// 현재 플레이어를 타겟으로 삼는 적이 있으면 불가능
 	if (ActorsTargetingPlayer.Num() > 0)
 	{

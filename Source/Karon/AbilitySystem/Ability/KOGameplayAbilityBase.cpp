@@ -237,8 +237,7 @@ void UKOGameplayAbilityBase::ApplyCooldown(
 
 UGameplayEffect* UKOGameplayAbilityBase::GetCostGameplayEffect() const
 {
-	if (CostGEClass)
-		return CostGEClass->GetDefaultObject<UGameplayEffect>();
+	if (CostGEClass) return CostGEClass->GetDefaultObject<UGameplayEffect>();
 	
 	return nullptr;
 }

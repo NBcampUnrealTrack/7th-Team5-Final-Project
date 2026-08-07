@@ -29,7 +29,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TxtAmount;
 	
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> TxtEquipmentStat;
+	
 private:
 	FText ResolveCategoryText(EKOSlotKind Kind, FName Id) const;
 	int32 ResolveOwnedCount(FName Id) const;
+	
+	FText ResolveEquipmentStatText(FName Id) const;
 };

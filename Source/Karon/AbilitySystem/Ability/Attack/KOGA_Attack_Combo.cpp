@@ -144,7 +144,6 @@ void UKOGA_Attack_Combo::EndAbility(
 	bNextComboRequested = false;
 	bComboWindowOpen = false;
 	bIsTransitioning = false;
-	CurrentMontageTask = nullptr;
 	
 	if (CurrentMontageTask)
 	{

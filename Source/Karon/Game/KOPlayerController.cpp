@@ -331,13 +331,13 @@ void AKOPlayerController::GiveStarterItems()
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("Sword"),
+		TEXT("BasicSword"),
 		1
 	);
 	
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("Hammer"),
+		TEXT("BasicHammer"),
 		1
 	);
 	
@@ -349,25 +349,25 @@ void AKOPlayerController::GiveStarterItems()
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("Head"),
+		TEXT("BasicHead"),
 		1
 	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("UpperBody"),
+		TEXT("BasicUpperBody"),
 		1
 	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("LowerBody"),
+		TEXT("BasicLowerBody"),
 		1
 	);
 
 	FoundInventoryComponent->TryAddItem(
 		EKOSlotKind::Item,
-		TEXT("Shoes"),
+		TEXT("BasicShoes"),
 		1
 	);
 

@@ -10,6 +10,7 @@ class UKOEquipmentComponent;
 class UKOBuildUIComponent;
 class UKOSkillSubsystem;
 class UKOQuestGuideSubsystem;
+class UKOTeleportSubsystem;
 
 UCLASS()
 class KARON_API UKOSaveSubsystem : public UGameInstanceSubsystem
@@ -21,6 +22,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool SaveCurrentGame();
+    
+    UFUNCTION(BlueprintCallable, Category = "KO|Save")
+    bool SaveCheckpoint();
 
     UFUNCTION(BlueprintCallable, Category = "KO|Save")
     bool LoadCurrentGame();
@@ -44,7 +48,7 @@ public:
     void NotifyActorStoppedTargetingPlayer(AActor* SourceActor);
 
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
-    bool CanSaveOrLoad() const;
+    bool CanSaveOrLoad();
     
     UFUNCTION(BlueprintCallable, Category = "SaveLoad|Combat")
     void ForceEndCombat();
@@ -74,6 +78,8 @@ public:
 private:
     static const FString DefaultSlotName;
     static constexpr int32 DefaultUserIndex = 0;
+    
+    bool SaveCurrentGameInternal(bool bIgnoreCombatRestriction);
 
     AKOPlayerController* GetKOPlayerController() const;
     UKOInventoryComponent* GetPlayerInventory(AKOPlayerController* PC) const;
@@ -81,6 +87,7 @@ private:
     UKOBuildUIComponent* GetPlayerBuildUI(AKOPlayerController* PC) const;
     UKOSkillSubsystem* GetPlayerSkillSubsystem(AKOPlayerController* PC) const;
     UKOQuestGuideSubsystem* GetQuestGuideSubsystem() const;
+    UKOTeleportSubsystem* GetPlayerTeleportSubsystem(AKOPlayerController* PC) const;
     
 private:
     UPROPERTY()

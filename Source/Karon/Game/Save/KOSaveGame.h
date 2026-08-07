@@ -303,4 +303,8 @@ public:
 	// 영구 해금 태그
 	UPROPERTY(BlueprintReadWrite, SaveGame)
 	FGameplayTagContainer OwnedUnlockTags;
+	
+	// 화톳불 활성화
+	UPROPERTY()
+	TArray<FName> ActivatedBonfireIds;
 };

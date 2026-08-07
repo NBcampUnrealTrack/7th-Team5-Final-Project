@@ -56,7 +56,7 @@ public:
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo) override;
-
+	
 private:
 	// ── 락온 핵심 로직 ──────────────────────────────────────────────
 	void ActivateLockOn();
@@ -88,7 +88,7 @@ private:
  
 	// ── 에디터 설정 ─────────────────────────────────────────────────
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
-	float SearchRadius = 1500.f;
+	float SearchRadius = 3000.f;
  
 	// 카메라가 타겟 쪽으로 회전하는 보간 속도
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
@@ -149,7 +149,7 @@ private:
 	float CameraOffsetInterpSpeed = 2.5f;
 
 	// 락온 해제 시 복구용: 진입 전 Camera 컴포넌트의 상대 위치
-	FVector DefaultCameraRelLocation = FVector::ZeroVector;
+	//FVector DefaultCameraRelLocation = FVector::ZeroVector;
 	
 	// 하드코딩 방지를 위한 액터 태그 변수 노출
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
@@ -167,9 +167,29 @@ private:
 	UPROPERTY()
 	TWeakObjectPtr<AActor> LockedTarget = nullptr;
  
-	bool bIsLockedOn = false;
-	float LockOnActivationTime = 0.f;
+	// 락온 해제 시 복구용: 진입 전 Camera 컴포넌트의 상대 위치
+	FVector DefaultCameraRelLocation = FVector::ZeroVector;
+
+	// 타겟과 수평 거리가 이 값보다 가까우면 atan2 특이점으로 Yaw가 튈 수 있어
+	// 새로 계산하지 않고 LastValidAnchorYaw를 유지한다 (뒤로 180도 도는 현상 방지)
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float MinYawUpdateHorizontalDistance = 50.f;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	float MaxAnchorYawJumpPerFrame = 150.f;
+	
+	bool bIsLockedOn = false;
+	//float LockOnActivationTime = 0.f;
+	// 활성화된 바로 그 프레임에 InputPressed가 중복 호출되는 경우만 무시하기 위한 기록
+	uint64 LockOnActivationFrame = 0;
+
+	// 해제 버튼을 뗄 때까지, ASC의 Held 재활성화 로직이 방금 해제한 락온을
+	// 즉시 재활성화하지 못하도록 막는 플래그
+	bool bWaitingForButtonRelease = false;
+
+	// FindLookAtRotation으로 계산된 마지막 안정 Yaw (근접 특이점 구간에서 재사용)
+	float LastValidAnchorYaw = 0.f;
+	bool bHasValidAnchorYaw = false;
 	//FTimerHandle CameraUpdateTimerHandle;
 	FTSTicker::FDelegateHandle CameraTickHandle; 
 	FTimerHandle LockOnDistanceTimerHandle;
